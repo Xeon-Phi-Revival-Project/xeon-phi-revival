@@ -1,5 +1,10 @@
 # Xeon Phi Revival
 
+Practical preservation and software bring-up for Intel Xeon Phi Knights Corner
+coprocessors. The current lab target is a working 5110P that can boot MPSS,
+accept SSH, compile native K1OM programs, and run an experimental
+Ubuntu-shaped package/profile layer.
+
 The Xeon Phi Revival Project is a community preservation and engineering effort
 focused on restoring usable software-development support for Intel Xeon Phi
 Knights Corner coprocessors. The project has successfully compiled and executed
@@ -10,6 +15,18 @@ This project is AI-assisted and Codex-driven: planning, documentation,
 experiments, scripts, and repository maintenance are being developed in
 collaboration with OpenAI Codex/ChatGPT, with hardware results validated on the
 actual Xeon Phi system before being treated as project facts.
+
+## Start Here
+
+- New to the hardware: [From Card To Code](docs/getting-started-card-to-code.md)
+- Current verified status: [Project Status](docs/status.md)
+- Public-safe source/reference list: [Source Index](docs/source-index.md)
+- Ubuntu/K1OM package lane:
+  [K1OM Ubuntu Port Lab](ubuntu-port/k1om/README.md)
+- Latest package-set report:
+  [K1OM Bootstrap Package Set](docs/ubuntu-port/k1om-bootstrap-package-set-report.md)
+- Toolchain package notes:
+  [MPSS SDK K1OM preinstall report](docs/toolchain/mpss-sdk-k1om-3.4.10-preinstall-report.md)
 
 ## What This Is
 
@@ -57,13 +74,30 @@ Ubuntu-style package experiments:
   `Release` checksum metadata.
 - Host-side APT can parse the local archive when forced to
   `APT::Architecture=k1om`.
-- The current eight-package bootstrap set boots on `mic0`, runs `hello-knc`,
+- The current twelve-package bootstrap set boots on `mic0`, runs `hello-knc`,
   CPython core, zlib smoke, ncurses smoke through a separately packaged
-  `libtinfo5-k1om` runtime, basic filesystem/OS smoke, and then rolls back to
-  stock uOS.
+  `libtinfo5-k1om` runtime, basic filesystem/OS smoke, exposes dpkg-style
+  package status, provides `python3`/`python` command wrappers, and rolls back
+  to stock uOS.
 
 See `docs/status.md` and `docs/ubuntu-port/` for the latest public-safe
 reports.
+
+## What You Can Do Today
+
+With a compatible host, MPSS install, and locally supplied K1OM SDK, the project
+can guide you through:
+
+1. Detecting a Knights Corner card.
+2. Bringing `mic0` online with MPSS.
+3. SSHing into the card.
+4. Building and validating a native K1OM ELF.
+5. Running progressively larger native smoke tests.
+6. Building a local `k1om` package archive.
+7. Booting the reversible project profile and returning to stock.
+
+The repo intentionally keeps that path check-heavy. If a step fails, the next
+move should be collecting evidence, not guessing with firmware.
 
 ## Current Goals
 
@@ -88,6 +122,35 @@ reports.
 - `manifests/`: hardware and experiment manifests.
 - `artifacts/public/`: public-safe generated metadata only.
 
+## Current Experimental Profile
+
+The latest local profile is a twelve-package `Architecture: k1om` set. It is
+not a full Ubuntu port yet, but it behaves more like a small Linux userland:
+
+```text
+base-files-k1om
+hello-knc-smoke
+python3.5-minimal-k1om
+python3.5-stdlib-k1om
+python3.5-lib-dynload-k1om
+python3.5-smoke-k1om
+xpr-shell-compat
+zlib-smoke-k1om
+libtinfo5-k1om
+ncurses-smoke-k1om
+xpr-os-smoke
+xeon-phi-revival-stage2
+```
+
+Verified command conveniences inside the profile:
+
+```bash
+ls
+python3
+python
+cat /var/lib/dpkg/status
+```
+
 ## Bring Your Own MPSS
 
 This repository does not redistribute Intel MPSS packages, Intel compiler
@@ -98,6 +161,8 @@ Users must obtain any required Intel software under its applicable terms. The
 project documentation may refer to package names, versions, hashes, paths, and
 ELF metadata, but those references are not redistributions of the underlying
 software.
+
+For public links and source notes, see [Source Index](docs/source-index.md).
 
 ## Status
 

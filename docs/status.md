@@ -210,6 +210,9 @@ image.
 
 ## Current Public Artifacts
 
+- `README.md`
+- `docs/getting-started-card-to-code.md`
+- `docs/source-index.md`
 - `artifacts/public/uos-elf-inventory.csv`
 - `artifacts/public/uos-dependency-graph.json`
 - `docs/uos/stock-uos-elf-inventory.md`
