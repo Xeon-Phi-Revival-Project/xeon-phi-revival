@@ -59,3 +59,22 @@ ssh -o BatchMode=yes mic0 'uname -a; ps -p 1 -o pid,ppid,comm,args'
 ```
 
 The stock kernel and stock MPSS boot files must not be overwritten.
+
+## Post-Attempt Rollback Note
+
+During the first activation attempts, MPSS regenerated
+`/var/mpss/mic0.image.gz` while restoring the stock service. That generated
+ramfs hash is allowed to drift when MPSS rebuilds it from the unchanged stock
+inputs.
+
+Rollback is considered valid if these conditions hold:
+
+- `/etc/sysconfig/mpss.conf` is restored to its previous state
+- `/etc/mpss/default.conf` hash matches the baseline
+- `/etc/mpss/mic0.conf` hash matches the baseline
+- `/usr/share/mpss/boot/bzImage-knightscorner` hash matches the baseline
+- `/usr/share/mpss/boot/initramfs-knightscorner.cpio.gz` hash matches the
+  baseline
+- `mic0` reaches `online`
+- stock SSH works
+- PID 1 is stock `init`

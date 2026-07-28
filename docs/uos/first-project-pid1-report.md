@@ -11,11 +11,14 @@ PID 1, while preserving a verified rollback to the stock uOS.
 
 ## Current Result
 
-Status: prepared, not activated.
+Status: activation attempted, blocked before project PID 1.
 
 The private bootable rootfs was assembled from the already passing K1OM
-compatibility-demo rootfs. The image has not been selected in active MPSS
-configuration and has not been booted.
+compatibility-demo rootfs.
+
+The first activation session did not reach the project `/init`. MPSS rejected
+the attempted alternate image selections before project PID 1 could be observed.
+Rollback to the stock uOS succeeded after each bounded attempt.
 
 ## Prepared `/init`
 
@@ -67,7 +70,79 @@ usr/share/knc-demo/python-core-pid1.py
 Rootfs validation confirmed all checked ELF files are K1OM `e_machine=181` and
 that runtime dependencies resolve inside the staged rootfs.
 
-## Activation Procedure
+## Activation Attempts
+
+All attempts used stock kernel files and private alternate configuration or
+temporary selectors. No firmware operation was run.
+
+### Direct `micctrl --configdir`
+
+The alternate config parsed and `micctrl --updateramfs` produced a private
+alternate ramfs:
+
+```text
+project_ramfs_sha256=96b560ec337a5f5f4ab92712cfa8f428da13bfdf0ea2ff7923486e1fabf91a10
+compressed_size=14802032
+uncompressed_size=51099136
+```
+
+However, `micctrl --configdir=<alternate-config> --boot mic0` aborted before
+boot:
+
+```text
+Boot aborted - no configuation file present
+```
+
+The card remained in `ready`.
+
+### Service Environment Selector
+
+Running the MPSS init script with `MPSS_CONFIGDIR=<alternate-config>` did not
+select the alternate config because the init script redirected through
+`systemctl`; the service booted the stock ramfs instead. SSH showed stock
+SysV `init` as PID 1.
+
+### Temporary `/etc/sysconfig/mpss.conf` Selector
+
+Creating a temporary `/etc/sysconfig/mpss.conf` selector did cause MPSS to read
+the alternate configuration, but both dynamic `Ramfs` and direct `StaticRamFS`
+attempts aborted before boot:
+
+```text
+Boot aborted - no configuation file present: File exists
+```
+
+The card stayed in `ready`, and the project `/init` banner was never seen on
+the console log.
+
+### Rollback
+
+Rollback restored the default selector state: `/etc/sysconfig/mpss.conf` was
+absent again.
+
+The stock MPSS service then booted the stock uOS successfully:
+
+```text
+mic0: online (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+PID 1 COMMAND init
+stock-rollback-ssh-ok
+```
+
+The stock kernel, stock base initramfs, and stock MPSS config hashes still match
+the baseline. The generated `/var/mpss/mic0.image.gz` hash changed because MPSS
+regenerated the stock ramfs during service rollback.
+
+## Blocker
+
+The prepared image is valid, but the host-side MPSS image selection path is not
+understood well enough yet. The next dependency is to map exactly what MPSS
+means by its internal "configuration file" during boot, and why alternate
+`Ramfs` and `StaticRamFS` selections abort with `File exists`.
+
+Do not run another activation attempt until that MPSS runtime-file path is
+identified.
+
+## Previous Activation Procedure
 
 Do not run this procedure without explicit approval.
 
@@ -112,7 +187,7 @@ Rollback to stock:
 ```sh
 micctrl --shutdown mic0 || true
 micctrl --wait mic0 || true
-micctrl --boot mic0
+systemctl restart mpss
 micctrl --wait mic0
 micctrl --status
 ssh -o BatchMode=yes mic0 'uname -a; ps -p 1 -o pid,ppid,comm,args; cat /proc/cmdline'
@@ -132,5 +207,5 @@ The first PID 1 boot passes only if all of these are true:
 - rollback to stock succeeds
 - stock uOS boots normally afterward
 
-Until activation and rollback are both verified, this remains a prepared image,
-not a completed boot milestone.
+This milestone has not passed. The prepared image exists and stock rollback is
+verified, but project `/init` has not yet run as PID 1.

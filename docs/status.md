@@ -81,8 +81,9 @@ enough to open Level 3, and started Level 3:
   a source-package status matrix.
 
 The Ubuntu package-expansion lane is paused while the uOS boot lane advances.
-The current narrowest dependency is an explicitly approved experimental boot of
-the private project PID 1 image, followed by verified rollback to the stock uOS.
+The current narrowest dependency is mapping MPSS's service-side boot
+configuration/runtime-file expectation. The prepared image is valid, but MPSS
+rejected alternate image selections before project PID 1 could run.
 
 ## Project PID 1 uOS Boot Track
 
@@ -99,8 +100,16 @@ the private project PID 1 image, followed by verified rollback to the stock uOS.
 - The rootfs validator confirmed checked ELF files are K1OM `e_machine=181`
   and required runtime libraries resolve inside the rootfs.
 - A private gzip/newc cpio image was packed and hashed.
-- The image has not been activated. Activation requires explicit approval
-  because it will stop and reboot `mic0`.
+- Activation was attempted through direct `micctrl --configdir`, service
+  environment selection, temporary `/etc/sysconfig/mpss.conf` selection, dynamic
+  `Ramfs`, and direct `StaticRamFS`.
+- MPSS rejected the alternate image paths before project PID 1 could run,
+  reporting `Boot aborted - no configuation file present` and
+  `Boot aborted - no configuation file present: File exists`.
+- The project `/init` banner was not observed.
+- Stock rollback succeeded: `/etc/sysconfig/mpss.conf` was restored absent,
+  stock MPSS service booted `mic0` to `online`, SSH worked, and PID 1 was stock
+  `init`.
 
 ## Current Public Artifacts
 
@@ -141,6 +150,7 @@ the private project PID 1 image, followed by verified rollback to the stock uOS.
 
 ## Safest Next Technical Action
 
-With explicit approval, perform the first experimental MPSS boot of the private
-project PID 1 image using an alternate MPSS config directory, capture console and
-host logs, then roll back to stock and verify SSH/PID 1 on the stock uOS.
+Inspect MPSS daemon/init-script behavior to identify the internal boot
+"configuration file" that fails for alternate `Ramfs` and `StaticRamFS` paths.
+Do not attempt another project PID 1 boot until that specific MPSS selection
+blocker is understood.

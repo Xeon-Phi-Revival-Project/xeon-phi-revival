@@ -1,6 +1,6 @@
 id: first-project-pid1
 title: First project-controlled K1OM PID 1 boot
-status: prepared-not-activated
+status: attempted-blocked-before-project-init
 date_utc: 2026-07-28
 hardware:
   card: Intel Xeon Phi 5110P
@@ -28,8 +28,26 @@ validation:
   elf_machine_181_check: passed
   runtime_dependency_check: passed
 activation:
-  attempted: false
-  requires_explicit_approval: true
+  attempted: true
+  requires_explicit_approval: false
+  project_init_observed: false
+  rollback_verified: true
+  attempts:
+    - method: micctrl_configdir_dynamic_ramfs
+      result: boot_aborted_before_project_init
+      evidence: "Boot aborted - no configuation file present"
+    - method: service_environment_mpss_configdir
+      result: booted_stock_not_project
+      evidence: systemd path did not retain alternate MPSS_CONFIGDIR
+    - method: temporary_sysconfig_dynamic_ramfs
+      result: boot_aborted_before_project_init
+      evidence: "Boot aborted - no configuation file present: File exists"
+    - method: temporary_sysconfig_static_ramfs
+      result: boot_aborted_before_project_init
+      evidence: "Boot aborted - no configuation file present: File exists"
+blocker:
+  summary: MPSS service-side image selection rejects alternate ramfs/static ramfs before boot.
+  next_dependency: Map the internal MPSS runtime configuration file expected during boot.
 blocked_or_paused:
   - _sqlite3
   - _ctypes
@@ -45,3 +63,13 @@ success_criteria:
   - python_core_passes
   - console_or_shell_available
   - stock_rollback_succeeds
+success:
+  passed: false
+  passed_items:
+    - dev_image_prepared
+    - rollback_to_stock
+    - stock_ssh_after_rollback
+  failed_items:
+    - project_init_is_pid_1
+    - hello_knc_from_project_init
+    - python_core_from_project_init
