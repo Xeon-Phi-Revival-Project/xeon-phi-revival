@@ -52,8 +52,8 @@ small port feasibility lanes:
 
 ## Ubuntu 24.04 uOS Track
 
-The Ubuntu 24.04 uOS research track has passed Level 1 and has a first Level 2
-package proof:
+The Ubuntu 24.04 uOS research track has passed Level 1, completed Level 2
+enough to open Level 3, and started Level 3:
 
 - Level 0 stock uOS inventory is complete enough to begin tiny-rootfs planning.
 - The track definitions now separate Ubuntu-compatible, Ubuntu-derived, and
@@ -67,11 +67,16 @@ package proof:
   `mic0`, tested through `chroot`, and removed from the card.
 - Ubuntu 24.04 Noble `zlib` source package `1:1.3.dfsg-3.1ubuntu2` was rebuilt
   for K1OM as `libz.a`; a zlib smoke binary ran on `mic0`.
+- Ubuntu 24.04 Noble `ncurses` source package `6.4+20240113-1ubuntu2.1` was
+  rebuilt for K1OM; a simple `curses_version()` smoke binary ran on `mic0`.
+- `sqlite3` and `libffi` source packages were verified and patched but blocked
+  on specific host build-tool gaps.
+- CPython 3.5.10 was cross-built for K1OM and ran a `print(42)` smoke script on
+  `mic0` with a temporary `PYTHONHOME`.
 
-The narrowest next dependency for this track is the second Level 2 package:
-choose a small Python dependency such as `libffi`, `ncurses`, `readline`, or
-`sqlite3`, then repeat the source provenance, K1OM build, and `mic0` runtime
-proof pattern.
+The narrowest next dependency for this track is packaging the CPython binary,
+`Lib/`, and selected extension modules into the local-only tiny rootfs layout,
+then testing imports such as `math`, `zlib`, `os`, `sys`, and `threading`.
 
 ## Current Public Artifacts
 
@@ -84,6 +89,8 @@ proof pattern.
 - `docs/uos/ubuntu-24.04-level1-filelist-report.md`
 - `docs/uos/ubuntu-24.04-level1-runtime-report.md`
 - `docs/uos/ubuntu-24.04-level2-zlib-report.md`
+- `docs/uos/ubuntu-24.04-level2-completion-report.md`
+- `docs/uos/ubuntu-24.04-level3-python-report.md`
 - `docs/toolchain/minimum-k1om-runtime.md`
 - `docs/toolchain/k1om-package-requirements.md`
 - `docs/toolchain/mpss-sdk-k1om-3.4.10-preinstall-report.md`
@@ -103,5 +110,5 @@ proof pattern.
 
 ## Safest Next Technical Action
 
-Use the passing Ubuntu zlib pattern to attempt the next small Level 2
-dependency package before moving toward CPython.
+Use the passing CPython smoke to build a local-only Python rootfs package and
+expand import/module tests.

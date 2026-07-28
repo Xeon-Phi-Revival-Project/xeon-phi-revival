@@ -1,0 +1,19 @@
+id: ubuntu2404-uos-level2-completion
+date: 2026-07-27
+track: ubuntu-24.04-uos
+level: 2
+status: complete-enough-for-level3
+passed:
+  - zlib 1:1.3.dfsg-3.1ubuntu2 runtime smoke
+  - ncurses 6.4+20240113-1ubuntu2.1 simple library runtime smoke
+blocked:
+  sqlite3:
+    version: 3.45.1-1ubuntu2.7
+    blocker: missing host tclsh for source-package build generation
+  libffi:
+    version: 3.4.6-1build1
+    blocker: host Autoconf older than 2.71
+level3_gate:
+  opened: true
+  reason: selected Ubuntu 24.04 source packages can be rebuilt for K1OM and run
+    on mic0, with remaining blockers now package-specific

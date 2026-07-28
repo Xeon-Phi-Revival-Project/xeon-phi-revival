@@ -5,10 +5,10 @@
 # treating any package as passed.
 
 zlib # passed first K1OM rebuild/runtime proof from Ubuntu 24.04 Noble source
-libffi
-ncurses
+libffi # blocked: Ubuntu source requires Autoconf 2.71+, newer than current host
+ncurses # passed simple K1OM library/runtime proof; setupterm still needs work
 readline
-sqlite3
+sqlite3 # blocked: Ubuntu source-package build needs host tclsh
 openssl
 xz-utils
 bzip2

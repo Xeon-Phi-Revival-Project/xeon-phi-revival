@@ -1,0 +1,21 @@
+id: ubuntu2404-uos-level3-python-start
+date: 2026-07-27
+track: ubuntu-24.04-uos
+level: 3
+status: started-passed-first-smoke
+python:
+  implementation: CPython
+  version: 3.5.10
+  source_url: https://www.python.org/ftp/python/3.5.10/Python-3.5.10.tgz
+  sha256: 3496a0daf51913718a6f10e3eda51fa43634cb6151cb096f312d48bdbeff7d3a
+build:
+  host_python_for_build: required
+  target: k1om-mpss-linux
+runtime:
+  elf_machine: Intel K1OM
+  first_without_pythonhome: failed missing encodings
+  with_temporary_pythonhome: passed
+  output: "42"
+safety:
+  mic0_temporary_files_cleaned: true
+  binaries_committed: none
