@@ -74,11 +74,12 @@ Ubuntu-style package experiments:
   `Release` checksum metadata.
 - Host-side APT can parse the local archive when forced to
   `APT::Architecture=k1om`.
-- The current twelve-package bootstrap set boots on `mic0`, runs `hello-knc`,
+- The current fourteen-package bootstrap set boots on `mic0`, runs `hello-knc`,
   CPython core, zlib smoke, ncurses smoke through a separately packaged
   `libtinfo5-k1om` runtime, basic filesystem/OS smoke, exposes dpkg-style
-  package status, provides `python3`/`python` command wrappers, and rolls back
-  to stock uOS.
+  package status, provides `python3`/`python` command wrappers, exposes common
+  BusyBox-backed command entrypoints, includes a small `pcietool` sysfs helper,
+  and rolls back to stock uOS.
 
 See `docs/status.md` and `docs/ubuntu-port/` for the latest public-safe
 reports.
@@ -124,7 +125,7 @@ move should be collecting evidence, not guessing with firmware.
 
 ## Current Experimental Profile
 
-The latest local profile is a twelve-package `Architecture: k1om` set. It is
+The latest local profile is a fourteen-package `Architecture: k1om` set. It is
 not a full Ubuntu port yet, but it behaves more like a small Linux userland:
 
 ```text
@@ -135,6 +136,8 @@ python3.5-stdlib-k1om
 python3.5-lib-dynload-k1om
 python3.5-smoke-k1om
 xpr-shell-compat
+xpr-busybox-compat
+xpr-pci-tools
 zlib-smoke-k1om
 libtinfo5-k1om
 ncurses-smoke-k1om
@@ -146,8 +149,14 @@ Verified command conveniences inside the profile:
 
 ```bash
 ls
+cat
+grep
+sed
+awk
+find
 python3
 python
+pcietool
 cat /var/lib/dpkg/status
 ```
 

@@ -14,6 +14,8 @@ Build a small local K1OM bootstrap package set:
   python3.5-lib-dynload-k1om
   python3.5-smoke-k1om
   xpr-shell-compat
+  xpr-busybox-compat
+  xpr-pci-tools
   zlib-smoke-k1om
   libtinfo5-k1om
   ncurses-smoke-k1om
@@ -185,6 +187,51 @@ ln -s python3 "$shell_compat_data/usr/bin/python"
 ln -s ../../../usr/bin/python3 "$shell_compat_data/opt/xeon-phi-revival/bin/python3"
 ln -s ../../../usr/bin/python3 "$shell_compat_data/opt/xeon-phi-revival/bin/python"
 
+busybox_compat_data="$(new_data_dir xpr-busybox-compat)"
+mkdir -p "$busybox_compat_data/opt/xeon-phi-revival/bin"
+for applet in \
+  awk basename cat chmod chown cp cut date df dirname dmesg du echo env \
+  false find grep head hostname id kill ln ls mkdir mount mv printf ps pwd \
+  readlink rm sed sh sleep sort stat tail tar test touch true uname wc; do
+  ln -s /bin/busybox "$busybox_compat_data/opt/xeon-phi-revival/bin/$applet"
+done
+
+pci_tools_data="$(new_data_dir xpr-pci-tools)"
+mkdir -p "$pci_tools_data/opt/xeon-phi-revival/bin" "$pci_tools_data/usr/bin"
+cat > "$pci_tools_data/usr/bin/pcietool" <<'PCI'
+#!/bin/sh
+set -u
+mode="${1:-list}"
+case "$mode" in
+  list|"")
+    for dev in /sys/bus/pci/devices/*; do
+      [ -d "$dev" ] || continue
+      bdf="${dev##*/}"
+      vendor="$(cat "$dev/vendor" 2>/dev/null || echo unknown)"
+      device="$(cat "$dev/device" 2>/dev/null || echo unknown)"
+      class="$(cat "$dev/class" 2>/dev/null || echo unknown)"
+      subsystem_vendor="$(cat "$dev/subsystem_vendor" 2>/dev/null || echo unknown)"
+      subsystem_device="$(cat "$dev/subsystem_device" 2>/dev/null || echo unknown)"
+      printf '%s vendor=%s device=%s class=%s subsystem=%s:%s\n' \
+        "$bdf" "$vendor" "$device" "$class" "$subsystem_vendor" "$subsystem_device"
+    done
+    ;;
+  tree)
+    find /sys/bus/pci/devices -maxdepth 1 -type l -print | sort
+    ;;
+  help|-h|--help)
+    echo "usage: pcietool [list|tree|help]"
+    ;;
+  *)
+    echo "pcietool: unknown command: $mode" >&2
+    echo "usage: pcietool [list|tree|help]" >&2
+    exit 2
+    ;;
+esac
+PCI
+chmod 0755 "$pci_tools_data/usr/bin/pcietool"
+ln -s ../../../usr/bin/pcietool "$pci_tools_data/opt/xeon-phi-revival/bin/pcietool"
+
 os_data="$(new_data_dir xpr-os-smoke)"
 mkdir -p "$os_data/opt/xeon-phi-revival/bin"
 cat > "$os_data/opt/xeon-phi-revival/bin/os-smoke.sh" <<'OS'
@@ -295,11 +342,13 @@ make_deb python3.5-stdlib-k1om "$python_stdlib_data" "base-files-k1om, python3.5
 make_deb python3.5-lib-dynload-k1om "$python_dynload_data" "base-files-k1om, python3.5-minimal-k1om, python3.5-stdlib-k1om" "K1OM Python 3.5 dynamic extension payload" "python"
 make_deb python3.5-smoke-k1om "$python_smoke_data" "base-files-k1om, python3.5-minimal-k1om, python3.5-stdlib-k1om" "K1OM Python 3.5 smoke script payload" "python"
 make_deb xpr-shell-compat "$shell_compat_data" "base-files-k1om, python3.5-minimal-k1om, python3.5-stdlib-k1om, python3.5-lib-dynload-k1om" "Shell compatibility entrypoints for the K1OM profile" "shells"
+make_deb xpr-busybox-compat "$busybox_compat_data" "base-files-k1om" "BusyBox-backed shell command entrypoints for the K1OM profile" "shells"
+make_deb xpr-pci-tools "$pci_tools_data" "base-files-k1om, xpr-busybox-compat" "Small sysfs PCI inspection tools for the K1OM profile" "utils"
 make_deb zlib-smoke-k1om "$zlib_data" "base-files-k1om" "K1OM zlib smoke payload" "libs"
 make_deb libtinfo5-k1om "$libtinfo_data" "base-files-k1om" "K1OM terminfo runtime library" "libs"
 make_deb ncurses-smoke-k1om "$ncurses_data" "base-files-k1om, libtinfo5-k1om" "K1OM ncurses smoke payload" "utils"
 make_deb xpr-os-smoke "$os_data" "base-files-k1om" "Basic filesystem and OS smoke checks" "utils"
-make_deb xeon-phi-revival-stage2 "$stage2_data" "base-files-k1om, hello-knc-smoke, python3.5-minimal-k1om, python3.5-stdlib-k1om, python3.5-lib-dynload-k1om, python3.5-smoke-k1om, xpr-shell-compat, zlib-smoke-k1om, libtinfo5-k1om, ncurses-smoke-k1om, xpr-os-smoke" "Second-stage service for K1OM profile" "admin"
+make_deb xeon-phi-revival-stage2 "$stage2_data" "base-files-k1om, hello-knc-smoke, python3.5-minimal-k1om, python3.5-stdlib-k1om, python3.5-lib-dynload-k1om, python3.5-smoke-k1om, xpr-shell-compat, xpr-busybox-compat, xpr-pci-tools, zlib-smoke-k1om, libtinfo5-k1om, ncurses-smoke-k1om, xpr-os-smoke" "Second-stage service for K1OM profile" "admin"
 
 {
   printf 'package\tversion\tarchitecture\tpath\tsha256\n'

@@ -32,7 +32,7 @@ exec > >(tee "$run_dir/run.log") 2>&1
 
 log(){ printf '%s\n' "$*"; }
 backup_path(){ rel="$1"; if [[ -e "$micdir/$rel" || -L "$micdir/$rel" ]]; then mkdir -p "$backup_dir/$(dirname "$rel")"; cp -a "$micdir/$rel" "$backup_dir/$rel"; else echo "$rel" >> "$created_list"; fi; }
-restore_overlay(){ set +e; for rel in etc/init.d/xeon-phi-revival-stage2 etc/rc5.d/S78xeon-phi-revival-stage2 etc/profile.d/xeon-phi-revival.sh usr/bin/python usr/bin/python3 opt/xeon-phi-revival var/log/xeon-phi-revival var/lib/dpkg; do rm -rf -- "$micdir/$rel"; [[ -e "$backup_dir/$rel" || -L "$backup_dir/$rel" ]] && { mkdir -p "$micdir/$(dirname "$rel")"; cp -a "$backup_dir/$rel" "$micdir/$rel"; }; done; }
+restore_overlay(){ set +e; for rel in etc/init.d/xeon-phi-revival-stage2 etc/rc5.d/S78xeon-phi-revival-stage2 etc/profile.d/xeon-phi-revival.sh usr/bin/pcietool usr/bin/python usr/bin/python3 opt/xeon-phi-revival var/log/xeon-phi-revival var/lib/dpkg; do rm -rf -- "$micdir/$rel"; [[ -e "$backup_dir/$rel" || -L "$backup_dir/$rel" ]] && { mkdir -p "$micdir/$(dirname "$rel")"; cp -a "$backup_dir/$rel" "$micdir/$rel"; }; done; }
 wait_online(){ for i in $(seq 1 18); do log "status_poll_$i"; micctrl --status || true; micctrl --status 2>/dev/null | grep -q "$mic: online" && return 0; sleep 5; done; return 1; }
 stock_restore(){ set +e; log "== restore stock =="; restore_overlay; micctrl --shutdown "$mic" || true; sleep 5; micctrl --updateramfs "$mic" || true; systemctl restart mpss || true; sleep 8; micctrl --boot "$mic" || true; wait_online || true; sleep 8; ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=6 "$mic" 'echo stock_ssh_ok; test ! -e /opt/xeon-phi-revival/profile.env && echo profile_absent; test ! -e /var/log/xeon-phi-revival/stage2.log && echo stage2_log_absent; cat /proc/1/comm' || { systemctl restart mpss || true; sleep 8; micctrl --boot "$mic" || true; wait_online || true; sleep 8; ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=6 "$mic" 'echo stock_ssh_ok_after_retry; test ! -e /opt/xeon-phi-revival/profile.env && echo profile_absent; test ! -e /var/log/xeon-phi-revival/stage2.log && echo stage2_log_absent; cat /proc/1/comm'; }; }
 trap 'stock_restore >/dev/null 2>&1 || true' EXIT
@@ -54,7 +54,7 @@ cat "$run_dir/determinism/package-determinism-summary.txt"
 cat "$run_dir/audit/package-audit-summary.txt"
 cat "$run_dir/simulated-install/install-simulation-summary.txt"
 
-for rel in etc/init.d/xeon-phi-revival-stage2 etc/rc5.d/S78xeon-phi-revival-stage2 etc/profile.d/xeon-phi-revival.sh usr/bin/python usr/bin/python3 opt/xeon-phi-revival var/log/xeon-phi-revival var/lib/dpkg; do backup_path "$rel"; done
+for rel in etc/init.d/xeon-phi-revival-stage2 etc/rc5.d/S78xeon-phi-revival-stage2 etc/profile.d/xeon-phi-revival.sh usr/bin/pcietool usr/bin/python usr/bin/python3 opt/xeon-phi-revival var/log/xeon-phi-revival var/lib/dpkg; do backup_path "$rel"; done
 for deb in $(find "$run_dir/repo/pool" -type f -name '*.deb' | sort); do
   bash "$tools_dir/install-k1om-profile-deb-to-micdir.sh" --deb "$deb" --micdir "$micdir"
 done
@@ -64,12 +64,14 @@ cp -a "$run_dir/simulated-install/rootfs/var/lib/dpkg" "$micdir/var/lib/dpkg"
 systemctl restart mpss || true
 wait_online || true
 sleep 12
-ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=6 "$mic" 'echo package_set_ssh_ok; cat /proc/1/comm; cat /etc/xeon-phi-revival-release; cat /opt/xeon-phi-revival/profile.env; echo ===dpkg===; test -f /var/lib/dpkg/status && echo dpkg_status_present; grep -c "^Package:" /var/lib/dpkg/status; echo ===shell===; command -v ls; command -v python3; command -v python; python3 -c 1; echo python3_plain_rc=$?; python -c 1; echo python_plain_rc=$?; python3 -S /opt/xeon-phi-revival/share/python-core-stage2.py; python -S /opt/xeon-phi-revival/share/python-core-stage2.py; echo ===stage2===; cat /var/log/xeon-phi-revival/stage2.log; echo ===hello===; cat /var/log/xeon-phi-revival/hello-knc.out; echo ===python===; cat /var/log/xeon-phi-revival/python-core.out; echo ===zlib===; cat /var/log/xeon-phi-revival/zlib-smoke.out; echo ===ncurses===; cat /var/log/xeon-phi-revival/ncurses-smoke.out; echo ===os===; cat /var/log/xeon-phi-revival/os-smoke.out' | tee "$run_dir/custom-verify.txt"
+ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=6 "$mic" 'echo package_set_ssh_ok; cat /proc/1/comm; cat /etc/xeon-phi-revival-release; cat /opt/xeon-phi-revival/profile.env; echo ===dpkg===; test -f /var/lib/dpkg/status && echo dpkg_status_present; grep -c "^Package:" /var/lib/dpkg/status; echo ===shell===; command -v ls; command -v cat; command -v grep; command -v sed; command -v awk; command -v find; command -v python3; command -v python; command -v pcietool; cat /etc/xeon-phi-revival-release | grep "Xeon Phi"; printf "abc\n" | sed "s/a/A/" | grep Abc; printf "1 2\n" | awk "{print \$1+\$2}"; find /opt/xeon-phi-revival -maxdepth 1 -type d | grep "/opt/xeon-phi-revival"; pcietool list > /var/log/xeon-phi-revival/pcietool.out; echo pcietool_rc=$?; python3 -c 1; echo python3_plain_rc=$?; python -c 1; echo python_plain_rc=$?; python3 -S /opt/xeon-phi-revival/share/python-core-stage2.py; python -S /opt/xeon-phi-revival/share/python-core-stage2.py; echo ===stage2===; cat /var/log/xeon-phi-revival/stage2.log; echo ===hello===; cat /var/log/xeon-phi-revival/hello-knc.out; echo ===python===; cat /var/log/xeon-phi-revival/python-core.out; echo ===zlib===; cat /var/log/xeon-phi-revival/zlib-smoke.out; echo ===ncurses===; cat /var/log/xeon-phi-revival/ncurses-smoke.out; echo ===pci===; cat /var/log/xeon-phi-revival/pcietool.out; echo ===os===; cat /var/log/xeon-phi-revival/os-smoke.out' | tee "$run_dir/custom-verify.txt"
 grep -q 'package_set_ssh_ok' "$run_dir/custom-verify.txt"
 grep -q 'dpkg_status_present' "$run_dir/custom-verify.txt"
 grep -q '/bin/ls' "$run_dir/custom-verify.txt"
 grep -q '/usr/bin/python3' "$run_dir/custom-verify.txt"
 grep -q '/usr/bin/python' "$run_dir/custom-verify.txt"
+grep -q '/usr/bin/pcietool' "$run_dir/custom-verify.txt"
+grep -q 'pcietool_rc=0' "$run_dir/custom-verify.txt"
 grep -q 'python3_plain_rc=0' "$run_dir/custom-verify.txt"
 grep -q 'python_plain_rc=0' "$run_dir/custom-verify.txt"
 grep -q 'hello_rc=0' "$run_dir/custom-verify.txt"
@@ -85,7 +87,7 @@ set -euo pipefail
 mic="$mic"
 micdir="$micdir"
 backup_dir="$backup_dir"
-for rel in etc/init.d/xeon-phi-revival-stage2 etc/rc5.d/S78xeon-phi-revival-stage2 etc/profile.d/xeon-phi-revival.sh usr/bin/python usr/bin/python3 opt/xeon-phi-revival var/log/xeon-phi-revival var/lib/dpkg; do
+for rel in etc/init.d/xeon-phi-revival-stage2 etc/rc5.d/S78xeon-phi-revival-stage2 etc/profile.d/xeon-phi-revival.sh usr/bin/pcietool usr/bin/python usr/bin/python3 opt/xeon-phi-revival var/log/xeon-phi-revival var/lib/dpkg; do
   rm -rf -- "\$micdir/\$rel"
   if [[ -e "\$backup_dir/\$rel" || -L "\$backup_dir/\$rel" ]]; then
     mkdir -p "\$micdir/\$(dirname "\$rel")"
@@ -103,7 +105,7 @@ for i in \$(seq 1 18); do
   micctrl --status 2>/dev/null | grep -q "\$mic: online" && break
   sleep 5
 done
-ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=6 "\$mic" 'echo stock_ssh_ok; test ! -e /opt/xeon-phi-revival/profile.env && echo profile_absent; test ! -e /var/log/xeon-phi-revival/stage2.log && echo stage2_log_absent; test ! -f /var/lib/dpkg/status && echo dpkg_status_absent; test ! -e /usr/bin/python3 && echo python3_absent; test ! -e /etc/profile.d/xeon-phi-revival.sh && echo profiled_absent; cat /proc/1/comm'
+ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=6 "\$mic" 'echo stock_ssh_ok; test ! -e /opt/xeon-phi-revival/profile.env && echo profile_absent; test ! -e /var/log/xeon-phi-revival/stage2.log && echo stage2_log_absent; test ! -f /var/lib/dpkg/status && echo dpkg_status_absent; test ! -e /usr/bin/python3 && echo python3_absent; test ! -e /usr/bin/pcietool && echo pcietool_absent; test ! -e /etc/profile.d/xeon-phi-revival.sh && echo profiled_absent; cat /proc/1/comm'
 EOF
 chmod 0755 "$run_dir/rollback-stock.sh"
 

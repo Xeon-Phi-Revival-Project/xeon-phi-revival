@@ -107,6 +107,13 @@ for required in \
   "$rootfs/usr/bin/python3" \
   "$rootfs/usr/bin/python" \
   "$rootfs/etc/profile.d/xeon-phi-revival.sh" \
+  "$rootfs/opt/xeon-phi-revival/bin/cat" \
+  "$rootfs/opt/xeon-phi-revival/bin/grep" \
+  "$rootfs/opt/xeon-phi-revival/bin/sed" \
+  "$rootfs/opt/xeon-phi-revival/bin/awk" \
+  "$rootfs/opt/xeon-phi-revival/bin/find" \
+  "$rootfs/opt/xeon-phi-revival/bin/pcietool" \
+  "$rootfs/usr/bin/pcietool" \
   "$rootfs/opt/xeon-phi-revival/bin/zlib-smoke" \
   "$rootfs/opt/xeon-phi-revival/bin/ncurses-smoke" \
   "$rootfs/opt/xeon-phi-revival/lib64/libtinfo.so.5" \
@@ -123,6 +130,8 @@ for required in \
   "$info_dir/python3.5-smoke-k1om.md5sums" \
   "$info_dir/xpr-shell-compat.conffiles" \
   "$info_dir/xpr-shell-compat.md5sums" \
+  "$info_dir/xpr-busybox-compat.md5sums" \
+  "$info_dir/xpr-pci-tools.md5sums" \
   "$info_dir/zlib-smoke-k1om.md5sums" \
   "$info_dir/libtinfo5-k1om.md5sums" \
   "$info_dir/ncurses-smoke-k1om.md5sums" \

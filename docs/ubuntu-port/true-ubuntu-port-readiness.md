@@ -58,6 +58,8 @@ python3.5-stdlib-k1om
 python3.5-lib-dynload-k1om
 python3.5-smoke-k1om
 xpr-shell-compat
+xpr-busybox-compat
+xpr-pci-tools
 zlib-smoke-k1om
 libtinfo5-k1om
 ncurses-smoke-k1om
@@ -71,8 +73,9 @@ audit path, simulated dpkg-style install/rootfs path with package `md5sums` and
 `conffiles`, host-side APT parser path, MicDir install path, stock-init
 second-stage service path, K1OM hello payload, CPython core payload, zlib smoke,
 separate libtinfo runtime, ncurses smoke, basic filesystem smoke, on-card
-dpkg-style package status metadata, `python3`/`python` shell entrypoints, and
-stock rollback path.
+dpkg-style package status metadata, `python3`/`python` shell entrypoints,
+BusyBox-backed command entrypoints, a small `pcietool` sysfs helper, and stock
+rollback path.
 
 ## Immediate Next Track
 
@@ -99,6 +102,8 @@ python3.5-stdlib-k1om
 python3.5-lib-dynload-k1om
 python3.5-smoke-k1om
 xpr-shell-compat
+xpr-busybox-compat
+xpr-pci-tools
 xpr-os-smoke
 xeon-phi-revival-stage2
 ```
@@ -107,5 +112,6 @@ The host-side APT parser test has passed for the bootstrap archive, and Python
 has been split into more Ubuntu-like interpreter, standard-library,
 dynamic-extension, and smoke-script packages under the same reversible gates.
 The profile now also exposes basic command entrypoints through
-`xpr-shell-compat`. The next milestone is expanding smoke payload dependencies
-into standalone runtime/library packages.
+`xpr-shell-compat` and `xpr-busybox-compat`, plus a first project-owned utility
+package through `xpr-pci-tools`. The next milestone is expanding smoke payload
+dependencies into standalone runtime/library packages.

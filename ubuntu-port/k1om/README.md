@@ -57,6 +57,8 @@ The current multi-package bootstrap archive also passed. It contains:
 - `python3.5-lib-dynload-k1om`
 - `python3.5-smoke-k1om`
 - `xpr-shell-compat`
+- `xpr-busybox-compat`
+- `xpr-pci-tools`
 - `zlib-smoke-k1om`
 - `libtinfo5-k1om`
 - `ncurses-smoke-k1om`
@@ -70,9 +72,9 @@ MPSS MicDir staging, booted on `mic0`, runs `hello-knc`, runs CPython core,
 is parsed by host-side APT as `Architecture: k1om`, runs zlib and ncurses
 smoke payloads, uses a separately packaged `libtinfo5-k1om` runtime, verifies
 basic filesystem and OS behavior, exposes dpkg-style package status metadata
-on-card, provides `python3`/`python` command wrappers, and rolls back to the
-stock uOS. A second run was intentionally left active for SSH inspection after
-the rollback-verified run passed.
+on-card, provides `python3`/`python` command wrappers, exposes common
+BusyBox-backed command entrypoints, includes a small `pcietool` sysfs helper,
+and rolls back to the stock uOS.
 
 The passing run is documented in:
 

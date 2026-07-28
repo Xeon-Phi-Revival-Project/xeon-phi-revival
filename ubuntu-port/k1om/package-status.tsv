@@ -6,6 +6,8 @@ python3.5-stdlib-k1om	0.1.0	passed	Package-built CPython pure standard library p
 python3.5-lib-dynload-k1om	0.1.0	passed	Package-built CPython dynamic extension payload installed under /opt/xeon-phi-revival/lib/python3.5/lib-dynload
 python3.5-smoke-k1om	0.1.0	passed	Package-built CPython smoke script ran on mic0 through second-stage service
 xpr-shell-compat	0.1.0	passed	Package-built shell compatibility wrapper provides python3/python entrypoints and profile.d environment setup
+xpr-busybox-compat	0.1.0	passed	Package-built BusyBox-backed command entrypoints provide common minimal userland commands under /opt/xeon-phi-revival/bin
+xpr-pci-tools	0.1.0	passed	Package-built pcietool sysfs helper installs as /usr/bin/pcietool and ran successfully on mic0; current PCI listing output was empty
 zlib-smoke-k1om	0.1.0	passed	Package-built zlib smoke payload ran on mic0 through second-stage service
 libtinfo5-k1om	0.1.0	passed	Package-built reusable libtinfo runtime payload installed separately for ncurses smoke
 ncurses-smoke-k1om	0.1.0	passed	Package-built ncurses smoke payload depends on libtinfo5-k1om and ran on mic0

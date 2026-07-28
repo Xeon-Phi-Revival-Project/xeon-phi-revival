@@ -22,6 +22,8 @@ python3.5-stdlib-k1om_0.1.0_k1om.deb
 python3.5-lib-dynload-k1om_0.1.0_k1om.deb
 python3.5-smoke-k1om_0.1.0_k1om.deb
 xpr-shell-compat_0.1.0_k1om.deb
+xpr-busybox-compat_0.1.0_k1om.deb
+xpr-pci-tools_0.1.0_k1om.deb
 zlib-smoke-k1om_0.1.0_k1om.deb
 libtinfo5-k1om_0.1.0_k1om.deb
 ncurses-smoke-k1om_0.1.0_k1om.deb
@@ -46,15 +48,15 @@ Final Ubuntu-style deterministic, audited, simulated, live passing, and
 rollback-verified run:
 
 ```text
-/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-210342
+/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-230659
 ```
 
-The same profile was then booted again and intentionally left active for SSH
-inspection:
+The same fourteen-package profile was then booted again and intentionally left
+active for SSH inspection:
 
 ```text
-/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-211144
-rollback: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-211144/rollback-stock.sh
+/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-231941
+rollback: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-231941/rollback-stock.sh
 ```
 
 Stock baseline:
@@ -75,11 +77,13 @@ python3.5-stdlib-k1om 8cabe59ea27bcb003665064f02613fd647457da40b8131720ab5d7f97f
 python3.5-lib-dynload-k1om 4e7f459404480f0ae66318adbead04fc22bb490714a62da0985cb7dc5a6546d7
 python3.5-smoke-k1om 50871fc9031cd0e7904a4861601c1b05a22e349fc3c4a3fbec34f60bdabcbb6a
 xpr-shell-compat a1edfde8a484b1a809d0f17a25d38acdd74e340d17bf0a0b65ef51a876c25121
+xpr-busybox-compat 7c2fae933becc268649e59af18935945a0d2097cb86bc4b0e1dd49746d883475
+xpr-pci-tools      5af084cbb54c5d536cb4bd54dfc9b9b2125f95f3427a7a49fa1a0e4e94e6aef3
 zlib-smoke-k1om     46aab001aba64cfd10a50b2de7d06a72c4fe26b63d4acb399252661cee14c30e
 libtinfo5-k1om      92cefe76971dbd55222c4926fd762bd41df734657b88d5671823e3bf197f7f48
 ncurses-smoke-k1om  c39533a3a70d23f465e30133ed0714b8cf8f9540e03b5f7314c7ea5fe921e355
 xpr-os-smoke        b6e165ea5d93b1f8b63f8c2ae2da7d395178e320481233d5dc839d34cc976c16
-xeon-phi-revival-stage2 abc4d4ce32c839c4b961c72a538f4113f02da7ea77218b62f0473690079c3db3
+xeon-phi-revival-stage2 255a4f061f57bb6d077217fbeea4ad6b1824f9d972c6d966efe20cd223e53782
 ```
 
 The package determinism check passed before archive indexing:
@@ -87,9 +91,9 @@ The package determinism check passed before archive indexing:
 ```text
 status=passed
 source_date_epoch=1704067200
-package_count=12
+package_count=14
 checks=same_package_names,same_sha256
-details=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-211144/determinism/package-determinism.tsv
+details=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-230659/determinism/package-determinism.tsv
 ```
 
 ## Archive Metadata
@@ -103,7 +107,7 @@ dists/noble/main/binary-k1om/Packages.gz
 pool/main/*/*/*.deb
 ```
 
-The `Packages` file recorded all twelve package names with:
+The `Packages` file recorded all fourteen package names with:
 
 ```text
 Version: 0.1.0
@@ -121,20 +125,20 @@ The package audit passed before installation:
 
 ```text
 status=passed
-package_count=12
+package_count=14
 checks=release_suite,release_codename,release_architecture,release_hash_blocks,release_packages_hashes,packages_gz_matches_packages,package_source,package_architecture,package_section,package_priority,package_md5sums,packages_filename,packages_md5sum,packages_sha1,packages_sha256,dependencies_satisfied,no_duplicate_paths
-ownership_file=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-211144/audit/package-ownership.tsv
-deps_file=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-211144/audit/package-dependencies.tsv
-hash_file=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-211144/audit/package-hashes.tsv
+ownership_file=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-230659/audit/package-ownership.tsv
+deps_file=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-230659/audit/package-dependencies.tsv
+hash_file=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-230659/audit/package-hashes.tsv
 ```
 
 The install simulation also passed before live install:
 
 ```text
 status=passed
-package_count=12
-rootfs=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-211144/simulated-install/rootfs
-dpkg_status=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-211144/simulated-install/rootfs/var/lib/dpkg/status
+package_count=14
+rootfs=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-230659/simulated-install/rootfs
+dpkg_status=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-230659/simulated-install/rootfs/var/lib/dpkg/status
 checks=dependency_order,extract_payloads,dpkg_status,package_file_lists,package_md5sums,package_conffiles,required_bootstrap_paths
 ```
 
@@ -152,10 +156,19 @@ BASE="stock MPSS uOS"
 XPR_PROFILE_KIND=stock-init-handoff-second-stage
 XPR_PHASE=bootstrap
 dpkg_status_present
-12
+14
 /bin/ls
+/bin/cat
+/bin/grep
+/bin/sed
+/usr/bin/awk
+/usr/bin/find
 /usr/bin/python3
 /usr/bin/python
+/usr/bin/pcietool
+Abc
+3
+pcietool_rc=0
 python3_plain_rc=0
 python_plain_rc=0
 ```
@@ -200,6 +213,19 @@ Ncurses result:
 ncurses version=ncurses 6.4.20240113
 ```
 
+## Command and PCI Tooling
+
+The `xpr-busybox-compat` package exposes common BusyBox-backed command
+entrypoints under `/opt/xeon-phi-revival/bin`. The live run verified `cat`,
+`grep`, `sed`, `awk`, and `find` in addition to the existing `ls`,
+`python3`, and `python` entrypoints.
+
+The `xpr-pci-tools` package installs `/usr/bin/pcietool` and a matching
+profile-bin symlink. `pcietool list` returned exit code `0` on `mic0`. The
+captured output file was empty in this run, so the current result proves the
+tool installs and executes but does not yet prove visible PCI device inventory
+from inside the card uOS.
+
 ## Basic OS Smoke
 
 The `xpr-os-smoke` package verified:
@@ -238,6 +264,7 @@ final_stock_ok
 profile_absent
 stage2_log_absent
 dpkg_status_absent
+pcietool_absent
 init
 ```
 
@@ -266,5 +293,8 @@ The narrowest next dependency is expanding from smoke payload packages toward
 real library/runtime packages with clearer ownership boundaries. `libtinfo5`
 has been split out, Python is now separated into interpreter, standard-library,
 dynamic-extension, and smoke-script packages, and `xpr-shell-compat` now exposes
-basic interactive command entrypoints. The next useful split is turning more
-smoke payload dependencies into standalone library/runtime packages.
+basic interactive command entrypoints. `xpr-busybox-compat` adds common command
+applets, and `xpr-pci-tools` is the first small project utility package. The
+next useful split is turning more smoke payload dependencies into standalone
+library/runtime packages, starting with a real shared `libz` package rather
+than only the current zlib smoke binary.

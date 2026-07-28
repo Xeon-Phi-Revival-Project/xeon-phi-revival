@@ -149,16 +149,18 @@ image.
   Noble `binary-k1om` archive, installed into MicDir staging, booted on `mic0`,
   ran `hello-knc` and Python, and rolled back to stock.
 - The first multi-package K1OM bootstrap archive passed and has since expanded
-  to twelve packages. Packages `base-files-k1om`, `hello-knc-smoke`,
+  to fourteen packages. Packages `base-files-k1om`, `hello-knc-smoke`,
   `python3.5-minimal-k1om`, `python3.5-stdlib-k1om`,
   `python3.5-lib-dynload-k1om`, `python3.5-smoke-k1om`,
-  `xpr-shell-compat`, `zlib-smoke-k1om`, `libtinfo5-k1om`,
-  `ncurses-smoke-k1om`, `xpr-os-smoke`, and `xeon-phi-revival-stage2` were built as
+  `xpr-shell-compat`, `xpr-busybox-compat`, `xpr-pci-tools`,
+  `zlib-smoke-k1om`, `libtinfo5-k1om`, `ncurses-smoke-k1om`,
+  `xpr-os-smoke`, and `xeon-phi-revival-stage2` were built as
   `Architecture: k1om`, indexed into a local Noble `binary-k1om` archive,
   installed into MicDir staging, booted on `mic0`, ran `hello-knc`, ran
-  CPython core, verified basic `/proc`, `/sys`, `/dev`, `/tmp`, symlink,
-  nested-file, filesystem-capacity, network, environment behavior, and
-  dpkg-style on-card package status metadata, and rolled back to stock.
+  CPython core, verified common command entrypoints, verified basic `/proc`,
+  `/sys`, `/dev`, `/tmp`, symlink, nested-file, filesystem-capacity, network,
+  environment behavior, and dpkg-style on-card package status metadata, and
+  rolled back to stock.
 - The K1OM package-set audit now passes before live install. It verifies the
   local archive advertises `Architectures: k1om`, every package declares
   `Architecture: k1om`, `Packages` filenames and SHA-256 values match the
@@ -200,13 +202,22 @@ image.
   wrappers under `/opt/xeon-phi-revival/bin`. `ls` resolves through the stock
   BusyBox `/bin/ls`, while `python3 -c 1` and `python -c 1` now return `0` by
   defaulting the wrappers to the validated no-site startup mode.
-- A second validated run was intentionally left active for SSH inspection at
-  `/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-211144`;
-  the rollback script for returning to stock is
-  `/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-211144/rollback-stock.sh`.
-- Stock rollback succeeded: `/etc/sysconfig/mpss.conf` was restored absent,
-  stock MPSS service booted `mic0` to `online`, SSH worked, and PID 1 was stock
-  `init`.
+- The package set then expanded to fourteen packages by adding
+  `xpr-busybox-compat` and `xpr-pci-tools`. The BusyBox compatibility package
+  exposes common command entrypoints such as `cat`, `grep`, `sed`, `awk`, and
+  `find` under `/opt/xeon-phi-revival/bin`. The PCI tools package installs
+  `/usr/bin/pcietool`, which ran successfully on `mic0`; the current card uOS
+  exposed no PCI device lines through that helper during this run.
+- The latest rollback-verified run completed at
+  `/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-230659`.
+  Stock rollback succeeded afterward: SSH worked, `/usr/bin/pcietool`,
+  `/var/lib/dpkg/status`, and the project profile were absent, and PID 1 was
+  stock `init`.
+- A matching fourteen-package inspection run is currently active at
+  `/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-231941`.
+  It passed the same live checks and is intentionally left running for SSH
+  inspection. Its rollback script is
+  `/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-231941/rollback-stock.sh`.
 
 ## Current Public Artifacts
 
