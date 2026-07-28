@@ -1,6 +1,6 @@
 id: first-project-pid1
 title: First project-controlled K1OM PID 1 boot
-status: pid1-handoff-passed-resident-init-open
+status: pid1-handoff-python-core-passed-resident-init-open
 date_utc: 2026-07-28
 hardware:
   card: Intel Xeon Phi 5110P
@@ -34,6 +34,9 @@ activation:
   project_init_mode: sbin_init_handoff_to_stock_sysvinit
   resident_project_init_observed: false
   custom_micdir_snippet_observed: true
+  reusable_runner: tools/uos/run-micdir-pid1-handoff-experiment.sh
+  hello_from_pid1_handoff_observed: true
+  python_core_from_pid1_handoff_observed: true
   rollback_verified: true
   attempts:
     - method: micctrl_configdir_dynamic_ramfs
@@ -92,9 +95,40 @@ activation:
       issue_sha256: 405a39009bc4b0ef026933fa02da4375300fa687984054a85d38b47bb5151ea6
       evidence: "SSH observed /project-pid1-handoff-marker.txt with project_pid=1 after wrapper execed /sbin/init.sysvinit; PID 1 then appeared as init.sysvinit init [5]"
       rollback_evidence: "overlay files absent; stock SSH worked after recovery boot; stock /etc/issue restored; handoff marker absent; PID 1 stock init [5]"
+    - method: reusable_handoff_runner_marker
+      result: passed
+      run_dir: /root/xeon-phi-revival-local/uos-boot-builds/micdir-pid1-handoff-marker-20260728-144628
+      evidence: "project_phase=marker; project_pid=1; PID 1 became init.sysvinit after handoff"
+      note: "initial client command timed out during restore wait, but log showed custom phase passed and stock was manually verified afterward"
+    - method: reusable_handoff_runner_tiny
+      result: passed
+      run_dir: /root/xeon-phi-revival-local/uos-boot-builds/micdir-pid1-handoff-tiny-20260728-145530
+      init_sha256: ca9d2aae13bf3ecbb35a3820008d61fdaaffd2ba31ff5c6d89c72ffd09dd8f5b
+      issue_sha256: 6b8bfc23a13dfb2f6b3545183658e00f752e771fc1a0673f3f708b95699bc669
+      evidence: "tiny_action_started=1; early uname and PID1 environment captured; stock rollback verified"
+    - method: reusable_handoff_runner_hello
+      result: passed
+      run_dir: /root/xeon-phi-revival-local/uos-boot-builds/micdir-pid1-handoff-hello-20260728-150247
+      init_sha256: fc484c59e0309f4482a5890e5d66012dbe9c1852ec0e4fdd3496bcf8680f5896
+      issue_sha256: 5229173faa21739fec3a5e605e4afcc341c0e24beeb7022844aea278a1c270f2
+      evidence: "hello_rc=0; hello from knc; machine=k1om; sizeof(void*)=8; sizeof(long)=8; stock rollback verified"
+    - method: reusable_handoff_runner_python_site_startup
+      result: failed_before_final_python_fix
+      run_dir: /root/xeon-phi-revival-local/uos-boot-builds/micdir-pid1-handoff-python-20260728-151710
+      evidence: "python_rc=1; site.py failed because _sysconfigdata was missing"
+    - method: reusable_handoff_runner_python_platform_demo
+      result: failed_before_final_python_fix
+      run_dir: /root/xeon-phi-revival-local/uos-boot-builds/micdir-pid1-handoff-python-20260728-152509
+      evidence: "python_rc=1; platform import pulled in subprocess and missing _posixsubprocess"
+    - method: reusable_handoff_runner_python_core
+      result: passed
+      run_dir: /root/xeon-phi-revival-local/uos-boot-builds/micdir-pid1-handoff-python-20260728-153357
+      init_sha256: 1db0b3fe8d6ff8028b63d0d323f887f0705c338ab0e615e515617da54d064e31
+      issue_sha256: 4b8c719a32c3f0d38c2a4a566fbb065cb567e233c1444b5731174fb3d907d4fd
+      evidence: "hello_rc=0; python_rc=0; python pid1 demo ok; platform=linux; calc=45; stock rollback verified"
 blocker:
-  summary: Minimal project PID1 handoff works, but resident project init did not yet reproduce stock networking/MPSS startup.
-  next_dependency: Generate a reusable PID1 handoff experiment script, then design resident init as either a SysV-compatible supervisor or a stock-init-plus-second-stage model.
+  summary: Project PID1 handoff works through marker, tiny action, hello-knc, and core Python, but resident project init did not yet reproduce stock networking/MPSS startup.
+  next_dependency: Build the next uOS lane as stock-init handoff plus second-stage project services; keep resident init replacement separate until stock init and MPSS service semantics are mapped.
 blocked_or_paused:
   - _sqlite3
   - _ctypes
@@ -119,9 +153,11 @@ success:
     - custom_micdir_overlay_snippet_boot
     - project_pid1_handoff_marker
     - stock_sysvinit_after_handoff
+    - reusable_pid1_handoff_runner
+    - tiny_action_from_pid1_handoff
+    - hello_knc_from_pid1_handoff
+    - python_core_from_pid1_handoff
     - rollback_to_stock
     - stock_ssh_after_rollback
   failed_items:
     - resident_project_init_keeps_ssh_online
-    - hello_knc_from_project_init
-    - python_core_from_project_init

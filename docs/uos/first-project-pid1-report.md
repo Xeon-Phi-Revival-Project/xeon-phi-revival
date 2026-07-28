@@ -283,6 +283,57 @@ PID 1 COMMAND init [5]
 mic0: online
 ```
 
+### Phased PID 1 Handoff Ladder
+
+The handoff proof was turned into a reusable MPSS-host runner:
+
+```text
+tools/uos/run-micdir-pid1-handoff-experiment.sh
+```
+
+The runner uses the stock dynamic MPSS ramfs path and temporarily overlays
+`/sbin/init` through `/var/mpss/mic0`. Each phase caps SSH checks, verifies the
+custom marker, removes overlay files, regenerates stock ramfs, and verifies
+stock SSH again.
+
+Completed phases:
+
+```text
+marker_run=/root/xeon-phi-revival-local/uos-boot-builds/micdir-pid1-handoff-marker-20260728-144628
+marker_result=passed
+marker_evidence=project_phase=marker, project_pid=1, init.sysvinit after handoff
+
+tiny_run=/root/xeon-phi-revival-local/uos-boot-builds/micdir-pid1-handoff-tiny-20260728-145530
+tiny_result=passed
+tiny_init_sha256=ca9d2aae13bf3ecbb35a3820008d61fdaaffd2ba31ff5c6d89c72ffd09dd8f5b
+tiny_issue_sha256=6b8bfc23a13dfb2f6b3545183658e00f752e771fc1a0673f3f708b95699bc669
+tiny_evidence=tiny_action_started=1, early uname and environment captured
+
+hello_run=/root/xeon-phi-revival-local/uos-boot-builds/micdir-pid1-handoff-hello-20260728-150247
+hello_result=passed
+hello_init_sha256=fc484c59e0309f4482a5890e5d66012dbe9c1852ec0e4fdd3496bcf8680f5896
+hello_issue_sha256=5229173faa21739fec3a5e605e4afcc341c0e24beeb7022844aea278a1c270f2
+hello_evidence=hello_rc=0, machine=k1om, sizeof(void*)=8, sizeof(long)=8
+
+python_run=/root/xeon-phi-revival-local/uos-boot-builds/micdir-pid1-handoff-python-20260728-153357
+python_result=passed
+python_init_sha256=1db0b3fe8d6ff8028b63d0d323f887f0705c338ab0e615e515617da54d064e31
+python_issue_sha256=4b8c719a32c3f0d38c2a4a566fbb065cb567e233c1444b5731174fb3d907d4fd
+python_evidence=hello_rc=0, python_rc=0, python pid1 demo ok, platform=linux, calc=45
+```
+
+Python notes:
+
+- The first Python attempt stopped before activation because the private
+  payload rootfs did not include `usr/share/knc-demo/python-core-pid1.py`.
+- The runner now generates that demo file when needed.
+- A normal Python startup failed because `site.py` wanted `_sysconfigdata`.
+- A `python3.5 -S` run with the original generated demo then failed because
+  `platform` imports `subprocess`, which wanted `_posixsubprocess`.
+- The passing early-boot Python phase is deliberately core-only: `sys`, `os`,
+  arithmetic, and cwd/prefix reporting. Extension-module expansion belongs in a
+  second-stage userland lane after stock init has brought the card fully online.
+
 ## Blocker
 
 The host-side MPSS image selection path is now understood well enough for
@@ -297,10 +348,15 @@ well enough.
 
 The MicDir overlay path is the first successful custom uOS execution channel,
 and the `/sbin/init` handoff wrapper is the first verified custom PID 1
-execution event. The narrowest next dependency is to turn the handoff into a
-reusable generated experiment script, then decide whether resident custom init
-should reimplement enough SysV behavior or delegate most work to stock init and
-second-stage project services.
+execution event. The phased handoff ladder has now shown that a tiny project
+PID 1 can run marker, tiny environment capture, `hello-knc`, and core Python
+before handing off to stock init.
+
+The current design decision is to prefer stock-init handoff plus second-stage
+project services for the next uOS lane. That preserves MPSS monitor/network
+startup while still giving the project a controlled PID 1 preflight point. Full
+resident init replacement stays open, but it should wait until the stock
+`init.sysvinit` and MPSS service semantics are mapped more completely.
 
 Do not expand the Python-in-boot image again until the smaller PID 1 proof is
 repeatable. The Python payload likely belongs in a second-stage delivery after
@@ -378,4 +434,5 @@ resident PID 1 with `hello-knc` and Python core tests.
 
 The narrower `/sbin/init` handoff milestone has passed: a project-controlled
 init wrapper ran as PID 1, wrote a marker with `project_pid=1`, execed stock
-`init.sysvinit`, preserved stock SSH startup, and rolled back to stock.
+`init.sysvinit`, ran marker/tiny/`hello-knc`/core-Python phases, preserved
+stock SSH startup, and rolled back to stock after each phase.

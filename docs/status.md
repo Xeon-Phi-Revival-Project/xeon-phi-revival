@@ -127,6 +127,15 @@ image.
   PID 1, wrote `/project-pid1-handoff-marker.txt` with `project_pid=1`, logged
   its handoff, execed stock `/sbin/init.sysvinit`, and SSH verified the marker
   after the stock runlevel-5 boot completed.
+- A reusable MicDir PID 1 handoff runner now exists at
+  `tools/uos/run-micdir-pid1-handoff-experiment.sh`.
+- The reusable runner completed the phased handoff ladder: marker-only PID 1
+  handoff, tiny early-boot action, `hello-knc` from PID 1, and core CPython
+  3.5 from PID 1 all passed with stock rollback verified after each phase.
+- Python expansion notes: ordinary `site.py` startup still needs
+  `_sysconfigdata`, and the earlier generated demo's `platform` import pulled
+  in `_posixsubprocess`; the passing PID 1 Python test is intentionally
+  core-only and runs with `python3.5 -S`.
 - Stock rollback succeeded: `/etc/sysconfig/mpss.conf` was restored absent,
   stock MPSS service booted `mic0` to `online`, SSH worked, and PID 1 was stock
   `init`.
@@ -157,6 +166,7 @@ image.
 - `docs/architecture/observed-k1om-elf-abi.md`
 - `docs/toolchain/open-k1om-toolchain-feasibility.md`
 - `docs/handbook/glossary.md`
+- `tools/uos/run-micdir-pid1-handoff-experiment.sh`
 - `manifests/experiments/native-runs/20260727-212630-start-exit42.yml`
 - `manifests/experiments/native-runs/20260727-212700-hello-libc.yml`
 - `manifests/experiments/native-runs/20260727-212720-hello-libc.yml`
@@ -170,8 +180,8 @@ image.
 
 ## Safest Next Technical Action
 
-Turn the successful PID 1 handoff into a reusable, generated experiment script
-with bounded SSH polling and automatic stock recovery. Keep the resident custom
-init lane separate: the next resident-init attempt needs to preserve the stock
-MPSS monitor/network startup semantics or move userland tests into a second
-stage after stock init brings the card online.
+Build the next uOS lane around the proven stock-init handoff model: keep the
+project PID 1 wrapper tiny, let stock `init.sysvinit` preserve MPSS
+monitor/network behavior, and launch project services as a second stage after
+SSH/MPSS startup. Keep full resident init replacement as a separate research
+lane until the stock init semantics are mapped more completely.
