@@ -11,9 +11,9 @@ PID 1, while preserving a verified rollback to the stock uOS.
 
 ## Current Result
 
-Status: PID 1 activation attempted, blocked before verifiable project PID 1.
-A separate stock-MPSS MicDir overlay boot snippet has now succeeded and gives
-the project a reliable custom-uOS proof channel.
+Status: project PID 1 handoff passed; full resident project init remains open.
+A stock-MPSS MicDir overlay boot snippet also succeeded and gives the project a
+reliable custom-uOS proof channel.
 
 The private bootable rootfs was assembled from the already passing K1OM
 compatibility-demo rootfs.
@@ -33,6 +33,12 @@ content on `mic0`, then restore the overlay and restart stock. That path
 worked. It does not make project `/init` PID 1; PID 1 remains stock SysV
 `init [5]`. It does prove that project-controlled uOS content can boot and run
 on the card while preserving a clean rollback.
+
+A later MicDir handoff test temporarily replaced `/sbin/init` itself. The
+project init wrapper ran as PID 1, wrote an observable marker, and then execed
+stock `/sbin/init.sysvinit`. SSH came up through the normal stock runlevel-5
+path and verified the marker. This is the first verified custom PID 1 execution
+event. It is a handoff proof, not a resident project init.
 
 ## Prepared `/init`
 
@@ -225,22 +231,76 @@ Rollback restored the exact stock `/etc/mpss/mic0.conf` hash, restarted MPSS,
 verified stock SSH, verified the stock `/etc/issue`, and confirmed
 `/project-boot-snippet.txt` was absent.
 
+### MicDir PID 1 Handoff Proof
+
+A persistent shell-as-`/sbin/init` variant was tried first. It reached MPSS
+`online`, but SSH did not come up in six bounded checks. Stock recovery
+required removing the overlay, regenerating stock ramfs, and running a normal
+`micctrl --reset` before stock SSH returned.
+
+The next variant used a smaller handoff wrapper: replace `/sbin/init` through
+MicDir, write one marker as PID 1, then `exec /sbin/init.sysvinit`.
+
+```text
+run_dir=/root/xeon-phi-revival-local/uos-boot-builds/micdir-pid1-handoff-20260728-070556
+active_conf_sha=c241d140e9d8db95f808ce1732f85f1135820e4f347146db24693ea7e0e432c9
+init_sha256=a9a363cdd22f13f0f31890effb0c82983332f25a79cef7f27b049d205ef02ae3
+issue_sha256=405a39009bc4b0ef026933fa02da4375300fa687984054a85d38b47bb5151ea6
+```
+
+Temporary host overlay files:
+
+```text
+/var/mpss/mic0/sbin/init
+/var/mpss/mic0/etc/issue
+```
+
+Observed on `mic0` after the handoff and stock runlevel-5 startup:
+
+```text
+custom_handoff_ssh_ok
+Xeon Phi Revival Project PID 1 handoff init overlay booted
+PID 1 COMMAND init.sysvinit init [5]
+project_pid1_handoff_entered=1
+project_pid=1
+[project-pid1-handoff] execing /sbin/init.sysvinit
+```
+
+The observed mount state after stock startup included `/proc`, `/sys`, and
+`/dev`. The marker timestamp was `Thu Jan 1 00:00:06 UTC 1970`, which is
+expected at this early boot point before time synchronization.
+
+Rollback removed the MicDir overlay files and restored stock. The immediate
+trap cleanup left `mic0` in `ready`, so a bounded recovery step restarted MPSS
+and booted `mic0`. Final stock verification showed:
+
+```text
+stock_after_handoff_final_ssh_ok
+Intel MIC Platform Software Stack (Built by Poky 7.0) 3.4.10 \n \l
+handoff_marker_absent
+pid1_marker_absent
+PID 1 COMMAND init [5]
+mic0: online
+```
+
 ## Blocker
 
 The host-side MPSS image selection path is now understood well enough for
 bounded experiments: foreground `mpssd -l -d <configdir>` can select a private
 `StaticRamFS` image without overwriting stock files.
 
-The current blocker is the card-side early userspace handoff. Stock and
-repacked-stock images boot, but images with project PID 1 changes stall before
-verifiable project output or monitor connection.
+The card-side PID 1 handoff blocker is cleared for the minimal wrapper case.
+The remaining blocker is resident custom init ownership: a shell PID 1 that
+tried to run stock rc scripts directly reached MPSS `online` but did not bring
+SSH up, so the stock init/MPSS monitor startup semantics are not yet duplicated
+well enough.
 
-The MicDir overlay path is the first successful custom uOS execution channel.
-The narrowest next dependency for the original PID 1 objective is to reuse what
-was learned from that proof channel: keep stock MPSS dynamic ramfs generation
-and stock init behavior as intact as possible, then introduce a tiny native
-K1OM PID 1 handoff that only performs one observable action and execs stock
-init.
+The MicDir overlay path is the first successful custom uOS execution channel,
+and the `/sbin/init` handoff wrapper is the first verified custom PID 1
+execution event. The narrowest next dependency is to turn the handoff into a
+reusable generated experiment script, then decide whether resident custom init
+should reimplement enough SysV behavior or delegate most work to stock init and
+second-stage project services.
 
 Do not expand the Python-in-boot image again until the smaller PID 1 proof is
 repeatable. The Python payload likely belongs in a second-stage delivery after
@@ -298,9 +358,9 @@ micctrl --status
 ssh -o BatchMode=yes mic0 'uname -a; ps -p 1 -o pid,ppid,comm,args; cat /proc/cmdline'
 ```
 
-## Pass Criteria
+## Full Resident Init Pass Criteria
 
-The first PID 1 boot passes only if all of these are true:
+The full resident project init milestone passes only if all of these are true:
 
 - PID 1 is project-controlled `/init`
 - `/proc` is mounted
@@ -312,5 +372,10 @@ The first PID 1 boot passes only if all of these are true:
 - rollback to stock succeeds
 - stock uOS boots normally afterward
 
-This milestone has not passed. The prepared image exists and stock rollback is
-verified, but project `/init` has not yet run as PID 1.
+This full resident milestone has not passed. The prepared `/init` image exists
+and stock rollback is verified, but that `/init` image has not yet run as a
+resident PID 1 with `hello-knc` and Python core tests.
+
+The narrower `/sbin/init` handoff milestone has passed: a project-controlled
+init wrapper ran as PID 1, wrote a marker with `project_pid=1`, execed stock
+`init.sysvinit`, preserved stock SSH startup, and rolled back to stock.

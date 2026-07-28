@@ -1,6 +1,6 @@
 id: first-project-pid1
 title: First project-controlled K1OM PID 1 boot
-status: pid1-blocked-custom-micdir-snippet-passed
+status: pid1-handoff-passed-resident-init-open
 date_utc: 2026-07-28
 hardware:
   card: Intel Xeon Phi 5110P
@@ -30,7 +30,9 @@ validation:
 activation:
   attempted: true
   requires_explicit_approval: false
-  project_init_observed: false
+  project_init_observed: true
+  project_init_mode: sbin_init_handoff_to_stock_sysvinit
+  resident_project_init_observed: false
   custom_micdir_snippet_observed: true
   rollback_verified: true
   attempts:
@@ -77,9 +79,22 @@ activation:
       snippet_sha256: 6bbf26eca6f16655bb49a2a797a1546921d328a06a3b85540492a4c0d6f0b17e
       evidence: "SSH observed project /etc/issue banner, rc5 service symlink, and /project-boot-snippet.txt marker; PID 1 remained stock init [5]"
       rollback_evidence: "stock SSH worked after restore; stock /etc/issue restored; /project-boot-snippet.txt absent; /etc/mpss/mic0.conf hash matched baseline"
+    - method: stock_dynamic_micdir_overlay_resident_shell_init
+      result: online_but_ssh_not_available
+      run_dir: /root/xeon-phi-revival-local/uos-boot-builds/micdir-pid1-proof-20260728-065948
+      init_sha256: 32195f71e5c4ea4ef3a0d07ff2a715ddab78932525976fa9b06a68c5a58a28c3
+      issue_sha256: 859726e2cd8addff33189c366be039d358b8588258543e20c1c1d22011abb678
+      evidence: "MPSS reported online, but SSH failed in six bounded checks; stock recovered after removing overlay, regenerating ramfs, and normal micctrl reset"
+    - method: stock_dynamic_micdir_overlay_sbin_init_handoff
+      result: project_pid1_marker_verified_then_stock_init
+      run_dir: /root/xeon-phi-revival-local/uos-boot-builds/micdir-pid1-handoff-20260728-070556
+      init_sha256: a9a363cdd22f13f0f31890effb0c82983332f25a79cef7f27b049d205ef02ae3
+      issue_sha256: 405a39009bc4b0ef026933fa02da4375300fa687984054a85d38b47bb5151ea6
+      evidence: "SSH observed /project-pid1-handoff-marker.txt with project_pid=1 after wrapper execed /sbin/init.sysvinit; PID 1 then appeared as init.sysvinit init [5]"
+      rollback_evidence: "overlay files absent; stock SSH worked after recovery boot; stock /etc/issue restored; handoff marker absent; PID 1 stock init [5]"
 blocker:
-  summary: Project PID1 images still stall before verifiable marker or monitor connection, but stock dynamic MPSS boot plus MicDir overlay can run custom project content on mic0.
-  next_dependency: Reuse the MicDir proof channel and stock dynamic boot model to build a minimal native K1OM PID1 marker that immediately execs stock init.
+  summary: Minimal project PID1 handoff works, but resident project init did not yet reproduce stock networking/MPSS startup.
+  next_dependency: Generate a reusable PID1 handoff experiment script, then design resident init as either a SysV-compatible supervisor or a stock-init-plus-second-stage model.
 blocked_or_paused:
   - _sqlite3
   - _ctypes
@@ -102,9 +117,11 @@ success:
     - staticramfs_stock_copy_boot
     - staticramfs_repacked_stock_boot
     - custom_micdir_overlay_snippet_boot
+    - project_pid1_handoff_marker
+    - stock_sysvinit_after_handoff
     - rollback_to_stock
     - stock_ssh_after_rollback
   failed_items:
-    - project_init_is_pid_1
+    - resident_project_init_keeps_ssh_online
     - hello_knc_from_project_init
     - python_core_from_project_init

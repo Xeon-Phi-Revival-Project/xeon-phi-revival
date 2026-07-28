@@ -120,6 +120,13 @@ image.
   were injected through `/var/mpss/mic0`, `mic0` reached `online`, SSH worked,
   `/project-boot-snippet.txt` was observed on the card, and rollback removed
   the marker.
+- A persistent shell-as-`/sbin/init` MicDir overlay reached MPSS `online` but
+  did not bring SSH up in six bounded checks; rollback required a normal
+  `micctrl --reset` to return stock SSH.
+- A tiny project `/sbin/init` handoff overlay succeeded: the custom init ran as
+  PID 1, wrote `/project-pid1-handoff-marker.txt` with `project_pid=1`, logged
+  its handoff, execed stock `/sbin/init.sysvinit`, and SSH verified the marker
+  after the stock runlevel-5 boot completed.
 - Stock rollback succeeded: `/etc/sysconfig/mpss.conf` was restored absent,
   stock MPSS service booted `mic0` to `online`, SSH worked, and PID 1 was stock
   `init`.
@@ -163,9 +170,8 @@ image.
 
 ## Safest Next Technical Action
 
-Use the now-working MicDir overlay proof channel to make the smallest possible
-second-stage customization repeatable, then return to the PID 1 lane with a
-stock-derived handoff strategy. The next PID 1 proof should still be tiny:
-perform one observable marker action, immediately hand off to stock
-`init.sysvinit`, and verify the marker after MPSS reaches `online`. Keep Python
-out of the boot image until the PID 1 handoff is repeatable.
+Turn the successful PID 1 handoff into a reusable, generated experiment script
+with bounded SSH polling and automatic stock recovery. Keep the resident custom
+init lane separate: the next resident-init attempt needs to preserve the stock
+MPSS monitor/network startup semantics or move userland tests into a second
+stage after stock init brings the card online.
