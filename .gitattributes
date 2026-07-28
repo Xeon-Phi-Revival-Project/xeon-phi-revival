@@ -9,8 +9,13 @@
 *.yaml text eol=lf
 *.json text eol=lf
 *.csv text eol=lf
+*.tsv text eol=lf
 *.md text eol=lf
 *.txt text eol=lf
+*.fragment text eol=lf
 *.env text eol=lf
 *.gitignore text eol=lf
 .gitattributes text eol=lf
+Packages text eol=lf
+Sources text eol=lf
+Release text eol=lf

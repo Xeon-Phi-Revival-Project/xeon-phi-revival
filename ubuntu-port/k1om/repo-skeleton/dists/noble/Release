@@ -1,0 +1,7 @@
+Origin: Xeon Phi Revival Project
+Label: Xeon Phi Revival K1OM Port Lab
+Suite: noble
+Codename: noble
+Architectures: k1om source
+Components: main
+Description: Experimental metadata skeleton for a K1OM Ubuntu architecture port

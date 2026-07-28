@@ -1,0 +1,5 @@
+# Experimental dpkg cputable fragment for K1OM.
+# This is not upstream dpkg metadata.
+#
+# <Debian name>    <GNU name>    <config.guess regex>
+k1om               k1om          k1om.*

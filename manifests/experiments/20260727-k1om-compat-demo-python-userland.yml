@@ -1,0 +1,31 @@
+id: k1om-compat-demo-python-userland
+date: 2026-07-27
+track: ubuntu-24.04-uos
+levels:
+  - 1
+  - 2
+  - 3
+status: passed-demo
+runtime:
+  hello_knc: passed
+  zlib_binary: passed
+  ncurses_binary: passed
+  python_core:
+    os: passed
+    sys: passed
+    threading: passed
+  python_extensions:
+    math: passed
+    zlib: passed
+    sqlite3: missing _sqlite3
+    ctypes: missing _ctypes
+    curses: missing _curses
+integration_notes:
+  - Python rootfs requires libutil and librt runtime libraries.
+  - Python rootfs requires device nodes for null, zero, and urandom.
+  - Python zlib extension requires PIC zlib build.
+  - Python math extension requires Modules/_math.c support object.
+safety:
+  stock_boot_replacement: none
+  mic0_cleanup: completed
+  binaries_committed: none

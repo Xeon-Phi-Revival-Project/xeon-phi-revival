@@ -73,10 +73,17 @@ enough to open Level 3, and started Level 3:
   on specific host build-tool gaps.
 - CPython 3.5.10 was cross-built for K1OM and ran a `print(42)` smoke script on
   `mic0` with a temporary `PYTHONHOME`.
+- A fuller K1OM demo rootfs now runs `hello-knc`, Ubuntu-source `zlib`,
+  Ubuntu-source `ncurses`, CPython core imports, `threading`, `math`, and `zlib`
+  from inside a reversible `mic0` chroot.
+- The true Ubuntu architecture-port lane has started with proposed `k1om`
+  architecture metadata, dpkg metadata fragments, a local archive skeleton, and
+  a source-package status matrix.
 
-The narrowest next dependency for this track is packaging the CPython binary,
-`Lib/`, and selected extension modules into the local-only tiny rootfs layout,
-then testing imports such as `math`, `zlib`, `os`, `sys`, and `threading`.
+The narrowest next dependency for this track is turning the local-only rebuilt
+outputs into package metadata without committing binaries: generate package
+stanzas for the K1OM zlib/ncurses/Python artifacts and decide how the
+user-supplied MPSS runtime dependency is represented.
 
 ## Current Public Artifacts
 
@@ -91,6 +98,9 @@ then testing imports such as `math`, `zlib`, `os`, `sys`, and `threading`.
 - `docs/uos/ubuntu-24.04-level2-zlib-report.md`
 - `docs/uos/ubuntu-24.04-level2-completion-report.md`
 - `docs/uos/ubuntu-24.04-level3-python-report.md`
+- `docs/uos/k1om-compat-demo-report.md`
+- `docs/uos/ubuntu-24.04-python-userland-report.md`
+- `docs/ubuntu-port/k1om-architecture-port-start.md`
 - `docs/toolchain/minimum-k1om-runtime.md`
 - `docs/toolchain/k1om-package-requirements.md`
 - `docs/toolchain/mpss-sdk-k1om-3.4.10-preinstall-report.md`
@@ -110,5 +120,5 @@ then testing imports such as `math`, `zlib`, `os`, `sys`, and `threading`.
 
 ## Safest Next Technical Action
 
-Use the passing CPython smoke to build a local-only Python rootfs package and
-expand import/module tests.
+Use the passing K1OM Python demo to generate local package metadata for the
+experimental `k1om` architecture port.

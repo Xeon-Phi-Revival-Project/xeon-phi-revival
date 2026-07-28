@@ -1,0 +1,23 @@
+id: k1om-ubuntu-architecture-port-start
+date: 2026-07-27
+track: true-ubuntu-architecture-port
+status: started
+architecture:
+  debian_arch: k1om
+  practical_toolchain_tuple: k1om-mpss-linux-gnu
+  proposed_gnu_tuple: k1om-linux-gnu
+  elf_machine: 181
+  loader: /lib64/ld-linux-k1om.so.2
+inputs:
+  - K1OM compatibility demo passed
+  - Python userland core plus math and zlib passed
+outputs:
+  - docs/ubuntu-port/k1om-architecture-port-start.md
+  - ubuntu-port/k1om/README.md
+  - ubuntu-port/k1om/dpkg/cputable.fragment
+  - ubuntu-port/k1om/dpkg/tupletable.fragment
+  - ubuntu-port/k1om/package-status.tsv
+  - tools/ubuntu-port/create-k1om-repo-skeleton.sh
+next_dependency:
+  generate real local package metadata from rebuilt K1OM packages without
+  committing binaries
