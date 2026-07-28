@@ -6,6 +6,11 @@ Knights Corner coprocessors. The project has successfully compiled and executed
 native K1OM assembly, C, pthread, math, file-I/O, and 512-bit vector test
 programs on an Intel Xeon Phi 5110P running MPSS 3.4.10.
 
+This project is AI-assisted and Codex-driven: planning, documentation,
+experiments, scripts, and repository maintenance are being developed in
+collaboration with OpenAI Codex/ChatGPT, with hardware results validated on the
+actual Xeon Phi system before being treated as project facts.
+
 ## What This Is
 
 Intel Xeon Phi Knights Corner cards are PCIe coprocessors, not ordinary host
@@ -89,7 +94,8 @@ sponsored, endorsed, or supported by Intel.
 
 ## License
 
-No project license has been selected yet. Until a license is added, do not
-assume permission to reuse original project code or documentation beyond normal
-GitHub viewing and forking behavior. Any future project license will apply only
-to original project work, not to Intel software or third-party components.
+Original project work is licensed under the MIT License. See `LICENSE`.
+
+The MIT License applies only to original project work in this repository. It
+does not grant rights to Intel software, firmware, documentation, extracted
+sysroots, or third-party components.
