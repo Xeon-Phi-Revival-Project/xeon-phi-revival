@@ -80,10 +80,27 @@ enough to open Level 3, and started Level 3:
   architecture metadata, dpkg metadata fragments, a local archive skeleton, and
   a source-package status matrix.
 
-The narrowest next dependency for this track is turning the local-only rebuilt
-outputs into package metadata without committing binaries: generate package
-stanzas for the K1OM zlib/ncurses/Python artifacts and decide how the
-user-supplied MPSS runtime dependency is represented.
+The Ubuntu package-expansion lane is paused while the uOS boot lane advances.
+The current narrowest dependency is an explicitly approved experimental boot of
+the private project PID 1 image, followed by verified rollback to the stock uOS.
+
+## Project PID 1 uOS Boot Track
+
+- The exact stock MPSS boot inputs were mapped read-only.
+- Stock kernel, System.map, base initramfs, generated card ramfs, and MPSS
+  configuration hashes are documented.
+- The active stock root image format is gzip-compressed SVR4/newc cpio.
+- The active stock kernel command line is documented.
+- A private project-controlled K1OM rootfs was assembled from the passing
+  compatibility-demo rootfs.
+- The private rootfs contains a project-owned `/init` that mounts `/proc`,
+  `/sys`, prepares `/dev`, logs to console, runs `hello-knc`, runs the Python
+  core demo, and drops into a persistent recovery shell.
+- The rootfs validator confirmed checked ELF files are K1OM `e_machine=181`
+  and required runtime libraries resolve inside the rootfs.
+- A private gzip/newc cpio image was packed and hashed.
+- The image has not been activated. Activation requires explicit approval
+  because it will stop and reboot `mic0`.
 
 ## Current Public Artifacts
 
@@ -100,6 +117,9 @@ user-supplied MPSS runtime dependency is represented.
 - `docs/uos/ubuntu-24.04-level3-python-report.md`
 - `docs/uos/k1om-compat-demo-report.md`
 - `docs/uos/ubuntu-24.04-python-userland-report.md`
+- `docs/uos/pid1-boot-path.md`
+- `docs/uos/stock-rollback-baseline.md`
+- `docs/uos/first-project-pid1-report.md`
 - `docs/ubuntu-port/k1om-architecture-port-start.md`
 - `docs/toolchain/minimum-k1om-runtime.md`
 - `docs/toolchain/k1om-package-requirements.md`
@@ -117,8 +137,10 @@ user-supplied MPSS runtime dependency is represented.
 - `manifests/experiments/native-runs/20260727-213454-math-smoke-test.yml`
 - `manifests/experiments/native-runs/20260727-213506-thread-smoke-test.yml`
 - `manifests/experiments/native-runs/20260727-214058-vector-smoke-test.yml`
+- `manifests/experiments/first-project-pid1.yml`
 
 ## Safest Next Technical Action
 
-Use the passing K1OM Python demo to generate local package metadata for the
-experimental `k1om` architecture port.
+With explicit approval, perform the first experimental MPSS boot of the private
+project PID 1 image using an alternate MPSS config directory, capture console and
+host logs, then roll back to stock and verify SSH/PID 1 on the stock uOS.

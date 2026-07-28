@@ -1,0 +1,47 @@
+id: first-project-pid1
+title: First project-controlled K1OM PID 1 boot
+status: prepared-not-activated
+date_utc: 2026-07-28
+hardware:
+  card: Intel Xeon Phi 5110P
+  target: mic0
+  host_os: CentOS 7.4-era MPSS host
+stock_baseline:
+  mpss_version: "3.4.10"
+  kernel_path: /usr/share/mpss/boot/bzImage-knightscorner
+  base_initramfs_path: /usr/share/mpss/boot/initramfs-knightscorner.cpio.gz
+  generated_ramfs_path: /var/mpss/mic0.image.gz
+  config_dir: /etc/mpss
+  config_hashes:
+    /etc/mpss/default.conf: 55a3c946c23481a467cf46c814abafce26a834b1c0dc14126b065c30d9fdfb17
+    /etc/mpss/mic0.conf: c241d140e9d8db95f808ce1732f85f1135820e4f347146db24693ea7e0e432c9
+private_image:
+  distribution: not-public
+  reason: contains Intel runtime files and locally built binaries
+  format: gzip-compressed SVR4/newc cpio
+  image_sha256: ad72f322cb923a7e8970730cd2cbb337c98cc7f409660e232e26667132031188
+  manifest_sha256: 2b7985e613a882c032ea779da181867e130016e135d17e8369858c7d6a563d07
+  init_sha256: 04690d7cdbcff315baaf12c849cf94cfa06eb2d52d4261df55c5a6b5b5927ca4
+validation:
+  rootfs_required_paths: passed
+  init_executable: passed
+  elf_machine_181_check: passed
+  runtime_dependency_check: passed
+activation:
+  attempted: false
+  requires_explicit_approval: true
+blocked_or_paused:
+  - _sqlite3
+  - _ctypes
+  - _curses
+  - APT
+  - broader package expansion
+success_criteria:
+  - project_init_is_pid_1
+  - proc_mounted
+  - sys_mounted
+  - dev_usable
+  - hello_knc_passes
+  - python_core_passes
+  - console_or_shell_available
+  - stock_rollback_succeeds
