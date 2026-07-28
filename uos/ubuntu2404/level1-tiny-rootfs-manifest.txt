@@ -1,0 +1,27 @@
+# Level 1 Tiny Rootfs Candidate Manifest
+
+# This is a planning manifest only. It does not include file contents.
+
+/sbin/init
+/bin/sh
+/bin/busybox
+/lib64/ld-linux-k1om.so.2
+/lib64/libc.so.6
+/lib64/libgcc_s.so.1
+/lib64/libpthread.so.0
+/lib64/libm.so.6
+/lib64/libdl.so.2
+/etc/inittab
+/etc/fstab
+/etc/passwd
+/etc/group
+/etc/hosts
+/etc/resolv.conf
+/dev
+/proc
+/sys
+/tmp
+/run
+/root
+/home
+/usr/bin/hello-knc

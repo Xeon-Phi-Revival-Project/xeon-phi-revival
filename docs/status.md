@@ -40,13 +40,33 @@
 ## Current Blocker
 
 The first native execution milestone is no longer blocked. The narrowest next
-technical blocker is using the proven C/runtime baseline to start the first
+technical blocker is using the proven C/runtime baseline to advance the first
 small port feasibility lanes:
 
 - Python feasibility from libc, `libm`, pthreads, file I/O, and dynamic loading;
 - Doom feasibility from libc, file I/O, timing/input/video abstraction, and
   minimal framebuffer or terminal output strategy;
+- Ubuntu 24.04 uOS feasibility from the stock MPSS boot model, beginning with a
+  tiny local-only K1OM rootfs rather than a full Ubuntu boot;
 - keep proprietary MPSS payloads out of the repository.
+
+## Ubuntu 24.04 uOS Track
+
+The Ubuntu 24.04 uOS research track has started at Level 0 to Level 1:
+
+- Level 0 stock uOS inventory is complete enough to begin tiny-rootfs planning.
+- The track definitions now separate Ubuntu-compatible, Ubuntu-derived, and
+  true Ubuntu-port targets.
+- A Level 1 tiny-rootfs candidate manifest exists under `uos/ubuntu2404/`.
+- A metadata-only ELF gap report was generated from
+  `artifacts/public/uos-elf-inventory.csv`.
+- A public-safe file-list report was derived from an ignored local stock uOS
+  inventory summary; the raw log remains local-only.
+
+The narrowest next dependency for this track is a local-only rootfs staging
+script that copies or links reviewed files into a test tree, adds `hello-knc`,
+writes a public-safe path/hash manifest, and does not replace the stock MPSS
+boot image.
 
 ## Current Public Artifacts
 
@@ -54,6 +74,9 @@ small port feasibility lanes:
 - `artifacts/public/uos-dependency-graph.json`
 - `docs/uos/stock-uos-elf-inventory.md`
 - `docs/uos/stock-uos-library-dependencies.md`
+- `docs/uos/ubuntu-24.04-uos-research.md`
+- `docs/uos/ubuntu-24.04-level1-gap-report.md`
+- `docs/uos/ubuntu-24.04-level1-filelist-report.md`
 - `docs/toolchain/minimum-k1om-runtime.md`
 - `docs/toolchain/k1om-package-requirements.md`
 - `docs/toolchain/mpss-sdk-k1om-3.4.10-preinstall-report.md`
@@ -73,4 +96,5 @@ small port feasibility lanes:
 
 ## Safest Next Technical Action
 
-Use the passing runtime map to start the Python and Doom feasibility lanes.
+Use the passing runtime map to continue Python and Doom feasibility, and use the
+Ubuntu uOS Level 1 reports to build a local-only tiny-rootfs staging script.

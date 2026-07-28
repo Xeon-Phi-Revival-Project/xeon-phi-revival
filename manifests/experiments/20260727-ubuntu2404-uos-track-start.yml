@@ -1,0 +1,28 @@
+id: ubuntu2404-uos-track-start
+date: 2026-07-27
+track: ubuntu-24.04-uos
+level: 0-to-1
+status: started
+scope:
+  - public-safe research structure
+  - metadata-only gap reporting
+  - tiny-rootfs Level 1 planning manifest
+inputs:
+  - docs/uos/stock-mpss-3.4.10-uos-inventory.md
+  - docs/toolchain/minimum-k1om-runtime.md
+  - artifacts/public/uos-elf-inventory.csv
+outputs:
+  - docs/uos/ubuntu-24.04-uos-research.md
+  - docs/uos/ubuntu-24.04-level1-gap-report.md
+  - docs/uos/ubuntu-24.04-level1-filelist-report.md
+  - uos/ubuntu2404/README.md
+  - uos/ubuntu2404/level1-tiny-rootfs-manifest.txt
+  - tools/uos/ubuntu2404-rootfs-gap-report.sh
+  - tools/uos/ubuntu2404-filelist-gap-report.sh
+safety:
+  firmware_writes: none
+  stock_boot_replacement: none
+  proprietary_payloads_committed: none
+next_dependency:
+  public-safe stock uOS file-list classification for init scripts, symlinks,
+  device setup, and MPSS-specific boot integration
