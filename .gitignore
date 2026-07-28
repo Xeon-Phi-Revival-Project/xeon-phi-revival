@@ -1,0 +1,97 @@
+# Intel and proprietary packages
+*.rpm
+*.iso
+*.img
+*.rom
+*.fw
+*.bin
+*.tgz
+*.tar
+*.tar.gz
+*.tar.xz
+*.zip
+*.rom.smc
+mpss-*.tar
+mpss-*.tar.*
+mpss-*.tar.gz
+MPSS_*.bin
+EXT_*.rom.smc
+
+# Extracted Intel environments and private payloads
+private/
+local/
+rootfs/
+uos-rootfs/
+stock-uos/
+sysroot/
+k1om-sysroot/
+intel/
+mpss-packages/
+artifacts/private/
+xeon-phi-revival-local/
+mpss-src-inspect/
+mpss-doc-extract/
+
+# Copyrighted/source-extracted research text kept local only
+*.extracted.txt
+327364-001-jul24_djvu.txt
+apress-xeon-phi-source-scan/
+
+# Built binaries and object files
+*.o
+*.a
+*.so
+*.so.*
+*.elf
+*.out
+*.exe
+*.dll
+build/
+dist/
+out/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+
+# Secrets and credentials
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+known_hosts
+authorized_keys
+
+# Raw bring-up logs and screenshots; publish sanitized manifests instead
+*.log
+vnc-*.bmp
+idrac-redfish-inventory.json
+phi-*-baseline-*.md
+phi-5110p-centos-boot-baseline-*.md
+
+# Local one-off remote operation scripts and old risky diagnostics
+remote_*.sh
+build_patched_*.sh
+extract_archive_zip_entry.py
+archive-mpss-intel-metadata.json
+mpss_user_guide_recovery_search_hits.txt
+xeon_phi_book_search_hits.txt
+pdf_path.txt
+xeon_phi_f2_research_summary.md
+
+# Temporary/editor/system files
+.vscode/
+.idea/
+__pycache__/
+*.pyc
+*.swp
+*.tmp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# OneDrive conflict files
+*Conflicted copy*

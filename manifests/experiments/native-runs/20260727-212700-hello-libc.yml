@@ -1,0 +1,7 @@
+id: 20260727-212700-native-k1om-test
+binary: build/k1om-sdk-validation/hello-libc
+sha256: 1a8c3f9a97939c0ee4fe728ec2566fc3462e3263ba7c159363c1d5f6544a864e
+file: build/k1om-sdk-validation/hello-libc: ELF 64-bit LSB executable, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.16, not stripped
+mic_target: mic0
+execute: 0
+Linux mic0.local 2.6.38.8+mpss3.4.10 #1 SMP Thu Jan 12 16:38:30 EST 2017 k1om GNU/Linux

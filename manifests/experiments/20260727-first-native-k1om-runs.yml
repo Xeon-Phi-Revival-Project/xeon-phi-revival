@@ -1,0 +1,104 @@
+id: 20260727-first-native-k1om-runs
+kind: native-execution-milestone
+date: 2026-07-27
+hardware: 5110p-r730-centos74-20260727
+host_os: CentOS Linux 7.4.1708
+mpss_version: 3.4.10
+toolchain:
+  package: mpss-sdk-k1om-3.4.10-1.x86_64
+  environment: /opt/mpss/3.4.10/environment-setup-k1om-mpss-linux
+  prefix: k1om-mpss-linux-
+status: completed
+results:
+  - name: freestanding_exit42
+    source: tests/native/start-exit42.S
+    binary: build/k1om-sdk-validation/start-exit42
+    link: static_nostdlib
+    machine: Intel K1OM
+    e_machine: 181
+    target: mic0
+    observed_exit_code: 42
+    report: native-runs/20260727-212630-start-exit42.yml
+  - name: libc_hello
+    source: tests/native/hello-libc.c
+    binary: build/k1om-sdk-validation/hello-libc
+    link: dynamic_glibc
+    interpreter: /lib64/ld-linux-k1om.so.2
+    machine: Intel K1OM
+    e_machine: 181
+    target: mic0
+    observed_stdout: hello from k1om libc
+    observed_exit_code: 0
+    dry_run_report: native-runs/20260727-212700-hello-libc.yml
+    execute_report: native-runs/20260727-212720-hello-libc.yml
+  - name: hello_knc
+    source: tests/smoke/hello-knc.c
+    binary: build/smoke/hello-knc
+    link: dynamic_glibc
+    machine: Intel K1OM
+    target: mic0
+    observed_stdout:
+      - hello from knc
+      - machine=k1om
+      - sizeof(void*)=8
+      - sizeof(long)=8
+    observed_exit_code: 0
+    execute_report: native-runs/20260727-213155-hello-knc.yml
+  - name: return_constant
+    source: tests/native/return-constant.c
+    binary: build/k1om-smoke/return-constant
+    link: dynamic_glibc
+    machine: Intel K1OM
+    target: mic0
+    observed_exit_code: 37
+    execute_report: native-runs/20260727-213424-return-constant.yml
+  - name: file_io
+    source: tests/native/file-io-smoke-test.c
+    binary: build/k1om-smoke/file-io-smoke-test
+    link: dynamic_glibc
+    machine: Intel K1OM
+    target: mic0
+    observed_stdout: file io ok
+    observed_exit_code: 0
+    execute_report: native-runs/20260727-213441-file-io-smoke-test.yml
+  - name: math
+    source: tests/native/math-smoke-test.c
+    binary: build/k1om-smoke/math-smoke-test
+    link: dynamic_glibc_lm
+    machine: Intel K1OM
+    target: mic0
+    observed_stdout: sqrt=12.0
+    observed_exit_code: 0
+    execute_report: native-runs/20260727-213454-math-smoke-test.yml
+  - name: pthread
+    source: tests/native/thread-smoke-test.c
+    binary: build/k1om-smoke/thread-smoke-test
+    link: dynamic_glibc_pthread
+    machine: Intel K1OM
+    target: mic0
+    observed_stdout: pthread result=123
+    observed_exit_code: 0
+    execute_report: native-runs/20260727-213506-thread-smoke-test.yml
+  - name: vector_zmm_inline_asm
+    source: tests/native/vector-smoke-test.c
+    binary: build/k1om-smoke/vector-smoke-test
+    link: dynamic_glibc
+    machine: Intel K1OM
+    target: mic0
+    disassembly_observed:
+      - vbroadcastsd
+      - vaddpd
+      - vmovapd
+    observed_stdout: vector sum first=11.0 last=11.0
+    observed_exit_code: 0
+    execute_report: native-runs/20260727-214058-vector-smoke-test.yml
+    note: inline assembly proof; GCC vector extensions previously scalarized the add
+notes:
+  - The native run harness now enforces timeout on the CentOS host side because
+    the stock MIC uOS does not provide a timeout command.
+  - Direct k1om-mpss-linux-as produced an ordinary x86-64 object for the first
+    x86-looking assembly test; the validated assembly path is the GCC driver
+    followed by the K1OM linker.
+  - The harness now validates K1OM binaries with readelf Machine output instead
+    of relying on file output text or path names.
+next_dependency: Python and Doom feasibility lanes

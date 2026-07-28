@@ -1,0 +1,39 @@
+id: 20260727-uos-inventory-start
+kind: uos-inventory
+date: 2026-07-27
+hardware: 5110p-r730-centos74-20260727
+host_os: CentOS Linux 7.4.1708
+kernel: 3.10.0-693.el7.x86_64
+mpss_version: 3.4.10
+status: completed-initial-inventory
+public_payload_policy:
+  include:
+    - scripts
+    - manifests
+    - notes
+    - sanitized summaries
+  exclude:
+    - stock Intel uOS images
+    - extracted MIC root filesystems
+    - Intel firmware
+    - Intel compiler binaries
+    - proprietary sysroots
+goals:
+  - inventory stock MPSS boot images
+  - inventory generated mic0 root filesystem layout
+  - capture live mic0 kernel, process, mount, network, CPU, and memory state
+  - identify loader, libc, init, SSH, and filesystem assumptions
+next_steps:
+  - summarize initramfs package/component groups
+  - keep raw output local
+  - summarize architecture facts into docs/knowledge-base and uos notes
+outputs:
+  raw_local_archive: local-only private uOS inventory archive
+  public_note: docs/uos/stock-mpss-3.4.10-uos-inventory.md
+observations:
+  - Stock uOS kernel reports k1om GNU/Linux.
+  - Stock root boots from ramfs.
+  - Dynamic loader path is /lib64/ld-linux-k1om.so.2.
+  - glibc appears to be 2.14.1 in the stock uOS.
+  - initramfs listing contains 1787 entries.
+  - BusyBox is a dynamically linked K1OM ELF.

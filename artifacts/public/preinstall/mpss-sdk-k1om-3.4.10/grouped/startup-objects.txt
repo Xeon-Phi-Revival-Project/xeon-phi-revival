@@ -1,0 +1,7 @@
+/opt/mpss/3.4.10/sysroots/k1om-mpss-linux/usr/lib64/Mcrt1.o
+/opt/mpss/3.4.10/sysroots/k1om-mpss-linux/usr/lib64/Scrt1.o
+/opt/mpss/3.4.10/sysroots/k1om-mpss-linux/usr/lib64/crt1.o
+/opt/mpss/3.4.10/sysroots/k1om-mpss-linux/usr/lib64/crti.o
+/opt/mpss/3.4.10/sysroots/k1om-mpss-linux/usr/lib64/crtn.o
+/opt/mpss/3.4.10/sysroots/k1om-mpss-linux/usr/lib64/gcrt1.o
+/opt/mpss/3.4.10/sysroots/k1om-mpss-linux/usr/lib64/k1om-mpss-linux/4.7.0/crtfastmath.o

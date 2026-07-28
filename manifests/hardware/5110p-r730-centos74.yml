@@ -1,0 +1,39 @@
+id: 5110p-r730-centos74-20260727
+kind: hardware-baseline
+date: 2026-07-27
+host:
+  system: Dell PowerEdge R730
+  management: iDRAC 8
+  host_network: private lab LAN
+  os: CentOS Linux 7.4.1708
+  kernel: 3.10.0-693.el7.x86_64
+  mpss_version: 3.4.10
+card:
+  model_family: Intel Xeon Phi 5100 series
+  board_sku: B1PRQ-5110P/5120D
+  pci_id: "8086:2250"
+  subsystem_id: "8086:2500"
+  bdf: "0000:82:00.0"
+  active_cores: 60
+  gddr_mb: 7936
+  gddr_vendor: Elpida
+  ecc: enabled
+  flash_version: 2.1.03.0386
+  smc_firmware_version: 1.15.4830
+  smc_boot_loader_version: 1.8.4326
+  uos_version: 2.6.38.8+mpss3.4.10
+  serial_from_micinfo: omitted-public
+runtime:
+  mic_status: online
+  host_mic_ip: 172.31.1.254/24
+  card_ssh_target: mic0
+  card_ssh_ip: 172.31.1.1
+  pcie_width: x8
+  pcie_speed: 5 GT/s
+cooling:
+  fan_offset: Medium Fan Speed
+  post_reboot_die_temp_c: 73
+  post_reboot_idrac_fan_rpm: 9960-10080
+notes:
+  - Public manifest intentionally excludes proprietary firmware or MPSS payloads.
+  - Sustained workload testing should include thermal watch.

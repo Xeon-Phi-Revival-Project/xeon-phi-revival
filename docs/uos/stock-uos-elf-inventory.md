@@ -1,0 +1,96 @@
+# Stock uOS ELF Inventory
+
+Public-safe metadata inventory. No binary contents are included.
+
+## Summary
+
+- ELF files inspected: 403
+- Machines:
+  - `Intel 80386`: 1
+  - `Intel K1OM`: 402
+- Program interpreters:
+  - `/lib64/ld-linux-k1om.so.2`: 234
+  - `none`: 169
+
+## Notable Paths
+
+- `/bin/arping`: `EXEC (Executable file)`, `Intel K1OM`, `dynamically linked`
+- `/bin/bash`: `EXEC (Executable file)`, `Intel K1OM`, `dynamically linked`
+- `/bin/busybox`: `EXEC (Executable file)`, `Intel K1OM`, `dynamically linked`
+- `/bin/cpio.cpio`: `EXEC (Executable file)`, `Intel K1OM`, `dynamically linked`
+- `/bin/gzip.gzip`: `EXEC (Executable file)`, `Intel K1OM`, `dynamically linked`
+- `/bin/kill.procps`: `EXEC (Executable file)`, `Intel K1OM`, `dynamically linked`
+- `/bin/login.shadow`: `EXEC (Executable file)`, `Intel K1OM`, `dynamically linked`
+- `/bin/lsmod.26`: `EXEC (Executable file)`, `Intel K1OM`, `dynamically linked`
+- `/bin/mountpoint.sysvinit`: `EXEC (Executable file)`, `Intel K1OM`, `dynamically linked`
+- `/bin/ping.iputils`: `EXEC (Executable file)`, `Intel K1OM`, `dynamically linked`
+- `/bin/ping6.iputils`: `EXEC (Executable file)`, `Intel K1OM`, `dynamically linked`
+- `/bin/ps.procps`: `EXEC (Executable file)`, `Intel K1OM`, `dynamically linked`
+- `/bin/tinylogin`: `EXEC (Executable file)`, `Intel K1OM`, `dynamically linked`
+- `/bin/tracepath`: `EXEC (Executable file)`, `Intel K1OM`, `dynamically linked`
+- `/bin/tracepath6`: `EXEC (Executable file)`, `Intel K1OM`, `dynamically linked`
+- `/bin/traceroute6`: `EXEC (Executable file)`, `Intel K1OM`, `dynamically linked`
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/blcr/blcr.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/blcr/blcr_imports.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/core/ib_addr.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/core/ib_core.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/core/ib_mad.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/core/ib_ucm.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/core/ib_uverbs.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/core/iw_cm.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/core/rdma_cm.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/core/rdma_ucm.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/dma/dma_module.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/hw/qib/ib_qib.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/hw/scif/ibscif.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/ibp/cm/ibp_cm_client.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/ibp/drv/hw/mlx4/ibp_mlx4.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/ibp/drv/hw/mlx5/ibp_mlx5.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/ibp/drv/ibp_client.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/ibp/sa/ibp_sa_client.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/micscif/micscif.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/micscif/ringbuffer.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/mpssboot/mpssboot.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/pm_scif/pm_scif.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/ramoops/ramoops.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/ras/micras.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/ulp/ipoib/ib_ipoib.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/ulp/srp/ib_srp.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/vcons/michvc.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/virtio/mic_virtblk.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/extra/vnet/intel_micveth.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/kernel/arch/x86/kernel/cpu/mcheck/mce-inject.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/kernel/arch/x86/kernel/test_nx.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/kernel/arch/x86/oprofile/oprofile.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/kernel/crypto/crc32c.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/kernel/crypto/md4.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/kernel/drivers/block/brd.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/kernel/drivers/block/drbd/drbd.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/kernel/drivers/scsi/scsi_transport_srp.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/kernel/drivers/scsi/scsi_wait_scan.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/kernel/fs/cifs/cifs.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/kernel/fs/fuse/fuse.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/kernel/kernel/configs.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/kernel/lib/libcrc32c.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/kernel/lib/lru_cache.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/kernel/net/802/garp.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/kernel/net/802/p8022.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/kernel/net/802/psnap.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/kernel/net/802/stp.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/kernel/net/8021q/8021q.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/kernel/net/dccp/dccp.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/kernel/net/dccp/dccp_ipv4.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/kernel/net/dccp/dccp_ipv6.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/kernel/net/llc/llc.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/kernel/net/sctp/sctp.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib/modules/2.6.38.8+mpss3.4.10/kernel/net/tipc/tipc.ko`: `REL (Relocatable file)`, `Intel K1OM`, ``
+- `/lib64/ld-2.14.1.so`: `DYN (Shared object file)`, `Intel K1OM`, `dynamically linked`
+- `/lib64/libBrokenLocale-2.14.1.so`: `DYN (Shared object file)`, `Intel K1OM`, `dynamically linked`
+- `/lib64/libacl.so.1.1.0`: `DYN (Shared object file)`, `Intel K1OM`, `dynamically linked`
+- `/lib64/libanl-2.14.1.so`: `DYN (Shared object file)`, `Intel K1OM`, `dynamically linked`
+- `/lib64/libattr.so.1.1.0`: `DYN (Shared object file)`, `Intel K1OM`, `dynamically linked`
+- `/lib64/libblkid.so.1.1.0`: `DYN (Shared object file)`, `Intel K1OM`, `dynamically linked`
+- `/lib64/libc-2.14.1.so`: `DYN (Shared object file)`, `Intel K1OM`, `dynamically linked`
+- `/lib64/libcap.so.2.22`: `DYN (Shared object file)`, `Intel K1OM`, `dynamically linked`
+- `/lib64/libcom_err.so.2.1`: `DYN (Shared object file)`, `Intel K1OM`, `dynamically linked`
+- `/lib64/libcrypt-2.14.1.so`: `DYN (Shared object file)`, `Intel K1OM`, `dynamically linked`

@@ -1,0 +1,2 @@
+/opt/mpss/3.4.10/environment-setup-k1om-mpss-linux
+/opt/mpss/3.4.10/site-config-k1om-mpss-linux

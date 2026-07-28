@@ -1,0 +1,66 @@
+id: native-smoke-tests-awaiting-compiler
+kind: native-test-plan
+status: active
+blocker: first compiler blocker cleared by mpss-sdk-k1om-3.4.10 install
+tests:
+  - tests/native/start-exit42.S
+  - tests/native/hello-libc.c
+  - tests/native/return-constant.c
+  - tests/native/file-io-smoke-test.c
+  - tests/native/math-smoke-test.c
+  - tests/native/vector-smoke-test.c
+  - tests/native/thread-smoke-test.c
+expected_build_commands:
+  k1om_freestanding_asm: k1om-mpss-linux-gcc -c tests/native/start-exit42.S -o start-exit42.o && k1om-mpss-linux-ld -nostdlib -e _start -o start-exit42 start-exit42.o
+  intel_dynamic: icc -mmic -O2 -o hello-libc tests/native/hello-libc.c
+  intel_static: icc -mmic -static -O2 -o hello-libc-static tests/native/hello-libc.c
+  gcc_dynamic: k1om-mpss-linux-gcc -O2 -Wall -Wextra -o hello-libc tests/native/hello-libc.c
+validation:
+  - readelf must report the K1OM machine rather than ordinary x86-64
+  - file output is recorded but is not sufficient by itself
+  - freestanding assembly output must report e_machine 181 before any run
+  - dynamic binaries should request /lib64/ld-linux-k1om.so.2
+  - do not execute unknown or ordinary x86-64 binaries on mic0
+safe_harness_check:
+  command: bash experiments/run-native-k1om-test.sh --binary /bin/ls
+  expected_result: reject ordinary x86-64 before SSH copy or execution
+  observed_exit_code: 10
+completed_runs:
+  freestanding_exit42:
+    report: manifests/experiments/native-runs/20260727-212630-start-exit42.yml
+    observed_exit_code: 42
+  libc_hello:
+    dry_run_report: manifests/experiments/native-runs/20260727-212700-hello-libc.yml
+    execute_report: manifests/experiments/native-runs/20260727-212720-hello-libc.yml
+    observed_stdout: hello from k1om libc
+    observed_exit_code: 0
+  hello_knc:
+    execute_report: manifests/experiments/native-runs/20260727-213155-hello-knc.yml
+    observed_machine: k1om
+    observed_pointer_size: 8
+    observed_long_size: 8
+    observed_exit_code: 0
+  return_constant:
+    execute_report: manifests/experiments/native-runs/20260727-213424-return-constant.yml
+    observed_exit_code: 37
+  file_io:
+    execute_report: manifests/experiments/native-runs/20260727-213441-file-io-smoke-test.yml
+    observed_stdout: file io ok
+    observed_exit_code: 0
+  math:
+    execute_report: manifests/experiments/native-runs/20260727-213454-math-smoke-test.yml
+    observed_stdout: sqrt=12.0
+    observed_exit_code: 0
+  pthread:
+    execute_report: manifests/experiments/native-runs/20260727-213506-thread-smoke-test.yml
+    observed_stdout: pthread result=123
+    observed_exit_code: 0
+  vector_zmm_inline_asm:
+    execute_report: manifests/experiments/native-runs/20260727-214058-vector-smoke-test.yml
+    disassembly_observed:
+      - vbroadcastsd
+      - vaddpd
+      - vmovapd
+    observed_stdout: vector sum first=11.0 last=11.0
+    observed_exit_code: 0
+    note: inline assembly proof; GCC vector extensions previously scalarized the add

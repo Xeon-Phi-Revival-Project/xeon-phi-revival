@@ -1,0 +1,1 @@
+982ba69037f3c4e2728d5bf0b038fead163a4c10db1d8a53f33e14a2afe0f401  <local-mpss-extract>/mpss-3.4.10/mpss-sdk-k1om-3.4.10-1.x86_64.rpm

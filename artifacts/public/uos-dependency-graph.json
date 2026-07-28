@@ -1,0 +1,7924 @@
+{
+  "edges": [
+    {
+      "from": "/bin/arping",
+      "kind": "DT_NEEDED",
+      "to": "libsysfs.so.2"
+    },
+    {
+      "from": "/bin/arping",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/bin/bash",
+      "kind": "DT_NEEDED",
+      "to": "libtinfo.so.5"
+    },
+    {
+      "from": "/bin/bash",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/bin/bash",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/bin/busybox",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/bin/cpio.cpio",
+      "kind": "DT_NEEDED",
+      "to": "librt.so.1"
+    },
+    {
+      "from": "/bin/cpio.cpio",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/bin/gzip.gzip",
+      "kind": "DT_NEEDED",
+      "to": "librt.so.1"
+    },
+    {
+      "from": "/bin/gzip.gzip",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/bin/kill.procps",
+      "kind": "DT_NEEDED",
+      "to": "libproc-3.2.8.so"
+    },
+    {
+      "from": "/bin/kill.procps",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/bin/login.shadow",
+      "kind": "DT_NEEDED",
+      "to": "libpam_misc.so.0"
+    },
+    {
+      "from": "/bin/login.shadow",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/bin/login.shadow",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/bin/lsmod.26",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/bin/mountpoint.sysvinit",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/bin/ping.iputils",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/bin/ping6.iputils",
+      "kind": "DT_NEEDED",
+      "to": "libresolv.so.2"
+    },
+    {
+      "from": "/bin/ping6.iputils",
+      "kind": "DT_NEEDED",
+      "to": "libcrypto.so.1.0.0"
+    },
+    {
+      "from": "/bin/ping6.iputils",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/bin/ps.procps",
+      "kind": "DT_NEEDED",
+      "to": "libproc-3.2.8.so"
+    },
+    {
+      "from": "/bin/ps.procps",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/bin/tinylogin",
+      "kind": "DT_NEEDED",
+      "to": "libcrypt.so.1"
+    },
+    {
+      "from": "/bin/tinylogin",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/bin/tracepath",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/bin/tracepath6",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/bin/traceroute6",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libBrokenLocale-2.14.1.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libacl.so.1.1.0",
+      "kind": "DT_NEEDED",
+      "to": "libattr.so.1"
+    },
+    {
+      "from": "/lib64/libacl.so.1.1.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libanl-2.14.1.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libanl-2.14.1.so",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/lib64/libattr.so.1.1.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libblkid.so.1.1.0",
+      "kind": "DT_NEEDED",
+      "to": "libuuid.so.1"
+    },
+    {
+      "from": "/lib64/libblkid.so.1.1.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libc-2.14.1.so",
+      "kind": "DT_NEEDED",
+      "to": "ld-linux-k1om.so.2"
+    },
+    {
+      "from": "/lib64/libcap.so.2.22",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libcom_err.so.2.1",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/lib64/libcom_err.so.2.1",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libcrypt-2.14.1.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libcrypto.so.1.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/lib64/libcrypto.so.1.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libdl-2.14.1.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libdl-2.14.1.so",
+      "kind": "DT_NEEDED",
+      "to": "ld-linux-k1om.so.2"
+    },
+    {
+      "from": "/lib64/libe2p.so.2.3",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libext2fs.so.2.4",
+      "kind": "DT_NEEDED",
+      "to": "libcom_err.so.2"
+    },
+    {
+      "from": "/lib64/libext2fs.so.2.4",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libgcc_s.so.1",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libm-2.14.1.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libncurses.so.5.9",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libncurses.so.5.9",
+      "kind": "DT_NEEDED",
+      "to": "libtinfo.so.5"
+    },
+    {
+      "from": "/lib64/libnsl-2.14.1.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libnss_compat-2.14.1.so",
+      "kind": "DT_NEEDED",
+      "to": "libnsl.so.1"
+    },
+    {
+      "from": "/lib64/libnss_compat-2.14.1.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libnss_dns-2.14.1.so",
+      "kind": "DT_NEEDED",
+      "to": "libresolv.so.2"
+    },
+    {
+      "from": "/lib64/libnss_dns-2.14.1.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libnss_files-2.14.1.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libpam.so.0.83.1",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/lib64/libpam.so.0.83.1",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libpam_misc.so.0.82.0",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/lib64/libpam_misc.so.0.82.0",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/lib64/libpam_misc.so.0.82.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libpamc.so.0.82.1",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libproc-3.2.8.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libpthread-2.14.1.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libpthread-2.14.1.so",
+      "kind": "DT_NEEDED",
+      "to": "ld-linux-k1om.so.2"
+    },
+    {
+      "from": "/lib64/libresolv-2.14.1.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/librt-2.14.1.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/librt-2.14.1.so",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/lib64/librt-2.14.1.so",
+      "kind": "DT_NEEDED",
+      "to": "ld-linux-k1om.so.2"
+    },
+    {
+      "from": "/lib64/libss.so.2.0",
+      "kind": "DT_NEEDED",
+      "to": "libcom_err.so.2"
+    },
+    {
+      "from": "/lib64/libss.so.2.0",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/lib64/libss.so.2.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libthread_db-1.0.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libtinfo.so.5.9",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libudev.so.0.9.3",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libusb-0.1.so.4.4.4",
+      "kind": "DT_NEEDED",
+      "to": "libusb-1.0.so.0"
+    },
+    {
+      "from": "/lib64/libusb-0.1.so.4.4.4",
+      "kind": "DT_NEEDED",
+      "to": "librt.so.1"
+    },
+    {
+      "from": "/lib64/libusb-0.1.so.4.4.4",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/lib64/libusb-0.1.so.4.4.4",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libusb-1.0.so.0.0.0",
+      "kind": "DT_NEEDED",
+      "to": "librt.so.1"
+    },
+    {
+      "from": "/lib64/libusb-1.0.so.0.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/lib64/libusb-1.0.so.0.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libutil-2.14.1.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libuuid.so.1.3.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/libuuid.so.1.3.0",
+      "kind": "DT_NEEDED",
+      "to": "ld-linux-k1om.so.2"
+    },
+    {
+      "from": "/lib64/libwrap.so.0.7.6",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/security/pam_cap.so",
+      "kind": "DT_NEEDED",
+      "to": "libcap.so.2"
+    },
+    {
+      "from": "/lib64/security/pam_cap.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/security/pam_deny.so",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/lib64/security/pam_deny.so",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/lib64/security/pam_deny.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/security/pam_env.so",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/lib64/security/pam_env.so",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/lib64/security/pam_env.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/security/pam_faildelay.so",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/lib64/security/pam_faildelay.so",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/lib64/security/pam_faildelay.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/security/pam_group.so",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/lib64/security/pam_group.so",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/lib64/security/pam_group.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/security/pam_keyinit.so",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/lib64/security/pam_keyinit.so",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/lib64/security/pam_keyinit.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/security/pam_lastlog.so",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/lib64/security/pam_lastlog.so",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/lib64/security/pam_lastlog.so",
+      "kind": "DT_NEEDED",
+      "to": "libutil.so.1"
+    },
+    {
+      "from": "/lib64/security/pam_lastlog.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/security/pam_limits.so",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/lib64/security/pam_limits.so",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/lib64/security/pam_limits.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/security/pam_loginuid.so",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/lib64/security/pam_loginuid.so",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/lib64/security/pam_loginuid.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/security/pam_mail.so",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/lib64/security/pam_mail.so",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/lib64/security/pam_mail.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/security/pam_motd.so",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/lib64/security/pam_motd.so",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/lib64/security/pam_motd.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/security/pam_nologin.so",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/lib64/security/pam_nologin.so",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/lib64/security/pam_nologin.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/security/pam_permit.so",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/lib64/security/pam_permit.so",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/lib64/security/pam_permit.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/security/pam_rootok.so",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/lib64/security/pam_rootok.so",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/lib64/security/pam_rootok.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/security/pam_securetty.so",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/lib64/security/pam_securetty.so",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/lib64/security/pam_securetty.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/security/pam_shells.so",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/lib64/security/pam_shells.so",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/lib64/security/pam_shells.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/security/pam_unix.so",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/lib64/security/pam_unix.so",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/lib64/security/pam_unix.so",
+      "kind": "DT_NEEDED",
+      "to": "libcrypt.so.1"
+    },
+    {
+      "from": "/lib64/security/pam_unix.so",
+      "kind": "DT_NEEDED",
+      "to": "libtirpc.so.1"
+    },
+    {
+      "from": "/lib64/security/pam_unix.so",
+      "kind": "DT_NEEDED",
+      "to": "libnsl.so.1"
+    },
+    {
+      "from": "/lib64/security/pam_unix.so",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/lib64/security/pam_unix.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/security/pam_warn.so",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/lib64/security/pam_warn.so",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/lib64/security/pam_warn.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/udev/ata_id",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/udev/cdrom_id",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/udev/collect",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/udev/create_floppy_devices",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/udev/edd_id",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/udev/firmware",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/udev/fstab_import",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/udev/input_id",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/udev/path_id",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/udev/scsi_id",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/udev/usb_id",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/lib64/udev/v4l_id",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/badblocks",
+      "kind": "DT_NEEDED",
+      "to": "libext2fs.so.2"
+    },
+    {
+      "from": "/sbin/badblocks",
+      "kind": "DT_NEEDED",
+      "to": "libcom_err.so.2"
+    },
+    {
+      "from": "/sbin/badblocks",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/blkid",
+      "kind": "DT_NEEDED",
+      "to": "libblkid.so.1"
+    },
+    {
+      "from": "/sbin/blkid",
+      "kind": "DT_NEEDED",
+      "to": "libext2fs.so.2"
+    },
+    {
+      "from": "/sbin/blkid",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/bootlogd",
+      "kind": "DT_NEEDED",
+      "to": "libutil.so.1"
+    },
+    {
+      "from": "/sbin/bootlogd",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/debugfs",
+      "kind": "DT_NEEDED",
+      "to": "libext2fs.so.2"
+    },
+    {
+      "from": "/sbin/debugfs",
+      "kind": "DT_NEEDED",
+      "to": "libe2p.so.2"
+    },
+    {
+      "from": "/sbin/debugfs",
+      "kind": "DT_NEEDED",
+      "to": "libss.so.2"
+    },
+    {
+      "from": "/sbin/debugfs",
+      "kind": "DT_NEEDED",
+      "to": "libcom_err.so.2"
+    },
+    {
+      "from": "/sbin/debugfs",
+      "kind": "DT_NEEDED",
+      "to": "libblkid.so.1"
+    },
+    {
+      "from": "/sbin/debugfs",
+      "kind": "DT_NEEDED",
+      "to": "libuuid.so.1"
+    },
+    {
+      "from": "/sbin/debugfs",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/depmod.26",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/dumpe2fs",
+      "kind": "DT_NEEDED",
+      "to": "libext2fs.so.2"
+    },
+    {
+      "from": "/sbin/dumpe2fs",
+      "kind": "DT_NEEDED",
+      "to": "libcom_err.so.2"
+    },
+    {
+      "from": "/sbin/dumpe2fs",
+      "kind": "DT_NEEDED",
+      "to": "libe2p.so.2"
+    },
+    {
+      "from": "/sbin/dumpe2fs",
+      "kind": "DT_NEEDED",
+      "to": "libuuid.so.1"
+    },
+    {
+      "from": "/sbin/dumpe2fs",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/e2freefrag",
+      "kind": "DT_NEEDED",
+      "to": "libext2fs.so.2"
+    },
+    {
+      "from": "/sbin/e2freefrag",
+      "kind": "DT_NEEDED",
+      "to": "libcom_err.so.2"
+    },
+    {
+      "from": "/sbin/e2freefrag",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/e2image",
+      "kind": "DT_NEEDED",
+      "to": "libext2fs.so.2"
+    },
+    {
+      "from": "/sbin/e2image",
+      "kind": "DT_NEEDED",
+      "to": "libcom_err.so.2"
+    },
+    {
+      "from": "/sbin/e2image",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/e2undo",
+      "kind": "DT_NEEDED",
+      "to": "libext2fs.so.2"
+    },
+    {
+      "from": "/sbin/e2undo",
+      "kind": "DT_NEEDED",
+      "to": "libcom_err.so.2"
+    },
+    {
+      "from": "/sbin/e2undo",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/e4defrag",
+      "kind": "DT_NEEDED",
+      "to": "libext2fs.so.2"
+    },
+    {
+      "from": "/sbin/e4defrag",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/filefrag",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/fstab-decode",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/halt.sysvinit",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/init.sysvinit",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/insmod.26",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/killall5",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/logsave",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/mke2fs",
+      "kind": "DT_NEEDED",
+      "to": "libext2fs.so.2"
+    },
+    {
+      "from": "/sbin/mke2fs",
+      "kind": "DT_NEEDED",
+      "to": "libcom_err.so.2"
+    },
+    {
+      "from": "/sbin/mke2fs",
+      "kind": "DT_NEEDED",
+      "to": "libblkid.so.1"
+    },
+    {
+      "from": "/sbin/mke2fs",
+      "kind": "DT_NEEDED",
+      "to": "libuuid.so.1"
+    },
+    {
+      "from": "/sbin/mke2fs",
+      "kind": "DT_NEEDED",
+      "to": "libe2p.so.2"
+    },
+    {
+      "from": "/sbin/mke2fs",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/mkfs.ext2",
+      "kind": "DT_NEEDED",
+      "to": "libext2fs.so.2"
+    },
+    {
+      "from": "/sbin/mkfs.ext2",
+      "kind": "DT_NEEDED",
+      "to": "libcom_err.so.2"
+    },
+    {
+      "from": "/sbin/mkfs.ext2",
+      "kind": "DT_NEEDED",
+      "to": "libblkid.so.1"
+    },
+    {
+      "from": "/sbin/mkfs.ext2",
+      "kind": "DT_NEEDED",
+      "to": "libuuid.so.1"
+    },
+    {
+      "from": "/sbin/mkfs.ext2",
+      "kind": "DT_NEEDED",
+      "to": "libe2p.so.2"
+    },
+    {
+      "from": "/sbin/mkfs.ext2",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/mkfs.ext3",
+      "kind": "DT_NEEDED",
+      "to": "libext2fs.so.2"
+    },
+    {
+      "from": "/sbin/mkfs.ext3",
+      "kind": "DT_NEEDED",
+      "to": "libcom_err.so.2"
+    },
+    {
+      "from": "/sbin/mkfs.ext3",
+      "kind": "DT_NEEDED",
+      "to": "libblkid.so.1"
+    },
+    {
+      "from": "/sbin/mkfs.ext3",
+      "kind": "DT_NEEDED",
+      "to": "libuuid.so.1"
+    },
+    {
+      "from": "/sbin/mkfs.ext3",
+      "kind": "DT_NEEDED",
+      "to": "libe2p.so.2"
+    },
+    {
+      "from": "/sbin/mkfs.ext3",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/mkfs.ext4",
+      "kind": "DT_NEEDED",
+      "to": "libext2fs.so.2"
+    },
+    {
+      "from": "/sbin/mkfs.ext4",
+      "kind": "DT_NEEDED",
+      "to": "libcom_err.so.2"
+    },
+    {
+      "from": "/sbin/mkfs.ext4",
+      "kind": "DT_NEEDED",
+      "to": "libblkid.so.1"
+    },
+    {
+      "from": "/sbin/mkfs.ext4",
+      "kind": "DT_NEEDED",
+      "to": "libuuid.so.1"
+    },
+    {
+      "from": "/sbin/mkfs.ext4",
+      "kind": "DT_NEEDED",
+      "to": "libe2p.so.2"
+    },
+    {
+      "from": "/sbin/mkfs.ext4",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/mkfs.ext4dev",
+      "kind": "DT_NEEDED",
+      "to": "libext2fs.so.2"
+    },
+    {
+      "from": "/sbin/mkfs.ext4dev",
+      "kind": "DT_NEEDED",
+      "to": "libcom_err.so.2"
+    },
+    {
+      "from": "/sbin/mkfs.ext4dev",
+      "kind": "DT_NEEDED",
+      "to": "libblkid.so.1"
+    },
+    {
+      "from": "/sbin/mkfs.ext4dev",
+      "kind": "DT_NEEDED",
+      "to": "libuuid.so.1"
+    },
+    {
+      "from": "/sbin/mkfs.ext4dev",
+      "kind": "DT_NEEDED",
+      "to": "libe2p.so.2"
+    },
+    {
+      "from": "/sbin/mkfs.ext4dev",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/mklost+found",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/modinfo.26",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/modprobe.26",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/mount.cifs",
+      "kind": "DT_NEEDED",
+      "to": "librt.so.1"
+    },
+    {
+      "from": "/sbin/mount.cifs",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/portmap",
+      "kind": "DT_NEEDED",
+      "to": "libwrap.so.0"
+    },
+    {
+      "from": "/sbin/portmap",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/resize2fs",
+      "kind": "DT_NEEDED",
+      "to": "libe2p.so.2"
+    },
+    {
+      "from": "/sbin/resize2fs",
+      "kind": "DT_NEEDED",
+      "to": "libext2fs.so.2"
+    },
+    {
+      "from": "/sbin/resize2fs",
+      "kind": "DT_NEEDED",
+      "to": "libcom_err.so.2"
+    },
+    {
+      "from": "/sbin/resize2fs",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/rmmod.26",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/runlevel.sysvinit",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/shutdown.sysvinit",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/sysctl.procps",
+      "kind": "DT_NEEDED",
+      "to": "libproc-3.2.8.so"
+    },
+    {
+      "from": "/sbin/sysctl.procps",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/udevadm",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/udevd",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/sbin/vipw.shadow",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/augparse",
+      "kind": "DT_NEEDED",
+      "to": "libaugeas.so.0"
+    },
+    {
+      "from": "/usr/bin/augparse",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/augtool",
+      "kind": "DT_NEEDED",
+      "to": "libaugeas.so.0"
+    },
+    {
+      "from": "/usr/bin/augtool",
+      "kind": "DT_NEEDED",
+      "to": "libreadline.so.6"
+    },
+    {
+      "from": "/usr/bin/augtool",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/chage",
+      "kind": "DT_NEEDED",
+      "to": "libpam_misc.so.0"
+    },
+    {
+      "from": "/usr/bin/chage",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/usr/bin/chage",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/chattr",
+      "kind": "DT_NEEDED",
+      "to": "libe2p.so.2"
+    },
+    {
+      "from": "/usr/bin/chattr",
+      "kind": "DT_NEEDED",
+      "to": "libcom_err.so.2"
+    },
+    {
+      "from": "/usr/bin/chattr",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/chfn.shadow",
+      "kind": "DT_NEEDED",
+      "to": "libpam_misc.so.0"
+    },
+    {
+      "from": "/usr/bin/chfn.shadow",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/usr/bin/chfn.shadow",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/chsh.shadow",
+      "kind": "DT_NEEDED",
+      "to": "libpam_misc.so.0"
+    },
+    {
+      "from": "/usr/bin/chsh.shadow",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/usr/bin/chsh.shadow",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/coi_daemon",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/bin/coi_daemon",
+      "kind": "DT_NEEDED",
+      "to": "librt.so.1"
+    },
+    {
+      "from": "/usr/bin/coi_daemon",
+      "kind": "DT_NEEDED",
+      "to": "libscif.so.0"
+    },
+    {
+      "from": "/usr/bin/coi_daemon",
+      "kind": "DT_NEEDED",
+      "to": "libstdc++.so.6"
+    },
+    {
+      "from": "/usr/bin/coi_daemon",
+      "kind": "DT_NEEDED",
+      "to": "libm.so.6"
+    },
+    {
+      "from": "/usr/bin/coi_daemon",
+      "kind": "DT_NEEDED",
+      "to": "libgcc_s.so.1"
+    },
+    {
+      "from": "/usr/bin/coi_daemon",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/bin/coi_daemon",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/cr_checkpoint",
+      "kind": "DT_NEEDED",
+      "to": "libcr.so.0"
+    },
+    {
+      "from": "/usr/bin/cr_checkpoint",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/bin/cr_checkpoint",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/cr_restart",
+      "kind": "DT_NEEDED",
+      "to": "libcr.so.0"
+    },
+    {
+      "from": "/usr/bin/cr_restart",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/bin/cr_restart",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/dapltest",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/bin/dapltest",
+      "kind": "DT_NEEDED",
+      "to": "libdat2.so.2"
+    },
+    {
+      "from": "/usr/bin/dapltest",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/deltainfoxml2solv",
+      "kind": "DT_NEEDED",
+      "to": "libexpat.so.1"
+    },
+    {
+      "from": "/usr/bin/deltainfoxml2solv",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/deptestomatic",
+      "kind": "DT_NEEDED",
+      "to": "libexpat.so.1"
+    },
+    {
+      "from": "/usr/bin/deptestomatic",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/bin/deptestomatic",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/dlist_test",
+      "kind": "DT_NEEDED",
+      "to": "libsysfs.so.2"
+    },
+    {
+      "from": "/usr/bin/dlist_test",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/dtest",
+      "kind": "DT_NEEDED",
+      "to": "libdat2.so.2"
+    },
+    {
+      "from": "/usr/bin/dtest",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/dtestcm",
+      "kind": "DT_NEEDED",
+      "to": "libdat2.so.2"
+    },
+    {
+      "from": "/usr/bin/dtestcm",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/dtestx",
+      "kind": "DT_NEEDED",
+      "to": "libdat2.so.2"
+    },
+    {
+      "from": "/usr/bin/dtestx",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/dumpsolv",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/eu-ar",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/bin/eu-ar",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/eu-elfcmp",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/bin/eu-elfcmp",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/bin/eu-elfcmp",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/eu-elflint",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/bin/eu-elflint",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/bin/eu-elflint",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/eu-findtextrel",
+      "kind": "DT_NEEDED",
+      "to": "libdw.so.1"
+    },
+    {
+      "from": "/usr/bin/eu-findtextrel",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/bin/eu-findtextrel",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/eu-objdump",
+      "kind": "DT_NEEDED",
+      "to": "libasm.so.1"
+    },
+    {
+      "from": "/usr/bin/eu-objdump",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/bin/eu-objdump",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/bin/eu-objdump",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/eu-ranlib",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/bin/eu-ranlib",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/eu-strings",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/bin/eu-strings",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/eu-unstrip",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/bin/eu-unstrip",
+      "kind": "DT_NEEDED",
+      "to": "libdw.so.1"
+    },
+    {
+      "from": "/usr/bin/eu-unstrip",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/expiry",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/fadot",
+      "kind": "DT_NEEDED",
+      "to": "libfa.so.1"
+    },
+    {
+      "from": "/usr/bin/fadot",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/faillog",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/file",
+      "kind": "DT_NEEDED",
+      "to": "libmagic.so.1"
+    },
+    {
+      "from": "/usr/bin/file",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/free.procps",
+      "kind": "DT_NEEDED",
+      "to": "libproc-3.2.8.so"
+    },
+    {
+      "from": "/usr/bin/free.procps",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/gdbserver",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/bin/gdbserver",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/get_device",
+      "kind": "DT_NEEDED",
+      "to": "libsysfs.so.2"
+    },
+    {
+      "from": "/usr/bin/get_device",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/get_driver",
+      "kind": "DT_NEEDED",
+      "to": "libsysfs.so.2"
+    },
+    {
+      "from": "/usr/bin/get_driver",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/get_module",
+      "kind": "DT_NEEDED",
+      "to": "libsysfs.so.2"
+    },
+    {
+      "from": "/usr/bin/get_module",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/gpasswd",
+      "kind": "DT_NEEDED",
+      "to": "libcrypt.so.1"
+    },
+    {
+      "from": "/usr/bin/gpasswd",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/gpg-agent",
+      "kind": "DT_NEEDED",
+      "to": "libgcrypt.so.11"
+    },
+    {
+      "from": "/usr/bin/gpg-agent",
+      "kind": "DT_NEEDED",
+      "to": "libgpg-error.so.0"
+    },
+    {
+      "from": "/usr/bin/gpg-agent",
+      "kind": "DT_NEEDED",
+      "to": "libassuan.so.0"
+    },
+    {
+      "from": "/usr/bin/gpg-agent",
+      "kind": "DT_NEEDED",
+      "to": "libpth.so.20"
+    },
+    {
+      "from": "/usr/bin/gpg-agent",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/gpg-connect-agent",
+      "kind": "DT_NEEDED",
+      "to": "libassuan.so.0"
+    },
+    {
+      "from": "/usr/bin/gpg-connect-agent",
+      "kind": "DT_NEEDED",
+      "to": "libgpg-error.so.0"
+    },
+    {
+      "from": "/usr/bin/gpg-connect-agent",
+      "kind": "DT_NEEDED",
+      "to": "libreadline.so.6"
+    },
+    {
+      "from": "/usr/bin/gpg-connect-agent",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/gpg2",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/bin/gpg2",
+      "kind": "DT_NEEDED",
+      "to": "libbz2.so.0"
+    },
+    {
+      "from": "/usr/bin/gpg2",
+      "kind": "DT_NEEDED",
+      "to": "libresolv.so.2"
+    },
+    {
+      "from": "/usr/bin/gpg2",
+      "kind": "DT_NEEDED",
+      "to": "libreadline.so.6"
+    },
+    {
+      "from": "/usr/bin/gpg2",
+      "kind": "DT_NEEDED",
+      "to": "libgcrypt.so.11"
+    },
+    {
+      "from": "/usr/bin/gpg2",
+      "kind": "DT_NEEDED",
+      "to": "libgpg-error.so.0"
+    },
+    {
+      "from": "/usr/bin/gpg2",
+      "kind": "DT_NEEDED",
+      "to": "libassuan.so.0"
+    },
+    {
+      "from": "/usr/bin/gpg2",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/gpgconf",
+      "kind": "DT_NEEDED",
+      "to": "libgpg-error.so.0"
+    },
+    {
+      "from": "/usr/bin/gpgconf",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/gpgkey2ssh",
+      "kind": "DT_NEEDED",
+      "to": "libgcrypt.so.11"
+    },
+    {
+      "from": "/usr/bin/gpgkey2ssh",
+      "kind": "DT_NEEDED",
+      "to": "libgpg-error.so.0"
+    },
+    {
+      "from": "/usr/bin/gpgkey2ssh",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/gpgparsemail",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/gpgsm",
+      "kind": "DT_NEEDED",
+      "to": "libgcrypt.so.11"
+    },
+    {
+      "from": "/usr/bin/gpgsm",
+      "kind": "DT_NEEDED",
+      "to": "libgpg-error.so.0"
+    },
+    {
+      "from": "/usr/bin/gpgsm",
+      "kind": "DT_NEEDED",
+      "to": "libksba.so.8"
+    },
+    {
+      "from": "/usr/bin/gpgsm",
+      "kind": "DT_NEEDED",
+      "to": "libassuan.so.0"
+    },
+    {
+      "from": "/usr/bin/gpgsm",
+      "kind": "DT_NEEDED",
+      "to": "libreadline.so.6"
+    },
+    {
+      "from": "/usr/bin/gpgsm",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/gpgv2",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/bin/gpgv2",
+      "kind": "DT_NEEDED",
+      "to": "libbz2.so.0"
+    },
+    {
+      "from": "/usr/bin/gpgv2",
+      "kind": "DT_NEEDED",
+      "to": "libresolv.so.2"
+    },
+    {
+      "from": "/usr/bin/gpgv2",
+      "kind": "DT_NEEDED",
+      "to": "libgcrypt.so.11"
+    },
+    {
+      "from": "/usr/bin/gpgv2",
+      "kind": "DT_NEEDED",
+      "to": "libgpg-error.so.0"
+    },
+    {
+      "from": "/usr/bin/gpgv2",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/groups.shadow",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/helix2solv",
+      "kind": "DT_NEEDED",
+      "to": "libexpat.so.1"
+    },
+    {
+      "from": "/usr/bin/helix2solv",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/ib_clock_test",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/bin/ib_clock_test",
+      "kind": "DT_NEEDED",
+      "to": "librdmacm.so.1"
+    },
+    {
+      "from": "/usr/bin/ib_clock_test",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/ib_read_bw",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/bin/ib_read_bw",
+      "kind": "DT_NEEDED",
+      "to": "librdmacm.so.1"
+    },
+    {
+      "from": "/usr/bin/ib_read_bw",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/ib_read_lat",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/bin/ib_read_lat",
+      "kind": "DT_NEEDED",
+      "to": "librdmacm.so.1"
+    },
+    {
+      "from": "/usr/bin/ib_read_lat",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/ib_write_bw",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/bin/ib_write_bw",
+      "kind": "DT_NEEDED",
+      "to": "librdmacm.so.1"
+    },
+    {
+      "from": "/usr/bin/ib_write_bw",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/ib_write_bw_postlist",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/bin/ib_write_bw_postlist",
+      "kind": "DT_NEEDED",
+      "to": "librdmacm.so.1"
+    },
+    {
+      "from": "/usr/bin/ib_write_bw_postlist",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/ib_write_lat",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/bin/ib_write_lat",
+      "kind": "DT_NEEDED",
+      "to": "librdmacm.so.1"
+    },
+    {
+      "from": "/usr/bin/ib_write_lat",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/ibv_asyncwatch",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/bin/ibv_asyncwatch",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/ibv_devices",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/bin/ibv_devices",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/ibv_devinfo",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/bin/ibv_devinfo",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/ibv_rc_pingpong",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/bin/ibv_rc_pingpong",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/bin/ibv_rc_pingpong",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/ibv_srq_pingpong",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/bin/ibv_srq_pingpong",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/bin/ibv_srq_pingpong",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/ibv_uc_pingpong",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/bin/ibv_uc_pingpong",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/bin/ibv_uc_pingpong",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/ibv_ud_pingpong",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/bin/ibv_ud_pingpong",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/bin/ibv_ud_pingpong",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/installcheck",
+      "kind": "DT_NEEDED",
+      "to": "libexpat.so.1"
+    },
+    {
+      "from": "/usr/bin/installcheck",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/bin/installcheck",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/kbxutil",
+      "kind": "DT_NEEDED",
+      "to": "libksba.so.8"
+    },
+    {
+      "from": "/usr/bin/kbxutil",
+      "kind": "DT_NEEDED",
+      "to": "libgpg-error.so.0"
+    },
+    {
+      "from": "/usr/bin/kbxutil",
+      "kind": "DT_NEEDED",
+      "to": "libgcrypt.so.11"
+    },
+    {
+      "from": "/usr/bin/kbxutil",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/last.sysvinit",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/lastlog",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/lsattr",
+      "kind": "DT_NEEDED",
+      "to": "libe2p.so.2"
+    },
+    {
+      "from": "/usr/bin/lsattr",
+      "kind": "DT_NEEDED",
+      "to": "libcom_err.so.2"
+    },
+    {
+      "from": "/usr/bin/lsattr",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/mckey",
+      "kind": "DT_NEEDED",
+      "to": "librdmacm.so.1"
+    },
+    {
+      "from": "/usr/bin/mckey",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/bin/mckey",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/bin/mckey",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/mergesolv",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/mesg.sysvinit",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/newgrp.shadow",
+      "kind": "DT_NEEDED",
+      "to": "libcrypt.so.1"
+    },
+    {
+      "from": "/usr/bin/newgrp.shadow",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/passwd.shadow",
+      "kind": "DT_NEEDED",
+      "to": "libpam_misc.so.0"
+    },
+    {
+      "from": "/usr/bin/passwd.shadow",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/usr/bin/passwd.shadow",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/pgrep.procps",
+      "kind": "DT_NEEDED",
+      "to": "libproc-3.2.8.so"
+    },
+    {
+      "from": "/usr/bin/pgrep.procps",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/pkill.procps",
+      "kind": "DT_NEEDED",
+      "to": "libproc-3.2.8.so"
+    },
+    {
+      "from": "/usr/bin/pkill.procps",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/pmap.procps",
+      "kind": "DT_NEEDED",
+      "to": "libproc-3.2.8.so"
+    },
+    {
+      "from": "/usr/bin/pmap.procps",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/pwdx.procps",
+      "kind": "DT_NEEDED",
+      "to": "libproc-3.2.8.so"
+    },
+    {
+      "from": "/usr/bin/pwdx.procps",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/rcopy",
+      "kind": "DT_NEEDED",
+      "to": "librdmacm.so.1"
+    },
+    {
+      "from": "/usr/bin/rcopy",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/bin/rcopy",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/rdma_bw",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/bin/rdma_bw",
+      "kind": "DT_NEEDED",
+      "to": "librdmacm.so.1"
+    },
+    {
+      "from": "/usr/bin/rdma_bw",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/rdma_client",
+      "kind": "DT_NEEDED",
+      "to": "librdmacm.so.1"
+    },
+    {
+      "from": "/usr/bin/rdma_client",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/bin/rdma_client",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/bin/rdma_client",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/rdma_lat",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/bin/rdma_lat",
+      "kind": "DT_NEEDED",
+      "to": "librdmacm.so.1"
+    },
+    {
+      "from": "/usr/bin/rdma_lat",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/rdma_server",
+      "kind": "DT_NEEDED",
+      "to": "librdmacm.so.1"
+    },
+    {
+      "from": "/usr/bin/rdma_server",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/bin/rdma_server",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/bin/rdma_server",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/rdma_xclient",
+      "kind": "DT_NEEDED",
+      "to": "librdmacm.so.1"
+    },
+    {
+      "from": "/usr/bin/rdma_xclient",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/bin/rdma_xclient",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/bin/rdma_xclient",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/rdma_xserver",
+      "kind": "DT_NEEDED",
+      "to": "librdmacm.so.1"
+    },
+    {
+      "from": "/usr/bin/rdma_xserver",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/bin/rdma_xserver",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/bin/rdma_xserver",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/repomdxml2solv",
+      "kind": "DT_NEEDED",
+      "to": "libexpat.so.1"
+    },
+    {
+      "from": "/usr/bin/repomdxml2solv",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/riostream",
+      "kind": "DT_NEEDED",
+      "to": "librdmacm.so.1"
+    },
+    {
+      "from": "/usr/bin/riostream",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/bin/riostream",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/rping",
+      "kind": "DT_NEEDED",
+      "to": "librdmacm.so.1"
+    },
+    {
+      "from": "/usr/bin/rping",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/bin/rping",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/bin/rping",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/rpm",
+      "kind": "DT_NEEDED",
+      "to": "librpmbuild-5.4.so"
+    },
+    {
+      "from": "/usr/bin/rpm",
+      "kind": "DT_NEEDED",
+      "to": "librpm-5.4.so"
+    },
+    {
+      "from": "/usr/bin/rpm",
+      "kind": "DT_NEEDED",
+      "to": "librpmdb-5.4.so"
+    },
+    {
+      "from": "/usr/bin/rpm",
+      "kind": "DT_NEEDED",
+      "to": "librpmio-5.4.so"
+    },
+    {
+      "from": "/usr/bin/rpm",
+      "kind": "DT_NEEDED",
+      "to": "librpmmisc-5.4.so"
+    },
+    {
+      "from": "/usr/bin/rpm",
+      "kind": "DT_NEEDED",
+      "to": "libm.so.6"
+    },
+    {
+      "from": "/usr/bin/rpm",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/bin/rpm",
+      "kind": "DT_NEEDED",
+      "to": "libacl.so.1"
+    },
+    {
+      "from": "/usr/bin/rpm",
+      "kind": "DT_NEEDED",
+      "to": "libattr.so.1"
+    },
+    {
+      "from": "/usr/bin/rpm",
+      "kind": "DT_NEEDED",
+      "to": "libpcreposix.so.0"
+    },
+    {
+      "from": "/usr/bin/rpm",
+      "kind": "DT_NEEDED",
+      "to": "libdb-5.1.so"
+    },
+    {
+      "from": "/usr/bin/rpm",
+      "kind": "DT_NEEDED",
+      "to": "libmagic.so.1"
+    },
+    {
+      "from": "/usr/bin/rpm",
+      "kind": "DT_NEEDED",
+      "to": "libbz2.so.0"
+    },
+    {
+      "from": "/usr/bin/rpm",
+      "kind": "DT_NEEDED",
+      "to": "libpopt.so.0"
+    },
+    {
+      "from": "/usr/bin/rpm",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/bin/rpm",
+      "kind": "DT_NEEDED",
+      "to": "librt.so.1"
+    },
+    {
+      "from": "/usr/bin/rpm",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/bin/rpm",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/bin/rpm",
+      "kind": "DT_NEEDED",
+      "to": "libssl.so.1.0.0"
+    },
+    {
+      "from": "/usr/bin/rpm",
+      "kind": "DT_NEEDED",
+      "to": "libcrypto.so.1.0.0"
+    },
+    {
+      "from": "/usr/bin/rpm",
+      "kind": "DT_NEEDED",
+      "to": "libpcre.so.1"
+    },
+    {
+      "from": "/usr/bin/rpm",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/rpmconstant",
+      "kind": "DT_NEEDED",
+      "to": "librpmconstant-5.4.so"
+    },
+    {
+      "from": "/usr/bin/rpmconstant",
+      "kind": "DT_NEEDED",
+      "to": "librpmio-5.4.so"
+    },
+    {
+      "from": "/usr/bin/rpmconstant",
+      "kind": "DT_NEEDED",
+      "to": "libm.so.6"
+    },
+    {
+      "from": "/usr/bin/rpmconstant",
+      "kind": "DT_NEEDED",
+      "to": "librpmmisc-5.4.so"
+    },
+    {
+      "from": "/usr/bin/rpmconstant",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/bin/rpmconstant",
+      "kind": "DT_NEEDED",
+      "to": "libacl.so.1"
+    },
+    {
+      "from": "/usr/bin/rpmconstant",
+      "kind": "DT_NEEDED",
+      "to": "libattr.so.1"
+    },
+    {
+      "from": "/usr/bin/rpmconstant",
+      "kind": "DT_NEEDED",
+      "to": "libpcreposix.so.0"
+    },
+    {
+      "from": "/usr/bin/rpmconstant",
+      "kind": "DT_NEEDED",
+      "to": "libdb-5.1.so"
+    },
+    {
+      "from": "/usr/bin/rpmconstant",
+      "kind": "DT_NEEDED",
+      "to": "libmagic.so.1"
+    },
+    {
+      "from": "/usr/bin/rpmconstant",
+      "kind": "DT_NEEDED",
+      "to": "libbz2.so.0"
+    },
+    {
+      "from": "/usr/bin/rpmconstant",
+      "kind": "DT_NEEDED",
+      "to": "libpopt.so.0"
+    },
+    {
+      "from": "/usr/bin/rpmconstant",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/bin/rpmconstant",
+      "kind": "DT_NEEDED",
+      "to": "librt.so.1"
+    },
+    {
+      "from": "/usr/bin/rpmconstant",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/bin/rpmconstant",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/bin/rpmconstant",
+      "kind": "DT_NEEDED",
+      "to": "libssl.so.1.0.0"
+    },
+    {
+      "from": "/usr/bin/rpmconstant",
+      "kind": "DT_NEEDED",
+      "to": "libcrypto.so.1.0.0"
+    },
+    {
+      "from": "/usr/bin/rpmconstant",
+      "kind": "DT_NEEDED",
+      "to": "libpcre.so.1"
+    },
+    {
+      "from": "/usr/bin/rpmconstant",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/rpmdb2solv",
+      "kind": "DT_NEEDED",
+      "to": "libdb-5.1.so"
+    },
+    {
+      "from": "/usr/bin/rpmdb2solv",
+      "kind": "DT_NEEDED",
+      "to": "librpmio-5.4.so"
+    },
+    {
+      "from": "/usr/bin/rpmdb2solv",
+      "kind": "DT_NEEDED",
+      "to": "librpmdb-5.4.so"
+    },
+    {
+      "from": "/usr/bin/rpmdb2solv",
+      "kind": "DT_NEEDED",
+      "to": "libexpat.so.1"
+    },
+    {
+      "from": "/usr/bin/rpmdb2solv",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/rpmmd2solv",
+      "kind": "DT_NEEDED",
+      "to": "libexpat.so.1"
+    },
+    {
+      "from": "/usr/bin/rpmmd2solv",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/bin/rpmmd2solv",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/rpms2solv",
+      "kind": "DT_NEEDED",
+      "to": "libdb-5.1.so"
+    },
+    {
+      "from": "/usr/bin/rpms2solv",
+      "kind": "DT_NEEDED",
+      "to": "librpmio-5.4.so"
+    },
+    {
+      "from": "/usr/bin/rpms2solv",
+      "kind": "DT_NEEDED",
+      "to": "librpmdb-5.4.so"
+    },
+    {
+      "from": "/usr/bin/rpms2solv",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/rstream",
+      "kind": "DT_NEEDED",
+      "to": "librdmacm.so.1"
+    },
+    {
+      "from": "/usr/bin/rstream",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/bin/rstream",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/scdaemon",
+      "kind": "DT_NEEDED",
+      "to": "libgcrypt.so.11"
+    },
+    {
+      "from": "/usr/bin/scdaemon",
+      "kind": "DT_NEEDED",
+      "to": "libgpg-error.so.0"
+    },
+    {
+      "from": "/usr/bin/scdaemon",
+      "kind": "DT_NEEDED",
+      "to": "libksba.so.8"
+    },
+    {
+      "from": "/usr/bin/scdaemon",
+      "kind": "DT_NEEDED",
+      "to": "libassuan.so.0"
+    },
+    {
+      "from": "/usr/bin/scdaemon",
+      "kind": "DT_NEEDED",
+      "to": "libpth.so.20"
+    },
+    {
+      "from": "/usr/bin/scdaemon",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/bin/scdaemon",
+      "kind": "DT_NEEDED",
+      "to": "libusb-0.1.so.4"
+    },
+    {
+      "from": "/usr/bin/scdaemon",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/scp.openssh",
+      "kind": "DT_NEEDED",
+      "to": "librt.so.1"
+    },
+    {
+      "from": "/usr/bin/scp.openssh",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/skill",
+      "kind": "DT_NEEDED",
+      "to": "libproc-3.2.8.so"
+    },
+    {
+      "from": "/usr/bin/skill",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/slabtop",
+      "kind": "DT_NEEDED",
+      "to": "libproc-3.2.8.so"
+    },
+    {
+      "from": "/usr/bin/slabtop",
+      "kind": "DT_NEEDED",
+      "to": "libncurses.so.5"
+    },
+    {
+      "from": "/usr/bin/slabtop",
+      "kind": "DT_NEEDED",
+      "to": "libtinfo.so.5"
+    },
+    {
+      "from": "/usr/bin/slabtop",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/snice",
+      "kind": "DT_NEEDED",
+      "to": "libproc-3.2.8.so"
+    },
+    {
+      "from": "/usr/bin/snice",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/solv",
+      "kind": "DT_NEEDED",
+      "to": "libdb-5.1.so"
+    },
+    {
+      "from": "/usr/bin/solv",
+      "kind": "DT_NEEDED",
+      "to": "librpmio-5.4.so"
+    },
+    {
+      "from": "/usr/bin/solv",
+      "kind": "DT_NEEDED",
+      "to": "librpmdb-5.4.so"
+    },
+    {
+      "from": "/usr/bin/solv",
+      "kind": "DT_NEEDED",
+      "to": "libexpat.so.1"
+    },
+    {
+      "from": "/usr/bin/solv",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/bin/solv",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/ssh-keygen",
+      "kind": "DT_NEEDED",
+      "to": "libcrypto.so.1.0.0"
+    },
+    {
+      "from": "/usr/bin/ssh-keygen",
+      "kind": "DT_NEEDED",
+      "to": "librt.so.1"
+    },
+    {
+      "from": "/usr/bin/ssh-keygen",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/bin/ssh-keygen",
+      "kind": "DT_NEEDED",
+      "to": "libresolv.so.2"
+    },
+    {
+      "from": "/usr/bin/ssh-keygen",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/ssh.openssh",
+      "kind": "DT_NEEDED",
+      "to": "libcrypto.so.1.0.0"
+    },
+    {
+      "from": "/usr/bin/ssh.openssh",
+      "kind": "DT_NEEDED",
+      "to": "librt.so.1"
+    },
+    {
+      "from": "/usr/bin/ssh.openssh",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/bin/ssh.openssh",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/bin/ssh.openssh",
+      "kind": "DT_NEEDED",
+      "to": "libresolv.so.2"
+    },
+    {
+      "from": "/usr/bin/ssh.openssh",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/su",
+      "kind": "DT_NEEDED",
+      "to": "libpam_misc.so.0"
+    },
+    {
+      "from": "/usr/bin/su",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/usr/bin/su",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/susetags2solv",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/bin/susetags2solv",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/systool",
+      "kind": "DT_NEEDED",
+      "to": "libsysfs.so.2"
+    },
+    {
+      "from": "/usr/bin/systool",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/tload",
+      "kind": "DT_NEEDED",
+      "to": "libproc-3.2.8.so"
+    },
+    {
+      "from": "/usr/bin/tload",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/top.procps",
+      "kind": "DT_NEEDED",
+      "to": "libproc-3.2.8.so"
+    },
+    {
+      "from": "/usr/bin/top.procps",
+      "kind": "DT_NEEDED",
+      "to": "libtinfo.so.5"
+    },
+    {
+      "from": "/usr/bin/top.procps",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/ucmatose",
+      "kind": "DT_NEEDED",
+      "to": "librdmacm.so.1"
+    },
+    {
+      "from": "/usr/bin/ucmatose",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/bin/ucmatose",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/bin/ucmatose",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/udaddy",
+      "kind": "DT_NEEDED",
+      "to": "librdmacm.so.1"
+    },
+    {
+      "from": "/usr/bin/udaddy",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/bin/udaddy",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/udpong",
+      "kind": "DT_NEEDED",
+      "to": "librdmacm.so.1"
+    },
+    {
+      "from": "/usr/bin/udpong",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/bin/udpong",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/updateinfoxml2solv",
+      "kind": "DT_NEEDED",
+      "to": "libexpat.so.1"
+    },
+    {
+      "from": "/usr/bin/updateinfoxml2solv",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/uptime.procps",
+      "kind": "DT_NEEDED",
+      "to": "libproc-3.2.8.so"
+    },
+    {
+      "from": "/usr/bin/uptime.procps",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/utmpdump",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/uuidgen",
+      "kind": "DT_NEEDED",
+      "to": "libuuid.so.1"
+    },
+    {
+      "from": "/usr/bin/uuidgen",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/vmstat",
+      "kind": "DT_NEEDED",
+      "to": "libproc-3.2.8.so"
+    },
+    {
+      "from": "/usr/bin/vmstat",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/w",
+      "kind": "DT_NEEDED",
+      "to": "libproc-3.2.8.so"
+    },
+    {
+      "from": "/usr/bin/w",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/wall.sysvinit",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/watch.procps",
+      "kind": "DT_NEEDED",
+      "to": "libncurses.so.5"
+    },
+    {
+      "from": "/usr/bin/watch.procps",
+      "kind": "DT_NEEDED",
+      "to": "libtinfo.so.5"
+    },
+    {
+      "from": "/usr/bin/watch.procps",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/watchgnupg",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/xmlcatalog",
+      "kind": "DT_NEEDED",
+      "to": "libxml2.so.2"
+    },
+    {
+      "from": "/usr/bin/xmlcatalog",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/xmllint",
+      "kind": "DT_NEEDED",
+      "to": "libxml2.so.2"
+    },
+    {
+      "from": "/usr/bin/xmllint",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/zypp-CheckAccessDeleted",
+      "kind": "DT_NEEDED",
+      "to": "libzypp.so.810"
+    },
+    {
+      "from": "/usr/bin/zypp-CheckAccessDeleted",
+      "kind": "DT_NEEDED",
+      "to": "libstdc++.so.6"
+    },
+    {
+      "from": "/usr/bin/zypp-CheckAccessDeleted",
+      "kind": "DT_NEEDED",
+      "to": "libgcc_s.so.1"
+    },
+    {
+      "from": "/usr/bin/zypp-CheckAccessDeleted",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/bin/zypp-CheckAccessDeleted",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/bin/zypper",
+      "kind": "DT_NEEDED",
+      "to": "libzypp.so.810"
+    },
+    {
+      "from": "/usr/bin/zypper",
+      "kind": "DT_NEEDED",
+      "to": "libreadline.so.6"
+    },
+    {
+      "from": "/usr/bin/zypper",
+      "kind": "DT_NEEDED",
+      "to": "libaugeas.so.0"
+    },
+    {
+      "from": "/usr/bin/zypper",
+      "kind": "DT_NEEDED",
+      "to": "librt.so.1"
+    },
+    {
+      "from": "/usr/bin/zypper",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/bin/zypper",
+      "kind": "DT_NEEDED",
+      "to": "libstdc++.so.6"
+    },
+    {
+      "from": "/usr/bin/zypper",
+      "kind": "DT_NEEDED",
+      "to": "libm.so.6"
+    },
+    {
+      "from": "/usr/bin/zypper",
+      "kind": "DT_NEEDED",
+      "to": "libgcc_s.so.1"
+    },
+    {
+      "from": "/usr/bin/zypper",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_alpha-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_alpha-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libdw.so.1"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_alpha-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_arm-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_arm-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libdw.so.1"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_arm-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_i386-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_i386-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libdw.so.1"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_i386-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_ia64-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_ia64-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libdw.so.1"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_ia64-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_k1om-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_k1om-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libdw.so.1"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_k1om-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_m68k-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_m68k-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_mips-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_mips-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libdw.so.1"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_mips-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_parisc-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_parisc-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libdw.so.1"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_parisc-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_ppc-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_ppc-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libdw.so.1"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_ppc-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_ppc64-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_ppc64-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libdw.so.1"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_ppc64-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_s390-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_s390-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libdw.so.1"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_s390-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_sh-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_sh-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libdw.so.1"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_sh-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_sparc-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_sparc-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libdw.so.1"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_sparc-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_x86_64-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_x86_64-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libdw.so.1"
+    },
+    {
+      "from": "/usr/lib64/elfutils/libebl_x86_64-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libasm-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/lib64/libasm-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libasm-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "ld-linux-k1om.so.2"
+    },
+    {
+      "from": "/usr/lib64/libassuan.so.0.3.0",
+      "kind": "DT_NEEDED",
+      "to": "libgpg-error.so.0"
+    },
+    {
+      "from": "/usr/lib64/libassuan.so.0.3.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libaugeas.so.0.15.0",
+      "kind": "DT_NEEDED",
+      "to": "libfa.so.1"
+    },
+    {
+      "from": "/usr/lib64/libaugeas.so.0.15.0",
+      "kind": "DT_NEEDED",
+      "to": "libxml2.so.2"
+    },
+    {
+      "from": "/usr/lib64/libaugeas.so.0.15.0",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/lib64/libaugeas.so.0.15.0",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/lib64/libaugeas.so.0.15.0",
+      "kind": "DT_NEEDED",
+      "to": "libm.so.6"
+    },
+    {
+      "from": "/usr/lib64/libaugeas.so.0.15.0",
+      "kind": "DT_NEEDED",
+      "to": "libgcc_s.so.1"
+    },
+    {
+      "from": "/usr/lib64/libaugeas.so.0.15.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libbz2.so.0.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libcoi_device.so.0",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/lib64/libcoi_device.so.0",
+      "kind": "DT_NEEDED",
+      "to": "librt.so.1"
+    },
+    {
+      "from": "/usr/lib64/libcoi_device.so.0",
+      "kind": "DT_NEEDED",
+      "to": "libscif.so.0"
+    },
+    {
+      "from": "/usr/lib64/libcoi_device.so.0",
+      "kind": "DT_NEEDED",
+      "to": "libstdc++.so.6"
+    },
+    {
+      "from": "/usr/lib64/libcoi_device.so.0",
+      "kind": "DT_NEEDED",
+      "to": "libgcc_s.so.1"
+    },
+    {
+      "from": "/usr/lib64/libcoi_device.so.0",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/lib64/libcoi_device.so.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libcoi_device.so.0",
+      "kind": "DT_NEEDED",
+      "to": "ld-linux-k1om.so.2"
+    },
+    {
+      "from": "/usr/lib64/libcr.so.0.5.5",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/lib64/libcr.so.0.5.5",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/lib64/libcr.so.0.5.5",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libcr_omit.so.0.5.5",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/lib64/libcr_omit.so.0.5.5",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libcr_run.so.0.5.5",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/lib64/libcr_run.so.0.5.5",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libcurl.so.4.4.0",
+      "kind": "DT_NEEDED",
+      "to": "libldap-2.4.so.2"
+    },
+    {
+      "from": "/usr/lib64/libcurl.so.4.4.0",
+      "kind": "DT_NEEDED",
+      "to": "liblber-2.4.so.2"
+    },
+    {
+      "from": "/usr/lib64/libcurl.so.4.4.0",
+      "kind": "DT_NEEDED",
+      "to": "libresolv.so.2"
+    },
+    {
+      "from": "/usr/lib64/libcurl.so.4.4.0",
+      "kind": "DT_NEEDED",
+      "to": "libgnutls.so.26"
+    },
+    {
+      "from": "/usr/lib64/libcurl.so.4.4.0",
+      "kind": "DT_NEEDED",
+      "to": "libtasn1.so.3"
+    },
+    {
+      "from": "/usr/lib64/libcurl.so.4.4.0",
+      "kind": "DT_NEEDED",
+      "to": "libgcrypt.so.11"
+    },
+    {
+      "from": "/usr/lib64/libcurl.so.4.4.0",
+      "kind": "DT_NEEDED",
+      "to": "libgpg-error.so.0"
+    },
+    {
+      "from": "/usr/lib64/libcurl.so.4.4.0",
+      "kind": "DT_NEEDED",
+      "to": "libcap.so.2"
+    },
+    {
+      "from": "/usr/lib64/libcurl.so.4.4.0",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/lib64/libcurl.so.4.4.0",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/lib64/libcurl.so.4.4.0",
+      "kind": "DT_NEEDED",
+      "to": "librt.so.1"
+    },
+    {
+      "from": "/usr/lib64/libcurl.so.4.4.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libdaplofa.so.2.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/lib64/libdaplofa.so.2.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/lib64/libdaplofa.so.2.0.0",
+      "kind": "DT_NEEDED",
+      "to": "librdmacm.so.1"
+    },
+    {
+      "from": "/usr/lib64/libdaplofa.so.2.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libdaplomcm.so.2.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/lib64/libdaplomcm.so.2.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/lib64/libdaplomcm.so.2.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libscif.so.0"
+    },
+    {
+      "from": "/usr/lib64/libdaplomcm.so.2.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libdaploscm.so.2.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/lib64/libdaploscm.so.2.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/lib64/libdaploscm.so.2.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libdaploucm.so.2.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/lib64/libdaploucm.so.2.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/lib64/libdaploucm.so.2.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libdat2.so.2.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/lib64/libdat2.so.2.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libdb-5.1.so",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/lib64/libdb-5.1.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libdw-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/lib64/libdw-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/lib64/libdw-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libbz2.so.0"
+    },
+    {
+      "from": "/usr/lib64/libdw-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/lib64/libdw-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libdw-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "ld-linux-k1om.so.2"
+    },
+    {
+      "from": "/usr/lib64/libelf-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libelf-0.148.so",
+      "kind": "DT_NEEDED",
+      "to": "ld-linux-k1om.so.2"
+    },
+    {
+      "from": "/usr/lib64/libexpat.so.1.6.2",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libfa.so.1.3.5",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libgcrypt.so.11.7.0",
+      "kind": "DT_NEEDED",
+      "to": "libgpg-error.so.0"
+    },
+    {
+      "from": "/usr/lib64/libgcrypt.so.11.7.0",
+      "kind": "DT_NEEDED",
+      "to": "libcap.so.2"
+    },
+    {
+      "from": "/usr/lib64/libgcrypt.so.11.7.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libgnutls.so.26.22.0",
+      "kind": "DT_NEEDED",
+      "to": "libtasn1.so.3"
+    },
+    {
+      "from": "/usr/lib64/libgnutls.so.26.22.0",
+      "kind": "DT_NEEDED",
+      "to": "libgcrypt.so.11"
+    },
+    {
+      "from": "/usr/lib64/libgnutls.so.26.22.0",
+      "kind": "DT_NEEDED",
+      "to": "libgpg-error.so.0"
+    },
+    {
+      "from": "/usr/lib64/libgnutls.so.26.22.0",
+      "kind": "DT_NEEDED",
+      "to": "libcap.so.2"
+    },
+    {
+      "from": "/usr/lib64/libgnutls.so.26.22.0",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/lib64/libgnutls.so.26.22.0",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/lib64/libgnutls.so.26.22.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libgpg-error.so.0.8.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libhistory.so.6.2",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libibscif-rdmav2.so",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/lib64/libibscif-rdmav2.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libibumad.so.3.0.3",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libibverbs.so.1.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/lib64/libibverbs.so.1.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/lib64/libibverbs.so.1.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libinfinipath.so.4.0",
+      "kind": "DT_NEEDED",
+      "to": "libscif.so.0"
+    },
+    {
+      "from": "/usr/lib64/libinfinipath.so.4.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libksba.so.8.11.0",
+      "kind": "DT_NEEDED",
+      "to": "libgpg-error.so.0"
+    },
+    {
+      "from": "/usr/lib64/libksba.so.8.11.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/liblber-2.4.so.2.5.6",
+      "kind": "DT_NEEDED",
+      "to": "libresolv.so.2"
+    },
+    {
+      "from": "/usr/lib64/liblber-2.4.so.2.5.6",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libldap-2.4.so.2.5.6",
+      "kind": "DT_NEEDED",
+      "to": "liblber-2.4.so.2"
+    },
+    {
+      "from": "/usr/lib64/libldap-2.4.so.2.5.6",
+      "kind": "DT_NEEDED",
+      "to": "libresolv.so.2"
+    },
+    {
+      "from": "/usr/lib64/libldap-2.4.so.2.5.6",
+      "kind": "DT_NEEDED",
+      "to": "libgnutls.so.26"
+    },
+    {
+      "from": "/usr/lib64/libldap-2.4.so.2.5.6",
+      "kind": "DT_NEEDED",
+      "to": "libtasn1.so.3"
+    },
+    {
+      "from": "/usr/lib64/libldap-2.4.so.2.5.6",
+      "kind": "DT_NEEDED",
+      "to": "libgcrypt.so.11"
+    },
+    {
+      "from": "/usr/lib64/libldap-2.4.so.2.5.6",
+      "kind": "DT_NEEDED",
+      "to": "libgpg-error.so.0"
+    },
+    {
+      "from": "/usr/lib64/libldap-2.4.so.2.5.6",
+      "kind": "DT_NEEDED",
+      "to": "libcap.so.2"
+    },
+    {
+      "from": "/usr/lib64/libldap-2.4.so.2.5.6",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/lib64/libldap-2.4.so.2.5.6",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/lib64/libldap-2.4.so.2.5.6",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libldap_r-2.4.so.2.5.6",
+      "kind": "DT_NEEDED",
+      "to": "liblber-2.4.so.2"
+    },
+    {
+      "from": "/usr/lib64/libldap_r-2.4.so.2.5.6",
+      "kind": "DT_NEEDED",
+      "to": "libresolv.so.2"
+    },
+    {
+      "from": "/usr/lib64/libldap_r-2.4.so.2.5.6",
+      "kind": "DT_NEEDED",
+      "to": "libgnutls.so.26"
+    },
+    {
+      "from": "/usr/lib64/libldap_r-2.4.so.2.5.6",
+      "kind": "DT_NEEDED",
+      "to": "libtasn1.so.3"
+    },
+    {
+      "from": "/usr/lib64/libldap_r-2.4.so.2.5.6",
+      "kind": "DT_NEEDED",
+      "to": "libgcrypt.so.11"
+    },
+    {
+      "from": "/usr/lib64/libldap_r-2.4.so.2.5.6",
+      "kind": "DT_NEEDED",
+      "to": "libgpg-error.so.0"
+    },
+    {
+      "from": "/usr/lib64/libldap_r-2.4.so.2.5.6",
+      "kind": "DT_NEEDED",
+      "to": "libcap.so.2"
+    },
+    {
+      "from": "/usr/lib64/libldap_r-2.4.so.2.5.6",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/lib64/libldap_r-2.4.so.2.5.6",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/lib64/libldap_r-2.4.so.2.5.6",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libmagic.so.1.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/lib64/libmagic.so.1.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libmlx4-rdmav2.so",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/lib64/libmlx4-rdmav2.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libmlx5-rdmav2.so",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/lib64/libmlx5-rdmav2.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libmyo-service.so.0",
+      "kind": "DT_NEEDED",
+      "to": "libscif.so.0"
+    },
+    {
+      "from": "/usr/lib64/libmyo-service.so.0",
+      "kind": "DT_NEEDED",
+      "to": "libstdc++.so.6"
+    },
+    {
+      "from": "/usr/lib64/libmyo-service.so.0",
+      "kind": "DT_NEEDED",
+      "to": "libgcc_s.so.1"
+    },
+    {
+      "from": "/usr/lib64/libmyo-service.so.0",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/lib64/libmyo-service.so.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libmyo-service.so.0",
+      "kind": "DT_NEEDED",
+      "to": "ld-linux-k1om.so.2"
+    },
+    {
+      "from": "/usr/lib64/libmyo-service.so.0",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/lib64/libmyodbl-service.so.0",
+      "kind": "DT_NEEDED",
+      "to": "libgcc_s.so.1"
+    },
+    {
+      "from": "/usr/lib64/libmyodbl-service.so.0",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/lib64/libmyodbl-service.so.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libmyodbl-service.so.0",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/lib64/libpcre.so.1.2.7",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libpcreposix.so.0.0.4",
+      "kind": "DT_NEEDED",
+      "to": "libpcre.so.1"
+    },
+    {
+      "from": "/usr/lib64/libpcreposix.so.0.0.4",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libpopt.so.0.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libpsm_infinipath.so.1.15",
+      "kind": "DT_NEEDED",
+      "to": "libinfinipath.so.4"
+    },
+    {
+      "from": "/usr/lib64/libpsm_infinipath.so.1.15",
+      "kind": "DT_NEEDED",
+      "to": "libscif.so.0"
+    },
+    {
+      "from": "/usr/lib64/libpsm_infinipath.so.1.15",
+      "kind": "DT_NEEDED",
+      "to": "librt.so.1"
+    },
+    {
+      "from": "/usr/lib64/libpsm_infinipath.so.1.15",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/lib64/libpsm_infinipath.so.1.15",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/lib64/libpsm_infinipath.so.1.15",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libpth.so.20.0.27",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/librdmacm.so.1.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/lib64/librdmacm.so.1.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/lib64/librdmacm.so.1.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/librdmacm.so.1.0.0",
+      "kind": "DT_NEEDED",
+      "to": "ld-linux-k1om.so.2"
+    },
+    {
+      "from": "/usr/lib64/libreadline.so.6.2",
+      "kind": "DT_NEEDED",
+      "to": "libtinfo.so.5"
+    },
+    {
+      "from": "/usr/lib64/libreadline.so.6.2",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/librpm-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "librpmdb-5.4.so"
+    },
+    {
+      "from": "/usr/lib64/librpm-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "librpmio-5.4.so"
+    },
+    {
+      "from": "/usr/lib64/librpm-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "librpmmisc-5.4.so"
+    },
+    {
+      "from": "/usr/lib64/librpm-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libm.so.6"
+    },
+    {
+      "from": "/usr/lib64/librpm-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/lib64/librpm-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libacl.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpm-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libattr.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpm-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libpcreposix.so.0"
+    },
+    {
+      "from": "/usr/lib64/librpm-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libdb-5.1.so"
+    },
+    {
+      "from": "/usr/lib64/librpm-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libmagic.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpm-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libbz2.so.0"
+    },
+    {
+      "from": "/usr/lib64/librpm-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libpopt.so.0"
+    },
+    {
+      "from": "/usr/lib64/librpm-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/lib64/librpm-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "librt.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpm-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpm-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpm-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libssl.so.1.0.0"
+    },
+    {
+      "from": "/usr/lib64/librpm-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libcrypto.so.1.0.0"
+    },
+    {
+      "from": "/usr/lib64/librpm-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libpcre.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpm-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/librpmbuild-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "librpm-5.4.so"
+    },
+    {
+      "from": "/usr/lib64/librpmbuild-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "librpmdb-5.4.so"
+    },
+    {
+      "from": "/usr/lib64/librpmbuild-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "librpmio-5.4.so"
+    },
+    {
+      "from": "/usr/lib64/librpmbuild-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "librpmmisc-5.4.so"
+    },
+    {
+      "from": "/usr/lib64/librpmbuild-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libm.so.6"
+    },
+    {
+      "from": "/usr/lib64/librpmbuild-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/lib64/librpmbuild-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libacl.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmbuild-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libattr.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmbuild-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libpcreposix.so.0"
+    },
+    {
+      "from": "/usr/lib64/librpmbuild-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libdb-5.1.so"
+    },
+    {
+      "from": "/usr/lib64/librpmbuild-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libmagic.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmbuild-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libbz2.so.0"
+    },
+    {
+      "from": "/usr/lib64/librpmbuild-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libpopt.so.0"
+    },
+    {
+      "from": "/usr/lib64/librpmbuild-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/lib64/librpmbuild-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "librt.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmbuild-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmbuild-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmbuild-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libssl.so.1.0.0"
+    },
+    {
+      "from": "/usr/lib64/librpmbuild-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libcrypto.so.1.0.0"
+    },
+    {
+      "from": "/usr/lib64/librpmbuild-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libpcre.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmbuild-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/librpmconstant-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "librpmio-5.4.so"
+    },
+    {
+      "from": "/usr/lib64/librpmconstant-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libm.so.6"
+    },
+    {
+      "from": "/usr/lib64/librpmconstant-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "librpmmisc-5.4.so"
+    },
+    {
+      "from": "/usr/lib64/librpmconstant-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/lib64/librpmconstant-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libacl.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmconstant-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libattr.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmconstant-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libpcreposix.so.0"
+    },
+    {
+      "from": "/usr/lib64/librpmconstant-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libdb-5.1.so"
+    },
+    {
+      "from": "/usr/lib64/librpmconstant-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libmagic.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmconstant-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libbz2.so.0"
+    },
+    {
+      "from": "/usr/lib64/librpmconstant-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libpopt.so.0"
+    },
+    {
+      "from": "/usr/lib64/librpmconstant-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/lib64/librpmconstant-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "librt.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmconstant-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmconstant-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmconstant-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libssl.so.1.0.0"
+    },
+    {
+      "from": "/usr/lib64/librpmconstant-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libcrypto.so.1.0.0"
+    },
+    {
+      "from": "/usr/lib64/librpmconstant-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libpcre.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmconstant-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/librpmdb-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "librpmio-5.4.so"
+    },
+    {
+      "from": "/usr/lib64/librpmdb-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libm.so.6"
+    },
+    {
+      "from": "/usr/lib64/librpmdb-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "librpmmisc-5.4.so"
+    },
+    {
+      "from": "/usr/lib64/librpmdb-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/lib64/librpmdb-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libacl.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmdb-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libattr.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmdb-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libpcreposix.so.0"
+    },
+    {
+      "from": "/usr/lib64/librpmdb-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libdb-5.1.so"
+    },
+    {
+      "from": "/usr/lib64/librpmdb-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libmagic.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmdb-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libbz2.so.0"
+    },
+    {
+      "from": "/usr/lib64/librpmdb-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libpopt.so.0"
+    },
+    {
+      "from": "/usr/lib64/librpmdb-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/lib64/librpmdb-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "librt.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmdb-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmdb-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmdb-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libssl.so.1.0.0"
+    },
+    {
+      "from": "/usr/lib64/librpmdb-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libcrypto.so.1.0.0"
+    },
+    {
+      "from": "/usr/lib64/librpmdb-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libpcre.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmdb-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/librpmio-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libm.so.6"
+    },
+    {
+      "from": "/usr/lib64/librpmio-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libacl.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmio-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libattr.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmio-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libpcreposix.so.0"
+    },
+    {
+      "from": "/usr/lib64/librpmio-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libdb-5.1.so"
+    },
+    {
+      "from": "/usr/lib64/librpmio-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libmagic.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmio-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libbz2.so.0"
+    },
+    {
+      "from": "/usr/lib64/librpmio-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libpopt.so.0"
+    },
+    {
+      "from": "/usr/lib64/librpmio-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/lib64/librpmio-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "librt.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmio-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmio-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmio-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libssl.so.1.0.0"
+    },
+    {
+      "from": "/usr/lib64/librpmio-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libcrypto.so.1.0.0"
+    },
+    {
+      "from": "/usr/lib64/librpmio-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libpcre.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmio-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libgcc_s.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmio-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/librpmmisc-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/lib64/librpmmisc-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libacl.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmmisc-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libattr.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmmisc-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libpcreposix.so.0"
+    },
+    {
+      "from": "/usr/lib64/librpmmisc-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libdb-5.1.so"
+    },
+    {
+      "from": "/usr/lib64/librpmmisc-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libmagic.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmmisc-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libbz2.so.0"
+    },
+    {
+      "from": "/usr/lib64/librpmmisc-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libpopt.so.0"
+    },
+    {
+      "from": "/usr/lib64/librpmmisc-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/lib64/librpmmisc-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "librt.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmmisc-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmmisc-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmmisc-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libssl.so.1.0.0"
+    },
+    {
+      "from": "/usr/lib64/librpmmisc-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libcrypto.so.1.0.0"
+    },
+    {
+      "from": "/usr/lib64/librpmmisc-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libpcre.so.1"
+    },
+    {
+      "from": "/usr/lib64/librpmmisc-5.4.so",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libscif.so.0.0.1",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libssl.so.1.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libcrypto.so.1.0.0"
+    },
+    {
+      "from": "/usr/lib64/libssl.so.1.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libstdc++.so.6.0.16",
+      "kind": "DT_NEEDED",
+      "to": "libm.so.6"
+    },
+    {
+      "from": "/usr/lib64/libstdc++.so.6.0.16",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libstdc++.so.6.0.16",
+      "kind": "DT_NEEDED",
+      "to": "ld-linux-k1om.so.2"
+    },
+    {
+      "from": "/usr/lib64/libstdc++.so.6.0.16",
+      "kind": "DT_NEEDED",
+      "to": "libgcc_s.so.1"
+    },
+    {
+      "from": "/usr/lib64/libsysfs.so.2.0.1",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libtasn1.so.3.1.13",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libtirpc.so.1.0.10",
+      "kind": "DT_NEEDED",
+      "to": "libnsl.so.1"
+    },
+    {
+      "from": "/usr/lib64/libtirpc.so.1.0.10",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/lib64/libtirpc.so.1.0.10",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libxml2.so.2.9.4",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/lib64/libxml2.so.2.9.4",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/lib64/libxml2.so.2.9.4",
+      "kind": "DT_NEEDED",
+      "to": "libm.so.6"
+    },
+    {
+      "from": "/usr/lib64/libxml2.so.2.9.4",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libz.so.1.2.6",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/libzypp.so.810.1.0",
+      "kind": "DT_NEEDED",
+      "to": "libutil.so.1"
+    },
+    {
+      "from": "/usr/lib64/libzypp.so.810.1.0",
+      "kind": "DT_NEEDED",
+      "to": "librpm-5.4.so"
+    },
+    {
+      "from": "/usr/lib64/libzypp.so.810.1.0",
+      "kind": "DT_NEEDED",
+      "to": "libcurl.so.4"
+    },
+    {
+      "from": "/usr/lib64/libzypp.so.810.1.0",
+      "kind": "DT_NEEDED",
+      "to": "libxml2.so.2"
+    },
+    {
+      "from": "/usr/lib64/libzypp.so.810.1.0",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/lib64/libzypp.so.810.1.0",
+      "kind": "DT_NEEDED",
+      "to": "libexpat.so.1"
+    },
+    {
+      "from": "/usr/lib64/libzypp.so.810.1.0",
+      "kind": "DT_NEEDED",
+      "to": "libcrypto.so.1.0.0"
+    },
+    {
+      "from": "/usr/lib64/libzypp.so.810.1.0",
+      "kind": "DT_NEEDED",
+      "to": "libudev.so.0"
+    },
+    {
+      "from": "/usr/lib64/libzypp.so.810.1.0",
+      "kind": "DT_NEEDED",
+      "to": "libstdc++.so.6"
+    },
+    {
+      "from": "/usr/lib64/libzypp.so.810.1.0",
+      "kind": "DT_NEEDED",
+      "to": "libm.so.6"
+    },
+    {
+      "from": "/usr/lib64/libzypp.so.810.1.0",
+      "kind": "DT_NEEDED",
+      "to": "libgcc_s.so.1"
+    },
+    {
+      "from": "/usr/lib64/libzypp.so.810.1.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/mtree",
+      "kind": "DT_NEEDED",
+      "to": "librpmio-5.4.so"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/mtree",
+      "kind": "DT_NEEDED",
+      "to": "libm.so.6"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/mtree",
+      "kind": "DT_NEEDED",
+      "to": "librpmmisc-5.4.so"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/mtree",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/mtree",
+      "kind": "DT_NEEDED",
+      "to": "libacl.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/mtree",
+      "kind": "DT_NEEDED",
+      "to": "libattr.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/mtree",
+      "kind": "DT_NEEDED",
+      "to": "libpcreposix.so.0"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/mtree",
+      "kind": "DT_NEEDED",
+      "to": "libdb-5.1.so"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/mtree",
+      "kind": "DT_NEEDED",
+      "to": "libmagic.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/mtree",
+      "kind": "DT_NEEDED",
+      "to": "libbz2.so.0"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/mtree",
+      "kind": "DT_NEEDED",
+      "to": "libpopt.so.0"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/mtree",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/mtree",
+      "kind": "DT_NEEDED",
+      "to": "librt.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/mtree",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/mtree",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/mtree",
+      "kind": "DT_NEEDED",
+      "to": "libssl.so.1.0.0"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/mtree",
+      "kind": "DT_NEEDED",
+      "to": "libcrypto.so.1.0.0"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/mtree",
+      "kind": "DT_NEEDED",
+      "to": "libpcre.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/mtree",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmrepo",
+      "kind": "DT_NEEDED",
+      "to": "librpm-5.4.so"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmrepo",
+      "kind": "DT_NEEDED",
+      "to": "librpmdb-5.4.so"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmrepo",
+      "kind": "DT_NEEDED",
+      "to": "librpmio-5.4.so"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmrepo",
+      "kind": "DT_NEEDED",
+      "to": "librpmmisc-5.4.so"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmrepo",
+      "kind": "DT_NEEDED",
+      "to": "libm.so.6"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmrepo",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmrepo",
+      "kind": "DT_NEEDED",
+      "to": "libacl.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmrepo",
+      "kind": "DT_NEEDED",
+      "to": "libattr.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmrepo",
+      "kind": "DT_NEEDED",
+      "to": "libpcreposix.so.0"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmrepo",
+      "kind": "DT_NEEDED",
+      "to": "libdb-5.1.so"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmrepo",
+      "kind": "DT_NEEDED",
+      "to": "libmagic.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmrepo",
+      "kind": "DT_NEEDED",
+      "to": "libbz2.so.0"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmrepo",
+      "kind": "DT_NEEDED",
+      "to": "libpopt.so.0"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmrepo",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmrepo",
+      "kind": "DT_NEEDED",
+      "to": "librt.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmrepo",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmrepo",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmrepo",
+      "kind": "DT_NEEDED",
+      "to": "libssl.so.1.0.0"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmrepo",
+      "kind": "DT_NEEDED",
+      "to": "libcrypto.so.1.0.0"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmrepo",
+      "kind": "DT_NEEDED",
+      "to": "libpcre.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmrepo",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmspecdump",
+      "kind": "DT_NEEDED",
+      "to": "librpmbuild-5.4.so"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmspecdump",
+      "kind": "DT_NEEDED",
+      "to": "librpm-5.4.so"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmspecdump",
+      "kind": "DT_NEEDED",
+      "to": "librpmdb-5.4.so"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmspecdump",
+      "kind": "DT_NEEDED",
+      "to": "librpmio-5.4.so"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmspecdump",
+      "kind": "DT_NEEDED",
+      "to": "librpmmisc-5.4.so"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmspecdump",
+      "kind": "DT_NEEDED",
+      "to": "libm.so.6"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmspecdump",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmspecdump",
+      "kind": "DT_NEEDED",
+      "to": "libacl.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmspecdump",
+      "kind": "DT_NEEDED",
+      "to": "libattr.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmspecdump",
+      "kind": "DT_NEEDED",
+      "to": "libpcreposix.so.0"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmspecdump",
+      "kind": "DT_NEEDED",
+      "to": "libdb-5.1.so"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmspecdump",
+      "kind": "DT_NEEDED",
+      "to": "libmagic.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmspecdump",
+      "kind": "DT_NEEDED",
+      "to": "libbz2.so.0"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmspecdump",
+      "kind": "DT_NEEDED",
+      "to": "libpopt.so.0"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmspecdump",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmspecdump",
+      "kind": "DT_NEEDED",
+      "to": "librt.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmspecdump",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmspecdump",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmspecdump",
+      "kind": "DT_NEEDED",
+      "to": "libssl.so.1.0.0"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmspecdump",
+      "kind": "DT_NEEDED",
+      "to": "libcrypto.so.1.0.0"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmspecdump",
+      "kind": "DT_NEEDED",
+      "to": "libpcre.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmspecdump",
+      "kind": "DT_NEEDED",
+      "to": "libgcc_s.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/rpmspecdump",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/wget",
+      "kind": "DT_NEEDED",
+      "to": "librpmio-5.4.so"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/wget",
+      "kind": "DT_NEEDED",
+      "to": "libm.so.6"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/wget",
+      "kind": "DT_NEEDED",
+      "to": "librpmmisc-5.4.so"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/wget",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/wget",
+      "kind": "DT_NEEDED",
+      "to": "libacl.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/wget",
+      "kind": "DT_NEEDED",
+      "to": "libattr.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/wget",
+      "kind": "DT_NEEDED",
+      "to": "libpcreposix.so.0"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/wget",
+      "kind": "DT_NEEDED",
+      "to": "libdb-5.1.so"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/wget",
+      "kind": "DT_NEEDED",
+      "to": "libmagic.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/wget",
+      "kind": "DT_NEEDED",
+      "to": "libbz2.so.0"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/wget",
+      "kind": "DT_NEEDED",
+      "to": "libpopt.so.0"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/wget",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/wget",
+      "kind": "DT_NEEDED",
+      "to": "librt.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/wget",
+      "kind": "DT_NEEDED",
+      "to": "libelf.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/wget",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/wget",
+      "kind": "DT_NEEDED",
+      "to": "libssl.so.1.0.0"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/wget",
+      "kind": "DT_NEEDED",
+      "to": "libcrypto.so.1.0.0"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/wget",
+      "kind": "DT_NEEDED",
+      "to": "libpcre.so.1"
+    },
+    {
+      "from": "/usr/lib64/rpm/bin/wget",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/rsocket/librspreload.so.1.0.0",
+      "kind": "DT_NEEDED",
+      "to": "librdmacm.so.1"
+    },
+    {
+      "from": "/usr/lib64/rsocket/librspreload.so.1.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/lib64/rsocket/librspreload.so.1.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/lib64/rsocket/librspreload.so.1.0.0",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/lib64/rsocket/librspreload.so.1.0.0",
+      "kind": "DT_NEEDED",
+      "to": "ld-linux-k1om.so.2"
+    },
+    {
+      "from": "/usr/libexec/gnupg-pcsc-wrapper",
+      "kind": "DT_NEEDED",
+      "to": "libdl.so.2"
+    },
+    {
+      "from": "/usr/libexec/gnupg-pcsc-wrapper",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/libexec/gpg-check-pattern",
+      "kind": "DT_NEEDED",
+      "to": "libgcrypt.so.11"
+    },
+    {
+      "from": "/usr/libexec/gpg-check-pattern",
+      "kind": "DT_NEEDED",
+      "to": "libgpg-error.so.0"
+    },
+    {
+      "from": "/usr/libexec/gpg-check-pattern",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/libexec/gpg-preset-passphrase",
+      "kind": "DT_NEEDED",
+      "to": "libgcrypt.so.11"
+    },
+    {
+      "from": "/usr/libexec/gpg-preset-passphrase",
+      "kind": "DT_NEEDED",
+      "to": "libgpg-error.so.0"
+    },
+    {
+      "from": "/usr/libexec/gpg-preset-passphrase",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/libexec/gpg-protect-tool",
+      "kind": "DT_NEEDED",
+      "to": "libgcrypt.so.11"
+    },
+    {
+      "from": "/usr/libexec/gpg-protect-tool",
+      "kind": "DT_NEEDED",
+      "to": "libgpg-error.so.0"
+    },
+    {
+      "from": "/usr/libexec/gpg-protect-tool",
+      "kind": "DT_NEEDED",
+      "to": "libassuan.so.0"
+    },
+    {
+      "from": "/usr/libexec/gpg-protect-tool",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/libexec/gpg2keys_curl",
+      "kind": "DT_NEEDED",
+      "to": "libgpg-error.so.0"
+    },
+    {
+      "from": "/usr/libexec/gpg2keys_curl",
+      "kind": "DT_NEEDED",
+      "to": "libresolv.so.2"
+    },
+    {
+      "from": "/usr/libexec/gpg2keys_curl",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/libexec/gpg2keys_finger",
+      "kind": "DT_NEEDED",
+      "to": "libgpg-error.so.0"
+    },
+    {
+      "from": "/usr/libexec/gpg2keys_finger",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/libexec/gpg2keys_hkp",
+      "kind": "DT_NEEDED",
+      "to": "libgpg-error.so.0"
+    },
+    {
+      "from": "/usr/libexec/gpg2keys_hkp",
+      "kind": "DT_NEEDED",
+      "to": "libresolv.so.2"
+    },
+    {
+      "from": "/usr/libexec/gpg2keys_hkp",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/libexec/pt_chown",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/libexec/rmt.cpio",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/local/sbin/kexec",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/local/sbin/kexec",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/sbin/chgpasswd",
+      "kind": "DT_NEEDED",
+      "to": "libpam_misc.so.0"
+    },
+    {
+      "from": "/usr/sbin/chgpasswd",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/usr/sbin/chgpasswd",
+      "kind": "DT_NEEDED",
+      "to": "libcrypt.so.1"
+    },
+    {
+      "from": "/usr/sbin/chgpasswd",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/sbin/chpasswd.shadow",
+      "kind": "DT_NEEDED",
+      "to": "libpam_misc.so.0"
+    },
+    {
+      "from": "/usr/sbin/chpasswd.shadow",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/usr/sbin/chpasswd.shadow",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/sbin/groupadd",
+      "kind": "DT_NEEDED",
+      "to": "libpam_misc.so.0"
+    },
+    {
+      "from": "/usr/sbin/groupadd",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/usr/sbin/groupadd",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/sbin/groupdel",
+      "kind": "DT_NEEDED",
+      "to": "libpam_misc.so.0"
+    },
+    {
+      "from": "/usr/sbin/groupdel",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/usr/sbin/groupdel",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/sbin/groupmems",
+      "kind": "DT_NEEDED",
+      "to": "libpam_misc.so.0"
+    },
+    {
+      "from": "/usr/sbin/groupmems",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/usr/sbin/groupmems",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/sbin/groupmod",
+      "kind": "DT_NEEDED",
+      "to": "libpam_misc.so.0"
+    },
+    {
+      "from": "/usr/sbin/groupmod",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/usr/sbin/groupmod",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/sbin/grpck",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/sbin/grpconv",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/sbin/grpunconv",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/sbin/logoutd",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/sbin/mpssd",
+      "kind": "DT_NEEDED",
+      "to": "libscif.so.0"
+    },
+    {
+      "from": "/usr/sbin/mpssd",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/sbin/mpssd",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/sbin/mpxyd",
+      "kind": "DT_NEEDED",
+      "to": "libscif.so.0"
+    },
+    {
+      "from": "/usr/sbin/mpxyd",
+      "kind": "DT_NEEDED",
+      "to": "libibverbs.so.1"
+    },
+    {
+      "from": "/usr/sbin/mpxyd",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/sbin/mpxyd",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/sbin/newusers",
+      "kind": "DT_NEEDED",
+      "to": "libpam_misc.so.0"
+    },
+    {
+      "from": "/usr/sbin/newusers",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/usr/sbin/newusers",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/sbin/nologin",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/sbin/pwck",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/sbin/pwconv",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/sbin/pwunconv",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/sbin/sshd",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/usr/sbin/sshd",
+      "kind": "DT_NEEDED",
+      "to": "libcrypto.so.1.0.0"
+    },
+    {
+      "from": "/usr/sbin/sshd",
+      "kind": "DT_NEEDED",
+      "to": "librt.so.1"
+    },
+    {
+      "from": "/usr/sbin/sshd",
+      "kind": "DT_NEEDED",
+      "to": "libutil.so.1"
+    },
+    {
+      "from": "/usr/sbin/sshd",
+      "kind": "DT_NEEDED",
+      "to": "libz.so.1"
+    },
+    {
+      "from": "/usr/sbin/sshd",
+      "kind": "DT_NEEDED",
+      "to": "libcrypt.so.1"
+    },
+    {
+      "from": "/usr/sbin/sshd",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/sbin/unix_chkpwd",
+      "kind": "DT_NEEDED",
+      "to": "libcrypt.so.1"
+    },
+    {
+      "from": "/usr/sbin/unix_chkpwd",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/sbin/unix_update",
+      "kind": "DT_NEEDED",
+      "to": "libcrypt.so.1"
+    },
+    {
+      "from": "/usr/sbin/unix_update",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/sbin/useradd",
+      "kind": "DT_NEEDED",
+      "to": "libpam_misc.so.0"
+    },
+    {
+      "from": "/usr/sbin/useradd",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/usr/sbin/useradd",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/sbin/userdel",
+      "kind": "DT_NEEDED",
+      "to": "libpam_misc.so.0"
+    },
+    {
+      "from": "/usr/sbin/userdel",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/usr/sbin/userdel",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/sbin/usermod",
+      "kind": "DT_NEEDED",
+      "to": "libpam_misc.so.0"
+    },
+    {
+      "from": "/usr/sbin/usermod",
+      "kind": "DT_NEEDED",
+      "to": "libpam.so.0"
+    },
+    {
+      "from": "/usr/sbin/usermod",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/sbin/zypp-refresh",
+      "kind": "DT_NEEDED",
+      "to": "libzypp.so.810"
+    },
+    {
+      "from": "/usr/sbin/zypp-refresh",
+      "kind": "DT_NEEDED",
+      "to": "libpthread.so.0"
+    },
+    {
+      "from": "/usr/sbin/zypp-refresh",
+      "kind": "DT_NEEDED",
+      "to": "libstdc++.so.6"
+    },
+    {
+      "from": "/usr/sbin/zypp-refresh",
+      "kind": "DT_NEEDED",
+      "to": "libgcc_s.so.1"
+    },
+    {
+      "from": "/usr/sbin/zypp-refresh",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    },
+    {
+      "from": "/usr/sbin/zypp-refresh-wrapper",
+      "kind": "DT_NEEDED",
+      "to": "libc.so.6"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "/bin/arping",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libsysfs.so.2",
+      "type": "library"
+    },
+    {
+      "id": "libc.so.6",
+      "type": "library"
+    },
+    {
+      "id": "/bin/bash",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libtinfo.so.5",
+      "type": "library"
+    },
+    {
+      "id": "libdl.so.2",
+      "type": "library"
+    },
+    {
+      "id": "/bin/busybox",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/bin/cpio.cpio",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "librt.so.1",
+      "type": "library"
+    },
+    {
+      "id": "/bin/gzip.gzip",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/bin/kill.procps",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libproc-3.2.8.so",
+      "type": "library"
+    },
+    {
+      "id": "/bin/login.shadow",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libpam_misc.so.0",
+      "type": "library"
+    },
+    {
+      "id": "libpam.so.0",
+      "type": "library"
+    },
+    {
+      "id": "/bin/lsmod.26",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/bin/mountpoint.sysvinit",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/bin/ping.iputils",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/bin/ping6.iputils",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libresolv.so.2",
+      "type": "library"
+    },
+    {
+      "id": "libcrypto.so.1.0.0",
+      "type": "library"
+    },
+    {
+      "id": "/bin/ps.procps",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/bin/tinylogin",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libcrypt.so.1",
+      "type": "library"
+    },
+    {
+      "id": "/bin/tracepath",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/bin/tracepath6",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/bin/traceroute6",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/blcr/blcr.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/blcr/blcr_imports.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/core/ib_addr.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/core/ib_core.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/core/ib_mad.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/core/ib_ucm.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/core/ib_uverbs.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/core/iw_cm.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/core/rdma_cm.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/core/rdma_ucm.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/dma/dma_module.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/hw/qib/ib_qib.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/hw/scif/ibscif.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/ibp/cm/ibp_cm_client.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/ibp/drv/hw/mlx4/ibp_mlx4.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/ibp/drv/hw/mlx5/ibp_mlx5.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/ibp/drv/ibp_client.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/ibp/sa/ibp_sa_client.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/micscif/micscif.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/micscif/ringbuffer.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/mpssboot/mpssboot.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/pm_scif/pm_scif.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/ramoops/ramoops.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/ras/micras.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/ulp/ipoib/ib_ipoib.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/ulp/srp/ib_srp.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/vcons/michvc.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/virtio/mic_virtblk.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/extra/vnet/intel_micveth.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/kernel/arch/x86/kernel/cpu/mcheck/mce-inject.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/kernel/arch/x86/kernel/test_nx.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/kernel/arch/x86/oprofile/oprofile.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/kernel/crypto/crc32c.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/kernel/crypto/md4.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/kernel/drivers/block/brd.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/kernel/drivers/block/drbd/drbd.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/kernel/drivers/scsi/scsi_transport_srp.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/kernel/drivers/scsi/scsi_wait_scan.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/kernel/fs/cifs/cifs.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/kernel/fs/fuse/fuse.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/kernel/kernel/configs.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/kernel/lib/libcrc32c.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/kernel/lib/lru_cache.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/kernel/net/802/garp.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/kernel/net/802/p8022.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/kernel/net/802/psnap.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/kernel/net/802/stp.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/kernel/net/8021q/8021q.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/kernel/net/dccp/dccp.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/kernel/net/dccp/dccp_ipv4.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/kernel/net/dccp/dccp_ipv6.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/kernel/net/llc/llc.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/kernel/net/sctp/sctp.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib/modules/2.6.38.8+mpss3.4.10/kernel/net/tipc/tipc.ko",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/ld-2.14.1.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/libBrokenLocale-2.14.1.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/libacl.so.1.1.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libattr.so.1",
+      "type": "library"
+    },
+    {
+      "id": "/lib64/libanl-2.14.1.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libpthread.so.0",
+      "type": "library"
+    },
+    {
+      "id": "/lib64/libattr.so.1.1.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/libblkid.so.1.1.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libuuid.so.1",
+      "type": "library"
+    },
+    {
+      "id": "/lib64/libc-2.14.1.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "ld-linux-k1om.so.2",
+      "type": "library"
+    },
+    {
+      "id": "/lib64/libcap.so.2.22",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/libcom_err.so.2.1",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/libcrypt-2.14.1.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/libcrypto.so.1.0.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/libdl-2.14.1.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/libe2p.so.2.3",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/libext2fs.so.2.4",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libcom_err.so.2",
+      "type": "library"
+    },
+    {
+      "id": "/lib64/libgcc_s.so.1",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/libm-2.14.1.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/libncurses.so.5.9",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/libnsl-2.14.1.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/libnss_compat-2.14.1.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libnsl.so.1",
+      "type": "library"
+    },
+    {
+      "id": "/lib64/libnss_dns-2.14.1.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/libnss_files-2.14.1.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/libpam.so.0.83.1",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/libpam_misc.so.0.82.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/libpamc.so.0.82.1",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/libproc-3.2.8.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/libpthread-2.14.1.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/libresolv-2.14.1.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/librt-2.14.1.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/libss.so.2.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/libthread_db-1.0.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/libtinfo.so.5.9",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/libudev.so.0.9.3",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/libusb-0.1.so.4.4.4",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libusb-1.0.so.0",
+      "type": "library"
+    },
+    {
+      "id": "/lib64/libusb-1.0.so.0.0.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/libutil-2.14.1.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/libuuid.so.1.3.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/libwrap.so.0.7.6",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/security/pam_cap.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libcap.so.2",
+      "type": "library"
+    },
+    {
+      "id": "/lib64/security/pam_deny.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/security/pam_env.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/security/pam_faildelay.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/security/pam_group.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/security/pam_keyinit.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/security/pam_lastlog.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libutil.so.1",
+      "type": "library"
+    },
+    {
+      "id": "/lib64/security/pam_limits.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/security/pam_loginuid.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/security/pam_mail.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/security/pam_motd.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/security/pam_nologin.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/security/pam_permit.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/security/pam_rootok.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/security/pam_securetty.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/security/pam_shells.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/security/pam_unix.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libtirpc.so.1",
+      "type": "library"
+    },
+    {
+      "id": "/lib64/security/pam_warn.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/udev/ata_id",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/udev/cdrom_id",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/udev/collect",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/udev/create_floppy_devices",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/udev/edd_id",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/udev/firmware",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/udev/fstab_import",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/udev/input_id",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/udev/path_id",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/udev/scsi_id",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/udev/usb_id",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/lib64/udev/v4l_id",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/badblocks",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libext2fs.so.2",
+      "type": "library"
+    },
+    {
+      "id": "/sbin/blkid",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libblkid.so.1",
+      "type": "library"
+    },
+    {
+      "id": "/sbin/bootlogd",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/debugfs",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libe2p.so.2",
+      "type": "library"
+    },
+    {
+      "id": "libss.so.2",
+      "type": "library"
+    },
+    {
+      "id": "/sbin/depmod.26",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/dumpe2fs",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/e2freefrag",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/e2image",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/e2undo",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/e4defrag",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/filefrag",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/fstab-decode",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/halt.sysvinit",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/init.sysvinit",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/insmod.26",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/killall5",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/ldconfig",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/logsave",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/mke2fs",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/mkfs.ext2",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/mkfs.ext3",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/mkfs.ext4",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/mkfs.ext4dev",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/mklost+found",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/modinfo.26",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/modprobe.26",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/mount.cifs",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/portmap",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libwrap.so.0",
+      "type": "library"
+    },
+    {
+      "id": "/sbin/resize2fs",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/rmmod.26",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/runlevel.sysvinit",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/shutdown.sysvinit",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/sysctl.procps",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/udevadm",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/udevd",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/sbin/vipw.shadow",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/augparse",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libaugeas.so.0",
+      "type": "library"
+    },
+    {
+      "id": "/usr/bin/augtool",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libreadline.so.6",
+      "type": "library"
+    },
+    {
+      "id": "/usr/bin/chage",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/chattr",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/chfn.shadow",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/chsh.shadow",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/coi_daemon",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libscif.so.0",
+      "type": "library"
+    },
+    {
+      "id": "libstdc++.so.6",
+      "type": "library"
+    },
+    {
+      "id": "libm.so.6",
+      "type": "library"
+    },
+    {
+      "id": "libgcc_s.so.1",
+      "type": "library"
+    },
+    {
+      "id": "/usr/bin/cr_checkpoint",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libcr.so.0",
+      "type": "library"
+    },
+    {
+      "id": "/usr/bin/cr_restart",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/dapltest",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libdat2.so.2",
+      "type": "library"
+    },
+    {
+      "id": "/usr/bin/deltainfoxml2solv",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libexpat.so.1",
+      "type": "library"
+    },
+    {
+      "id": "/usr/bin/deptestomatic",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libz.so.1",
+      "type": "library"
+    },
+    {
+      "id": "/usr/bin/dlist_test",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/dtest",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/dtestcm",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/dtestx",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/dumpsolv",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/eu-ar",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libelf.so.1",
+      "type": "library"
+    },
+    {
+      "id": "/usr/bin/eu-elfcmp",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/eu-elflint",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/eu-findtextrel",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libdw.so.1",
+      "type": "library"
+    },
+    {
+      "id": "/usr/bin/eu-objdump",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libasm.so.1",
+      "type": "library"
+    },
+    {
+      "id": "/usr/bin/eu-ranlib",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/eu-strings",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/eu-unstrip",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/expiry",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/fadot",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libfa.so.1",
+      "type": "library"
+    },
+    {
+      "id": "/usr/bin/faillog",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/file",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libmagic.so.1",
+      "type": "library"
+    },
+    {
+      "id": "/usr/bin/free.procps",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/gdbserver",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/get_device",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/get_driver",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/get_module",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/gpasswd",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/gpg-agent",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libgcrypt.so.11",
+      "type": "library"
+    },
+    {
+      "id": "libgpg-error.so.0",
+      "type": "library"
+    },
+    {
+      "id": "libassuan.so.0",
+      "type": "library"
+    },
+    {
+      "id": "libpth.so.20",
+      "type": "library"
+    },
+    {
+      "id": "/usr/bin/gpg-connect-agent",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/gpg2",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libbz2.so.0",
+      "type": "library"
+    },
+    {
+      "id": "/usr/bin/gpgconf",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/gpgkey2ssh",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/gpgparsemail",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/gpgsm",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libksba.so.8",
+      "type": "library"
+    },
+    {
+      "id": "/usr/bin/gpgv2",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/groups.shadow",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/helix2solv",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/ib_clock_test",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libibverbs.so.1",
+      "type": "library"
+    },
+    {
+      "id": "librdmacm.so.1",
+      "type": "library"
+    },
+    {
+      "id": "/usr/bin/ib_read_bw",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/ib_read_lat",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/ib_write_bw",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/ib_write_bw_postlist",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/ib_write_lat",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/ibv_asyncwatch",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/ibv_devices",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/ibv_devinfo",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/ibv_rc_pingpong",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/ibv_srq_pingpong",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/ibv_uc_pingpong",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/ibv_ud_pingpong",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/installcheck",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/kbxutil",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/last.sysvinit",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/lastlog",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/lsattr",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/mckey",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/mergesolv",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/mesg.sysvinit",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/newgrp.shadow",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/passwd.shadow",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/pgrep.procps",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/pkill.procps",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/pmap.procps",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/pwdx.procps",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/rcopy",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/rdma_bw",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/rdma_client",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/rdma_lat",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/rdma_server",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/rdma_xclient",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/rdma_xserver",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/repomdxml2solv",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/riostream",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/rping",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/rpm",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "librpmbuild-5.4.so",
+      "type": "library"
+    },
+    {
+      "id": "librpm-5.4.so",
+      "type": "library"
+    },
+    {
+      "id": "librpmdb-5.4.so",
+      "type": "library"
+    },
+    {
+      "id": "librpmio-5.4.so",
+      "type": "library"
+    },
+    {
+      "id": "librpmmisc-5.4.so",
+      "type": "library"
+    },
+    {
+      "id": "libacl.so.1",
+      "type": "library"
+    },
+    {
+      "id": "libpcreposix.so.0",
+      "type": "library"
+    },
+    {
+      "id": "libdb-5.1.so",
+      "type": "library"
+    },
+    {
+      "id": "libpopt.so.0",
+      "type": "library"
+    },
+    {
+      "id": "libssl.so.1.0.0",
+      "type": "library"
+    },
+    {
+      "id": "libpcre.so.1",
+      "type": "library"
+    },
+    {
+      "id": "/usr/bin/rpmconstant",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "librpmconstant-5.4.so",
+      "type": "library"
+    },
+    {
+      "id": "/usr/bin/rpmdb2solv",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/rpmmd2solv",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/rpms2solv",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/rstream",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/scdaemon",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libusb-0.1.so.4",
+      "type": "library"
+    },
+    {
+      "id": "/usr/bin/scp.openssh",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/skill",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/slabtop",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libncurses.so.5",
+      "type": "library"
+    },
+    {
+      "id": "/usr/bin/snice",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/solv",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/ssh-keygen",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/ssh.openssh",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/su",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/susetags2solv",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/systool",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/tload",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/top.procps",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/ucmatose",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/udaddy",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/udpong",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/updateinfoxml2solv",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/uptime.procps",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/utmpdump",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/uuidgen",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/vmstat",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/w",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/wall.sysvinit",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/watch.procps",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/watchgnupg",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/xmlcatalog",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libxml2.so.2",
+      "type": "library"
+    },
+    {
+      "id": "/usr/bin/xmllint",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/bin/zypp-CheckAccessDeleted",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libzypp.so.810",
+      "type": "library"
+    },
+    {
+      "id": "/usr/bin/zypper",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/elfutils/libebl_alpha-0.148.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/elfutils/libebl_arm-0.148.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/elfutils/libebl_i386-0.148.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/elfutils/libebl_ia64-0.148.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/elfutils/libebl_k1om-0.148.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/elfutils/libebl_m68k-0.148.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/elfutils/libebl_mips-0.148.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/elfutils/libebl_parisc-0.148.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/elfutils/libebl_ppc-0.148.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/elfutils/libebl_ppc64-0.148.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/elfutils/libebl_s390-0.148.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/elfutils/libebl_sh-0.148.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/elfutils/libebl_sparc-0.148.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/elfutils/libebl_x86_64-0.148.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libasm-0.148.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libassuan.so.0.3.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libaugeas.so.0.15.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libbz2.so.0.0.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libcoi_device.so.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libcr.so.0.5.5",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libcr_omit.so.0.5.5",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libcr_run.so.0.5.5",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libcurl.so.4.4.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libldap-2.4.so.2",
+      "type": "library"
+    },
+    {
+      "id": "liblber-2.4.so.2",
+      "type": "library"
+    },
+    {
+      "id": "libgnutls.so.26",
+      "type": "library"
+    },
+    {
+      "id": "libtasn1.so.3",
+      "type": "library"
+    },
+    {
+      "id": "/usr/lib64/libdaplofa.so.2.0.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libdaplomcm.so.2.0.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libdaploscm.so.2.0.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libdaploucm.so.2.0.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libdat2.so.2.0.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libdb-5.1.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libdw-0.148.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libelf-0.148.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libexpat.so.1.6.2",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libfa.so.1.3.5",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libgcrypt.so.11.7.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libgnutls.so.26.22.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libgpg-error.so.0.8.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libhistory.so.6.2",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libibscif-rdmav2.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libibumad.so.3.0.3",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libibverbs.so.1.0.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libinfinipath.so.4.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libksba.so.8.11.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/liblber-2.4.so.2.5.6",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libldap-2.4.so.2.5.6",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libldap_r-2.4.so.2.5.6",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libmagic.so.1.0.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libmlx4-rdmav2.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libmlx5-rdmav2.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libmyo-service.so.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libmyodbl-service.so.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libpcre.so.1.2.7",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libpcreposix.so.0.0.4",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libpopt.so.0.0.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libpsm_infinipath.so.1.15",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libinfinipath.so.4",
+      "type": "library"
+    },
+    {
+      "id": "/usr/lib64/libpth.so.20.0.27",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/librdmacm.so.1.0.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libreadline.so.6.2",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/librpm-5.4.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/librpmbuild-5.4.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/librpmconstant-5.4.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/librpmdb-5.4.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/librpmio-5.4.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/librpmmisc-5.4.so",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libscif.so.0.0.1",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libssl.so.1.0.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libstdc++.so.6.0.16",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libsysfs.so.2.0.1",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libtasn1.so.3.1.13",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libtirpc.so.1.0.10",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libxml2.so.2.9.4",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libz.so.1.2.6",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/libzypp.so.810.1.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "libcurl.so.4",
+      "type": "library"
+    },
+    {
+      "id": "libudev.so.0",
+      "type": "library"
+    },
+    {
+      "id": "/usr/lib64/rpm/bin/mtree",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/rpm/bin/rpmrepo",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/rpm/bin/rpmspecdump",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/rpm/bin/wget",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/lib64/rsocket/librspreload.so.1.0.0",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/libexec/gnupg-pcsc-wrapper",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/libexec/gpg-check-pattern",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/libexec/gpg-preset-passphrase",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/libexec/gpg-protect-tool",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/libexec/gpg2keys_curl",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/libexec/gpg2keys_finger",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/libexec/gpg2keys_hkp",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/libexec/pt_chown",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/libexec/rmt.cpio",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/local/lib/kexec-tools/kexec_test",
+      "machine": "Intel 80386",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/local/sbin/kexec",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/sbin/chgpasswd",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/sbin/chpasswd.shadow",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/sbin/groupadd",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/sbin/groupdel",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/sbin/groupmems",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/sbin/groupmod",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/sbin/grpck",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/sbin/grpconv",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/sbin/grpunconv",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/sbin/logoutd",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/sbin/mpssd",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/sbin/mpxyd",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/sbin/newusers",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/sbin/nologin",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/sbin/pwck",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/sbin/pwconv",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/sbin/pwunconv",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/sbin/sshd",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/sbin/unix_chkpwd",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/sbin/unix_update",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/sbin/useradd",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/sbin/userdel",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/sbin/usermod",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/sbin/zypp-refresh",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    },
+    {
+      "id": "/usr/sbin/zypp-refresh-wrapper",
+      "machine": "Intel K1OM",
+      "type": "elf"
+    }
+  ]
+}

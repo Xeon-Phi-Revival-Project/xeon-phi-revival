@@ -1,0 +1,20 @@
+warning: <local-mpss-extract>/mpss-3.4.10/mpss-sdk-k1om-3.4.10-1.x86_64.rpm: Header V4 DSA/SHA1 Signature, key ID d910a4f1: NOKEY
+Name        : mpss-sdk-k1om
+Version     : 3.4.10
+Release     : 1
+Architecture: x86_64
+Install Date: (not installed)
+Group       : base
+Size        : 488903494
+License     : various
+Signature   : DSA/SHA1, Thu 12 Jan 2017 04:59:02 PM EST, Key ID 0d9f9d8bd910a4f1
+Source RPM  : mpss-sdk-k1om-3.4.10-1.src.rpm
+Build Date  : Thu 12 Jan 2017 04:59:02 PM EST
+Build Host  : sid-bld24.pdx.intel.com
+Relocations : (not relocatable)
+Packager    : Intel Corporation
+URL         : http://software.intel.com/xeonphi
+Summary     : SDK package for MPSS on Intel MIC co-processors
+Description :
+A self-contained cross-toolchain for building programs for k1om co-
+processors running MPSS.

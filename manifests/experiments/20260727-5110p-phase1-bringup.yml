@@ -1,0 +1,36 @@
+id: 20260727-5110p-phase1-bringup
+kind: phase1-bringup
+date: 2026-07-27
+hardware: 5110p-r730-centos74-20260727
+host_os: CentOS Linux 7.4.1708
+kernel: 3.10.0-693.el7.x86_64
+mpss_version: 3.4.10
+toolchain: mpss-sdk-k1om-3.4.10-1.x86_64
+status: completed-first-native-runs
+completed:
+  - passive PCIe enumeration
+  - persistent MPSS service startup
+  - mic0 online after reboot
+  - root SSH to mic0
+  - thermal fan offset set to medium
+  - mpss-sdk-k1om installed after preinstall report and rpm dry-run
+  - freestanding K1OM start-exit42 built and executed on mic0
+  - dynamic K1OM libc hello-world built and executed on mic0
+  - hello-knc phase-1 runner built and executed on mic0
+  - return-code, file I/O, math, pthread, and zmm vector smoke tests executed on mic0
+  - postinstall SDK behavior report written
+  - minimum runtime dependency map written for passing smoke tests
+evidence:
+  local_sanitized_summary: phi-5110p-centos-boot-baseline-20260727.md
+  freestanding_exit42_report: native-runs/20260727-212630-start-exit42.yml
+  libc_hello_dry_run_report: native-runs/20260727-212700-hello-libc.yml
+  libc_hello_execute_report: native-runs/20260727-212720-hello-libc.yml
+  hello_knc_execute_report: native-runs/20260727-213155-hello-knc.yml
+  return_constant_report: native-runs/20260727-213424-return-constant.yml
+  file_io_report: native-runs/20260727-213441-file-io-smoke-test.yml
+  math_report: native-runs/20260727-213454-math-smoke-test.yml
+  pthread_report: native-runs/20260727-213506-thread-smoke-test.yml
+  vector_zmm_report: native-runs/20260727-214058-vector-smoke-test.yml
+next_steps:
+  - Start Python feasibility lane from the passing libc, libm, pthread, and file-I/O baseline.
+  - Start Doom feasibility lane from the passing libc and file-I/O baseline.

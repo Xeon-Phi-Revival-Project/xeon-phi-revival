@@ -1,0 +1,1 @@
+rpm: -qPp: unknown option

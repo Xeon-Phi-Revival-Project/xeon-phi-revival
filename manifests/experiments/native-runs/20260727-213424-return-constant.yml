@@ -1,0 +1,88 @@
+id: 20260727-213424-native-k1om-test
+binary: build/k1om-smoke/return-constant
+sha256: b36403e499517174fb2badf692a92f72773277f9d52be22de1419a8528bfcc22
+file: build/k1om-smoke/return-constant: ELF 64-bit LSB executable, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.16, not stripped
+mic_target: mic0
+execute: 1
+Linux mic0.local 2.6.38.8+mpss3.4.10 #1 SMP Thu Jan 12 16:38:30 EST 2017 k1om GNU/Linux
+[    5.053014] TCP cubic registered
+[    5.053029] Initializing XFRM netlink socket
+[    5.056977] NET: Registered protocol family 10
+[    5.077402] ip6_tables: (C) 2000-2006 Netfilter Core Team
+[    5.080399] IPv6 over IPv4 tunneling driver
+[    5.099563] NET: Registered protocol family 17
+[    5.099683] Registering the dns_resolver key type
+[    5.099848] irq 26 for SBOX, vector=169, icr=169
+[    5.099862] irq 27 for SBOX, vector=177, icr=177
+[    5.099875] irq 28 for SBOX, vector=185, icr=185
+[    5.099888] irq 29 for SBOX, vector=193, icr=193
+[    5.099902] irq 30 for SBOX, vector=201, icr=201
+[    5.099961] irq for shutdown isr 27
+[    5.102368] registered taskstats version 1
+[    5.110265]   Magic number: 0:110:269243
+[    5.110888] Warning: unable to open an initial console.
+[    5.121599] Freeing unused kernel memory: 544k freed
+[    5.122354] Write protecting the kernel read-only data: 6144k
+[    5.143173] Freeing unused kernel memory: 640k freed
+[    5.166490] Freeing unused kernel memory: 724k freed
+[    5.201166] michvc vcons_hdr_addr=0x9ffb2ca780
+[    5.212733] intel_micveth vnet=dma vnet_addr=0xbffdd44118
+[    5.224969] micscif p2p=1 p2p_proxy=1 scif_id=1 scif_addr=0xbffb8ddec0 reg_cache=1 ulimit=0 huge_page=1
+[    5.236179] mic_virtblk virtio_addr=0xbff8a81120
+[    5.247488] ramoops mem_size=16384 mem_address=0xbff1b58000
+[    5.258320] micras
+[    5.312408] cat used greatest stack depth: 5864 bytes left
+[    5.357167] modutils.sh used greatest stack depth: 5720 bytes left
+[    6.599387] 104381 blocks
+[    7.170682] cat used greatest stack depth: 5632 bytes left
+[    7.655521] Module ringbuffer loaded at 0xffffffffa0000000
+[    7.659978] Module michvc loaded at 0xffffffffa0006000
+[    7.666745] console [hvc0] enabled
+[    7.677434] Module dma_module loaded at 0xffffffffa000c000
+[    7.699251] Registering fast copy for VFS
+[    7.699953] Module intel_micveth loaded at 0xffffffffa001a000
+[    7.708819] vnet: mode: dma, buffers: 62
+[    7.734540] Module micscif loaded at 0xffffffffa0027000
+[    7.773048] Registered interrupt handler for node 0, for IRQ = 17,handle = 0
+[    7.781020] Module mic_virtblk loaded at 0xffffffffa007a000
+[    7.789358] Have you set virtblk file?
+[    7.889471] Module ramoops loaded at 0xffffffffa0083000
+[    7.898056] Module micras loaded at 0xffffffffa0089000
+[    7.917407] Loading RAS module ver 1.0 . Build date: Jan 12 2017
+[    7.919785] RAS: card 22508086:25008086:11 is a "??? SKU2" (60 cores, 16 memch, 0 txs)
+[    7.922522] RAS.elog: rev 1, size 3276, head 3275, tail 3275
+[    7.933381] gmbus_i2c_read : Invalid data returned from slave: 0x28 due to invalid command: 0x1b
+[    7.933437] RAS.elog: init complete
+[    7.933445] RAS.core: init complete
+[    7.933491] RAS.uncore: init complete
+[    7.943301] mic_pm: micpm: Freq/volt table returned to RAS
+[    7.943311] mic_pm: index       freq       voltage
+[    7.943321] mic_pm: 0      842104       1015000
+[    7.943331] mic_pm: 1      947367       1020000
+[    7.943340] mic_pm: 2      1052630       1025000
+[    7.943348] micpm: RAS module registered
+[    7.943359] RAS.pm: init complete
+[    7.943375] RAS module load completed
+[    8.135738] sed used greatest stack depth: 5088 bytes left
+[    8.450179] RAS.init: module operational
+[    9.792123] Module mpssboot loaded at 0xffffffffa0003000
+[    9.799768] MPSSBOOT Time of day sycned with host
+[    9.829935] Module pm_scif loaded at 0xffffffffa0016000
+[    9.836146] [ pm_scif_init : 344 ]:==> pm_scif_init
+[    9.836168] [ pm_scif_init : 345 ]:pm_scif insmoded
+[    9.836214] [ pm_scif_init : 373 ]: scif_bind successfull. Local port number = 1089, ep =
+[    9.837154] [ pm_recv_from_host : 178 ]:==> pm_recv_from_host
+[    9.837192] [ pm_handle_open : 84 ]:==> pm_handle_open
+[    9.837329] [ pm_recv_from_host : 178 ]:==> pm_recv_from_host
+[   10.501216] Module blcr_imports loaded at 0xffffffffa0009000
+[   10.529340] Module blcr loaded at 0xffffffffa00a2000
+[   10.554735] blcr: vmadump: (from bproc-"4.0.0pre8") Erik Hendriks <erik@hendriks.cx>
+[   10.554755] blcr: vmadump: Modified for blcr 0.8.5 <http://ftg.lbl.gov/checkpoint>
+[   10.554769] blcr: Berkeley Lab Checkpoint/Restart (BLCR) module version 0.8.5.
+[   10.554784] blcr:   Parameter cr_io_max = 0x4000000
+[   10.554793] blcr:   Supports kernel interface version 0.10.3.
+[   10.554805] blcr:   Supports context file format versions 8 though 9.
+[   10.554815] blcr: http://ftg.lbl.gov/checkpoint
+[   10.635413] MPSSBOOT Boot acknowledged
+[   19.170472] mic0: no IPv6 routers present
+exit_code: 37

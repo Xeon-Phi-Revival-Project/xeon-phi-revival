@@ -1,0 +1,4 @@
+<local-mpss-extract>/mpss-3.4.10/mpss-sdk-k1om-3.4.10-1.x86_64.rpm:
+    Header V4 DSA/SHA1 Signature, key ID d910a4f1: NOKEY
+    Header SHA1 digest: OK (a3e46ebf9e2114c08cc94c3d38f03ab52177ba16)
+    MD5 digest: OK (be5ef30a5257f20b143b0fd886da7da3)
