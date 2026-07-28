@@ -81,9 +81,9 @@ enough to open Level 3, and started Level 3:
   a source-package status matrix.
 
 The Ubuntu package-expansion lane is paused while the uOS boot lane advances.
-The current narrowest dependency is mapping MPSS's service-side boot
-configuration/runtime-file expectation. The prepared image is valid, but MPSS
-rejected alternate image selections before project PID 1 could run.
+The current narrowest dependency is proving a tiny native K1OM PID 1 handoff
+with an observable marker before adding Python or broader userland to the boot
+image.
 
 ## Project PID 1 uOS Boot Track
 
@@ -101,12 +101,25 @@ rejected alternate image selections before project PID 1 could run.
   and required runtime libraries resolve inside the rootfs.
 - A private gzip/newc cpio image was packed and hashed.
 - Activation was attempted through direct `micctrl --configdir`, service
-  environment selection, temporary `/etc/sysconfig/mpss.conf` selection, dynamic
-  `Ramfs`, and direct `StaticRamFS`.
-- MPSS rejected the alternate image paths before project PID 1 could run,
+  environment selection, temporary `/etc/sysconfig/mpss.conf` selection,
+  dynamic `Ramfs`, direct `StaticRamFS`, and foreground
+  `mpssd -l -d <alternate-config>`.
+- Early `micctrl` and service-selector attempts failed before project PID 1,
   reporting `Boot aborted - no configuation file present` and
   `Boot aborted - no configuation file present: File exists`.
+- Foreground `mpssd -l -d <alternate-config>` successfully selected alternate
+  `StaticRamFS` images without overwriting stock MPSS files.
+- A copied stock `StaticRamFS` image booted to `online`.
+- An unpacked/repacked stock `StaticRamFS` image booted to `online`, proving the
+  public packer shape can boot stock content.
+- Project PID 1 variants were selected by MPSS but remained in `booting` until
+  timeout or `boot failed`; no project `/init` or ELF PID 1 marker was observed.
 - The project `/init` banner was not observed.
+- A reversible MPSS MicDir overlay boot proof succeeded: stock dynamic MPSS
+  boot was preserved, a project `/etc/issue` banner and SysV rc5 boot snippet
+  were injected through `/var/mpss/mic0`, `mic0` reached `online`, SSH worked,
+  `/project-boot-snippet.txt` was observed on the card, and rollback removed
+  the marker.
 - Stock rollback succeeded: `/etc/sysconfig/mpss.conf` was restored absent,
   stock MPSS service booted `mic0` to `online`, SSH worked, and PID 1 was stock
   `init`.
@@ -150,7 +163,9 @@ rejected alternate image selections before project PID 1 could run.
 
 ## Safest Next Technical Action
 
-Inspect MPSS daemon/init-script behavior to identify the internal boot
-"configuration file" that fails for alternate `Ramfs` and `StaticRamFS` paths.
-Do not attempt another project PID 1 boot until that specific MPSS selection
-blocker is understood.
+Use the now-working MicDir overlay proof channel to make the smallest possible
+second-stage customization repeatable, then return to the PID 1 lane with a
+stock-derived handoff strategy. The next PID 1 proof should still be tiny:
+perform one observable marker action, immediately hand off to stock
+`init.sysvinit`, and verify the marker after MPSS reaches `online`. Keep Python
+out of the boot image until the PID 1 handoff is repeatable.

@@ -1,6 +1,6 @@
 id: first-project-pid1
 title: First project-controlled K1OM PID 1 boot
-status: attempted-blocked-before-project-init
+status: pid1-blocked-custom-micdir-snippet-passed
 date_utc: 2026-07-28
 hardware:
   card: Intel Xeon Phi 5110P
@@ -31,6 +31,7 @@ activation:
   attempted: true
   requires_explicit_approval: false
   project_init_observed: false
+  custom_micdir_snippet_observed: true
   rollback_verified: true
   attempts:
     - method: micctrl_configdir_dynamic_ramfs
@@ -45,9 +46,40 @@ activation:
     - method: temporary_sysconfig_static_ramfs
       result: boot_aborted_before_project_init
       evidence: "Boot aborted - no configuation file present: File exists"
+    - method: foreground_mpssd_static_stock_copy
+      result: booted_stock_online
+      image_sha256: 0de39e80b49463e2cdd46eb367df1110bbda3ae3af6979d45601e3286f00c67c
+      evidence: "mpssd -l -d selected StaticRamFS stock copy; mic0 reached online"
+    - method: foreground_mpssd_repacked_stock
+      result: booted_stock_online
+      image_sha256: f82c8878f39d285fcfffb8ca2f7bd2241135f138ffe65631c92f9e5bad6ad867
+      evidence: "repacked gzip/newc stock image reached online"
+    - method: foreground_mpssd_project_minimal_static
+      result: selected_then_boot_failed
+      image_sha256: ad72f322cb923a7e8970730cd2cbb337c98cc7f409660e232e26667132031188
+      evidence: "sysfs initramfs pointed at project image; no project init marker observed"
+    - method: foreground_mpssd_project_initcmd_static
+      result: selected_then_boot_failed
+      image_sha256: 443e21548eebfbcdbc86332bb48c2b6127d4e82d2ca6792b9a7e1d8aa279d9b5
+      evidence: "cmdline included init=/init; no project init marker observed"
+    - method: foreground_mpssd_project_stockderived_static
+      result: selected_then_boot_failed
+      image_sha256: 3ec14cddaab969626606701811a08fce0eecabbfd2e13d47c817ec8f77cb4aa3
+      evidence: "stock-derived image with project PID1/Python payload stayed booting"
+    - method: foreground_mpssd_project_elf_pid1_static
+      result: selected_then_boot_failed
+      image_sha256: abd594fc6c769bf0f1feebb5a27abcba968d2d1f6978559a004c324a0ee151ea
+      evidence: "native K1OM ELF PID1 image selected; no console marker observed"
+    - method: stock_dynamic_micdir_overlay_rc5_snippet
+      result: custom_snippet_booted_and_rollback_verified
+      run_dir: /root/xeon-phi-revival-local/uos-boot-builds/micdir-overlay-proof-20260728-064840
+      issue_sha256: f8f134eb88d331a823f542188356358968979630cb96c5fd9fde99d37bd4d2bf
+      snippet_sha256: 6bbf26eca6f16655bb49a2a797a1546921d328a06a3b85540492a4c0d6f0b17e
+      evidence: "SSH observed project /etc/issue banner, rc5 service symlink, and /project-boot-snippet.txt marker; PID 1 remained stock init [5]"
+      rollback_evidence: "stock SSH worked after restore; stock /etc/issue restored; /project-boot-snippet.txt absent; /etc/mpss/mic0.conf hash matched baseline"
 blocker:
-  summary: MPSS service-side image selection rejects alternate ramfs/static ramfs before boot.
-  next_dependency: Map the internal MPSS runtime configuration file expected during boot.
+  summary: Project PID1 images still stall before verifiable marker or monitor connection, but stock dynamic MPSS boot plus MicDir overlay can run custom project content on mic0.
+  next_dependency: Reuse the MicDir proof channel and stock dynamic boot model to build a minimal native K1OM PID1 marker that immediately execs stock init.
 blocked_or_paused:
   - _sqlite3
   - _ctypes
@@ -67,6 +99,9 @@ success:
   passed: false
   passed_items:
     - dev_image_prepared
+    - staticramfs_stock_copy_boot
+    - staticramfs_repacked_stock_boot
+    - custom_micdir_overlay_snippet_boot
     - rollback_to_stock
     - stock_ssh_after_rollback
   failed_items:
