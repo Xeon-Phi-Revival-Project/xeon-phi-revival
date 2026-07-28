@@ -1,0 +1,23 @@
+id: ubuntu2404-uos-level1-runtime
+date: 2026-07-27
+track: ubuntu-24.04-uos
+level: 1
+status: passed
+method:
+  - stage tiny K1OM rootfs from local stock MPSS uOS extraction
+  - close symlink targets and ELF library dependencies
+  - copy rootfs archive temporarily to mic0 /tmp
+  - run commands with chroot
+  - remove test rootfs from mic0 after run
+validated:
+  required_paths_present: true
+  symlink_targets_closed: true
+  k1om_elf_machine_181: true
+  busybox_chroot: passed
+  hello_knc_chroot: passed
+safety:
+  stock_boot_replacement: none
+  firmware_writes: none
+  mic0_cleanup: completed
+next_level_gate:
+  level2_opened: true

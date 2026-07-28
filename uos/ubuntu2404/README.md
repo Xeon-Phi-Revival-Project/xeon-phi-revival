@@ -20,6 +20,22 @@ hello-knc
 logs
 ```
 
+The staging helper is:
+
+```bash
+bash tools/uos/stage-tiny-k1om-rootfs.sh \
+  --stock-rootfs "$HOME/xeon-phi-revival-local/uos-rootfs/stock-mpss-3.4.10" \
+  --out "$HOME/xeon-phi-revival-local/uos-rootfs/tiny-k1om-level1" \
+  --hello-knc "$HOME/xeon-phi-revival-work/build/smoke/hello-knc"
+```
+
+Validate the staged metadata with:
+
+```bash
+bash tools/uos/validate-tiny-k1om-rootfs.sh \
+  "$HOME/xeon-phi-revival-local/uos-rootfs/tiny-k1om-level1"
+```
+
 ## Local-Only Inputs
 
 Expected private inputs, all ignored by `.gitignore`:
@@ -41,3 +57,11 @@ Safe outputs can include:
 - build recipes
 - failure matrices
 - sanitized boot summaries
+
+## Level 2 Gate
+
+Do not begin Ubuntu 24.04 source-package rebuilds until Level 1 has either:
+
+- run basic K1OM commands from the staged tiny rootfs, or
+- produced a precise blocker explaining why the staged rootfs cannot be tested
+  under the stock MPSS boot model yet.

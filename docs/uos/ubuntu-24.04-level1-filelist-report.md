@@ -42,6 +42,10 @@ Public-safe path metadata report derived from a local stock uOS inventory summar
 - `/lib64/libc.so.6: symbolic link to libc-2.14.1.so'`
 - `lrwxrwxrwx   1 root     root           14 Jan 12  2017 lib64/libc.so.6 -> libc-2.14.1.so`
 
+### `/lib64/libc-2.14.1.so`
+
+- `-rwxr-xr-x   1 root     root      1390632 Jan 12  2017 lib64/libc-2.14.1.so`
+
 ### `/lib64/libgcc_s.so.1`
 
 - `-rwxr-xr-x   1 root     root        74560 Jan 12  2017 lib64/libgcc_s.so.1`
@@ -63,18 +67,23 @@ Public-safe path metadata report derived from a local stock uOS inventory summar
 
 ## Candidate Files Not Yet Observed In This Local Summary
 
+- `/bin/bash`
 - `/bin/sh`
 - `/etc/group`
 - `/etc/hosts`
 - `/etc/resolv.conf`
+- `/lib64/ld-2.14.1.so`
 - `/lib64/libdl.so.2`
+- `/lib64/libdl-2.14.1.so`
 - `/lib64/libm.so.6`
+- `/lib64/libm-2.14.1.so`
 - `/lib64/libpthread.so.0`
+- `/lib64/libpthread-2.14.1.so`
 - `/usr/bin/hello-knc`
 
 ## Interpretation
 
-- The stock uOS inventory has path evidence for the loader, libc, `libgcc_s`, init, BusyBox, and several basic config files needed by the Level 1 candidate.
+- The stock uOS inventory has path evidence for the loader, libc, core shared libraries, init, shell, BusyBox, and several basic config files needed by the Level 1 candidate.
 - Directory creation is part of the replacement-rootfs assembly recipe and is not proved by ELF metadata.
 - `/usr/bin/hello-knc` is project-built and should be inserted into a local-only test rootfs during the first boot/chroot experiment.
-- The next dependency is a local-only rootfs staging script that copies or links reviewed files into a test tree and writes a public-safe manifest of paths and hashes.
+- The next dependency has moved from metadata discovery to repeated package rebuilds for Level 2.

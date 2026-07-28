@@ -52,7 +52,8 @@ small port feasibility lanes:
 
 ## Ubuntu 24.04 uOS Track
 
-The Ubuntu 24.04 uOS research track has started at Level 0 to Level 1:
+The Ubuntu 24.04 uOS research track has passed Level 1 and has a first Level 2
+package proof:
 
 - Level 0 stock uOS inventory is complete enough to begin tiny-rootfs planning.
 - The track definitions now separate Ubuntu-compatible, Ubuntu-derived, and
@@ -62,11 +63,15 @@ The Ubuntu 24.04 uOS research track has started at Level 0 to Level 1:
   `artifacts/public/uos-elf-inventory.csv`.
 - A public-safe file-list report was derived from an ignored local stock uOS
   inventory summary; the raw log remains local-only.
+- A local-only tiny K1OM rootfs was staged, validated, copied temporarily to
+  `mic0`, tested through `chroot`, and removed from the card.
+- Ubuntu 24.04 Noble `zlib` source package `1:1.3.dfsg-3.1ubuntu2` was rebuilt
+  for K1OM as `libz.a`; a zlib smoke binary ran on `mic0`.
 
-The narrowest next dependency for this track is a local-only rootfs staging
-script that copies or links reviewed files into a test tree, adds `hello-knc`,
-writes a public-safe path/hash manifest, and does not replace the stock MPSS
-boot image.
+The narrowest next dependency for this track is the second Level 2 package:
+choose a small Python dependency such as `libffi`, `ncurses`, `readline`, or
+`sqlite3`, then repeat the source provenance, K1OM build, and `mic0` runtime
+proof pattern.
 
 ## Current Public Artifacts
 
@@ -77,6 +82,8 @@ boot image.
 - `docs/uos/ubuntu-24.04-uos-research.md`
 - `docs/uos/ubuntu-24.04-level1-gap-report.md`
 - `docs/uos/ubuntu-24.04-level1-filelist-report.md`
+- `docs/uos/ubuntu-24.04-level1-runtime-report.md`
+- `docs/uos/ubuntu-24.04-level2-zlib-report.md`
 - `docs/toolchain/minimum-k1om-runtime.md`
 - `docs/toolchain/k1om-package-requirements.md`
 - `docs/toolchain/mpss-sdk-k1om-3.4.10-preinstall-report.md`
@@ -96,5 +103,5 @@ boot image.
 
 ## Safest Next Technical Action
 
-Use the passing runtime map to continue Python and Doom feasibility, and use the
-Ubuntu uOS Level 1 reports to build a local-only tiny-rootfs staging script.
+Use the passing Ubuntu zlib pattern to attempt the next small Level 2
+dependency package before moving toward CPython.

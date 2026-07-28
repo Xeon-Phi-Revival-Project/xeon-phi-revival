@@ -1,0 +1,27 @@
+id: ubuntu2404-uos-level2-zlib
+date: 2026-07-27
+track: ubuntu-24.04-uos
+level: 2
+status: passed-first-package
+source_package:
+  name: zlib
+  suite: ubuntu-24.04-noble
+  version: "1:1.3.dfsg-3.1ubuntu2"
+  source_page: https://packages.ubuntu.com/source/noble/zlib
+  archive_base: https://archive.ubuntu.com/ubuntu/pool/main/z/zlib/
+sha256:
+  dsc: 53784a98f595c549aed67b3c35caf5d9783223c7a9e3a5493da4c500809a8bd6
+  orig_tar_xz: 5eea0322c1c21c75cad3b607ac1c43ff5c71e014b8ac4a34300b5e2b80d02e70
+  debian_tar_xz: 645a2ecc2a3c1d263784717ba7f5ad6672261979523461a4d6cdbed217caae59
+build:
+  toolchain: k1om-mpss-linux-gcc
+  configure: ./configure --prefix=/usr --static
+  output: libz.a
+runtime:
+  smoke_source: tests/native/zlib-smoke-test.c
+  elf_machine: Intel K1OM
+  result: zlib version=1.3 result=knc zlib smoke
+safety:
+  downloaded_from_official_ubuntu_archive: true
+  source_hashes_verified_from_dsc: true
+  binaries_committed: none

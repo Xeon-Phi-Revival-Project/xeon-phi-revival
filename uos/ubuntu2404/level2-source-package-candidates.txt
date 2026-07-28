@@ -1,0 +1,16 @@
+# Level 2 Ubuntu 24.04 Source Package Candidates
+
+# Start with small dependency packages before CPython. Record exact Ubuntu source
+# versions, patches, configure flags, toolchain path, and runtime result before
+# treating any package as passed.
+
+zlib # passed first K1OM rebuild/runtime proof from Ubuntu 24.04 Noble source
+libffi
+ncurses
+readline
+sqlite3
+openssl
+xz-utils
+bzip2
+expat
+gdbm
