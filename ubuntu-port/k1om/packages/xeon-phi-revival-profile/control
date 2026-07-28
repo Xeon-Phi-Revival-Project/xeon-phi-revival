@@ -1,0 +1,12 @@
+Package: xeon-phi-revival-profile
+Version: 0.1.0
+Architecture: k1om
+Maintainer: Xeon Phi Revival Project
+Section: base
+Priority: optional
+Depends:
+Description: Project uOS profile for Intel Xeon Phi K1OM
+ Installs the reversible Xeon Phi Revival Project second-stage profile layout
+ under /opt/xeon-phi-revival, with a SysV rc5 service hook. This package is a
+ bootstrap artifact for local K1OM port experiments and must be built from
+ locally supplied K1OM payloads.

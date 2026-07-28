@@ -136,6 +136,55 @@ image.
   `_sysconfigdata`, and the earlier generated demo's `platform` import pulled
   in `_posixsubprocess`; the passing PID 1 Python test is intentionally
   core-only and runs with `python3.5 -S`.
+- A reusable second-stage service runner now exists at
+  `tools/uos/run-micdir-second-stage-service-experiment.sh`.
+- The second-stage project uOS profile passed through stock init: marker,
+  `hello-knc`, Python, and full profile phases all ran from
+  `/opt/xeon-phi-revival` after stock runlevel-5 startup, with stock rollback
+  verified after each phase.
+- The project is ready to start true Ubuntu K1OM architecture-port design, but
+  should not call the current profile a true Ubuntu port.
+- The first package-built K1OM bootstrap profile passed: a local
+  `xeon-phi-revival-profile_0.1.0_k1om.deb` was built, indexed into an unsigned
+  Noble `binary-k1om` archive, installed into MicDir staging, booted on `mic0`,
+  ran `hello-knc` and Python, and rolled back to stock.
+- The first multi-package K1OM bootstrap archive passed. Packages
+  `base-files-k1om`, `hello-knc-smoke`, `python3.5-core-k1om`,
+  `xpr-os-smoke`, and `xeon-phi-revival-stage2` were built as
+  `Architecture: k1om`, indexed into a local Noble `binary-k1om` archive,
+  installed into MicDir staging, booted on `mic0`, ran `hello-knc`, ran
+  CPython core, verified basic `/proc`, `/sys`, `/dev`, `/tmp`, symlink,
+  nested-file, filesystem-capacity, network, and environment behavior, and
+  rolled back to stock.
+- The K1OM package-set audit now passes before live install. It verifies the
+  local archive advertises `Architectures: k1om`, every package declares
+  `Architecture: k1om`, `Packages` filenames and SHA-256 values match the
+  `.deb` files, declared dependencies are present in the local archive, and no
+  non-directory payload path is owned by more than one package.
+- A non-executing K1OM package install simulator now passes before live install.
+  It resolves the package dependency order, extracts payloads into a staged
+  rootfs, generates `/var/lib/dpkg/status`, writes per-package `.list` files
+  under `/var/lib/dpkg/info`, and verifies required bootstrap paths exist before
+  the MicDir boot test begins.
+- K1OM bootstrap package construction is now deterministic under the runner:
+  two builds with `SOURCE_DATE_EPOCH=1704067200` produced identical package
+  names and SHA-256 values before the live boot test.
+- The K1OM bootstrap archive is now more Ubuntu/APT-shaped: package controls
+  include `Source`, sections, optional `Depends`, `md5sums`, and `conffiles`;
+  the archive emits both `Packages` and deterministic `Packages.gz`; and
+  `Release` includes `MD5Sum`, `SHA1`, and `SHA256` blocks for both indexes.
+- A harmless host-side APT sandbox test passed against the local K1OM archive.
+  With `APT::Architecture=k1om`, `apt-get update` parsed the local
+  `noble/main/binary-k1om` file repository and `apt-cache show` reported
+  `base-files-k1om` as `Architecture: k1om`.
+- The deterministic package set expanded from five to seven packages by adding
+  `zlib-smoke-k1om` and `ncurses-smoke-k1om`. Both package-installed payloads
+  ran on `mic0` through the second-stage service: `zlib_rc=0` reported
+  `zlib version=1.3`, and `ncurses_rc=0` reported
+  `ncurses 6.4.20240113`.
+- The package set then expanded to eight packages by splitting
+  `libtinfo5-k1om` out as a reusable runtime package. `ncurses-smoke-k1om`
+  now depends on `libtinfo5-k1om`, and the live `mic0` smoke still passed.
 - Stock rollback succeeded: `/etc/sysconfig/mpss.conf` was restored absent,
   stock MPSS service booted `mic0` to `online`, SSH worked, and PID 1 was stock
   `init`.
@@ -158,7 +207,12 @@ image.
 - `docs/uos/pid1-boot-path.md`
 - `docs/uos/stock-rollback-baseline.md`
 - `docs/uos/first-project-pid1-report.md`
+- `docs/uos/project-uos-profile-report.md`
 - `docs/ubuntu-port/k1om-architecture-port-start.md`
+- `docs/ubuntu-port/true-ubuntu-port-readiness.md`
+- `docs/ubuntu-port/k1om-bootstrap-package-report.md`
+- `docs/ubuntu-port/k1om-bootstrap-package-set-report.md`
+- `docs/ubuntu-port/k1om-apt-sandbox-report.md`
 - `docs/toolchain/minimum-k1om-runtime.md`
 - `docs/toolchain/k1om-package-requirements.md`
 - `docs/toolchain/mpss-sdk-k1om-3.4.10-preinstall-report.md`
@@ -167,6 +221,10 @@ image.
 - `docs/toolchain/open-k1om-toolchain-feasibility.md`
 - `docs/handbook/glossary.md`
 - `tools/uos/run-micdir-pid1-handoff-experiment.sh`
+- `tools/uos/run-micdir-second-stage-service-experiment.sh`
+- `tools/ubuntu-port/check-k1om-package-determinism.sh`
+- `tools/ubuntu-port/audit-k1om-package-set.sh`
+- `tools/ubuntu-port/simulate-k1om-package-install.sh`
 - `manifests/experiments/native-runs/20260727-212630-start-exit42.yml`
 - `manifests/experiments/native-runs/20260727-212700-hello-libc.yml`
 - `manifests/experiments/native-runs/20260727-212720-hello-libc.yml`
@@ -177,11 +235,14 @@ image.
 - `manifests/experiments/native-runs/20260727-213506-thread-smoke-test.yml`
 - `manifests/experiments/native-runs/20260727-214058-vector-smoke-test.yml`
 - `manifests/experiments/first-project-pid1.yml`
+- `manifests/experiments/second-stage-uos-profile.yml`
+- `manifests/experiments/k1om-profile-package-bootstrap.yml`
+- `manifests/experiments/k1om-bootstrap-package-set.yml`
+- `manifests/experiments/k1om-apt-sandbox.yml`
 
 ## Safest Next Technical Action
 
-Build the next uOS lane around the proven stock-init handoff model: keep the
-project PID 1 wrapper tiny, let stock `init.sysvinit` preserve MPSS
-monitor/network behavior, and launch project services as a second stage after
-SSH/MPSS startup. Keep full resident init replacement as a separate research
-lane until the stock init semantics are mapped more completely.
+Split the Python standard-library/package layout into more Ubuntu-like packages
+while keeping the APT parser, package audit, simulated install, live MicDir
+boot, and stock rollback gates. Continue avoiding committed proprietary or
+uncertain-redistribution payloads.

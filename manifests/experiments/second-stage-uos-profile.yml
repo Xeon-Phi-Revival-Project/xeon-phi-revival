@@ -1,0 +1,46 @@
+id: second-stage-uos-profile
+title: Stock-init second-stage project uOS profile
+status: passed
+date_utc: 2026-07-28
+hardware:
+  card: Intel Xeon Phi 5110P
+  target: mic0
+  host_os: CentOS 7.4-era MPSS host
+stock_baseline:
+  mpss_version: "3.4.10"
+  config_hashes:
+    /etc/mpss/mic0.conf: c241d140e9d8db95f808ce1732f85f1135820e4f347146db24693ea7e0e432c9
+runner:
+  path: tools/uos/run-micdir-second-stage-service-experiment.sh
+  overlay_method: MPSS MicDir
+  stock_images_modified: false
+  firmware_modified: false
+profile:
+  root: /opt/xeon-phi-revival
+  service: /etc/init.d/xeon-phi-revival-stage2
+  rc5_link: /etc/rc5.d/S78xeon-phi-revival-stage2
+  log_dir: /var/log/xeon-phi-revival
+  kind: stock-init-handoff-second-stage
+runs:
+  - phase: marker
+    result: passed
+    run_dir: /root/xeon-phi-revival-local/uos-boot-builds/micdir-second-stage-marker-20260728-155336
+    evidence: "stage2 service ran after stock init; PID 1 remained init; mic0 network was up"
+  - phase: hello
+    result: passed
+    run_dir: /root/xeon-phi-revival-local/uos-boot-builds/micdir-second-stage-hello-20260728-160051
+    evidence: "hello_rc=0; hello from knc; machine=k1om; sizeof(void*)=8; sizeof(long)=8"
+  - phase: python
+    result: passed
+    run_dir: /root/xeon-phi-revival-local/uos-boot-builds/micdir-second-stage-python-20260728-160801
+    evidence: "hello_rc=0; python_rc=0; python stage2 demo ok; prefix=/opt/xeon-phi-revival"
+  - phase: profile
+    result: passed
+    run_dir: /root/xeon-phi-revival-local/uos-boot-builds/micdir-second-stage-profile-20260728-161603
+    evidence: "XPR_PROFILE_KIND=stock-init-handoff-second-stage; hello_rc=0; python_rc=0"
+rollback:
+  verified: true
+  evidence: "stock SSH restored; stage2 log absent; PID 1 stock init"
+decision:
+  next_model: "project PID 1 preflight -> stock init.sysvinit -> project second-stage service"
+  true_ubuntu_next_dependency: "create a local k1om bootstrap package/archive lane that installs this profile into private MicDir staging"

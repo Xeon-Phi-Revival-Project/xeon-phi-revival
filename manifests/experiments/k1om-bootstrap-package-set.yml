@@ -1,0 +1,85 @@
+id: k1om-bootstrap-package-set
+title: Multi-package K1OM bootstrap archive and OS smoke
+status: passed
+date_utc: 2026-07-28
+hardware:
+  card: Intel Xeon Phi 5110P
+  target: mic0
+  host_os: CentOS 7.4-era MPSS host
+stock_baseline:
+  mpss_version: "3.4.10"
+  config_hashes:
+    /etc/mpss/mic0.conf: c241d140e9d8db95f808ce1732f85f1135820e4f347146db24693ea7e0e432c9
+archive:
+  suite: noble
+  architecture: k1om
+  packages_file: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-194851/repo/dists/noble/main/binary-k1om/Packages
+  packages_gz_file: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-194851/repo/dists/noble/main/binary-k1om/Packages.gz
+  release_file: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-194851/repo/dists/noble/Release
+packages:
+  - name: base-files-k1om
+    version: 0.1.0
+    architecture: k1om
+    sha256: fbfad5560b505fae7f7d1977a0b8e9a00408c1ce1b0bc8d76d60ec514913bc5d
+  - name: hello-knc-smoke
+    version: 0.1.0
+    architecture: k1om
+    sha256: 30af9c5556b59abe25fd009adc6af3c8b9461182e13f347d4debd5ea9c87f92b
+  - name: python3.5-core-k1om
+    version: 0.1.0
+    architecture: k1om
+    sha256: c7b671dffa52b35f9a6b6a8a050c26295a761e9959a82015583af5bd0c734e70
+  - name: zlib-smoke-k1om
+    version: 0.1.0
+    architecture: k1om
+    sha256: 46aab001aba64cfd10a50b2de7d06a72c4fe26b63d4acb399252661cee14c30e
+  - name: libtinfo5-k1om
+    version: 0.1.0
+    architecture: k1om
+    sha256: 92cefe76971dbd55222c4926fd762bd41df734657b88d5671823e3bf197f7f48
+  - name: ncurses-smoke-k1om
+    version: 0.1.0
+    architecture: k1om
+    sha256: c39533a3a70d23f465e30133ed0714b8cf8f9540e03b5f7314c7ea5fe921e355
+  - name: xpr-os-smoke
+    version: 0.1.0
+    architecture: k1om
+    sha256: b6e165ea5d93b1f8b63f8c2ae2da7d395178e320481233d5dc839d34cc976c16
+  - name: xeon-phi-revival-stage2
+    version: 0.1.0
+    architecture: k1om
+    sha256: afad41aff51b8285c896b894cf2f04d2174c4575fea2ff9cc879be5a590ace6d
+tools:
+  - tools/ubuntu-port/build-k1om-bootstrap-packages.sh
+  - tools/ubuntu-port/check-k1om-package-determinism.sh
+  - tools/ubuntu-port/index-k1om-local-archive.sh
+  - tools/ubuntu-port/audit-k1om-package-set.sh
+  - tools/ubuntu-port/simulate-k1om-package-install.sh
+  - tools/ubuntu-port/install-k1om-profile-deb-to-micdir.sh
+  - tools/ubuntu-port/run-k1om-bootstrap-package-set-experiment.sh
+result:
+  package_build: passed
+  package_determinism: passed
+  archive_index: passed
+  package_audit: passed
+  install_simulation: passed
+  micdir_install: passed
+  stock_boot_with_profile: passed
+  hello_knc: passed
+  python_core: passed
+  zlib_smoke: passed
+  ncurses_smoke: passed
+  basic_os_smoke: passed
+  rollback: passed
+evidence:
+  run_dir: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-194851
+  package_determinism: "status=passed; source_date_epoch=1704067200; same_package_names; same_sha256"
+  audit: "status=passed; package_count=8; Packages.gz matches Packages; Release hashes passed; dependencies_satisfied; no_duplicate_paths"
+  install_simulation: "status=passed; package_count=8; dpkg_status generated; package file lists generated; md5sums/conffiles generated; required bootstrap paths present"
+  hello: "hello_rc=0; machine=k1om; sizeof(void*)=8; sizeof(long)=8"
+  python: "python_rc=0; python stage2 demo ok; prefix=/opt/xeon-phi-revival"
+  zlib: "zlib_rc=0; zlib version=1.3 result=knc zlib smoke"
+  ncurses: "ncurses_rc=0; ncurses version=ncurses 6.4.20240113"
+  os_smoke: "os_smoke_rc=0; proc_mount present; sys_mount present; dev_mount present; tmp write/symlink/nested file passed; mic0 inet 172.31.1.1/24; os_smoke_done=1"
+  rollback: "final_stock_ok; profile_absent; stage2_log_absent; init"
+next_dependency: Split Python standard-library/package layout into more Ubuntu-like packages.

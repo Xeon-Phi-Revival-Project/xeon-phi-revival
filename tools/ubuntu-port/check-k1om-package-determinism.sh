@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+tools_dir="${1:-}"
+payload_rootfs="${2:-}"
+out_dir="${3:-}"
+if [[ -z "$tools_dir" || -z "$payload_rootfs" || -z "$out_dir" ]]; then
+  echo "usage: $0 TOOLS_DIR PAYLOAD_ROOTFS OUT_DIR" >&2
+  exit 2
+fi
+
+first="$out_dir/first"
+second="$out_dir/second"
+mkdir -p "$out_dir"
+rm -rf "$first" "$second"
+
+SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-1704067200}" bash "$tools_dir/build-k1om-bootstrap-packages.sh" --payload-rootfs "$payload_rootfs" --out-dir "$first"
+SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-1704067200}" bash "$tools_dir/build-k1om-bootstrap-packages.sh" --payload-rootfs "$payload_rootfs" --out-dir "$second"
+
+find "$first/repo/pool" -type f -name '*.deb' -printf '%P\n' | LC_ALL=C sort > "$out_dir/first-files.txt"
+find "$second/repo/pool" -type f -name '*.deb' -printf '%P\n' | LC_ALL=C sort > "$out_dir/second-files.txt"
+cmp "$out_dir/first-files.txt" "$out_dir/second-files.txt"
+
+: > "$out_dir/package-determinism.tsv"
+while IFS= read -r rel; do
+  first_hash="$(sha256sum "$first/repo/pool/$rel" | awk '{print $1}')"
+  second_hash="$(sha256sum "$second/repo/pool/$rel" | awk '{print $1}')"
+  printf '%s\t%s\t%s\n' "$rel" "$first_hash" "$second_hash" >> "$out_dir/package-determinism.tsv"
+  [[ "$first_hash" == "$second_hash" ]] || { echo "hash mismatch: $rel" >&2; exit 10; }
+done < "$out_dir/first-files.txt"
+
+cat > "$out_dir/package-determinism-summary.txt" <<EOF
+status=passed
+source_date_epoch=${SOURCE_DATE_EPOCH:-1704067200}
+package_count=$(wc -l < "$out_dir/first-files.txt")
+checks=same_package_names,same_sha256
+details=$out_dir/package-determinism.tsv
+EOF
+
+echo "determinism_summary=$out_dir/package-determinism-summary.txt"

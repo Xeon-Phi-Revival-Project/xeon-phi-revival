@@ -1,0 +1,46 @@
+id: k1om-profile-package-bootstrap
+title: First package-built K1OM profile bootstrap
+status: passed
+date_utc: 2026-07-28
+hardware:
+  card: Intel Xeon Phi 5110P
+  target: mic0
+  host_os: CentOS 7.4-era MPSS host
+stock_baseline:
+  mpss_version: "3.4.10"
+  config_hashes:
+    /etc/mpss/mic0.conf: c241d140e9d8db95f808ce1732f85f1135820e4f347146db24693ea7e0e432c9
+package:
+  name: xeon-phi-revival-profile
+  version: 0.1.0
+  architecture: k1om
+  format: deb-structured
+  private_path: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-profile-package-20260728-164608/repo/pool/main/x/xeon-phi-revival-profile/xeon-phi-revival-profile_0.1.0_k1om.deb
+  sha256: 8d35d386b06fc0727b67fe31c2e98b4ee5374ba4a49e9fa1cffe5abb7bd22740
+  committed: false
+  reason_not_committed: contains locally supplied K1OM binaries and Python payloads
+archive:
+  suite: noble
+  architecture: k1om
+  packages_file: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-profile-package-20260728-164608/repo/dists/noble/main/binary-k1om/Packages
+  release_file: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-profile-package-20260728-164608/repo/dists/noble/Release
+tools:
+  - tools/ubuntu-port/build-k1om-profile-deb.sh
+  - tools/ubuntu-port/index-k1om-local-archive.sh
+  - tools/ubuntu-port/install-k1om-profile-deb-to-micdir.sh
+  - tools/ubuntu-port/run-k1om-profile-package-experiment.sh
+result:
+  package_build: passed
+  archive_index: passed
+  micdir_install: passed
+  stock_boot_with_profile: passed
+  hello_knc: passed
+  python_core: passed
+  rollback: passed
+evidence:
+  run_dir: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-profile-package-20260728-164608
+  profile_kind: stock-init-handoff-second-stage
+  hello: "hello_rc=0; machine=k1om; sizeof(void*)=8; sizeof(long)=8"
+  python: "python_rc=0; python stage2 demo ok; prefix=/opt/xeon-phi-revival"
+  rollback: "stock_ssh_ok_after_retry; stage2_log_absent; profile_absent; init"
+next_dependency: Build package recipes for base-files-k1om, zlib, ncurses, python3.5-core, and hello-knc-smoke against this working archive/install path.

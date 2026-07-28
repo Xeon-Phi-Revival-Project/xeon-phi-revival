@@ -44,6 +44,27 @@ Verified native runs:
 - Disassembly of the vector smoke test confirmed `vbroadcastsd`, `vaddpd`, and
   `vmovapd`.
 
+## Current Port Progress
+
+The project has moved beyond initial native execution into reversible uOS and
+Ubuntu-style package experiments:
+
+- Project PID 1 handoff through MPSS MicDir was proven and rolled back.
+- A second-stage project service can run after stock init without replacing the
+  stock uOS.
+- A deterministic local `Architecture: k1om` package set now builds into a
+  Noble-style `binary-k1om` archive with `Packages`, `Packages.gz`, and
+  `Release` checksum metadata.
+- Host-side APT can parse the local archive when forced to
+  `APT::Architecture=k1om`.
+- The current eight-package bootstrap set boots on `mic0`, runs `hello-knc`,
+  CPython core, zlib smoke, ncurses smoke through a separately packaged
+  `libtinfo5-k1om` runtime, basic filesystem/OS smoke, and then rolls back to
+  stock uOS.
+
+See `docs/status.md` and `docs/ubuntu-port/` for the latest public-safe
+reports.
+
 ## Current Goals
 
 - Preserve public-safe knowledge about Knights Corner, K1OM, MPSS, and the uOS
@@ -83,8 +104,10 @@ software.
 Phase 1 is complete: a real Xeon Phi 5110P moved from PCIe enumeration and MPSS
 bring-up to repeatable native K1OM program execution.
 
-The next milestone is to use the passing libc, file-I/O, `libm`, pthread, and
-zmm-vector baseline to start Python and Doom feasibility lanes.
+The active milestone is the true Ubuntu architecture-port lane: keep expanding
+the deterministic `k1om` package set and rootfs layout while preserving APT
+parser checks, package audits, simulated installs, live MicDir boot smoke tests,
+and verified rollback to stock uOS.
 
 ## Independence
 
