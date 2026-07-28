@@ -99,6 +99,14 @@ for required in \
   "$rootfs/opt/xeon-phi-revival/profile.env" \
   "$rootfs/opt/xeon-phi-revival/bin/hello-knc" \
   "$rootfs/opt/xeon-phi-revival/bin/python3.5" \
+  "$rootfs/opt/xeon-phi-revival/bin/python3" \
+  "$rootfs/opt/xeon-phi-revival/bin/python" \
+  "$rootfs/opt/xeon-phi-revival/lib/python3.5" \
+  "$rootfs/opt/xeon-phi-revival/lib/python3.5/lib-dynload" \
+  "$rootfs/opt/xeon-phi-revival/share/python-core-stage2.py" \
+  "$rootfs/usr/bin/python3" \
+  "$rootfs/usr/bin/python" \
+  "$rootfs/etc/profile.d/xeon-phi-revival.sh" \
   "$rootfs/opt/xeon-phi-revival/bin/zlib-smoke" \
   "$rootfs/opt/xeon-phi-revival/bin/ncurses-smoke" \
   "$rootfs/opt/xeon-phi-revival/lib64/libtinfo.so.5" \
@@ -109,7 +117,12 @@ for required in \
   "$info_dir/base-files-k1om.conffiles" \
   "$info_dir/base-files-k1om.md5sums" \
   "$info_dir/hello-knc-smoke.md5sums" \
-  "$info_dir/python3.5-core-k1om.md5sums" \
+  "$info_dir/python3.5-minimal-k1om.md5sums" \
+  "$info_dir/python3.5-stdlib-k1om.md5sums" \
+  "$info_dir/python3.5-lib-dynload-k1om.md5sums" \
+  "$info_dir/python3.5-smoke-k1om.md5sums" \
+  "$info_dir/xpr-shell-compat.conffiles" \
+  "$info_dir/xpr-shell-compat.md5sums" \
   "$info_dir/zlib-smoke-k1om.md5sums" \
   "$info_dir/libtinfo5-k1om.md5sums" \
   "$info_dir/ncurses-smoke-k1om.md5sums" \

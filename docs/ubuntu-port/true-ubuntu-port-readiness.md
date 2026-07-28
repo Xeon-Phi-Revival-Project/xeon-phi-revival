@@ -53,7 +53,10 @@ A first reproducible local package set now exists and has passed on `mic0`:
 ```text
 base-files-k1om
 hello-knc-smoke
-python3.5-core-k1om
+python3.5-minimal-k1om
+python3.5-stdlib-k1om
+python3.5-lib-dynload-k1om
+python3.5-smoke-k1om
 zlib-smoke-k1om
 libtinfo5-k1om
 ncurses-smoke-k1om
@@ -66,8 +69,8 @@ The package set proves deterministic K1OM package construction, the local
 audit path, simulated dpkg-style install/rootfs path with package `md5sums` and
 `conffiles`, host-side APT parser path, MicDir install path, stock-init
 second-stage service path, K1OM hello payload, CPython core payload, zlib smoke,
-separate libtinfo runtime, ncurses smoke, basic filesystem smoke, and stock
-rollback path.
+separate libtinfo runtime, ncurses smoke, basic filesystem smoke, on-card
+dpkg-style package status metadata, and stock rollback path.
 
 ## Immediate Next Track
 
@@ -89,11 +92,16 @@ base-files-k1om
 xeon-phi-revival-profile
 zlib
 ncurses
-python3.5-core-k1om
+python3.5-minimal-k1om
+python3.5-stdlib-k1om
+python3.5-lib-dynload-k1om
+python3.5-smoke-k1om
 xpr-os-smoke
 xeon-phi-revival-stage2
 ```
 
-The host-side APT parser test has passed for the bootstrap archive. The next
-milestone is splitting the Python standard-library/package layout into more
-Ubuntu-like packages under the same reversible gates.
+The host-side APT parser test has passed for the bootstrap archive, and Python
+has been split into more Ubuntu-like interpreter, standard-library,
+dynamic-extension, and smoke-script packages under the same reversible gates.
+The next milestone is expanding smoke payload dependencies into standalone
+runtime/library packages.

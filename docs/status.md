@@ -148,14 +148,17 @@ image.
   `xeon-phi-revival-profile_0.1.0_k1om.deb` was built, indexed into an unsigned
   Noble `binary-k1om` archive, installed into MicDir staging, booted on `mic0`,
   ran `hello-knc` and Python, and rolled back to stock.
-- The first multi-package K1OM bootstrap archive passed. Packages
-  `base-files-k1om`, `hello-knc-smoke`, `python3.5-core-k1om`,
-  `xpr-os-smoke`, and `xeon-phi-revival-stage2` were built as
+- The first multi-package K1OM bootstrap archive passed and has since expanded
+  to twelve packages. Packages `base-files-k1om`, `hello-knc-smoke`,
+  `python3.5-minimal-k1om`, `python3.5-stdlib-k1om`,
+  `python3.5-lib-dynload-k1om`, `python3.5-smoke-k1om`,
+  `xpr-shell-compat`, `zlib-smoke-k1om`, `libtinfo5-k1om`,
+  `ncurses-smoke-k1om`, `xpr-os-smoke`, and `xeon-phi-revival-stage2` were built as
   `Architecture: k1om`, indexed into a local Noble `binary-k1om` archive,
   installed into MicDir staging, booted on `mic0`, ran `hello-knc`, ran
   CPython core, verified basic `/proc`, `/sys`, `/dev`, `/tmp`, symlink,
-  nested-file, filesystem-capacity, network, and environment behavior, and
-  rolled back to stock.
+  nested-file, filesystem-capacity, network, environment behavior, and
+  dpkg-style on-card package status metadata, and rolled back to stock.
 - The K1OM package-set audit now passes before live install. It verifies the
   local archive advertises `Architectures: k1om`, every package declares
   `Architecture: k1om`, `Packages` filenames and SHA-256 values match the
@@ -185,6 +188,22 @@ image.
 - The package set then expanded to eight packages by splitting
   `libtinfo5-k1om` out as a reusable runtime package. `ncurses-smoke-k1om`
   now depends on `libtinfo5-k1om`, and the live `mic0` smoke still passed.
+- The package set then expanded to eleven packages by splitting the old
+  one-piece Python payload into `python3.5-minimal-k1om`,
+  `python3.5-stdlib-k1om`, `python3.5-lib-dynload-k1om`, and
+  `python3.5-smoke-k1om`. The live `mic0` smoke still passed, the simulated
+  dpkg database was copied into the MicDir overlay, and `/var/lib/dpkg/status`
+  reported eleven installed package records on-card.
+- The package set then expanded to twelve packages by adding
+  `xpr-shell-compat`. It installs `/usr/bin/python3`, `/usr/bin/python`, an
+  `/etc/profile.d/xeon-phi-revival.sh` profile fragment, and convenience
+  wrappers under `/opt/xeon-phi-revival/bin`. `ls` resolves through the stock
+  BusyBox `/bin/ls`, while `python3 -c 1` and `python -c 1` now return `0` by
+  defaulting the wrappers to the validated no-site startup mode.
+- A second validated run was intentionally left active for SSH inspection at
+  `/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-211144`;
+  the rollback script for returning to stock is
+  `/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-211144/rollback-stock.sh`.
 - Stock rollback succeeded: `/etc/sysconfig/mpss.conf` was restored absent,
   stock MPSS service booted `mic0` to `online`, SSH worked, and PID 1 was stock
   `init`.
@@ -242,7 +261,7 @@ image.
 
 ## Safest Next Technical Action
 
-Split the Python standard-library/package layout into more Ubuntu-like packages
+Expand smoke payload dependencies into standalone runtime/library packages
 while keeping the APT parser, package audit, simulated install, live MicDir
 boot, and stock rollback gates. Continue avoiding committed proprietary or
 uncertain-redistribution payloads.

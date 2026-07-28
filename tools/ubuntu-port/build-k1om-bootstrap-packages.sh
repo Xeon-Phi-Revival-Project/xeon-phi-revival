@@ -9,7 +9,11 @@ usage:
 Build a small local K1OM bootstrap package set:
   base-files-k1om
   hello-knc-smoke
-  python3.5-core-k1om
+  python3.5-minimal-k1om
+  python3.5-stdlib-k1om
+  python3.5-lib-dynload-k1om
+  python3.5-smoke-k1om
+  xpr-shell-compat
   zlib-smoke-k1om
   libtinfo5-k1om
   ncurses-smoke-k1om
@@ -127,11 +131,24 @@ hello_data="$(new_data_dir hello-knc-smoke)"
 mkdir -p "$hello_data/opt/xeon-phi-revival/bin"
 cp -a "$payload_rootfs/usr/bin/hello-knc" "$hello_data/opt/xeon-phi-revival/bin/hello-knc"
 
-python_data="$(new_data_dir python3.5-core-k1om)"
-mkdir -p "$python_data/opt/xeon-phi-revival/bin" "$python_data/opt/xeon-phi-revival/python" "$python_data/opt/xeon-phi-revival/share"
-cp -a "$payload_rootfs/usr/bin/python3.5" "$python_data/opt/xeon-phi-revival/bin/python3.5"
-cp -a "$payload_rootfs/usr/lib/python3.5" "$python_data/opt/xeon-phi-revival/python/python3.5"
-cat > "$python_data/opt/xeon-phi-revival/share/python-core-stage2.py" <<'PY'
+python_minimal_data="$(new_data_dir python3.5-minimal-k1om)"
+mkdir -p "$python_minimal_data/opt/xeon-phi-revival/bin"
+cp -a "$payload_rootfs/usr/bin/python3.5" "$python_minimal_data/opt/xeon-phi-revival/bin/python3.5"
+
+python_stdlib_data="$(new_data_dir python3.5-stdlib-k1om)"
+mkdir -p "$python_stdlib_data/opt/xeon-phi-revival/lib"
+cp -a "$payload_rootfs/usr/lib/python3.5" "$python_stdlib_data/opt/xeon-phi-revival/lib/python3.5"
+rm -rf "$python_stdlib_data/opt/xeon-phi-revival/lib/python3.5/lib-dynload"
+
+python_dynload_data="$(new_data_dir python3.5-lib-dynload-k1om)"
+mkdir -p "$python_dynload_data/opt/xeon-phi-revival/lib/python3.5"
+if [[ -d "$payload_rootfs/usr/lib/python3.5/lib-dynload" ]]; then
+  cp -a "$payload_rootfs/usr/lib/python3.5/lib-dynload" "$python_dynload_data/opt/xeon-phi-revival/lib/python3.5/lib-dynload"
+fi
+
+python_smoke_data="$(new_data_dir python3.5-smoke-k1om)"
+mkdir -p "$python_smoke_data/opt/xeon-phi-revival/share"
+cat > "$python_smoke_data/opt/xeon-phi-revival/share/python-core-stage2.py" <<'PY'
 import os
 import sys
 
@@ -141,6 +158,32 @@ print("cwd=%s" % os.getcwd())
 print("prefix=%s" % sys.prefix)
 print("calc=%d" % sum(range(10)))
 PY
+
+shell_compat_data="$(new_data_dir xpr-shell-compat)"
+mkdir -p "$shell_compat_data/etc/profile.d" "$shell_compat_data/usr/bin" "$shell_compat_data/opt/xeon-phi-revival/bin"
+cat > "$shell_compat_data/etc/profile.d/xeon-phi-revival.sh" <<'PROFILE'
+XPR_ROOT=/opt/xeon-phi-revival
+PATH="$XPR_ROOT/bin:$PATH"
+LD_LIBRARY_PATH="$XPR_ROOT/lib64:${LD_LIBRARY_PATH:-}"
+PYTHONHOME="$XPR_ROOT"
+PYTHONPATH="$XPR_ROOT/lib/python3.5:$XPR_ROOT/lib/python3.5/lib-dynload"
+export XPR_ROOT PATH LD_LIBRARY_PATH PYTHONHOME PYTHONPATH
+PROFILE
+cat > "$shell_compat_data/usr/bin/python3" <<'PYWRAP'
+#!/bin/sh
+XPR_ROOT=/opt/xeon-phi-revival
+export PYTHONHOME="$XPR_ROOT"
+export PYTHONPATH="$XPR_ROOT/lib/python3.5:$XPR_ROOT/lib/python3.5/lib-dynload"
+export LD_LIBRARY_PATH="$XPR_ROOT/lib64:${LD_LIBRARY_PATH:-}"
+if [ "${XPR_PYTHON_ENABLE_SITE:-0}" = "1" ]; then
+  exec "$XPR_ROOT/bin/python3.5" "$@"
+fi
+exec "$XPR_ROOT/bin/python3.5" -S "$@"
+PYWRAP
+chmod 0755 "$shell_compat_data/usr/bin/python3"
+ln -s python3 "$shell_compat_data/usr/bin/python"
+ln -s ../../../usr/bin/python3 "$shell_compat_data/opt/xeon-phi-revival/bin/python3"
+ln -s ../../../usr/bin/python3 "$shell_compat_data/opt/xeon-phi-revival/bin/python"
 
 os_data="$(new_data_dir xpr-os-smoke)"
 mkdir -p "$os_data/opt/xeon-phi-revival/bin"
@@ -221,7 +264,7 @@ case "$1" in
       echo "hello_rc=$?" >> "$LOG"
     fi
     if [ -x "$XPR_ROOT/bin/python3.5" ]; then
-      PYTHONHOME="$XPR_ROOT" PYTHONPATH="$XPR_ROOT/python/python3.5" "$XPR_ROOT/bin/python3.5" -S "$XPR_ROOT/share/python-core-stage2.py" > "$LOG_DIR/python-core.out" 2>&1
+      PYTHONHOME="$XPR_ROOT" PYTHONPATH="$XPR_ROOT/lib/python3.5:$XPR_ROOT/lib/python3.5/lib-dynload" "$XPR_ROOT/bin/python3.5" -S "$XPR_ROOT/share/python-core-stage2.py" > "$LOG_DIR/python-core.out" 2>&1
       echo "python_rc=$?" >> "$LOG"
     fi
     if [ -x "$XPR_ROOT/bin/zlib-smoke" ]; then
@@ -247,12 +290,16 @@ ln -s ../init.d/xeon-phi-revival-stage2 "$stage2_data/etc/rc5.d/S78xeon-phi-revi
 
 make_deb base-files-k1om "$base_data" "" "Base profile files for K1OM" "base"
 make_deb hello-knc-smoke "$hello_data" "base-files-k1om" "K1OM hello smoke binary" "devel"
-make_deb python3.5-core-k1om "$python_data" "base-files-k1om" "K1OM Python 3.5 core payload" "python"
+make_deb python3.5-minimal-k1om "$python_minimal_data" "base-files-k1om" "K1OM Python 3.5 interpreter payload" "python"
+make_deb python3.5-stdlib-k1om "$python_stdlib_data" "base-files-k1om, python3.5-minimal-k1om" "K1OM Python 3.5 pure standard library payload" "python"
+make_deb python3.5-lib-dynload-k1om "$python_dynload_data" "base-files-k1om, python3.5-minimal-k1om, python3.5-stdlib-k1om" "K1OM Python 3.5 dynamic extension payload" "python"
+make_deb python3.5-smoke-k1om "$python_smoke_data" "base-files-k1om, python3.5-minimal-k1om, python3.5-stdlib-k1om" "K1OM Python 3.5 smoke script payload" "python"
+make_deb xpr-shell-compat "$shell_compat_data" "base-files-k1om, python3.5-minimal-k1om, python3.5-stdlib-k1om, python3.5-lib-dynload-k1om" "Shell compatibility entrypoints for the K1OM profile" "shells"
 make_deb zlib-smoke-k1om "$zlib_data" "base-files-k1om" "K1OM zlib smoke payload" "libs"
 make_deb libtinfo5-k1om "$libtinfo_data" "base-files-k1om" "K1OM terminfo runtime library" "libs"
 make_deb ncurses-smoke-k1om "$ncurses_data" "base-files-k1om, libtinfo5-k1om" "K1OM ncurses smoke payload" "utils"
 make_deb xpr-os-smoke "$os_data" "base-files-k1om" "Basic filesystem and OS smoke checks" "utils"
-make_deb xeon-phi-revival-stage2 "$stage2_data" "base-files-k1om, hello-knc-smoke, python3.5-core-k1om, zlib-smoke-k1om, libtinfo5-k1om, ncurses-smoke-k1om, xpr-os-smoke" "Second-stage service for K1OM profile" "admin"
+make_deb xeon-phi-revival-stage2 "$stage2_data" "base-files-k1om, hello-knc-smoke, python3.5-minimal-k1om, python3.5-stdlib-k1om, python3.5-lib-dynload-k1om, python3.5-smoke-k1om, xpr-shell-compat, zlib-smoke-k1om, libtinfo5-k1om, ncurses-smoke-k1om, xpr-os-smoke" "Second-stage service for K1OM profile" "admin"
 
 {
   printf 'package\tversion\tarchitecture\tpath\tsha256\n'

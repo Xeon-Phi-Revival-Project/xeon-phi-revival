@@ -9,14 +9,19 @@ Status: passed.
 This is not a complete Ubuntu port. It proves that the project can build a
 small set of local `Architecture: k1om` packages, index them into a Noble-style
 `binary-k1om` archive, install them into MPSS MicDir staging, boot `mic0`, run
-basic userland and OS smoke checks, and roll back to the stock uOS.
+basic userland and OS smoke checks, expose dpkg-style package metadata on-card,
+and roll back to the stock uOS.
 
 ## Package Set
 
 ```text
 base-files-k1om_0.1.0_k1om.deb
 hello-knc-smoke_0.1.0_k1om.deb
-python3.5-core-k1om_0.1.0_k1om.deb
+python3.5-minimal-k1om_0.1.0_k1om.deb
+python3.5-stdlib-k1om_0.1.0_k1om.deb
+python3.5-lib-dynload-k1om_0.1.0_k1om.deb
+python3.5-smoke-k1om_0.1.0_k1om.deb
+xpr-shell-compat_0.1.0_k1om.deb
 zlib-smoke-k1om_0.1.0_k1om.deb
 libtinfo5-k1om_0.1.0_k1om.deb
 ncurses-smoke-k1om_0.1.0_k1om.deb
@@ -37,10 +42,19 @@ K1OM binaries, Python payload files, and runtime material.
 
 ## Private Run
 
-Final Ubuntu-style deterministic, audited, simulated, and live passing run:
+Final Ubuntu-style deterministic, audited, simulated, live passing, and
+rollback-verified run:
 
 ```text
-/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-194851
+/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-210342
+```
+
+The same profile was then booted again and intentionally left active for SSH
+inspection:
+
+```text
+/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-211144
+rollback: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-211144/rollback-stock.sh
 ```
 
 Stock baseline:
@@ -56,12 +70,16 @@ mpss.service: active
 ```text
 base-files-k1om     fbfad5560b505fae7f7d1977a0b8e9a00408c1ce1b0bc8d76d60ec514913bc5d
 hello-knc-smoke     30af9c5556b59abe25fd009adc6af3c8b9461182e13f347d4debd5ea9c87f92b
-python3.5-core-k1om c7b671dffa52b35f9a6b6a8a050c26295a761e9959a82015583af5bd0c734e70
+python3.5-minimal-k1om 8b7108c2caa40b18a911d91c0b0790d3ac4588caddfc06bd658ce68d8e169abc
+python3.5-stdlib-k1om 8cabe59ea27bcb003665064f02613fd647457da40b8131720ab5d7f97f0d966a
+python3.5-lib-dynload-k1om 4e7f459404480f0ae66318adbead04fc22bb490714a62da0985cb7dc5a6546d7
+python3.5-smoke-k1om 50871fc9031cd0e7904a4861601c1b05a22e349fc3c4a3fbec34f60bdabcbb6a
+xpr-shell-compat a1edfde8a484b1a809d0f17a25d38acdd74e340d17bf0a0b65ef51a876c25121
 zlib-smoke-k1om     46aab001aba64cfd10a50b2de7d06a72c4fe26b63d4acb399252661cee14c30e
 libtinfo5-k1om      92cefe76971dbd55222c4926fd762bd41df734657b88d5671823e3bf197f7f48
 ncurses-smoke-k1om  c39533a3a70d23f465e30133ed0714b8cf8f9540e03b5f7314c7ea5fe921e355
 xpr-os-smoke        b6e165ea5d93b1f8b63f8c2ae2da7d395178e320481233d5dc839d34cc976c16
-xeon-phi-revival-stage2 afad41aff51b8285c896b894cf2f04d2174c4575fea2ff9cc879be5a590ace6d
+xeon-phi-revival-stage2 abc4d4ce32c839c4b961c72a538f4113f02da7ea77218b62f0473690079c3db3
 ```
 
 The package determinism check passed before archive indexing:
@@ -69,9 +87,9 @@ The package determinism check passed before archive indexing:
 ```text
 status=passed
 source_date_epoch=1704067200
-package_count=8
+package_count=12
 checks=same_package_names,same_sha256
-details=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-194851/determinism/package-determinism.tsv
+details=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-211144/determinism/package-determinism.tsv
 ```
 
 ## Archive Metadata
@@ -85,7 +103,7 @@ dists/noble/main/binary-k1om/Packages.gz
 pool/main/*/*/*.deb
 ```
 
-The `Packages` file recorded all eight package names with:
+The `Packages` file recorded all twelve package names with:
 
 ```text
 Version: 0.1.0
@@ -103,20 +121,20 @@ The package audit passed before installation:
 
 ```text
 status=passed
-package_count=8
+package_count=12
 checks=release_suite,release_codename,release_architecture,release_hash_blocks,release_packages_hashes,packages_gz_matches_packages,package_source,package_architecture,package_section,package_priority,package_md5sums,packages_filename,packages_md5sum,packages_sha1,packages_sha256,dependencies_satisfied,no_duplicate_paths
-ownership_file=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-194851/audit/package-ownership.tsv
-deps_file=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-194851/audit/package-dependencies.tsv
-hash_file=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-194851/audit/package-hashes.tsv
+ownership_file=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-211144/audit/package-ownership.tsv
+deps_file=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-211144/audit/package-dependencies.tsv
+hash_file=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-211144/audit/package-hashes.tsv
 ```
 
 The install simulation also passed before live install:
 
 ```text
 status=passed
-package_count=8
-rootfs=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-194851/simulated-install/rootfs
-dpkg_status=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-194851/simulated-install/rootfs/var/lib/dpkg/status
+package_count=12
+rootfs=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-211144/simulated-install/rootfs
+dpkg_status=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-211144/simulated-install/rootfs/var/lib/dpkg/status
 checks=dependency_order,extract_payloads,dpkg_status,package_file_lists,package_md5sums,package_conffiles,required_bootstrap_paths
 ```
 
@@ -133,6 +151,13 @@ ARCH="k1om"
 BASE="stock MPSS uOS"
 XPR_PROFILE_KIND=stock-init-handoff-second-stage
 XPR_PHASE=bootstrap
+dpkg_status_present
+12
+/bin/ls
+/usr/bin/python3
+/usr/bin/python
+python3_plain_rc=0
+python_plain_rc=0
 ```
 
 Second-stage service result:
@@ -212,6 +237,7 @@ mpss.service active
 final_stock_ok
 profile_absent
 stage2_log_absent
+dpkg_status_absent
 init
 ```
 
@@ -238,5 +264,7 @@ multiple deterministic k1om package recipes -> local Noble binary-k1om archive w
 
 The narrowest next dependency is expanding from smoke payload packages toward
 real library/runtime packages with clearer ownership boundaries. `libtinfo5`
-has been split out; zlib currently has no standalone `libz.so` in the validated
-demo rootfs, so the next useful split is Python standard-library/package layout.
+has been split out, Python is now separated into interpreter, standard-library,
+dynamic-extension, and smoke-script packages, and `xpr-shell-compat` now exposes
+basic interactive command entrypoints. The next useful split is turning more
+smoke payload dependencies into standalone library/runtime packages.

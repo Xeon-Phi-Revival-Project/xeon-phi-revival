@@ -1,7 +1,11 @@
 package	version	status	notes
 base-files-k1om	0.1.0	passed	Package-built base profile metadata installed into MicDir and exposed /etc/xeon-phi-revival-release
 hello-knc-smoke	0.1.0	passed	Package-built K1OM hello payload ran on mic0 from /opt/xeon-phi-revival
-python3.5-core-k1om	0.1.0	passed	Package-built CPython core payload ran with PYTHONHOME=/opt/xeon-phi-revival
+python3.5-minimal-k1om	0.1.0	passed	Package-built CPython interpreter payload ran with PYTHONHOME=/opt/xeon-phi-revival
+python3.5-stdlib-k1om	0.1.0	passed	Package-built CPython pure standard library payload installed under /opt/xeon-phi-revival/lib/python3.5
+python3.5-lib-dynload-k1om	0.1.0	passed	Package-built CPython dynamic extension payload installed under /opt/xeon-phi-revival/lib/python3.5/lib-dynload
+python3.5-smoke-k1om	0.1.0	passed	Package-built CPython smoke script ran on mic0 through second-stage service
+xpr-shell-compat	0.1.0	passed	Package-built shell compatibility wrapper provides python3/python entrypoints and profile.d environment setup
 zlib-smoke-k1om	0.1.0	passed	Package-built zlib smoke payload ran on mic0 through second-stage service
 libtinfo5-k1om	0.1.0	passed	Package-built reusable libtinfo runtime payload installed separately for ncurses smoke
 ncurses-smoke-k1om	0.1.0	passed	Package-built ncurses smoke payload depends on libtinfo5-k1om and ran on mic0

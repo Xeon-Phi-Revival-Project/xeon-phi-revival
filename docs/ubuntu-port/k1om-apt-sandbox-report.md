@@ -12,16 +12,17 @@ payloads, modify system APT state, touch `mic0`, or change MPSS configuration.
 
 ## Input
 
-The test used metadata copied from the final passing seven-package set run:
+The test used metadata copied from the current shell-compatible package set
+run:
 
 ```text
-/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-194851/repo/dists
+/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260728-211144/repo
 ```
 
-Only archive metadata was copied into an ignored local scratch directory:
+The private archive was copied into an ignored local scratch directory:
 
 ```text
-build/private/apt-sandbox-repo-20260728-194851
+build/private/k1om-apt-repo-20260728-211144
 ```
 
 The scratch directory is not committed.
@@ -82,12 +83,16 @@ when forced to use `k1om` as the architecture. This does not mean the packages
 can be installed by a real K1OM `dpkg` on-card yet. It does mean the repository
 metadata is close enough for host-side APT index tests.
 
-The passing archive currently contains eight packages:
+The passing archive currently contains twelve packages:
 
 ```text
 base-files-k1om
 hello-knc-smoke
-python3.5-core-k1om
+python3.5-minimal-k1om
+python3.5-stdlib-k1om
+python3.5-lib-dynload-k1om
+python3.5-smoke-k1om
+xpr-shell-compat
 zlib-smoke-k1om
 libtinfo5-k1om
 ncurses-smoke-k1om

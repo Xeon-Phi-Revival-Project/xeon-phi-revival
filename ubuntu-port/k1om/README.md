@@ -48,11 +48,15 @@ manifests/experiments/k1om-profile-package-bootstrap.yml
 
 ## First Working Package Set
 
-The first multi-package bootstrap archive also passed. It contains:
+The current multi-package bootstrap archive also passed. It contains:
 
 - `base-files-k1om`
 - `hello-knc-smoke`
-- `python3.5-core-k1om`
+- `python3.5-minimal-k1om`
+- `python3.5-stdlib-k1om`
+- `python3.5-lib-dynload-k1om`
+- `python3.5-smoke-k1om`
+- `xpr-shell-compat`
 - `zlib-smoke-k1om`
 - `libtinfo5-k1om`
 - `ncurses-smoke-k1om`
@@ -65,7 +69,10 @@ checksums, audited, simulated into a dpkg-style staged rootfs, installed into
 MPSS MicDir staging, booted on `mic0`, runs `hello-knc`, runs CPython core,
 is parsed by host-side APT as `Architecture: k1om`, runs zlib and ncurses
 smoke payloads, uses a separately packaged `libtinfo5-k1om` runtime, verifies
-basic filesystem and OS behavior, and rolls back to the stock uOS.
+basic filesystem and OS behavior, exposes dpkg-style package status metadata
+on-card, provides `python3`/`python` command wrappers, and rolls back to the
+stock uOS. A second run was intentionally left active for SSH inspection after
+the rollback-verified run passed.
 
 The passing run is documented in:
 
