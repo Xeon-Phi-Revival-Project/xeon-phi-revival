@@ -171,6 +171,27 @@ for required in \
   [[ -e "$required" || -L "$required" ]] || { echo "missing simulated install output: $required" >&2; exit 30; }
 done
 
+if grep -q '^Package: zlib1g-k1om$' "$status_file"; then
+  for required in \
+    "$rootfs/opt/xeon-phi-revival/lib64/libz.so.1" \
+    "$rootfs/opt/xeon-phi-revival/lib64/libz.so.1.2.6" \
+    "$rootfs/opt/xeon-phi-revival/lib64/libncurses.so.5" \
+    "$rootfs/opt/xeon-phi-revival/lib64/libncurses.so.5.9" \
+    "$rootfs/opt/xeon-phi-revival/lib64/libreadline.so.6" \
+    "$rootfs/opt/xeon-phi-revival/lib64/libreadline.so.6.2" \
+    "$rootfs/opt/xeon-phi-revival/lib64/libssl.so.1.0.0" \
+    "$rootfs/opt/xeon-phi-revival/lib64/libcrypto.so.1.0.0" \
+    "$rootfs/opt/xeon-phi-revival/bin/runtime-libs-smoke.sh" \
+    "$info_dir/zlib1g-k1om.md5sums" \
+    "$info_dir/libncurses5-k1om.md5sums" \
+    "$info_dir/libreadline6-k1om.md5sums" \
+    "$info_dir/libssl1.0.0-k1om.md5sums" \
+    "$info_dir/libcrypto1.0.0-k1om.md5sums" \
+    "$info_dir/xpr-runtime-libs-smoke.md5sums"; do
+    [[ -e "$required" || -L "$required" ]] || { echo "missing simulated runtime-library output: $required" >&2; exit 31; }
+  done
+fi
+
 cat > "$summary_file" <<EOF
 status=passed
 repo=$repo_dir

@@ -50,6 +50,11 @@ packages_list="$(find "$state_lists" -type f -name '*_binary-k1om_Packages' -pri
 for package in base-files-k1om hello-knc-smoke python3.5-minimal-k1om python3.5-stdlib-k1om python3.5-lib-dynload-k1om python3.5-smoke-k1om xpr-shell-compat xpr-busybox-compat xpr-pci-tools dpkg-k1om apt-k1om libc6-k1om libgcc1-k1om libm6-k1om libpthread0-k1om libdl2-k1om librt1-k1om libutil1-k1om libc-stack-smoke-k1om zlib-smoke-k1om libtinfo5-k1om ncurses-smoke-k1om xpr-os-smoke xeon-phi-revival-stage2; do
   grep -q "^Package: $package$" "$packages_list" || { echo "APT list missing package: $package" >&2; exit 30; }
 done
+if grep -q '^Package: zlib1g-k1om$' "$packages_list"; then
+  for package in zlib1g-k1om libncurses5-k1om libreadline6-k1om libssl1.0.0-k1om libcrypto1.0.0-k1om xpr-runtime-libs-smoke; do
+    grep -q "^Package: $package$" "$packages_list" || { echo "APT list missing runtime package: $package" >&2; exit 31; }
+  done
+fi
 
 apt-cache "${apt_opts[@]}" show base-files-k1om > "$out_dir/apt-cache-show-base-files-k1om.txt"
 grep -q '^Architecture: k1om$' "$out_dir/apt-cache-show-base-files-k1om.txt" || { echo "apt-cache show did not preserve Architecture: k1om" >&2; exit 40; }

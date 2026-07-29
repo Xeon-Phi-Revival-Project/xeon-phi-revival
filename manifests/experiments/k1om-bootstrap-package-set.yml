@@ -1,5 +1,5 @@
 id: k1om-bootstrap-package-set
-title: Multi-package K1OM bootstrap archive with dpkg/apt and libc stack
+title: Multi-package K1OM bootstrap archive with dpkg/apt and runtime stack
 status: passed
 date_utc: 2026-07-29
 hardware:
@@ -13,34 +13,40 @@ stock_baseline:
 archive:
   suite: noble
   architecture: k1om
-  packages_file: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-000356/repo/dists/noble/main/binary-k1om/Packages
-  packages_gz_file: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-000356/repo/dists/noble/main/binary-k1om/Packages.gz
-  release_file: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-000356/repo/dists/noble/Release
+  packages_file: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-022039/repo/dists/noble/main/binary-k1om/Packages
+  packages_gz_file: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-022039/repo/dists/noble/main/binary-k1om/Packages.gz
+  release_file: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-022039/repo/dists/noble/Release
 packages:
-  - { name: apt-k1om, version: 0.1.0, architecture: k1om, sha256: 779cd2043086cd5c913679c0e88075d9ae7940ad734e4ce3eeb27f83d93f0664 }
+  - { name: apt-k1om, version: 0.1.0, architecture: k1om, sha256: 20dd2a9d43d5a6b87b32750f33b9027bba8e0db07fb875daf7de561e4c190a6e }
   - { name: base-files-k1om, version: 0.1.0, architecture: k1om, sha256: fbfad5560b505fae7f7d1977a0b8e9a00408c1ce1b0bc8d76d60ec514913bc5d }
-  - { name: dpkg-k1om, version: 0.1.0, architecture: k1om, sha256: ed0e589fa7616d57a76f4602f6fb644a1c4aaa75623827afcf9cf7be163f3dd2 }
+  - { name: dpkg-k1om, version: 0.1.0, architecture: k1om, sha256: ea644cd5604573cc7f710d3a32c15a93b6d0236bf9143822db8556601781758e }
   - { name: hello-knc-smoke, version: 0.1.0, architecture: k1om, sha256: 30af9c5556b59abe25fd009adc6af3c8b9461182e13f347d4debd5ea9c87f92b }
   - { name: libc6-k1om, version: 0.1.0, architecture: k1om, sha256: 38ec691a040315b6c325f0812a1f98a4cc884f3ac0e77bae08591e909cc338fd }
   - { name: libc-stack-smoke-k1om, version: 0.1.0, architecture: k1om, sha256: 77f1310da8db079dbdfad7175ec4c4d673ed973c316fef9c10ff4323a89289bb }
+  - { name: libcrypto1.0.0-k1om, version: 0.1.0, architecture: k1om, sha256: fb662e4d6ee1ea09b8efcf68d7cd242273283f86f41d5b6a864055d69b8fe895 }
   - { name: libdl2-k1om, version: 0.1.0, architecture: k1om, sha256: db6dfd4dbdd9573cbb860568810e51686e9bcebbfe96237aeb24f894d9290d1e }
   - { name: libgcc1-k1om, version: 0.1.0, architecture: k1om, sha256: 62a2c6b3fe4656d56242db879503c71f7ffbd2e0668cb2d0690f0fa406bf6683 }
   - { name: libm6-k1om, version: 0.1.0, architecture: k1om, sha256: 124e465b94c00c1b7d11e17cf736144e3a708d0e02dd4e1ff503dd8418879b16 }
+  - { name: libncurses5-k1om, version: 0.1.0, architecture: k1om, sha256: c2b6b5b4a17af4783a1913add39fd9fa89b64c67104e8b1f72ba4cbcc825c8d5 }
   - { name: libpthread0-k1om, version: 0.1.0, architecture: k1om, sha256: 3d94d016dff72dadc9a782102e926f95ef66f671c6bafd027345705a955b3f7a }
+  - { name: libreadline6-k1om, version: 0.1.0, architecture: k1om, sha256: 9ea7cc83ab1413fa4658d4b6e8c843236029aac9e84f961bb58ff735953f0387 }
   - { name: librt1-k1om, version: 0.1.0, architecture: k1om, sha256: 015b68bf011cc10e33d796e4ac053994c3bbbfcf4e31f89632a0fe9e11602b96 }
+  - { name: libssl1.0.0-k1om, version: 0.1.0, architecture: k1om, sha256: 497740826ec5b10ed2dd9aefc75a9911b1dcd91087daec163e85a1bbba125c25 }
   - { name: libtinfo5-k1om, version: 0.1.0, architecture: k1om, sha256: 92cefe76971dbd55222c4926fd762bd41df734657b88d5671823e3bf197f7f48 }
   - { name: libutil1-k1om, version: 0.1.0, architecture: k1om, sha256: 20ed872831f4197baa598844cd5d5981d84faae48adcaff6a3593e4a1c4d87ed }
-  - { name: ncurses-smoke-k1om, version: 0.1.0, architecture: k1om, sha256: c39533a3a70d23f465e30133ed0714b8cf8f9540e03b5f7314c7ea5fe921e355 }
+  - { name: ncurses-smoke-k1om, version: 0.1.0, architecture: k1om, sha256: 9a3d48169d8cb25c64759a46058d76ed6040dd84daa797cdad1d089cd49860a9 }
   - { name: python3.5-lib-dynload-k1om, version: 0.1.0, architecture: k1om, sha256: 4e7f459404480f0ae66318adbead04fc22bb490714a62da0985cb7dc5a6546d7 }
   - { name: python3.5-minimal-k1om, version: 0.1.0, architecture: k1om, sha256: 8b7108c2caa40b18a911d91c0b0790d3ac4588caddfc06bd658ce68d8e169abc }
   - { name: python3.5-smoke-k1om, version: 0.1.0, architecture: k1om, sha256: 50871fc9031cd0e7904a4861601c1b05a22e349fc3c4a3fbec34f60bdabcbb6a }
   - { name: python3.5-stdlib-k1om, version: 0.1.0, architecture: k1om, sha256: 8cabe59ea27bcb003665064f02613fd647457da40b8131720ab5d7f97f0d966a }
-  - { name: xeon-phi-revival-stage2, version: 0.1.0, architecture: k1om, sha256: 240c486ab1a8e66b7a84bf3c1c3f1b71b585f36c39621356f9123a2673c8fb1d }
+  - { name: xeon-phi-revival-stage2, version: 0.1.0, architecture: k1om, sha256: d2526600a151eb4ec4c27cca688522677d172ca775733a74df43f18bfd7f473b }
   - { name: xpr-busybox-compat, version: 0.1.0, architecture: k1om, sha256: 7c2fae933becc268649e59af18935945a0d2097cb86bc4b0e1dd49746d883475 }
   - { name: xpr-os-smoke, version: 0.1.0, architecture: k1om, sha256: b6e165ea5d93b1f8b63f8c2ae2da7d395178e320481233d5dc839d34cc976c16 }
   - { name: xpr-pci-tools, version: 0.1.0, architecture: k1om, sha256: 5af084cbb54c5d536cb4bd54dfc9b9b2125f95f3427a7a49fa1a0e4e94e6aef3 }
+  - { name: xpr-runtime-libs-smoke, version: 0.1.0, architecture: k1om, sha256: fe656b015558f212c22f0cd76da90094b4e4ebe3a999ce971d75086d8ef3a0be }
   - { name: xpr-shell-compat, version: 0.1.0, architecture: k1om, sha256: a1edfde8a484b1a809d0f17a25d38acdd74e340d17bf0a0b65ef51a876c25121 }
-  - { name: zlib-smoke-k1om, version: 0.1.0, architecture: k1om, sha256: 46aab001aba64cfd10a50b2de7d06a72c4fe26b63d4acb399252661cee14c30e }
+  - { name: zlib1g-k1om, version: 0.1.0, architecture: k1om, sha256: efd3a71e79e0efb0c0e79709161003a7338f2f6e36d4e707c51a4efbc158f024 }
+  - { name: zlib-smoke-k1om, version: 0.1.0, architecture: k1om, sha256: 168b43a08e4d879a7381ef308a7d152bf4541d42662aff1b3e4d33604d2a17e5 }
 tools:
   - tools/ubuntu-port/build-k1om-bootstrap-packages.sh
   - tools/ubuntu-port/check-k1om-package-determinism.sh
@@ -60,6 +66,7 @@ result:
   dpkg_shim: passed
   apt_shim: passed
   libc_stack: passed
+  runtime_libs: passed
   hello_knc: passed
   python_core: passed
   zlib_smoke: passed
@@ -69,12 +76,13 @@ result:
   pcietool_exec: passed
   rollback: passed
 evidence:
-  run_dir: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-000356
-  package_determinism: "status=passed; source_date_epoch=1704067200; package_count=24; same_package_names; same_sha256"
-  audit: "status=passed; package_count=24; Packages.gz matches Packages; Release hashes passed; dependencies_satisfied; no_duplicate_paths"
-  install_simulation: "status=passed; package_count=24; dpkg_status generated; package file lists generated; md5sums/conffiles generated; required bootstrap paths present"
-  dpkg_apt: "dpkg_status_present; /usr/bin/dpkg; /usr/bin/apt-get; /usr/bin/apt-cache; apt_update_rc=0; apt_install_rc=0"
+  run_dir: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-022039
+  package_determinism: "status=passed; source_date_epoch=1704067200; package_count=30; same_package_names; same_sha256"
+  audit: "status=passed; package_count=30; Packages.gz matches Packages; Release hashes passed; dependencies_satisfied; no_duplicate_paths"
+  install_simulation: "status=passed; package_count=30; dpkg_status generated; package file lists generated; md5sums/conffiles generated; required bootstrap paths present"
+  dpkg_apt: "dpkg_status_present; /usr/bin/dpkg; /usr/bin/apt-get; /usr/bin/apt-cache; apt_update_rc=0; apt_install_rc=0; apt_runtime_install_rc=0"
   libc_stack: "loader_present; libc_present; hello_loader_direct_rc=0; libc_stack_rc=0; libc_stack_done=1"
+  runtime_libs: "libz_present; libncurses_present; libreadline_present; libssl_present; libcrypto_present; runtime_libs_rc=0; runtime_libs_done=1"
   hello: "hello_rc=0; machine=k1om; sizeof(void*)=8; sizeof(long)=8"
   python: "python_rc=0; python stage2 demo ok; prefix=/opt/xeon-phi-revival"
   zlib: "zlib_rc=0; zlib version=1.3 result=knc zlib smoke"
@@ -84,4 +92,4 @@ evidence:
   busybox_compat: "command -v cat=/bin/cat; grep=/bin/grep; sed=/bin/sed; awk=/usr/bin/awk; find=/usr/bin/find; sed/grep smoke printed Abc; awk smoke printed 3"
   pcietool: "command -v pcietool=/usr/bin/pcietool; pcietool list rc=0; captured listing was empty in this run"
   rollback: "stock_ssh_ok; profile_absent; stage2_log_absent; dpkg_status_absent; init"
-next_dependency: Tighten the project dpkg/apt shims and build a smaller Python 3.12 packaging harness while preserving audit, simulation, live boot, and stock rollback gates.
+next_dependency: Use the stricter dpkg/apt and split runtime package spine to stage the next minimal userland expansion before returning to Python 3.12 completion.

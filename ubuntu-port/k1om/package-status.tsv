@@ -11,6 +11,12 @@ libdl2-k1om	0.1.0	passed	Project-packaged K1OM libdl runtime installed under /op
 librt1-k1om	0.1.0	passed	Project-packaged K1OM librt runtime installed under /opt/xeon-phi-revival/lib64
 libutil1-k1om	0.1.0	passed	Project-packaged K1OM libutil runtime installed under /opt/xeon-phi-revival/lib64
 libc-stack-smoke-k1om	0.1.0	passed	Package-built libc stack smoke ran hello-knc and Python core through the packaged loader/library path
+zlib1g-k1om	0.1.0	passed	Package-built stock-derived K1OM zlib runtime installed under /opt/xeon-phi-revival/lib64
+libncurses5-k1om	0.1.0	passed	Package-built stock-derived K1OM ncurses runtime installed under /opt/xeon-phi-revival/lib64
+libreadline6-k1om	0.1.0	passed	Package-built stock-derived K1OM readline runtime installed under /opt/xeon-phi-revival/lib64
+libcrypto1.0.0-k1om	0.1.0	passed	Package-built stock-derived K1OM OpenSSL crypto runtime installed under /opt/xeon-phi-revival/lib64
+libssl1.0.0-k1om	0.1.0	passed	Package-built stock-derived K1OM OpenSSL SSL runtime installed under /opt/xeon-phi-revival/lib64
+xpr-runtime-libs-smoke	0.1.0	passed	Package-built runtime library presence smoke verified zlib, ncurses, libtinfo, readline, libssl, and libcrypto on mic0
 python3.5-minimal-k1om	0.1.0	passed	Package-built CPython interpreter payload ran with PYTHONHOME=/opt/xeon-phi-revival
 python3.5-stdlib-k1om	0.1.0	passed	Package-built CPython pure standard library payload installed under /opt/xeon-phi-revival/lib/python3.5
 python3.5-lib-dynload-k1om	0.1.0	passed	Package-built CPython dynamic extension payload installed under /opt/xeon-phi-revival/lib/python3.5/lib-dynload

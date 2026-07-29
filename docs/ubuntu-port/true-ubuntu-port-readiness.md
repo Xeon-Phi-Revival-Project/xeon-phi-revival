@@ -20,8 +20,8 @@ The project now has enough verified ground to begin the real Ubuntu-port lane:
 - Project PID 1 handoff works.
 - Project second-stage uOS profile works under stock MPSS init.
 - A project-owned dpkg/APT shim pair runs on-card against the local K1OM
-  archive.
-- A project-owned libc runtime stack is split into standalone packages under
+  archive, including update and reinstall smoke tests.
+- A project-owned libc/runtime stack is split into standalone packages under
   `/opt/xeon-phi-revival/lib64`.
 - Rollback to stock uOS is repeatable.
 
@@ -67,8 +67,12 @@ libc-stack-smoke-k1om
 libdl2-k1om
 libgcc1-k1om
 libm6-k1om
+libcrypto1.0.0-k1om
+libncurses5-k1om
 libpthread0-k1om
+libreadline6-k1om
 librt1-k1om
+libssl1.0.0-k1om
 libtinfo5-k1om
 libutil1-k1om
 ncurses-smoke-k1om
@@ -78,6 +82,8 @@ python3.5-lib-dynload-k1om
 python3.5-smoke-k1om
 xpr-shell-compat
 xpr-busybox-compat
+xpr-runtime-libs-smoke
+zlib1g-k1om
 zlib-smoke-k1om
 xpr-pci-tools
 xpr-os-smoke
@@ -89,7 +95,8 @@ The package set proves deterministic K1OM package construction, the local
 audit path, simulated dpkg-style install/rootfs path with package `md5sums` and
 `conffiles`, host-side APT parser path, MicDir install path, stock-init
 second-stage service path, K1OM hello payload, CPython core payload, zlib smoke,
-separate libtinfo runtime, ncurses smoke, basic filesystem smoke, on-card
+separate libtinfo runtime, split zlib/ncurses/readline/OpenSSL-1.0 runtime
+packages, runtime-library presence smoke, ncurses smoke, basic filesystem smoke, on-card
 dpkg-style package status metadata, `python3`/`python` shell entrypoints,
 BusyBox-backed command entrypoints, a small `pcietool` sysfs helper,
 bootstrap-compatible `dpkg`/`apt-get`/`apt-cache` commands, a separately
@@ -140,8 +147,8 @@ has been split into more Ubuntu-like interpreter, standard-library,
 dynamic-extension, and smoke-script packages under the same reversible gates.
 The profile now also exposes basic command entrypoints through
 `xpr-shell-compat` and `xpr-busybox-compat`, plus a first project-owned utility
-package through `xpr-pci-tools`. The next milestone is expanding smoke payload
-dependencies into standalone runtime/library packages and tightening
+package through `xpr-pci-tools`. The latest milestone expanded smoke payload
+dependencies into standalone runtime/library packages and tightened
 package-manager compatibility. The Python 3.12 lane should continue as a
 separate source-compatibility and staging problem until a small modern Python
 runtime can boot and run on-card without destabilizing MPSS.

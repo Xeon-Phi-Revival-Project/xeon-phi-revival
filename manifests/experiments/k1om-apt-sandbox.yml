@@ -4,10 +4,10 @@ status: passed
 date_utc: 2026-07-29
 source_run:
   id: k1om-bootstrap-package-set
-  remote_run_dir: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-000356
+  remote_run_dir: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-022039
 input:
   copied_metadata_only: false
-  local_repo: build/private/k1om-apt-repo-20260729-000356
+  local_repo: build/private/k1om-apt-repo-20260729-022039
   committed: false
 tool:
   path: tools/ubuntu-port/test-k1om-archive-with-apt.sh
@@ -23,7 +23,7 @@ evidence:
   apt_summary: "status=passed; checks=apt_get_update_file_repo,architecture_k1om,packages_visible,apt_cache_show"
   apt_cache_show: "Package: base-files-k1om; Source: xeon-phi-revival-bootstrap; Version: 0.1.0; Architecture: k1om"
   parsed_index: dists/noble/main/binary-k1om/Packages.gz
-  package_count: 24
+  package_count: 30
 notes:
   - The WSL run emitted a Windows mirrored-networking fallback warning, but the test used only a local file repository and passed.
-next_dependency: Tighten on-card package-manager compatibility while keeping APT parser, audit, simulator, live boot, and rollback gates.
+next_dependency: Use the stricter on-card package-manager and split runtime-library package spine for the next minimal userland expansion.

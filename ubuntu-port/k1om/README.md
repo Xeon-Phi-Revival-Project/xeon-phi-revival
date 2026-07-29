@@ -62,6 +62,12 @@ The current multi-package bootstrap archive also passed. It contains:
 - `librt1-k1om`
 - `libutil1-k1om`
 - `libc-stack-smoke-k1om`
+- `zlib1g-k1om`
+- `libncurses5-k1om`
+- `libreadline6-k1om`
+- `libcrypto1.0.0-k1om`
+- `libssl1.0.0-k1om`
+- `xpr-runtime-libs-smoke`
 - `libtinfo5-k1om`
 - `ncurses-smoke-k1om`
 - `python3.5-minimal-k1om`
@@ -85,8 +91,9 @@ basic filesystem and OS behavior, exposes dpkg-style package status metadata
 on-card, provides bootstrap-compatible `dpkg`/`apt-get`/`apt-cache` commands,
 provides `python3`/`python` command wrappers, exposes common BusyBox-backed
 command entrypoints, includes a small `pcietool` sysfs helper, packages a
-project-owned libc stack under `/opt/xeon-phi-revival/lib64`, and rolls back to
-the stock uOS.
+project-owned libc stack and split zlib/ncurses/readline/OpenSSL-1.0 runtime
+library packages under `/opt/xeon-phi-revival/lib64`, verifies runtime-library
+presence through `xpr-runtime-libs-smoke`, and rolls back to the stock uOS.
 
 The passing run is documented in:
 

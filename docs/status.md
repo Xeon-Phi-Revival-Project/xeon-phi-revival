@@ -149,24 +149,12 @@ image.
   Noble `binary-k1om` archive, installed into MicDir staging, booted on `mic0`,
   ran `hello-knc` and Python, and rolled back to stock.
 - The first multi-package K1OM bootstrap archive passed and has since expanded
-  to twenty-four packages. Packages `apt-k1om`, `base-files-k1om`,
-  `dpkg-k1om`, `hello-knc-smoke`, `libc6-k1om`,
-  `libc-stack-smoke-k1om`, `libdl2-k1om`, `libgcc1-k1om`, `libm6-k1om`,
-  `libpthread0-k1om`, `librt1-k1om`, `libtinfo5-k1om`, `libutil1-k1om`,
-  `ncurses-smoke-k1om`, `python3.5-lib-dynload-k1om`,
-  `python3.5-minimal-k1om`, `python3.5-smoke-k1om`,
-  `python3.5-stdlib-k1om`, `xeon-phi-revival-stage2`,
-  `xpr-busybox-compat`, `xpr-os-smoke`, `xpr-pci-tools`,
-  `xpr-shell-compat`, and `zlib-smoke-k1om` were built as
-  `Architecture: k1om`, indexed into a local Noble `binary-k1om` archive,
-  installed into MicDir staging, booted on `mic0`, ran `hello-knc`, ran
-  CPython core, verified common command entrypoints, verified basic `/proc`,
-  `/sys`, `/dev`, `/tmp`, symlink, nested-file, filesystem-capacity, network,
-  environment behavior, exposed dpkg-style on-card package status metadata,
-  exposed project `dpkg`, `apt-get`, and `apt-cache` commands, installed from
-  the local archive with `apt-get install --reinstall xpr-pci-tools`, verified
-  a project-owned libc stack under `/opt/xeon-phi-revival/lib64`, and rolled
-  back to stock.
+  to thirty packages. It now includes project dpkg/APT shims, hello/Python
+  smoke packages, split libc/libgcc/libm/pthread/dl/rt/util runtime packages,
+  split zlib/ncurses/readline/OpenSSL-1.0 runtime packages, BusyBox-backed
+  command entrypoints, `pcietool`, runtime smoke packages, and the SysV
+  second-stage service. See
+  `docs/ubuntu-port/k1om-bootstrap-package-set-report.md` for the exact list.
 - The K1OM package-set audit now passes before live install. It verifies the
   local archive advertises `Architectures: k1om`, every package declares
   `Architecture: k1om`, `Packages` filenames and SHA-256 values match the
@@ -187,9 +175,8 @@ image.
 - A harmless host-side APT sandbox test passed against the local K1OM archive.
   With `APT::Architecture=k1om`, `apt-get update` parsed the local
   `noble/main/binary-k1om` file repository and `apt-cache show` reported
-  `base-files-k1om` as `Architecture: k1om`. The current sandbox was rerun
-  against the twenty-four-package archive copied to ignored local scratch space
-  as `build/private/k1om-apt-repo-20260729-000356`.
+  `base-files-k1om` as `Architecture: k1om`. The current archive contains
+  thirty packages after the runtime-library split.
 - The deterministic package set expanded from five to seven packages by adding
   `zlib-smoke-k1om` and `ncurses-smoke-k1om`. Both package-installed payloads
   ran on `mic0` through the second-stage service: `zlib_rc=0` reported
@@ -227,6 +214,15 @@ image.
   xpr-pci-tools` from the on-card local file repository. The libc stack smoke
   used the packaged loader and library path to run `hello-knc` and the Python
   core test against `/opt/xeon-phi-revival/lib64`.
+- The package set then expanded to thirty packages by splitting additional
+  runtime libraries into standalone packages: `zlib1g-k1om`,
+  `libncurses5-k1om`, `libreadline6-k1om`, `libcrypto1.0.0-k1om`,
+  `libssl1.0.0-k1om`, and `xpr-runtime-libs-smoke`. The live run
+  `k1om-bootstrap-package-set-20260729-022039` verified `package_count=30`,
+  `apt_update_rc=0`, `apt_install_rc=0`, `apt_runtime_install_rc=0`,
+  `runtime_libs_rc=0`, and stock rollback. The `dpkg-k1om` shim now checks
+  dependencies before first install, checks file ownership conflicts for new
+  package installs, and permits reinstall of already-installed packages.
 - A CPython 3.12.13 source probe was started from the official source tarball.
   The K1OM cross build required `--disable-ipv6`, `-std=gnu1x` instead of the
   default `-std=c11`, `static_assert` and `_Alignof` compatibility shims, and a
@@ -237,7 +233,7 @@ image.
   SSH reliably and was rolled back; Python 3.12 is therefore a promising build
   probe, not a working packaged userland yet.
 - The latest rollback-verified package-set run completed at
-  `/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-000356`.
+  `/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-022039`.
   Stock rollback succeeded afterward: SSH worked, the project profile,
   `/var/lib/dpkg/status`, and the Python 3.12 staging paths were absent, and
   PID 1 was stock `init`.

@@ -3,6 +3,7 @@ set -euo pipefail
 
 tools_dir=""
 payload_rootfs="${PAYLOAD_ROOTFS:-/root/xeon-phi-revival-local/uos-rootfs/k1om-demo-python-fixed-20260727-233215}"
+runtime_root="${K1OM_RUNTIME_ROOT:-/root/xeon-phi-revival-local/uos-boot-builds/repacked-stock-control-20260728-050610/rootfs}"
 mic="mic0"
 micdir=""
 run_root="/root/xeon-phi-revival-local/ubuntu-port-runs"
@@ -13,6 +14,7 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --tools-dir) tools_dir="${2:-}"; shift 2 ;;
     --payload-rootfs) payload_rootfs="${2:-}"; shift 2 ;;
+    --runtime-root) runtime_root="${2:-}"; shift 2 ;;
     --mic) mic="${2:-}"; shift 2 ;;
     --micdir) micdir="${2:-}"; shift 2 ;;
     --run-root) run_root="${2:-}"; shift 2 ;;
@@ -44,8 +46,12 @@ sha="$(sha256sum "$stock_conf" | awk '{print $1}')"
 log "active_conf_sha=$sha"
 [[ "$sha" == "$expected_conf_sha" ]] || { echo "stock config hash mismatch" >&2; exit 11; }
 
-bash "$tools_dir/build-k1om-bootstrap-packages.sh" --payload-rootfs "$payload_rootfs" --out-dir "$run_dir"
-bash "$tools_dir/check-k1om-package-determinism.sh" "$tools_dir" "$payload_rootfs" "$run_dir/determinism"
+build_args=(--payload-rootfs "$payload_rootfs")
+if [[ -n "$runtime_root" && -d "$runtime_root" ]]; then
+  build_args+=(--runtime-root "$runtime_root")
+fi
+bash "$tools_dir/build-k1om-bootstrap-packages.sh" "${build_args[@]}" --out-dir "$run_dir"
+bash "$tools_dir/check-k1om-package-determinism.sh" "$tools_dir" "$payload_rootfs" "$run_dir/determinism" "${runtime_root:-}"
 bash "$tools_dir/index-k1om-local-archive.sh" "$run_dir/repo"
 bash "$tools_dir/audit-k1om-package-set.sh" "$run_dir/repo" "$run_dir/audit"
 bash "$tools_dir/simulate-k1om-package-install.sh" "$run_dir/repo" "$run_dir/simulated-install"
@@ -67,7 +73,7 @@ cp -a "$run_dir/repo" "$micdir/opt/xeon-phi-revival/repo"
 systemctl restart mpss || true
 wait_online || true
 sleep 12
-ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=6 "$mic" 'echo package_set_ssh_ok; cat /proc/1/comm; cat /etc/xeon-phi-revival-release; cat /opt/xeon-phi-revival/profile.env; echo ===dpkg===; test -f /var/lib/dpkg/status && echo dpkg_status_present; grep -c "^Package:" /var/lib/dpkg/status; command -v dpkg; command -v apt-get; command -v apt-cache; dpkg --version; apt-get --version; apt-cache --version; dpkg -l | grep xpr-pci-tools; dpkg -s xpr-pci-tools | grep "Status: install ok installed"; dpkg -L xpr-pci-tools | grep "/usr/bin/pcietool"; apt-get update; echo apt_update_rc=$?; apt-cache show xpr-pci-tools | grep "Architecture: k1om"; apt-get install --reinstall xpr-pci-tools; echo apt_install_rc=$?; echo ===libc-stack-direct===; test -x /opt/xeon-phi-revival/lib64/ld-linux-k1om.so.2 && echo loader_present; test -e /opt/xeon-phi-revival/lib64/libc.so.6 && echo libc_present; /opt/xeon-phi-revival/lib64/ld-linux-k1om.so.2 --library-path /opt/xeon-phi-revival/lib64 /opt/xeon-phi-revival/bin/hello-knc >/var/log/xeon-phi-revival/hello-loader.out 2>&1; echo hello_loader_direct_rc=$?; echo ===shell===; command -v ls; command -v cat; command -v grep; command -v sed; command -v awk; command -v find; command -v python3; command -v python; command -v pcietool; cat /etc/xeon-phi-revival-release | grep "Xeon Phi"; printf "abc\n" | sed "s/a/A/" | grep Abc; printf "1 2\n" | awk "{print \$1+\$2}"; find /opt/xeon-phi-revival -maxdepth 1 -type d | grep "/opt/xeon-phi-revival"; pcietool list > /var/log/xeon-phi-revival/pcietool.out; echo pcietool_rc=$?; python3 -c 1; echo python3_plain_rc=$?; python -c 1; echo python_plain_rc=$?; python3 -S /opt/xeon-phi-revival/share/python-core-stage2.py; python -S /opt/xeon-phi-revival/share/python-core-stage2.py; echo ===stage2===; cat /var/log/xeon-phi-revival/stage2.log; echo ===hello-loader===; cat /var/log/xeon-phi-revival/hello-loader.out; echo ===hello===; cat /var/log/xeon-phi-revival/hello-knc.out; echo ===python===; cat /var/log/xeon-phi-revival/python-core.out; echo ===libc-stack===; cat /var/log/xeon-phi-revival/libc-stack-smoke.out; echo ===zlib===; cat /var/log/xeon-phi-revival/zlib-smoke.out; echo ===ncurses===; cat /var/log/xeon-phi-revival/ncurses-smoke.out; echo ===pci===; cat /var/log/xeon-phi-revival/pcietool.out; echo ===os===; cat /var/log/xeon-phi-revival/os-smoke.out' | tee "$run_dir/custom-verify.txt"
+ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=6 "$mic" 'echo package_set_ssh_ok; cat /proc/1/comm; cat /etc/xeon-phi-revival-release; cat /opt/xeon-phi-revival/profile.env; echo ===dpkg===; test -f /var/lib/dpkg/status && echo dpkg_status_present; grep -c "^Package:" /var/lib/dpkg/status; command -v dpkg; command -v apt-get; command -v apt-cache; dpkg --version; apt-get --version; apt-cache --version; dpkg -l | grep xpr-pci-tools; dpkg -s xpr-pci-tools | grep "Status: install ok installed"; dpkg -L xpr-pci-tools | grep "/usr/bin/pcietool"; dpkg -S /usr/bin/pcietool | grep xpr-pci-tools; apt-get update; echo apt_update_rc=$?; apt-cache show xpr-pci-tools | grep "Architecture: k1om"; apt-get install --reinstall xpr-pci-tools; echo apt_install_rc=$?; echo ===libc-stack-direct===; test -x /opt/xeon-phi-revival/lib64/ld-linux-k1om.so.2 && echo loader_present; test -e /opt/xeon-phi-revival/lib64/libc.so.6 && echo libc_present; test -e /opt/xeon-phi-revival/lib64/libz.so.1 && echo libz_present; test -e /opt/xeon-phi-revival/lib64/libncurses.so.5 && echo libncurses_present; test -e /opt/xeon-phi-revival/lib64/libreadline.so.6 && echo libreadline_present; test -e /opt/xeon-phi-revival/lib64/libssl.so.1.0.0 && echo libssl_present; test -e /opt/xeon-phi-revival/lib64/libcrypto.so.1.0.0 && echo libcrypto_present; /opt/xeon-phi-revival/lib64/ld-linux-k1om.so.2 --library-path /opt/xeon-phi-revival/lib64 /opt/xeon-phi-revival/bin/hello-knc >/var/log/xeon-phi-revival/hello-loader.out 2>&1; echo hello_loader_direct_rc=$?; echo ===shell===; command -v ls; command -v cat; command -v grep; command -v sed; command -v awk; command -v find; command -v python3; command -v python; command -v pcietool; cat /etc/xeon-phi-revival-release | grep "Xeon Phi"; printf "abc\n" | sed "s/a/A/" | grep Abc; printf "1 2\n" | awk "{print \$1+\$2}"; find /opt/xeon-phi-revival -maxdepth 1 -type d | grep "/opt/xeon-phi-revival"; pcietool list > /var/log/xeon-phi-revival/pcietool.out; echo pcietool_rc=$?; python3 -c 1; echo python3_plain_rc=$?; python -c 1; echo python_plain_rc=$?; python3 -S /opt/xeon-phi-revival/share/python-core-stage2.py; python -S /opt/xeon-phi-revival/share/python-core-stage2.py; echo ===stage2===; cat /var/log/xeon-phi-revival/stage2.log; echo ===hello-loader===; cat /var/log/xeon-phi-revival/hello-loader.out; echo ===hello===; cat /var/log/xeon-phi-revival/hello-knc.out; echo ===python===; cat /var/log/xeon-phi-revival/python-core.out; echo ===libc-stack===; cat /var/log/xeon-phi-revival/libc-stack-smoke.out; echo ===runtime-libs===; cat /var/log/xeon-phi-revival/runtime-libs-smoke.out 2>/dev/null || true; echo ===zlib===; cat /var/log/xeon-phi-revival/zlib-smoke.out; echo ===ncurses===; cat /var/log/xeon-phi-revival/ncurses-smoke.out; echo ===pci===; cat /var/log/xeon-phi-revival/pcietool.out; echo ===os===; cat /var/log/xeon-phi-revival/os-smoke.out' | tee "$run_dir/custom-verify.txt"
 grep -q 'package_set_ssh_ok' "$run_dir/custom-verify.txt"
 grep -q 'dpkg_status_present' "$run_dir/custom-verify.txt"
 grep -q '/bin/ls' "$run_dir/custom-verify.txt"
@@ -81,6 +87,17 @@ grep -q 'apt_update_rc=0' "$run_dir/custom-verify.txt"
 grep -q 'apt_install_rc=0' "$run_dir/custom-verify.txt"
 grep -q 'loader_present' "$run_dir/custom-verify.txt"
 grep -q 'libc_present' "$run_dir/custom-verify.txt"
+if [[ -n "$runtime_root" && -d "$runtime_root" ]]; then
+  grep -q 'libz_present' "$run_dir/custom-verify.txt"
+  grep -q 'libncurses_present' "$run_dir/custom-verify.txt"
+  grep -q 'libreadline_present' "$run_dir/custom-verify.txt"
+  grep -q 'libssl_present' "$run_dir/custom-verify.txt"
+  grep -q 'libcrypto_present' "$run_dir/custom-verify.txt"
+  ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=6 "$mic" 'apt-get install --reinstall xpr-runtime-libs-smoke; echo apt_runtime_install_rc=$?' | tee "$run_dir/runtime-apt-verify.txt"
+  grep -q 'apt_runtime_install_rc=0' "$run_dir/runtime-apt-verify.txt"
+  grep -q 'runtime_libs_rc=0' "$run_dir/custom-verify.txt"
+  grep -q 'runtime_libs_done=1' "$run_dir/custom-verify.txt"
+fi
 grep -q 'hello_loader_direct_rc=0' "$run_dir/custom-verify.txt"
 grep -q 'pcietool_rc=0' "$run_dir/custom-verify.txt"
 grep -q 'python3_plain_rc=0' "$run_dir/custom-verify.txt"

@@ -74,14 +74,15 @@ Ubuntu-style package experiments:
   `Release` checksum metadata.
 - Host-side APT can parse the local archive when forced to
   `APT::Architecture=k1om`.
-- The current twenty-four-package bootstrap set boots on `mic0`, runs
+- The current thirty-package bootstrap set boots on `mic0`, runs
   `hello-knc`, CPython core, zlib smoke, ncurses smoke through a separately
   packaged `libtinfo5-k1om` runtime, basic filesystem/OS smoke, exposes
   dpkg-style package status, provides project `dpkg`/`apt-get`/`apt-cache`
   commands backed by the local K1OM archive, provides `python3`/`python`
   command wrappers, exposes common BusyBox-backed command entrypoints, includes
   a small `pcietool` sysfs helper, packages a project-owned libc runtime stack
-  under `/opt/xeon-phi-revival/lib64`, and rolls back to stock uOS.
+  and split zlib/ncurses/readline/OpenSSL-1.0 runtime libraries under
+  `/opt/xeon-phi-revival/lib64`, and rolls back to stock uOS.
 
 See `docs/status.md` and `docs/ubuntu-port/` for the latest public-safe
 reports.
@@ -127,7 +128,7 @@ move should be collecting evidence, not guessing with firmware.
 
 ## Current Experimental Profile
 
-The latest local profile is a twenty-four-package `Architecture: k1om` set. It is
+The latest local profile is a thirty-package `Architecture: k1om` set. It is
 not a full Ubuntu port yet, but it behaves more like a small Linux userland:
 
 ```text
@@ -140,8 +141,12 @@ libc-stack-smoke-k1om
 libdl2-k1om
 libgcc1-k1om
 libm6-k1om
+libcrypto1.0.0-k1om
+libncurses5-k1om
 libpthread0-k1om
+libreadline6-k1om
 librt1-k1om
+libssl1.0.0-k1om
 libutil1-k1om
 libtinfo5-k1om
 ncurses-smoke-k1om
@@ -151,6 +156,8 @@ python3.5-lib-dynload-k1om
 python3.5-smoke-k1om
 xpr-shell-compat
 xpr-busybox-compat
+xpr-runtime-libs-smoke
+zlib1g-k1om
 zlib-smoke-k1om
 xpr-pci-tools
 xpr-os-smoke

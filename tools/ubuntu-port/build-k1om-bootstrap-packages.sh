@@ -4,7 +4,7 @@ set -euo pipefail
 usage() {
   cat >&2 <<'USAGE'
 usage:
-  build-k1om-bootstrap-packages.sh --payload-rootfs DIR --out-dir DIR [--sysroot DIR] [--version V]
+  build-k1om-bootstrap-packages.sh --payload-rootfs DIR --out-dir DIR [--sysroot DIR] [--runtime-root DIR] [--version V]
 
 Build a small local K1OM bootstrap package set:
   base-files-k1om
@@ -26,6 +26,12 @@ Build a small local K1OM bootstrap package set:
   librt1-k1om
   libutil1-k1om
   libc-stack-smoke-k1om
+  zlib1g-k1om
+  libncurses5-k1om
+  libreadline6-k1om
+  libssl1.0.0-k1om
+  libcrypto1.0.0-k1om
+  xpr-runtime-libs-smoke
   zlib-smoke-k1om
   libtinfo5-k1om
   ncurses-smoke-k1om
@@ -40,6 +46,7 @@ USAGE
 payload_rootfs=""
 out_dir=""
 sysroot="${K1OM_SYSROOT:-/opt/mpss/3.4.10/sysroots/k1om-mpss-linux}"
+runtime_root="${K1OM_RUNTIME_ROOT:-}"
 version="0.1.0"
 arch="k1om"
 source_date_epoch="${SOURCE_DATE_EPOCH:-1704067200}"
@@ -49,6 +56,7 @@ while [[ $# -gt 0 ]]; do
     --payload-rootfs) payload_rootfs="${2:-}"; shift 2 ;;
     --out-dir) out_dir="${2:-}"; shift 2 ;;
     --sysroot) sysroot="${2:-}"; shift 2 ;;
+    --runtime-root) runtime_root="${2:-}"; shift 2 ;;
     --version) version="${2:-}"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "unknown argument: $1" >&2; usage; exit 2 ;;
@@ -153,6 +161,37 @@ copy_lib64() {
     cp -a "$sysroot/lib64/$rel" "$data_dir/opt/xeon-phi-revival/lib64/$rel"
   done
 }
+
+copy_runtime_lib64() {
+  local data_dir="$1"
+  shift
+  mkdir -p "$data_dir/opt/xeon-phi-revival/lib64"
+  for rel in "$@"; do
+    cp -a "$runtime_root/$rel" "$data_dir/opt/xeon-phi-revival/lib64/$(basename "$rel")"
+  done
+}
+
+runtime_has() {
+  local rel="$1"
+  [[ -n "$runtime_root" && ( -e "$runtime_root/$rel" || -L "$runtime_root/$rel" ) ]]
+}
+
+runtime_required=0
+if [[ -n "$runtime_root" ]]; then
+  [[ -d "$runtime_root" ]] || { echo "runtime root is not a directory: $runtime_root" >&2; exit 12; }
+  for path in \
+    usr/lib64/libz.so.1 \
+    usr/lib64/libz.so.1.2.6 \
+    lib64/libncurses.so.5 \
+    lib64/libncurses.so.5.9 \
+    usr/lib64/libreadline.so.6 \
+    usr/lib64/libreadline.so.6.2 \
+    usr/lib64/libssl.so.1.0.0 \
+    lib64/libcrypto.so.1.0.0; do
+    runtime_has "$path" || { echo "required runtime-root path missing: $runtime_root/$path" >&2; exit 13; }
+  done
+  runtime_required=1
+fi
 
 base_data="$(new_data_dir base-files-k1om)"
 mkdir -p "$base_data/opt/xeon-phi-revival/bin" "$base_data/opt/xeon-phi-revival/lib" "$base_data/opt/xeon-phi-revival/python" "$base_data/opt/xeon-phi-revival/share" "$base_data/var/log/xeon-phi-revival" "$base_data/etc"
@@ -297,6 +336,55 @@ status_has_package() {
   ' "$STATUS" 2>/dev/null
 }
 
+dep_name() {
+  printf '%s\n' "$1" | tr -d '\r' | sed 's/^ *//; s/ *$//; s/|.*//; s/ *(.*//; s/ *$//'
+}
+
+check_dependencies() {
+  pkg="$1"
+  control="$2"
+  depends="$(printf '%s\n' "$control" | tr -d '\r' | awk -F': ' '$1 == "Depends" { print $2; exit }')"
+  [ -n "$depends" ] || return 0
+  old_ifs="$IFS"
+  IFS=','
+  for dep_part in $depends; do
+    dep="$(dep_name "$dep_part")"
+    [ -n "$dep" ] || continue
+    [ "$dep" = "$pkg" ] && continue
+    if ! status_has_package "$dep"; then
+      IFS="$old_ifs"
+      echo "dpkg: dependency problem prevents configuration of $pkg: $dep is not installed" >&2
+      return 1
+    fi
+  done
+  IFS="$old_ifs"
+}
+
+check_file_conflicts() {
+  pkg="$1"
+  data_tar="$2"
+  pkg_owner="$(printf '%s\n' "$pkg" | tr -d '\r' | sed 's/^ *//; s/ *$//')"
+  same_package_list="$INFO/$pkg_owner.list"
+  tar -tzf "$data_tar" | sed 's#^\./#/#' | grep -v '/$' | while IFS= read -r path; do
+    [ -n "$path" ] || continue
+    if [ -f "$same_package_list" ] && awk -v p="$path" '$0 == p { found=1; exit } END { exit found ? 0 : 1 }' "$same_package_list"; then
+      continue
+    fi
+    for list in "$INFO"/*.list; do
+      [ -f "$list" ] || continue
+      [ "$list" = "$same_package_list" ] && continue
+      owner="${list##*/}"
+      owner="${owner%.list}"
+      owner="$(printf '%s\n' "$owner" | tr -d '\r' | sed 's/^ *//; s/ *$//')"
+      [ "$owner" = "$pkg_owner" ] && continue
+      if awk -v p="$path" '$0 == p { found=1; exit } END { exit found ? 0 : 1 }' "$list"; then
+        echo "dpkg: file ownership conflict: $path is already owned by $owner" >&2
+        exit 1
+      fi
+    done
+  done
+}
+
 print_package_paragraph() {
   pkg="$1"
   awk -v p="$pkg" '
@@ -367,8 +455,18 @@ install_deb() {
     return 2
   fi
   control="$(tar -xOzf "$tmp/control.tar.gz" ./control)" || { rm -rf "$tmp"; return 2; }
-  pkg="$(printf '%s\n' "$control" | awk -F': ' '$1 == "Package" { print $2; exit }')"
+  pkg="$(printf '%s\n' "$control" | tr -d '\r' | awk -F': ' '$1 == "Package" { print $2; exit }')"
   [ -n "$pkg" ] || { echo "dpkg: missing Package field in $deb" >&2; rm -rf "$tmp"; return 2; }
+  already_installed=0
+  status_has_package "$pkg" && already_installed=1
+  if ! check_dependencies "$pkg" "$control"; then
+    rm -rf "$tmp"
+    return 1
+  fi
+  if [ "$already_installed" -eq 0 ] && ! check_file_conflicts "$pkg" "$tmp/data.tar.gz"; then
+    rm -rf "$tmp"
+    return 1
+  fi
   mkdir -p "$INFO" "$(dirname "$STATUS")"
   [ -f "$STATUS" ] || : > "$STATUS"
   tmp_status="$STATUS.tmp.$$"
@@ -570,8 +668,58 @@ find_filename() {
   ' "$packages_file"
 }
 
+depends_for() {
+  pkg="$1"
+  awk -v p="$pkg" '
+    BEGIN { keep=0 }
+    $0 == "" { keep=0 }
+    $1 == "Package:" && $2 == p { keep=1 }
+    keep && $1 == "Depends:" {
+      sub(/^Depends: /, "")
+      print
+      exit
+    }
+  ' "$packages_file"
+}
+
+dep_name() {
+  printf '%s\n' "$1" | tr -d '\r' | sed 's/^ *//; s/ *$//; s/|.*//; s/ *(.*//; s/ *$//'
+}
+
 is_installed() {
   dpkg -s "$1" >/dev/null 2>&1
+}
+
+install_one() {
+  pkg="$1"
+  mark="/tmp/xpr-apt-installing-$pkg"
+  if is_installed "$pkg" && [ "$reinstall" -eq 0 ]; then
+    echo "$pkg is already the newest version."
+    return 0
+  fi
+  if [ -e "$mark" ]; then
+    echo "E: Dependency cycle while installing $pkg" >&2
+    return 1
+  fi
+  : > "$mark"
+  depends="$(depends_for "$pkg")"
+  old_ifs="$IFS"
+  IFS=','
+  for dep_part in $depends; do
+    dep="$(dep_name "$dep_part")"
+    [ -n "$dep" ] || continue
+    if ! is_installed "$dep"; then
+      install_one "$dep" || { IFS="$old_ifs"; rm -f "$mark"; return 1; }
+    fi
+  done
+  IFS="$old_ifs"
+  filename="$(find_filename "$pkg")"
+  [ -n "$filename" ] || { echo "E: Unable to locate package $pkg" >&2; rm -f "$mark"; return 1; }
+  deb="$REPO/$filename"
+  [ -f "$deb" ] || { echo "E: Package file missing: $deb" >&2; rm -f "$mark"; return 1; }
+  echo "Installing $pkg from local k1om archive"
+  dpkg -i "$deb" || { rc=$?; rm -f "$mark"; return "$rc"; }
+  rm -f "$mark"
 }
 
 case "${1:---help}" in
@@ -600,18 +748,11 @@ case "${1:---help}" in
     done
     [ -n "$pkgs" ] || { usage; exit 2; }
     [ -f "$packages_file" ] || { echo "apt-get: missing local Packages file: $packages_file" >&2; exit 1; }
+    rm -f /tmp/xpr-apt-installing-*
     for pkg in $pkgs; do
-      if is_installed "$pkg" && [ "$reinstall" -eq 0 ]; then
-        echo "$pkg is already the newest version."
-        continue
-      fi
-      filename="$(find_filename "$pkg")"
-      [ -n "$filename" ] || { echo "E: Unable to locate package $pkg" >&2; exit 1; }
-      deb="$REPO/$filename"
-      [ -f "$deb" ] || { echo "E: Package file missing: $deb" >&2; exit 1; }
-      echo "Installing $pkg from local k1om archive"
-      dpkg -i "$deb" || exit $?
+      install_one "$pkg" || exit $?
     done
+    rm -f /tmp/xpr-apt-installing-*
     echo "install complete"
     ;;
   --help|-h)
@@ -682,6 +823,59 @@ mkdir -p "$LOG_DIR"
 } > "$OUT" 2>&1
 LIBCSMOKE
 chmod 0755 "$libc_stack_smoke_data/opt/xeon-phi-revival/bin/libc-stack-smoke.sh"
+
+zlib1g_data=""
+libncurses5_data=""
+libreadline6_data=""
+libssl100_data=""
+libcrypto100_data=""
+runtime_libs_smoke_data=""
+if [[ "$runtime_required" -eq 1 ]]; then
+  zlib1g_data="$(new_data_dir zlib1g-k1om)"
+  copy_runtime_lib64 "$zlib1g_data" usr/lib64/libz.so.1 usr/lib64/libz.so.1.2.6
+
+  libncurses5_data="$(new_data_dir libncurses5-k1om)"
+  copy_runtime_lib64 "$libncurses5_data" lib64/libncurses.so.5 lib64/libncurses.so.5.9
+
+  libreadline6_data="$(new_data_dir libreadline6-k1om)"
+  copy_runtime_lib64 "$libreadline6_data" usr/lib64/libreadline.so.6 usr/lib64/libreadline.so.6.2
+
+  libssl100_data="$(new_data_dir libssl1.0.0-k1om)"
+  copy_runtime_lib64 "$libssl100_data" usr/lib64/libssl.so.1.0.0
+
+  libcrypto100_data="$(new_data_dir libcrypto1.0.0-k1om)"
+  copy_runtime_lib64 "$libcrypto100_data" lib64/libcrypto.so.1.0.0
+
+  runtime_libs_smoke_data="$(new_data_dir xpr-runtime-libs-smoke)"
+  mkdir -p "$runtime_libs_smoke_data/opt/xeon-phi-revival/bin"
+  cat > "$runtime_libs_smoke_data/opt/xeon-phi-revival/bin/runtime-libs-smoke.sh" <<'RTLIBSMOKE'
+#!/bin/sh
+set -u
+XPR_ROOT=${XPR_ROOT:-/opt/xeon-phi-revival}
+LOG_DIR=/var/log/xeon-phi-revival
+OUT="$LOG_DIR/runtime-libs-smoke.out"
+mkdir -p "$LOG_DIR"
+{
+  echo "runtime_libs_started=1"
+  for lib in \
+    libz.so.1 libz.so.1.2.6 \
+    libncurses.so.5 libncurses.so.5.9 \
+    libtinfo.so.5 \
+    libreadline.so.6 libreadline.so.6.2 \
+    libssl.so.1.0.0 \
+    libcrypto.so.1.0.0; do
+    if [ -e "$XPR_ROOT/lib64/$lib" ]; then
+      echo "present=$lib"
+    else
+      echo "missing=$lib"
+      exit 1
+    fi
+  done
+  echo "runtime_libs_done=1"
+} > "$OUT" 2>&1
+RTLIBSMOKE
+  chmod 0755 "$runtime_libs_smoke_data/opt/xeon-phi-revival/bin/runtime-libs-smoke.sh"
+fi
 
 os_data="$(new_data_dir xpr-os-smoke)"
 mkdir -p "$os_data/opt/xeon-phi-revival/bin"
@@ -777,6 +971,10 @@ case "$1" in
       "$XPR_ROOT/bin/libc-stack-smoke.sh"
       echo "libc_stack_rc=$?" >> "$LOG"
     fi
+    if [ -x "$XPR_ROOT/bin/runtime-libs-smoke.sh" ]; then
+      "$XPR_ROOT/bin/runtime-libs-smoke.sh"
+      echo "runtime_libs_rc=$?" >> "$LOG"
+    fi
     if [ -x "$XPR_ROOT/bin/os-smoke.sh" ]; then
       "$XPR_ROOT/bin/os-smoke.sh"
       echo "os_smoke_rc=$?" >> "$LOG"
@@ -809,11 +1007,25 @@ make_deb libdl2-k1om "$libdl_data" "base-files-k1om, libc6-k1om" "K1OM glibc dyn
 make_deb librt1-k1om "$librt_data" "base-files-k1om, libc6-k1om, libpthread0-k1om" "K1OM glibc realtime runtime library" "libs"
 make_deb libutil1-k1om "$libutil_data" "base-files-k1om, libc6-k1om" "K1OM glibc util runtime library" "libs"
 make_deb libc-stack-smoke-k1om "$libc_stack_smoke_data" "base-files-k1om, hello-knc-smoke, python3.5-minimal-k1om, python3.5-stdlib-k1om, python3.5-lib-dynload-k1om, libc6-k1om, libgcc1-k1om, libm6-k1om, libpthread0-k1om, libdl2-k1om, librt1-k1om, libutil1-k1om" "K1OM packaged libc stack smoke test" "utils"
-make_deb zlib-smoke-k1om "$zlib_data" "base-files-k1om" "K1OM zlib smoke payload" "libs"
+runtime_stage2_deps=""
+zlib_smoke_deps="base-files-k1om"
+ncurses_smoke_deps="base-files-k1om, libtinfo5-k1om"
+if [[ "$runtime_required" -eq 1 ]]; then
+  make_deb zlib1g-k1om "$zlib1g_data" "base-files-k1om, libc6-k1om" "K1OM zlib runtime library" "libs"
+  make_deb libncurses5-k1om "$libncurses5_data" "base-files-k1om, libc6-k1om, libtinfo5-k1om" "K1OM ncurses runtime library" "libs"
+  make_deb libreadline6-k1om "$libreadline6_data" "base-files-k1om, libc6-k1om, libncurses5-k1om, libtinfo5-k1om" "K1OM readline runtime library" "libs"
+  make_deb libcrypto1.0.0-k1om "$libcrypto100_data" "base-files-k1om, libc6-k1om, libdl2-k1om" "K1OM OpenSSL crypto runtime library" "libs"
+  make_deb libssl1.0.0-k1om "$libssl100_data" "base-files-k1om, libc6-k1om, libcrypto1.0.0-k1om" "K1OM OpenSSL SSL runtime library" "libs"
+  make_deb xpr-runtime-libs-smoke "$runtime_libs_smoke_data" "base-files-k1om, zlib1g-k1om, libncurses5-k1om, libtinfo5-k1om, libreadline6-k1om, libssl1.0.0-k1om, libcrypto1.0.0-k1om" "K1OM split runtime-library smoke checks" "utils"
+  runtime_stage2_deps=", zlib1g-k1om, libncurses5-k1om, libreadline6-k1om, libssl1.0.0-k1om, libcrypto1.0.0-k1om, xpr-runtime-libs-smoke"
+  zlib_smoke_deps="$zlib_smoke_deps, zlib1g-k1om"
+  ncurses_smoke_deps="$ncurses_smoke_deps, libncurses5-k1om"
+fi
+make_deb zlib-smoke-k1om "$zlib_data" "$zlib_smoke_deps" "K1OM zlib smoke payload" "libs"
 make_deb libtinfo5-k1om "$libtinfo_data" "base-files-k1om" "K1OM terminfo runtime library" "libs"
-make_deb ncurses-smoke-k1om "$ncurses_data" "base-files-k1om, libtinfo5-k1om" "K1OM ncurses smoke payload" "utils"
+make_deb ncurses-smoke-k1om "$ncurses_data" "$ncurses_smoke_deps" "K1OM ncurses smoke payload" "utils"
 make_deb xpr-os-smoke "$os_data" "base-files-k1om" "Basic filesystem and OS smoke checks" "utils"
-make_deb xeon-phi-revival-stage2 "$stage2_data" "base-files-k1om, hello-knc-smoke, python3.5-minimal-k1om, python3.5-stdlib-k1om, python3.5-lib-dynload-k1om, python3.5-smoke-k1om, xpr-shell-compat, xpr-busybox-compat, xpr-pci-tools, dpkg-k1om, apt-k1om, libc6-k1om, libgcc1-k1om, libm6-k1om, libpthread0-k1om, libdl2-k1om, librt1-k1om, libutil1-k1om, libc-stack-smoke-k1om, zlib-smoke-k1om, libtinfo5-k1om, ncurses-smoke-k1om, xpr-os-smoke" "Second-stage service for K1OM profile" "admin"
+make_deb xeon-phi-revival-stage2 "$stage2_data" "base-files-k1om, hello-knc-smoke, python3.5-minimal-k1om, python3.5-stdlib-k1om, python3.5-lib-dynload-k1om, python3.5-smoke-k1om, xpr-shell-compat, xpr-busybox-compat, xpr-pci-tools, dpkg-k1om, apt-k1om, libc6-k1om, libgcc1-k1om, libm6-k1om, libpthread0-k1om, libdl2-k1om, librt1-k1om, libutil1-k1om, libc-stack-smoke-k1om${runtime_stage2_deps}, zlib-smoke-k1om, libtinfo5-k1om, ncurses-smoke-k1om, xpr-os-smoke" "Second-stage service for K1OM profile" "admin"
 
 {
   printf 'package\tversion\tarchitecture\tpath\tsha256\n'

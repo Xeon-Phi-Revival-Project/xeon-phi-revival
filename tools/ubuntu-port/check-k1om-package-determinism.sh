@@ -4,8 +4,9 @@ set -euo pipefail
 tools_dir="${1:-}"
 payload_rootfs="${2:-}"
 out_dir="${3:-}"
+runtime_root="${4:-${K1OM_RUNTIME_ROOT:-}}"
 if [[ -z "$tools_dir" || -z "$payload_rootfs" || -z "$out_dir" ]]; then
-  echo "usage: $0 TOOLS_DIR PAYLOAD_ROOTFS OUT_DIR" >&2
+  echo "usage: $0 TOOLS_DIR PAYLOAD_ROOTFS OUT_DIR [RUNTIME_ROOT]" >&2
   exit 2
 fi
 
@@ -14,8 +15,12 @@ second="$out_dir/second"
 mkdir -p "$out_dir"
 rm -rf "$first" "$second"
 
-SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-1704067200}" bash "$tools_dir/build-k1om-bootstrap-packages.sh" --payload-rootfs "$payload_rootfs" --out-dir "$first"
-SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-1704067200}" bash "$tools_dir/build-k1om-bootstrap-packages.sh" --payload-rootfs "$payload_rootfs" --out-dir "$second"
+build_args=(--payload-rootfs "$payload_rootfs")
+if [[ -n "$runtime_root" ]]; then
+  build_args+=(--runtime-root "$runtime_root")
+fi
+SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-1704067200}" bash "$tools_dir/build-k1om-bootstrap-packages.sh" "${build_args[@]}" --out-dir "$first"
+SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-1704067200}" bash "$tools_dir/build-k1om-bootstrap-packages.sh" "${build_args[@]}" --out-dir "$second"
 
 find "$first/repo/pool" -type f -name '*.deb' -printf '%P\n' | LC_ALL=C sort > "$out_dir/first-files.txt"
 find "$second/repo/pool" -type f -name '*.deb' -printf '%P\n' | LC_ALL=C sort > "$out_dir/second-files.txt"
