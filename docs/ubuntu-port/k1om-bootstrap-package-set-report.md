@@ -12,6 +12,7 @@ small set of local `Architecture: k1om` packages, index them into a Noble-style
 basic userland and OS smoke checks, expose dpkg-style package metadata on-card,
 run project `dpkg`/`apt-get`/`apt-cache` commands against the local archive,
 test packaged libc and runtime-library stacks, and roll back to the stock uOS.
+It now also packages and runs a CPython 3.12.13 runtime distribution for K1OM.
 
 ## Package Set
 
@@ -38,6 +39,10 @@ python3.5-minimal-k1om_0.1.0_k1om.deb
 python3.5-stdlib-k1om_0.1.0_k1om.deb
 python3.5-lib-dynload-k1om_0.1.0_k1om.deb
 python3.5-smoke-k1om_0.1.0_k1om.deb
+python3.12-minimal-k1om_0.1.0_k1om.deb
+python3.12-stdlib-k1om_0.1.0_k1om.deb
+python3.12-sysconfig-k1om_0.1.0_k1om.deb
+python3.12-smoke-k1om_0.1.0_k1om.deb
 xpr-shell-compat_0.1.0_k1om.deb
 xpr-busybox-compat_0.1.0_k1om.deb
 xpr-runtime-libs-smoke_0.1.0_k1om.deb
@@ -65,7 +70,7 @@ Final Ubuntu-style deterministic, audited, simulated, live passing, and
 rollback-verified run:
 
 ```text
-/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-022039
+/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-041555
 ```
 
 Stock baseline:
@@ -99,6 +104,10 @@ python3.5-minimal-k1om 8b7108c2caa40b18a911d91c0b0790d3ac4588caddfc06bd658ce68d8
 python3.5-stdlib-k1om 8cabe59ea27bcb003665064f02613fd647457da40b8131720ab5d7f97f0d966a
 python3.5-lib-dynload-k1om 4e7f459404480f0ae66318adbead04fc22bb490714a62da0985cb7dc5a6546d7
 python3.5-smoke-k1om 50871fc9031cd0e7904a4861601c1b05a22e349fc3c4a3fbec34f60bdabcbb6a
+python3.12-minimal-k1om 48631812b5e72ed04427e723202e29f5266131807dddc41b0048a366f7eebd4c
+python3.12-stdlib-k1om 9849c3250f311bd66ac5f7033de88f5b875b1ec6c2ece0f0dc54725ae19b2569
+python3.12-sysconfig-k1om e1d32c6d8c55f496f609b9356c293a1b6c34789a029eb52c920179760d43fe6a
+python3.12-smoke-k1om e455fcee6e34c0f5c1e8f7c659f3c99bc4b469825a86aa00bedaf34f92394750
 xpr-shell-compat a1edfde8a484b1a809d0f17a25d38acdd74e340d17bf0a0b65ef51a876c25121
 xpr-busybox-compat 7c2fae933becc268649e59af18935945a0d2097cb86bc4b0e1dd49746d883475
 xpr-pci-tools      5af084cbb54c5d536cb4bd54dfc9b9b2125f95f3427a7a49fa1a0e4e94e6aef3
@@ -108,7 +117,7 @@ zlib-smoke-k1om     168b43a08e4d879a7381ef308a7d152bf4541d42662aff1b3e4d33604d2a
 libtinfo5-k1om      92cefe76971dbd55222c4926fd762bd41df734657b88d5671823e3bf197f7f48
 ncurses-smoke-k1om  9a3d48169d8cb25c64759a46058d76ed6040dd84daa797cdad1d089cd49860a9
 xpr-os-smoke        b6e165ea5d93b1f8b63f8c2ae2da7d395178e320481233d5dc839d34cc976c16
-xeon-phi-revival-stage2 d2526600a151eb4ec4c27cca688522677d172ca775733a74df43f18bfd7f473b
+xeon-phi-revival-stage2 3d6478a9a0a0c620a0b2fe312e5b386b344730e96790112cabff4fec2f216bc1
 ```
 
 The package determinism check passed before archive indexing:
@@ -116,9 +125,9 @@ The package determinism check passed before archive indexing:
 ```text
 status=passed
 source_date_epoch=1704067200
-package_count=30
+package_count=34
 checks=same_package_names,same_sha256
-details=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-022039/determinism/package-determinism.tsv
+details=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-041555/determinism/package-determinism.tsv
 ```
 
 ## Archive Metadata
@@ -132,7 +141,7 @@ dists/noble/main/binary-k1om/Packages.gz
 pool/main/*/*/*.deb
 ```
 
-The `Packages` file recorded all thirty package names with:
+The `Packages` file recorded all thirty-four package names with:
 
 ```text
 Version: 0.1.0
@@ -150,20 +159,20 @@ The package audit passed before installation:
 
 ```text
 status=passed
-package_count=30
+package_count=34
 checks=release_suite,release_codename,release_architecture,release_hash_blocks,release_packages_hashes,packages_gz_matches_packages,package_source,package_architecture,package_section,package_priority,package_md5sums,packages_filename,packages_md5sum,packages_sha1,packages_sha256,dependencies_satisfied,no_duplicate_paths
-ownership_file=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-022039/audit/package-ownership.tsv
-deps_file=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-022039/audit/package-dependencies.tsv
-hash_file=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-022039/audit/package-hashes.tsv
+ownership_file=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-041555/audit/package-ownership.tsv
+deps_file=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-041555/audit/package-dependencies.tsv
+hash_file=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-041555/audit/package-hashes.tsv
 ```
 
 The install simulation also passed before live install:
 
 ```text
 status=passed
-package_count=30
-rootfs=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-022039/simulated-install/rootfs
-dpkg_status=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-022039/simulated-install/rootfs/var/lib/dpkg/status
+package_count=34
+rootfs=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-041555/simulated-install/rootfs
+dpkg_status=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-041555/simulated-install/rootfs/var/lib/dpkg/status
 checks=dependency_order,extract_payloads,dpkg_status,package_file_lists,package_md5sums,package_conffiles,required_bootstrap_paths
 ```
 
@@ -181,7 +190,7 @@ BASE="stock MPSS uOS"
 XPR_PROFILE_KIND=stock-init-handoff-second-stage
 XPR_PHASE=bootstrap
 dpkg_status_present
-30
+34
 /usr/bin/dpkg
 /usr/bin/apt-get
 /usr/bin/apt-cache
@@ -206,12 +215,15 @@ hello_loader_direct_rc=0
 /usr/bin/find
 /usr/bin/python3
 /usr/bin/python
+/usr/bin/python3.12
 /usr/bin/pcietool
 Abc
 3
 pcietool_rc=0
 python3_plain_rc=0
 python_plain_rc=0
+python312_version_rc=0
+python312_direct_rc=0
 ```
 
 Second-stage service result:
@@ -223,6 +235,7 @@ zlib_rc=0
 ncurses_rc=0
 libc_stack_rc=0
 runtime_libs_rc=0
+python312_rc=0
 os_smoke_rc=0
 ```
 
@@ -242,6 +255,49 @@ python stage2 demo ok
 platform=linux
 prefix=/opt/xeon-phi-revival
 calc=45
+```
+
+Python 3.12 package result:
+
+```text
+/usr/bin/python3.12
+3.12.13
+python312_package_smoke_ok
+linux
+k1om
+knc-zlib
+cpython-312-k1om-linux-gnu
+python312_direct_rc=0
+python312_rc=0
+```
+
+The Python 3.12 smoke exercised:
+
+```text
+array
+asyncio import
+binascii
+contextvars
+csv
+datetime
+decimal
+hashlib.sha256
+json
+math
+pathlib
+pickle
+queue
+random
+socket
+statistics
+struct
+sysconfig
+threading
+unicodedata
+xml.etree.ElementTree
+xml.parsers.expat
+zlib
+zoneinfo
 ```
 
 Zlib result:
@@ -302,6 +358,7 @@ apt-get update -> apt_update_rc=0
 apt-cache show xpr-pci-tools -> Architecture: k1om
 apt-get install --reinstall xpr-pci-tools -> apt_install_rc=0
 apt-get install --reinstall xpr-runtime-libs-smoke -> apt_runtime_install_rc=0
+apt-get install --reinstall python3.12-smoke-k1om -> apt_python312_install_rc=0
 ```
 
 These tools are intentionally minimal project shims, not a complete Debian
@@ -358,6 +415,9 @@ final_stock_ok
 profile_absent
 stage2_log_absent
 dpkg_status_absent
+python312_absent
+python312_bin_absent
+python312_smoke_absent
 pcietool_absent
 dpkg_absent
 apt_get_absent
@@ -386,14 +446,13 @@ spine:
 multiple deterministic k1om package recipes -> local Noble binary-k1om archive with Packages/Packages.gz -> package audit -> simulated dpkg-style install/rootfs -> MicDir install -> boot -> hello/Python/OS smoke -> stock rollback
 ```
 
-Steps 1 and 2 of the current package lane are complete. `dpkg-k1om` and
-`apt-k1om` now reject missing dependencies, catch package file-ownership
-conflicts, recursively install dependencies from the local archive, and support
-controlled reinstalls. The runtime stack has also been split into standalone
-packages under the project prefix for zlib, ncurses, readline, OpenSSL, and
-libcrypto, with a packaged smoke test proving those libraries are visible on
-`mic0`.
+The current package lane now has a bootstrap Ubuntu-shaped Python distribution
+for K1OM. `dpkg-k1om` and `apt-k1om` remain intentionally small project shims,
+but the package/archive spine can now carry a modern CPython runtime through
+deterministic package builds, archive indexing, audit, simulated install,
+MicDir boot, live package-manager reinstall, and stock rollback.
 
-The narrowest next dependency has moved to broader minimal-userland staging:
-package additional Ubuntu-source libraries and then return to Python 3.12 with
-the package spine already in place.
+The narrowest next dependency is no longer packaging Python 3.12 itself. It is
+expanding the missing optional-module dependencies: OpenSSL development headers
+for `_ssl` and OpenSSL-backed `_hashlib`, readline headers, sqlite, libffi for
+`_ctypes`, bz2, lzma, and the separate `_curses` static-build issue.

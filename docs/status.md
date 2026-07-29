@@ -149,11 +149,11 @@ image.
   Noble `binary-k1om` archive, installed into MicDir staging, booted on `mic0`,
   ran `hello-knc` and Python, and rolled back to stock.
 - The first multi-package K1OM bootstrap archive passed and has since expanded
-  to thirty packages. It now includes project dpkg/APT shims, hello/Python
+  to thirty-four packages. It now includes project dpkg/APT shims, hello/Python
   smoke packages, split libc/libgcc/libm/pthread/dl/rt/util runtime packages,
   split zlib/ncurses/readline/OpenSSL-1.0 runtime packages, BusyBox-backed
-  command entrypoints, `pcietool`, runtime smoke packages, and the SysV
-  second-stage service. See
+  command entrypoints, `pcietool`, runtime smoke packages, packaged CPython
+  3.12.13 runtime and smoke packages, and the SysV second-stage service. See
   `docs/ubuntu-port/k1om-bootstrap-package-set-report.md` for the exact list.
 - The K1OM package-set audit now passes before live install. It verifies the
   local archive advertises `Architectures: k1om`, every package declares
@@ -223,6 +223,20 @@ image.
   `runtime_libs_rc=0`, and stock rollback. The `dpkg-k1om` shim now checks
   dependencies before first install, checks file ownership conflicts for new
   package installs, and permits reinstall of already-installed packages.
+- The package set then expanded to thirty-four packages by adding an
+  Ubuntu-shaped CPython 3.12.13 runtime package group:
+  `python3.12-minimal-k1om`, `python3.12-stdlib-k1om`,
+  `python3.12-sysconfig-k1om`, and `python3.12-smoke-k1om`. The live run
+  `k1om-bootstrap-package-set-20260729-041555` verified `package_count=34`,
+  deterministic package hashes, archive audit, simulated install, `/usr/bin/python3.12`,
+  `python312_version_rc=0`, direct packaged smoke `python312_direct_rc=0`,
+  second-stage service `python312_rc=0`, and
+  `apt-get install --reinstall python3.12-smoke-k1om` with
+  `apt_python312_install_rc=0`. The smoke covered zlib, hash modules, XML,
+  pickle, CSV, asyncio import, sysconfig, threading, decimal, socket, pathlib,
+  and other core modules. Stock rollback was verified afterward with
+  `python312_absent`, `python312_bin_absent`, `python312_smoke_absent`,
+  `dpkg_status_absent`, `apt_get_absent`, `dpkg_absent`, and stock `init`.
 - CPython 3.12.13 now has a rollback-verified expanded runtime smoke on
   `mic0`. The K1OM cross build still requires `--disable-ipv6`, `-std=gnu1x`
   instead of `-std=c11`, `static_assert` and `_Alignof` compatibility shims,
@@ -235,10 +249,11 @@ image.
   `mic0`, ran Python 3.12.13 from `/usr/bin/python3.12`, imported and exercised
   the expanded module set, reported `pysmoke_rc=0` and `pyimports_rc=0`, then
   restored stock uOS and verified the Python 3.12 overlay paths were absent.
-  This is a working Python 3.12 runtime profile, but not yet a packaged Ubuntu
-  Python distribution.
+  This work has now been converted into local K1OM packages in the
+  thirty-four-package archive, but it is still a bootstrap distribution rather
+  than an official Ubuntu Python build.
 - The latest rollback-verified package-set run completed at
-  `/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-022039`.
+  `/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-041555`.
   Stock rollback succeeded afterward: SSH worked, the project profile,
   `/var/lib/dpkg/status`, and the Python 3.12 staging paths were absent, and
   PID 1 was stock `init`.
@@ -302,9 +317,8 @@ image.
 
 ## Safest Next Technical Action
 
-Convert the private Python 3.12 overlay recipe into K1OM package recipes for
-`python3.12-minimal-k1om`, `python3.12-stdlib-k1om`,
-`python3.12-sysconfig-k1om`, and `python3.12-smoke-k1om`, then test those
-packages through the same deterministic archive, simulated install, live MicDir
-boot, and rollback gates. Continue avoiding committed proprietary or
+Port the missing Python 3.12 optional-module dependencies into the K1OM package
+lane: OpenSSL development headers for `_ssl`/OpenSSL-backed `_hashlib`,
+readline headers, sqlite, libffi for `_ctypes`, bz2, lzma, and the separate
+`_curses` build-system issue. Continue avoiding committed proprietary or
 uncertain-redistribution payloads.

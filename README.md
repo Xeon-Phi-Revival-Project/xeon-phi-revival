@@ -74,7 +74,7 @@ Ubuntu-style package experiments:
   `Release` checksum metadata.
 - Host-side APT can parse the local archive when forced to
   `APT::Architecture=k1om`.
-- The current thirty-package bootstrap set boots on `mic0`, runs
+- The current thirty-four-package bootstrap set boots on `mic0`, runs
   `hello-knc`, CPython core, zlib smoke, ncurses smoke through a separately
   packaged `libtinfo5-k1om` runtime, basic filesystem/OS smoke, exposes
   dpkg-style package status, provides project `dpkg`/`apt-get`/`apt-cache`
@@ -82,11 +82,13 @@ Ubuntu-style package experiments:
   command wrappers, exposes common BusyBox-backed command entrypoints, includes
   a small `pcietool` sysfs helper, packages a project-owned libc runtime stack
   and split zlib/ncurses/readline/OpenSSL-1.0 runtime libraries under
-  `/opt/xeon-phi-revival/lib64`, and rolls back to stock uOS.
-- CPython 3.12.13 now runs on `mic0` from a reversible overlay with an expanded
-  static module set, zlib, hashes, XML, pickle, CSV, asyncio import, sysconfig,
-  and stock rollback verified. Packaging that runtime into the local K1OM
-  archive is the next Python lane step.
+  `/opt/xeon-phi-revival/lib64`, includes packaged CPython 3.12.13 runtime
+  packages, and rolls back to stock uOS.
+- CPython 3.12.13 now runs on `mic0` as local `Architecture: k1om` packages:
+  `python3.12-minimal-k1om`, `python3.12-stdlib-k1om`,
+  `python3.12-sysconfig-k1om`, and `python3.12-smoke-k1om`. The packaged
+  smoke covers zlib, hashes, XML, pickle, CSV, asyncio import, sysconfig,
+  threading, decimal, socket, and more.
 
 See `docs/status.md` and `docs/ubuntu-port/` for the latest public-safe
 reports.
@@ -132,7 +134,7 @@ move should be collecting evidence, not guessing with firmware.
 
 ## Current Experimental Profile
 
-The latest local profile is a thirty-package `Architecture: k1om` set. It is
+The latest local profile is a thirty-four-package `Architecture: k1om` set. It is
 not a full Ubuntu port yet, but it behaves more like a small Linux userland:
 
 ```text

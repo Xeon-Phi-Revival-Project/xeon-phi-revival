@@ -1,6 +1,6 @@
 id: python-3.12-k1om-expanded-runtime
 title: CPython 3.12.13 expanded K1OM runtime smoke
-status: passed
+status: packaged-pass
 date_utc: 2026-07-29
 hardware:
   card: Intel Xeon Phi 5110P
@@ -12,7 +12,8 @@ source:
   upstream_directory: https://www.python.org/ftp/python/3.12.13/
   sha256: c08bc65a81971c1dd5783182826503369466c7e67374d1646519adf05207b684
 private_build_tree: /root/xeon-phi-revival-local/ubuntu2404-level3/cpython-3.12.13-probe-20260729-001250/cross-ipv6off/Python-3.12.13
-private_final_run: /root/xeon-phi-revival-local/ubuntu-port-runs/python312-static-expanded-sysconfig-overlay-20260729-031953
+private_final_overlay_run: /root/xeon-phi-revival-local/ubuntu-port-runs/python312-static-expanded-sysconfig-overlay-20260729-031953
+private_final_package_run: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-041555
 toolchain:
   prefix: k1om-mpss-linux-
   environment: /opt/mpss/3.4.10/environment-setup-k1om-mpss-linux
@@ -27,6 +28,16 @@ runtime_shape:
   stdlib: /opt/xeon-phi-revival/lib/python3.12
   sysconfigdata: /opt/xeon-phi-revival/lib/python3.12/_sysconfigdata__linux_x86_64-linux-gnu.py
   startup_mode: python3.12 wrapper runs with -S
+package_shape:
+  - python3.12-minimal-k1om
+  - python3.12-stdlib-k1om
+  - python3.12-sysconfig-k1om
+  - python3.12-smoke-k1om
+package_hashes:
+  python3.12-minimal-k1om: 48631812b5e72ed04427e723202e29f5266131807dddc41b0048a366f7eebd4c
+  python3.12-stdlib-k1om: 9849c3250f311bd66ac5f7033de88f5b875b1ec6c2ece0f0dc54725ae19b2569
+  python3.12-sysconfig-k1om: e1d32c6d8c55f496f609b9356c293a1b6c34789a029eb52c920179760d43fe6a
+  python3.12-smoke-k1om: e455fcee6e34c0f5c1e8f7c659f3c99bc4b469825a86aa00bedaf34f92394750
 static_builtin_modules:
   - _asyncio
   - _contextvars
@@ -78,11 +89,15 @@ live_result:
   zlib_version: "1.3"
   sysconfig_soabi: cpython-312-k1om-linux-gnu
   stock_rollback: passed
+  package_archive: passed
+  package_count: 34
+  apt_reinstall_python312_smoke: passed
 evidence:
   version_marker: "3.12.13 (main, Jul 29 2026, 03:15:12) [GCC 4.7.0 20110509 (experimental)]"
   smoke_marker: python312_expanded_sysconfig_smoke_ok
   rc_markers: "pyver_rc=0; pysmoke_rc=0; pyimports_rc=0"
-  rollback_marker: "stock_ssh_ok; python312_absent; python312_bin_absent; python312_smoke_absent; init"
+  package_markers: "python312_version_rc=0; python312_direct_rc=0; python312_rc=0; apt_python312_install_rc=0"
+  rollback_marker: "stock_ssh_ok; python312_absent; python312_bin_absent; python312_smoke_absent; dpkg_status_absent; init"
 known_gaps:
   - _ssl and OpenSSL-backed _hashlib need OpenSSL development headers
   - readline needs readline development headers
@@ -90,4 +105,4 @@ known_gaps:
   - _ctypes needs a completed K1OM libffi build
   - bz2 and lzma need their development headers and libraries
   - _curses needs a CPython makesetup/static build-system fix before retry
-next_dependency: Convert the private Python 3.12 overlay into python3.12-minimal, stdlib, sysconfig, and smoke K1OM package recipes.
+next_dependency: Port optional CPython 3.12 dependencies for K1OM packages: OpenSSL headers, readline headers, sqlite, libffi for ctypes, bz2, lzma, and the curses build-system issue.

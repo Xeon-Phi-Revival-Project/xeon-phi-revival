@@ -16,13 +16,13 @@ The test used metadata copied from the current package-manager/libc package set
 run:
 
 ```text
-/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-022039/repo
+/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-041555/repo
 ```
 
 The private archive was copied into an ignored local scratch directory:
 
 ```text
-build/private/k1om-apt-repo-20260729-022039
+build/private/k1om-apt-repo-20260729-041555
 ```
 
 The scratch directory is not committed.
@@ -83,7 +83,7 @@ when forced to use `k1om` as the architecture. This does not mean the packages
 can be installed by a real K1OM `dpkg` on-card yet. It does mean the repository
 metadata is close enough for host-side APT index tests.
 
-The passing archive currently contains thirty packages:
+The passing archive currently contains thirty-four packages:
 
 ```text
 apt-k1om
@@ -108,6 +108,10 @@ python3.5-minimal-k1om
 python3.5-stdlib-k1om
 python3.5-lib-dynload-k1om
 python3.5-smoke-k1om
+python3.12-minimal-k1om
+python3.12-stdlib-k1om
+python3.12-sysconfig-k1om
+python3.12-smoke-k1om
 xpr-shell-compat
 xpr-busybox-compat
 xpr-runtime-libs-smoke

@@ -4,18 +4,19 @@ Public-safe report for the first CPython 3.12 K1OM build probe.
 
 ## Status
 
-Status: expanded runtime smoke passed.
+Status: packaged expanded runtime smoke passed.
 
 The initial probe produced a dynamically linked `python` executable for
 `Machine: Intel K1OM`. Follow-up work rebuilt that interpreter with a static
 set of core extension modules, staged a trimmed Python 3.12 standard library in
 a reversible MicDir overlay, booted `mic0`, ran Python 3.12.13 successfully on
-the card, and restored stock uOS afterward.
+the card, converted that runtime into K1OM `.deb` packages, tested them through
+the local `binary-k1om` archive, and restored stock uOS afterward.
 
-This is now a working CPython 3.12 runtime profile for K1OM. It is not yet a
-complete Ubuntu Python package set because optional modules such as `_ssl`,
-readline, sqlite, `_ctypes`, bz2, and lzma still need their development headers
-and libraries ported or supplied.
+This is now a working packaged CPython 3.12 runtime profile for K1OM. It is not
+yet a complete Ubuntu Python package set because optional modules such as
+`_ssl`, readline, sqlite, `_ctypes`, bz2, and lzma still need their development
+headers and libraries ported or supplied.
 
 ## Source
 
@@ -256,6 +257,62 @@ python312_smoke_absent
 init
 ```
 
+## Packaged Runtime Result
+
+The expanded runtime was then converted into four local K1OM packages:
+
+```text
+python3.12-minimal-k1om
+python3.12-stdlib-k1om
+python3.12-sysconfig-k1om
+python3.12-smoke-k1om
+```
+
+The passing package-set run was:
+
+```text
+/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-041555
+```
+
+Package hashes:
+
+```text
+python3.12-minimal-k1om 48631812b5e72ed04427e723202e29f5266131807dddc41b0048a366f7eebd4c
+python3.12-stdlib-k1om 9849c3250f311bd66ac5f7033de88f5b875b1ec6c2ece0f0dc54725ae19b2569
+python3.12-sysconfig-k1om e1d32c6d8c55f496f609b9356c293a1b6c34789a029eb52c920179760d43fe6a
+python3.12-smoke-k1om e455fcee6e34c0f5c1e8f7c659f3c99bc4b469825a86aa00bedaf34f92394750
+```
+
+The 34-package archive passed deterministic build, package audit, simulated
+install, MicDir boot, direct `python3.12` invocation, second-stage packaged
+smoke, `apt-get install --reinstall python3.12-smoke-k1om`, and stock rollback.
+
+Live evidence:
+
+```text
+dpkg_status_present
+34
+/usr/bin/python3.12
+python312_version_rc=0
+python312_package_smoke_ok
+python312_direct_rc=0
+python312_rc=0
+apt_python312_install_rc=0
+```
+
+Independent final stock verification after rollback:
+
+```text
+stock_ssh_ok
+python312_absent
+python312_bin_absent
+python312_smoke_absent
+dpkg_status_absent
+apt_get_absent
+dpkg_absent
+init
+```
+
 ## Optional Module Gaps
 
 The local trusted roots currently lack the development headers needed for these
@@ -276,15 +333,7 @@ a separate build-system fix before it should be retried.
 
 ## Meaning
 
-The modern Python lane now has a rollback-verified CPython 3.12 runtime on
-`mic0`. The next step is to turn the private overlay recipe into project
-package recipes:
-
-- `python3.12-minimal-k1om`
-- `python3.12-stdlib-k1om`
-- `python3.12-sysconfig-k1om`
-- `python3.12-smoke-k1om`
-
-After packaging, the remaining work is normal Python-port expansion: OpenSSL,
-sqlite, readline, ctypes/libffi, compression modules, and eventually a cleaner
-K1OM SOABI/dynamic-extension story.
+The modern Python lane now has a rollback-verified, package-built CPython 3.12
+runtime on `mic0`. The remaining work is normal Python-port expansion:
+OpenSSL, sqlite, readline, ctypes/libffi, compression modules, and eventually a
+cleaner K1OM SOABI/dynamic-extension story.

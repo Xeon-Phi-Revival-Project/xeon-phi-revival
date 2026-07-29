@@ -68,6 +68,10 @@ The current multi-package bootstrap archive also passed. It contains:
 - `libcrypto1.0.0-k1om`
 - `libssl1.0.0-k1om`
 - `xpr-runtime-libs-smoke`
+- `python3.12-minimal-k1om`
+- `python3.12-stdlib-k1om`
+- `python3.12-sysconfig-k1om`
+- `python3.12-smoke-k1om`
 - `libtinfo5-k1om`
 - `ncurses-smoke-k1om`
 - `python3.5-minimal-k1om`
@@ -93,7 +97,10 @@ provides `python3`/`python` command wrappers, exposes common BusyBox-backed
 command entrypoints, includes a small `pcietool` sysfs helper, packages a
 project-owned libc stack and split zlib/ncurses/readline/OpenSSL-1.0 runtime
 library packages under `/opt/xeon-phi-revival/lib64`, verifies runtime-library
-presence through `xpr-runtime-libs-smoke`, and rolls back to the stock uOS.
+presence through `xpr-runtime-libs-smoke`, packages and runs CPython 3.12.13
+through `/usr/bin/python3.12`, verifies the packaged Python 3.12 smoke through
+the second-stage service and `apt-get install --reinstall`, and rolls back to
+the stock uOS.
 
 The passing run is documented in:
 

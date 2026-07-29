@@ -55,6 +55,11 @@ if grep -q '^Package: zlib1g-k1om$' "$packages_list"; then
     grep -q "^Package: $package$" "$packages_list" || { echo "APT list missing runtime package: $package" >&2; exit 31; }
   done
 fi
+if grep -q '^Package: python3.12-minimal-k1om$' "$packages_list"; then
+  for package in python3.12-minimal-k1om python3.12-stdlib-k1om python3.12-sysconfig-k1om python3.12-smoke-k1om; do
+    grep -q "^Package: $package$" "$packages_list" || { echo "APT list missing Python 3.12 package: $package" >&2; exit 32; }
+  done
+fi
 
 apt-cache "${apt_opts[@]}" show base-files-k1om > "$out_dir/apt-cache-show-base-files-k1om.txt"
 grep -q '^Architecture: k1om$' "$out_dir/apt-cache-show-base-files-k1om.txt" || { echo "apt-cache show did not preserve Architecture: k1om" >&2; exit 40; }

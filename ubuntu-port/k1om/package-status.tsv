@@ -17,6 +17,10 @@ libreadline6-k1om	0.1.0	passed	Package-built stock-derived K1OM readline runtime
 libcrypto1.0.0-k1om	0.1.0	passed	Package-built stock-derived K1OM OpenSSL crypto runtime installed under /opt/xeon-phi-revival/lib64
 libssl1.0.0-k1om	0.1.0	passed	Package-built stock-derived K1OM OpenSSL SSL runtime installed under /opt/xeon-phi-revival/lib64
 xpr-runtime-libs-smoke	0.1.0	passed	Package-built runtime library presence smoke verified zlib, ncurses, libtinfo, readline, libssl, and libcrypto on mic0
+python3.12-minimal-k1om	0.1.0	passed	Package-built CPython 3.12.13 K1OM interpreter installed as /opt/xeon-phi-revival/bin/python3.12 and /usr/bin/python3.12
+python3.12-stdlib-k1om	0.1.0	passed	Package-built trimmed CPython 3.12 standard library installed under /opt/xeon-phi-revival/lib/python3.12
+python3.12-sysconfig-k1om	0.1.0	passed	Package-built K1OM sysconfigdata shim exposes SOABI cpython-312-k1om-linux-gnu
+python3.12-smoke-k1om	0.1.0	passed	Package-built CPython 3.12 expanded runtime smoke ran through stage2 and direct python3.12 on mic0
 python3.5-minimal-k1om	0.1.0	passed	Package-built CPython interpreter payload ran with PYTHONHOME=/opt/xeon-phi-revival
 python3.5-stdlib-k1om	0.1.0	passed	Package-built CPython pure standard library payload installed under /opt/xeon-phi-revival/lib/python3.5
 python3.5-lib-dynload-k1om	0.1.0	passed	Package-built CPython dynamic extension payload installed under /opt/xeon-phi-revival/lib/python3.5/lib-dynload
@@ -35,4 +39,4 @@ ncurses	6.4+20240113-1ubuntu2.1	partial-pass	K1OM simple curses_version smoke pa
 sqlite3	3.45.1-1ubuntu2.7	blocked	Source verified and patched; build needs host tclsh
 libffi	3.4.6-1build1	blocked	Source verified and patched; source requires Autoconf 2.71+
 cpython	3.5.10	bootstrap-pass	K1OM interpreter runs core Python plus math and zlib in demo rootfs
-cpython	3.12.13	runtime-pass	Official source cross-build plus K1OM compatibility patches produced an ELF64 K1OM Python 3.12.13 runtime that passed expanded core/zlib/hash/xml/pickle/csv/asyncio import smoke on mic0 from a reversible overlay
+cpython	3.12.13	package-pass	Official source cross-build plus K1OM compatibility patches produced ELF64 K1OM Python 3.12.13 packages that passed expanded core/zlib/hash/xml/pickle/csv/asyncio import smoke on mic0 from the local k1om archive

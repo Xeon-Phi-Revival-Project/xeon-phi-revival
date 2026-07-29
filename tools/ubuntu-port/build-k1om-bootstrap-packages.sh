@@ -4,7 +4,7 @@ set -euo pipefail
 usage() {
   cat >&2 <<'USAGE'
 usage:
-  build-k1om-bootstrap-packages.sh --payload-rootfs DIR --out-dir DIR [--sysroot DIR] [--runtime-root DIR] [--version V]
+  build-k1om-bootstrap-packages.sh --payload-rootfs DIR --out-dir DIR [--sysroot DIR] [--runtime-root DIR] [--python312-root DIR] [--version V]
 
 Build a small local K1OM bootstrap package set:
   base-files-k1om
@@ -32,6 +32,10 @@ Build a small local K1OM bootstrap package set:
   libssl1.0.0-k1om
   libcrypto1.0.0-k1om
   xpr-runtime-libs-smoke
+  python3.12-minimal-k1om
+  python3.12-stdlib-k1om
+  python3.12-sysconfig-k1om
+  python3.12-smoke-k1om
   zlib-smoke-k1om
   libtinfo5-k1om
   ncurses-smoke-k1om
@@ -47,6 +51,7 @@ payload_rootfs=""
 out_dir=""
 sysroot="${K1OM_SYSROOT:-/opt/mpss/3.4.10/sysroots/k1om-mpss-linux}"
 runtime_root="${K1OM_RUNTIME_ROOT:-}"
+python312_root="${K1OM_PYTHON312_ROOT:-}"
 version="0.1.0"
 arch="k1om"
 source_date_epoch="${SOURCE_DATE_EPOCH:-1704067200}"
@@ -57,6 +62,7 @@ while [[ $# -gt 0 ]]; do
     --out-dir) out_dir="${2:-}"; shift 2 ;;
     --sysroot) sysroot="${2:-}"; shift 2 ;;
     --runtime-root) runtime_root="${2:-}"; shift 2 ;;
+    --python312-root) python312_root="${2:-}"; shift 2 ;;
     --version) version="${2:-}"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "unknown argument: $1" >&2; usage; exit 2 ;;
@@ -193,6 +199,27 @@ if [[ -n "$runtime_root" ]]; then
   runtime_required=1
 fi
 
+python312_required=0
+if [[ -n "$python312_root" ]]; then
+  [[ -d "$python312_root" ]] || { echo "python312 root is not a directory: $python312_root" >&2; exit 14; }
+  for path in \
+    python \
+    Lib/encodings \
+    Lib/importlib \
+    Lib/json \
+    Lib/asyncio \
+    Lib/xml \
+    Lib/zoneinfo \
+    Lib/sysconfig.py; do
+    [[ -e "$python312_root/$path" || -L "$python312_root/$path" ]] || { echo "required python312-root path missing: $python312_root/$path" >&2; exit 15; }
+  done
+  if ! readelf -h "$python312_root/python" 2>/dev/null | grep -q 'Machine:.*Intel K1OM'; then
+    echo "python312-root/python is not an Intel K1OM ELF" >&2
+    exit 16
+  fi
+  python312_required=1
+fi
+
 base_data="$(new_data_dir base-files-k1om)"
 mkdir -p "$base_data/opt/xeon-phi-revival/bin" "$base_data/opt/xeon-phi-revival/lib" "$base_data/opt/xeon-phi-revival/python" "$base_data/opt/xeon-phi-revival/share" "$base_data/var/log/xeon-phi-revival" "$base_data/etc"
 cat > "$base_data/opt/xeon-phi-revival/profile.env" <<EOF
@@ -265,6 +292,96 @@ chmod 0755 "$shell_compat_data/usr/bin/python3"
 ln -s python3 "$shell_compat_data/usr/bin/python"
 ln -s ../../../usr/bin/python3 "$shell_compat_data/opt/xeon-phi-revival/bin/python3"
 ln -s ../../../usr/bin/python3 "$shell_compat_data/opt/xeon-phi-revival/bin/python"
+
+python312_minimal_data=""
+python312_stdlib_data=""
+python312_sysconfig_data=""
+python312_smoke_data=""
+if [[ "$python312_required" -eq 1 ]]; then
+  python312_minimal_data="$(new_data_dir python3.12-minimal-k1om)"
+  mkdir -p "$python312_minimal_data/opt/xeon-phi-revival/bin" "$python312_minimal_data/usr/bin"
+  cp -a "$python312_root/python" "$python312_minimal_data/opt/xeon-phi-revival/bin/python3.12"
+  cat > "$python312_minimal_data/usr/bin/python3.12" <<'PY312WRAP'
+#!/bin/sh
+XPR_ROOT=/opt/xeon-phi-revival
+export LD_LIBRARY_PATH="$XPR_ROOT/lib64:${LD_LIBRARY_PATH:-}"
+export PYTHONHOME="$XPR_ROOT"
+export PYTHONPATH="$XPR_ROOT/lib/python3.12"
+exec "$XPR_ROOT/bin/python3.12" -S "$@"
+PY312WRAP
+  chmod 0755 "$python312_minimal_data/usr/bin/python3.12"
+  python312_stdlib_data="$(new_data_dir python3.12-stdlib-k1om)"
+  mkdir -p "$python312_stdlib_data/opt/xeon-phi-revival/lib/python3.12"
+  tar -C "$python312_root/Lib" \
+    --exclude='test' \
+    --exclude='idlelib' \
+    --exclude='tkinter' \
+    --exclude='turtledemo' \
+    --exclude='ensurepip/_bundled' \
+    --exclude='__pycache__' \
+    -cf - . | tar -C "$python312_stdlib_data/opt/xeon-phi-revival/lib/python3.12" -xf -
+
+  python312_sysconfig_data="$(new_data_dir python3.12-sysconfig-k1om)"
+  mkdir -p "$python312_sysconfig_data/opt/xeon-phi-revival/lib/python3.12"
+  cat > "$python312_sysconfig_data/opt/xeon-phi-revival/lib/python3.12/_sysconfigdata__linux_x86_64-linux-gnu.py" <<'PY312CFG'
+build_time_vars = {
+    'TZPATH': '/usr/share/zoneinfo:/usr/lib/zoneinfo:/usr/share/lib/zoneinfo:/etc/zoneinfo',
+    'MULTIARCH': 'k1om-linux-gnu',
+    'SOABI': 'cpython-312-k1om-linux-gnu',
+    'EXT_SUFFIX': '.cpython-312-k1om-linux-gnu.so',
+    'CC': 'k1om-mpss-linux-gcc',
+    'HOST_GNU_TYPE': 'k1om-mpss-linux-gnu',
+    'BUILD_GNU_TYPE': 'x86_64-pc-linux-gnu',
+}
+PY312CFG
+
+  python312_smoke_data="$(new_data_dir python3.12-smoke-k1om)"
+  mkdir -p "$python312_smoke_data/opt/xeon-phi-revival/share" "$python312_smoke_data/opt/xeon-phi-revival/bin"
+  cat > "$python312_smoke_data/opt/xeon-phi-revival/share/python312-smoke.py" <<'PY312SMOKE'
+import sys, os, math, json, pathlib, hashlib, threading, decimal, socket, struct, datetime, array, binascii, unicodedata, xml.parsers.expat, zlib
+import csv, pickle, random, queue, statistics, xml.etree.ElementTree as ET, zoneinfo, asyncio, contextvars, sysconfig
+print("python312_package_smoke_ok")
+print(sys.version.split()[0])
+print(sys.platform)
+print(os.uname().machine)
+print(math.factorial(6))
+print(decimal.Decimal("1.5") + decimal.Decimal("2.25"))
+print(json.dumps({"k1om": True}, sort_keys=True))
+print(hashlib.sha256(b"xeon-phi").hexdigest()[:16])
+print(zlib.decompress(zlib.compress(b"knc-zlib")).decode())
+print(pickle.loads(pickle.dumps({"a": [1, 2, 3]}))["a"][2])
+print(next(csv.reader(["a,b"]))[1])
+print(random.Random(7).randint(1, 9))
+q = queue.Queue(); q.put("qok"); print(q.get())
+print(statistics.mean([1, 2, 6]))
+print(ET.fromstring("<r><x>ok</x></r>").find("x").text)
+print(zoneinfo.ZoneInfo is not None)
+print(sysconfig.get_config_var("SOABI"))
+print(asyncio.new_event_loop is not None)
+print(contextvars.ContextVar("x").name)
+print(socket.AF_INET)
+print(struct.pack(">H", 513).hex())
+print(datetime.date(2026, 7, 29).isoformat())
+print(array.array("i", [1, 2, 3]).tolist())
+print(binascii.hexlify("Phi".encode()).decode())
+print(unicodedata.name("A"))
+print(xml.parsers.expat.ParserCreate is not None)
+t = threading.Thread(target=lambda: None)
+t.start(); t.join()
+print(pathlib.PurePosixPath("/opt/xeon-phi-revival").name)
+PY312SMOKE
+  cat > "$python312_smoke_data/opt/xeon-phi-revival/bin/python312-smoke.sh" <<'PY312RUN'
+#!/bin/sh
+set -u
+XPR_ROOT=${XPR_ROOT:-/opt/xeon-phi-revival}
+LOG_DIR=/var/log/xeon-phi-revival
+OUT="$LOG_DIR/python312-smoke.out"
+mkdir -p "$LOG_DIR"
+PYTHONHOME="$XPR_ROOT" PYTHONPATH="$XPR_ROOT/lib/python3.12" \
+  "$XPR_ROOT/bin/python3.12" -S "$XPR_ROOT/share/python312-smoke.py" > "$OUT" 2>&1
+PY312RUN
+  chmod 0755 "$python312_smoke_data/opt/xeon-phi-revival/bin/python312-smoke.sh"
+fi
 
 busybox_compat_data="$(new_data_dir xpr-busybox-compat)"
 mkdir -p "$busybox_compat_data/opt/xeon-phi-revival/bin"
@@ -975,6 +1092,10 @@ case "$1" in
       "$XPR_ROOT/bin/runtime-libs-smoke.sh"
       echo "runtime_libs_rc=$?" >> "$LOG"
     fi
+    if [ -x "$XPR_ROOT/bin/python312-smoke.sh" ]; then
+      "$XPR_ROOT/bin/python312-smoke.sh"
+      echo "python312_rc=$?" >> "$LOG"
+    fi
     if [ -x "$XPR_ROOT/bin/os-smoke.sh" ]; then
       "$XPR_ROOT/bin/os-smoke.sh"
       echo "os_smoke_rc=$?" >> "$LOG"
@@ -1008,8 +1129,16 @@ make_deb librt1-k1om "$librt_data" "base-files-k1om, libc6-k1om, libpthread0-k1o
 make_deb libutil1-k1om "$libutil_data" "base-files-k1om, libc6-k1om" "K1OM glibc util runtime library" "libs"
 make_deb libc-stack-smoke-k1om "$libc_stack_smoke_data" "base-files-k1om, hello-knc-smoke, python3.5-minimal-k1om, python3.5-stdlib-k1om, python3.5-lib-dynload-k1om, libc6-k1om, libgcc1-k1om, libm6-k1om, libpthread0-k1om, libdl2-k1om, librt1-k1om, libutil1-k1om" "K1OM packaged libc stack smoke test" "utils"
 runtime_stage2_deps=""
+python312_stage2_deps=""
 zlib_smoke_deps="base-files-k1om"
 ncurses_smoke_deps="base-files-k1om, libtinfo5-k1om"
+if [[ "$python312_required" -eq 1 ]]; then
+  make_deb python3.12-minimal-k1om "$python312_minimal_data" "base-files-k1om, libc6-k1om, libm6-k1om, libpthread0-k1om, libdl2-k1om, librt1-k1om, libutil1-k1om" "K1OM Python 3.12 interpreter payload" "python"
+  make_deb python3.12-stdlib-k1om "$python312_stdlib_data" "base-files-k1om, python3.12-minimal-k1om" "K1OM Python 3.12 standard library payload" "python"
+  make_deb python3.12-sysconfig-k1om "$python312_sysconfig_data" "base-files-k1om, python3.12-minimal-k1om, python3.12-stdlib-k1om" "K1OM Python 3.12 sysconfig metadata shim" "python"
+  make_deb python3.12-smoke-k1om "$python312_smoke_data" "base-files-k1om, python3.12-minimal-k1om, python3.12-stdlib-k1om, python3.12-sysconfig-k1om" "K1OM Python 3.12 expanded runtime smoke" "python"
+  python312_stage2_deps=", python3.12-minimal-k1om, python3.12-stdlib-k1om, python3.12-sysconfig-k1om, python3.12-smoke-k1om"
+fi
 if [[ "$runtime_required" -eq 1 ]]; then
   make_deb zlib1g-k1om "$zlib1g_data" "base-files-k1om, libc6-k1om" "K1OM zlib runtime library" "libs"
   make_deb libncurses5-k1om "$libncurses5_data" "base-files-k1om, libc6-k1om, libtinfo5-k1om" "K1OM ncurses runtime library" "libs"
@@ -1025,7 +1154,7 @@ make_deb zlib-smoke-k1om "$zlib_data" "$zlib_smoke_deps" "K1OM zlib smoke payloa
 make_deb libtinfo5-k1om "$libtinfo_data" "base-files-k1om" "K1OM terminfo runtime library" "libs"
 make_deb ncurses-smoke-k1om "$ncurses_data" "$ncurses_smoke_deps" "K1OM ncurses smoke payload" "utils"
 make_deb xpr-os-smoke "$os_data" "base-files-k1om" "Basic filesystem and OS smoke checks" "utils"
-make_deb xeon-phi-revival-stage2 "$stage2_data" "base-files-k1om, hello-knc-smoke, python3.5-minimal-k1om, python3.5-stdlib-k1om, python3.5-lib-dynload-k1om, python3.5-smoke-k1om, xpr-shell-compat, xpr-busybox-compat, xpr-pci-tools, dpkg-k1om, apt-k1om, libc6-k1om, libgcc1-k1om, libm6-k1om, libpthread0-k1om, libdl2-k1om, librt1-k1om, libutil1-k1om, libc-stack-smoke-k1om${runtime_stage2_deps}, zlib-smoke-k1om, libtinfo5-k1om, ncurses-smoke-k1om, xpr-os-smoke" "Second-stage service for K1OM profile" "admin"
+make_deb xeon-phi-revival-stage2 "$stage2_data" "base-files-k1om, hello-knc-smoke, python3.5-minimal-k1om, python3.5-stdlib-k1om, python3.5-lib-dynload-k1om, python3.5-smoke-k1om, xpr-shell-compat, xpr-busybox-compat, xpr-pci-tools, dpkg-k1om, apt-k1om, libc6-k1om, libgcc1-k1om, libm6-k1om, libpthread0-k1om, libdl2-k1om, librt1-k1om, libutil1-k1om, libc-stack-smoke-k1om${runtime_stage2_deps}${python312_stage2_deps}, zlib-smoke-k1om, libtinfo5-k1om, ncurses-smoke-k1om, xpr-os-smoke" "Second-stage service for K1OM profile" "admin"
 
 {
   printf 'package\tversion\tarchitecture\tpath\tsha256\n'

@@ -192,6 +192,27 @@ if grep -q '^Package: zlib1g-k1om$' "$status_file"; then
   done
 fi
 
+if grep -q '^Package: python3.12-minimal-k1om$' "$status_file"; then
+  for required in \
+    "$rootfs/opt/xeon-phi-revival/bin/python3.12" \
+    "$rootfs/usr/bin/python3.12" \
+    "$rootfs/opt/xeon-phi-revival/lib/python3.12/encodings" \
+    "$rootfs/opt/xeon-phi-revival/lib/python3.12/importlib" \
+    "$rootfs/opt/xeon-phi-revival/lib/python3.12/json" \
+    "$rootfs/opt/xeon-phi-revival/lib/python3.12/asyncio" \
+    "$rootfs/opt/xeon-phi-revival/lib/python3.12/xml" \
+    "$rootfs/opt/xeon-phi-revival/lib/python3.12/zoneinfo" \
+    "$rootfs/opt/xeon-phi-revival/lib/python3.12/_sysconfigdata__linux_x86_64-linux-gnu.py" \
+    "$rootfs/opt/xeon-phi-revival/share/python312-smoke.py" \
+    "$rootfs/opt/xeon-phi-revival/bin/python312-smoke.sh" \
+    "$info_dir/python3.12-minimal-k1om.md5sums" \
+    "$info_dir/python3.12-stdlib-k1om.md5sums" \
+    "$info_dir/python3.12-sysconfig-k1om.md5sums" \
+    "$info_dir/python3.12-smoke-k1om.md5sums"; do
+    [[ -e "$required" || -L "$required" ]] || { echo "missing simulated python3.12 output: $required" >&2; exit 32; }
+  done
+fi
+
 cat > "$summary_file" <<EOF
 status=passed
 repo=$repo_dir

@@ -14,9 +14,8 @@ The project now has enough verified ground to begin the real Ubuntu-port lane:
 - Native K1OM binaries run on `mic0`.
 - Ubuntu-source `zlib` and `ncurses` have been rebuilt/tested for K1OM.
 - CPython 3.5.10 core userland runs on K1OM.
-- A CPython 3.12.13 K1OM runtime now boots and runs on `mic0` from a reversible
-  MicDir overlay with an expanded static module set and zlib; it is not yet
-  converted into reproducible K1OM package recipes.
+- A CPython 3.12.13 K1OM runtime now boots and runs on `mic0` as local
+  `Architecture: k1om` packages with an expanded static module set and zlib.
 - Project PID 1 handoff works.
 - Project second-stage uOS profile works under stock MPSS init.
 - A project-owned dpkg/APT shim pair runs on-card against the local K1OM
@@ -80,6 +79,10 @@ python3.5-minimal-k1om
 python3.5-stdlib-k1om
 python3.5-lib-dynload-k1om
 python3.5-smoke-k1om
+python3.12-minimal-k1om
+python3.12-stdlib-k1om
+python3.12-sysconfig-k1om
+python3.12-smoke-k1om
 xpr-shell-compat
 xpr-busybox-compat
 xpr-runtime-libs-smoke
@@ -150,7 +153,5 @@ The profile now also exposes basic command entrypoints through
 package through `xpr-pci-tools`. The latest milestone expanded smoke payload
 dependencies into standalone runtime/library packages and tightened
 package-manager compatibility. The Python 3.12 lane has crossed from build
-probe to working runtime profile; the next useful step is packaging that
-private overlay as `python3.12-minimal-k1om`, `python3.12-stdlib-k1om`,
-`python3.12-sysconfig-k1om`, and `python3.12-smoke-k1om`, then expanding the
-missing optional modules through real Ubuntu-source dependency ports.
+probe to packaged runtime profile; the next useful step is expanding missing
+optional modules through real Ubuntu-source dependency ports.
