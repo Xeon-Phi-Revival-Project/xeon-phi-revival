@@ -4,12 +4,18 @@ Public-safe report for the first CPython 3.12 K1OM build probe.
 
 ## Status
 
-Status: partial.
+Status: expanded runtime smoke passed.
 
-The probe produced a dynamically linked `python` executable for `Machine:
-Intel K1OM`, but the staged MicDir boot tests did not produce a working on-card
-Python 3.12 userland. Treat this as source-compatibility progress, not as a
-completed Python 3.12 port.
+The initial probe produced a dynamically linked `python` executable for
+`Machine: Intel K1OM`. Follow-up work rebuilt that interpreter with a static
+set of core extension modules, staged a trimmed Python 3.12 standard library in
+a reversible MicDir overlay, booted `mic0`, ran Python 3.12.13 successfully on
+the card, and restored stock uOS afterward.
+
+This is now a working CPython 3.12 runtime profile for K1OM. It is not yet a
+complete Ubuntu Python package set because optional modules such as `_ssl`,
+readline, sqlite, `_ctypes`, bz2, and lzma still need their development headers
+and libraries ported or supplied.
 
 ## Source
 
@@ -86,7 +92,62 @@ python: ELF 64-bit LSB executable, version 1 (SYSV), dynamically linked
 Machine: Intel K1OM
 ```
 
-## Live Test Result
+The follow-up runtime build statically enabled the useful no-external and
+locally available modules that avoid the cross-build's bad dynamic extension
+suffix:
+
+```text
+_asyncio
+_contextvars
+_csv
+_lsprof
+_opcode
+_pickle
+_queue
+_random
+_statistics
+_zoneinfo
+array
+_bisect
+_heapq
+_json
+_struct
+math
+cmath
+_datetime
+_decimal
+binascii
+pyexpat
+_elementtree
+_codecs_cn
+_codecs_hk
+_codecs_iso2022
+_codecs_jp
+_codecs_kr
+_codecs_tw
+_multibytecodec
+unicodedata
+fcntl
+grp
+mmap
+_posixsubprocess
+resource
+select
+_socket
+termios
+_multiprocessing
+_md5
+_sha1
+_sha2
+_sha3
+_blake2
+zlib
+syslog
+```
+
+`zlib` was linked from the locally rebuilt Ubuntu 24.04 zlib source package.
+
+## Early Live Test Result
 
 Two reversible MicDir staging attempts were made:
 
@@ -108,18 +169,122 @@ dpkg_status_absent
 init
 ```
 
+## Expanded Live Test Result
+
+The final expanded runtime test used:
+
+```text
+/root/xeon-phi-revival-local/ubuntu-port-runs/python312-static-expanded-sysconfig-overlay-20260729-031953
+```
+
+The overlay staged:
+
+```text
+/usr/bin/python3.12
+/usr/bin/python3 -> python3.12
+/opt/xeon-phi-revival/bin/python3.12
+/opt/xeon-phi-revival/lib/python3.12
+/opt/xeon-phi-revival/lib/python3.12/_sysconfigdata__linux_x86_64-linux-gnu.py
+/opt/xeon-phi-revival/share/python312-smoke.py
+```
+
+The generated `_sysconfigdata` shim records K1OM-facing runtime values such as:
+
+```text
+SOABI=cpython-312-k1om-linux-gnu
+EXT_SUFFIX=.cpython-312-k1om-linux-gnu.so
+MULTIARCH=k1om-linux-gnu
+TZPATH=/usr/share/zoneinfo:/usr/lib/zoneinfo:/usr/share/lib/zoneinfo:/etc/zoneinfo
+```
+
+Live `mic0` evidence:
+
+```text
+python312_expanded_sysconfig_ssh_ok
+init
+/usr/bin/python3.12
+3.12.13 (main, Jul 29 2026, 03:15:12) [GCC 4.7.0 20110509 (experimental)]
+pyver_rc=0
+python312_expanded_sysconfig_smoke_ok
+linux
+k1om
+knc-zlib
+cpython-312-k1om-linux-gnu
+pysmoke_rc=0
+pyimports_rc=0
+PASS python312 static expanded sysconfig overlay
+```
+
+The smoke imported and exercised:
+
+```text
+array
+asyncio
+binascii
+contextvars
+csv
+datetime
+decimal
+hashlib
+json
+math
+os
+pathlib
+pickle
+queue
+random
+socket
+statistics
+struct
+sys
+sysconfig
+threading
+unicodedata
+xml.etree.ElementTree
+xml.parsers.expat
+zlib
+zoneinfo
+```
+
+Stock rollback was verified after the test:
+
+```text
+stock_ssh_ok
+python312_absent
+python312_bin_absent
+python312_smoke_absent
+init
+```
+
+## Optional Module Gaps
+
+The local trusted roots currently lack the development headers needed for these
+standard optional modules:
+
+```text
+_ssl / _hashlib through OpenSSL headers
+readline
+sqlite3
+_ctypes through a completed K1OM libffi build
+bz2
+lzma
+```
+
+K1OM ncurses headers and static libraries exist, but a static `_curses` attempt
+generated a malformed CPython Makefile through `Modules/makesetup`; that needs
+a separate build-system fix before it should be retried.
+
 ## Meaning
 
-The modern Python lane now has a concrete compiler/source patch list and an
-`EM_K1OM` executable. The next step is not more blind boot attempts; it is a
-smaller reproducible Python 3.12 packaging harness that separates:
+The modern Python lane now has a rollback-verified CPython 3.12 runtime on
+`mic0`. The next step is to turn the private overlay recipe into project
+package recipes:
 
-- interpreter binary startup;
-- minimum `PYTHONHOME`/encoding files;
-- dynamic extension loading;
-- packaged libc/library path;
-- MicDir image size and boot timing;
-- rollback verification.
+- `python3.12-minimal-k1om`
+- `python3.12-stdlib-k1om`
+- `python3.12-sysconfig-k1om`
+- `python3.12-smoke-k1om`
 
-Until that harness passes, CPython 3.5 remains the working on-card Python
-baseline and CPython 3.12 remains a build probe.
+After packaging, the remaining work is normal Python-port expansion: OpenSSL,
+sqlite, readline, ctypes/libffi, compression modules, and eventually a cleaner
+K1OM SOABI/dynamic-extension story.

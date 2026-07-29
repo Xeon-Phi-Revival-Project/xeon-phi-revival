@@ -35,4 +35,4 @@ ncurses	6.4+20240113-1ubuntu2.1	partial-pass	K1OM simple curses_version smoke pa
 sqlite3	3.45.1-1ubuntu2.7	blocked	Source verified and patched; build needs host tclsh
 libffi	3.4.6-1build1	blocked	Source verified and patched; source requires Autoconf 2.71+
 cpython	3.5.10	bootstrap-pass	K1OM interpreter runs core Python plus math and zlib in demo rootfs
-cpython	3.12.13	build-probe	Official source cross-build produced an ELF64 K1OM python executable after gnu1x/static_assert/_Alignof/fence patches; staged MicDir boot test did not reach a working on-card Python 3.12 userland
+cpython	3.12.13	runtime-pass	Official source cross-build plus K1OM compatibility patches produced an ELF64 K1OM Python 3.12.13 runtime that passed expanded core/zlib/hash/xml/pickle/csv/asyncio import smoke on mic0 from a reversible overlay

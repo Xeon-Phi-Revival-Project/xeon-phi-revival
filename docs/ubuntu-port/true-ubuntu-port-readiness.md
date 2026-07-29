@@ -14,9 +14,9 @@ The project now has enough verified ground to begin the real Ubuntu-port lane:
 - Native K1OM binaries run on `mic0`.
 - Ubuntu-source `zlib` and `ncurses` have been rebuilt/tested for K1OM.
 - CPython 3.5.10 core userland runs on K1OM.
-- A CPython 3.12.13 K1OM build probe now produces an `EM_K1OM` executable
-  after source-compatibility patches, but it is not yet a working packaged
-  userland on-card.
+- A CPython 3.12.13 K1OM runtime now boots and runs on `mic0` from a reversible
+  MicDir overlay with an expanded static module set and zlib; it is not yet
+  converted into reproducible K1OM package recipes.
 - Project PID 1 handoff works.
 - Project second-stage uOS profile works under stock MPSS init.
 - A project-owned dpkg/APT shim pair runs on-card against the local K1OM
@@ -149,6 +149,8 @@ The profile now also exposes basic command entrypoints through
 `xpr-shell-compat` and `xpr-busybox-compat`, plus a first project-owned utility
 package through `xpr-pci-tools`. The latest milestone expanded smoke payload
 dependencies into standalone runtime/library packages and tightened
-package-manager compatibility. The Python 3.12 lane should continue as a
-separate source-compatibility and staging problem until a small modern Python
-runtime can boot and run on-card without destabilizing MPSS.
+package-manager compatibility. The Python 3.12 lane has crossed from build
+probe to working runtime profile; the next useful step is packaging that
+private overlay as `python3.12-minimal-k1om`, `python3.12-stdlib-k1om`,
+`python3.12-sysconfig-k1om`, and `python3.12-smoke-k1om`, then expanding the
+missing optional modules through real Ubuntu-source dependency ports.

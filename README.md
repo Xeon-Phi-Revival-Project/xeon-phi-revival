@@ -83,6 +83,10 @@ Ubuntu-style package experiments:
   a small `pcietool` sysfs helper, packages a project-owned libc runtime stack
   and split zlib/ncurses/readline/OpenSSL-1.0 runtime libraries under
   `/opt/xeon-phi-revival/lib64`, and rolls back to stock uOS.
+- CPython 3.12.13 now runs on `mic0` from a reversible overlay with an expanded
+  static module set, zlib, hashes, XML, pickle, CSV, asyncio import, sysconfig,
+  and stock rollback verified. Packaging that runtime into the local K1OM
+  archive is the next Python lane step.
 
 See `docs/status.md` and `docs/ubuntu-port/` for the latest public-safe
 reports.

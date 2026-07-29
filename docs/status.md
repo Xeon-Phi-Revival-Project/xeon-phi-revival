@@ -223,15 +223,20 @@ image.
   `runtime_libs_rc=0`, and stock rollback. The `dpkg-k1om` shim now checks
   dependencies before first install, checks file ownership conflicts for new
   package installs, and permits reinstall of already-installed packages.
-- A CPython 3.12.13 source probe was started from the official source tarball.
-  The K1OM cross build required `--disable-ipv6`, `-std=gnu1x` instead of the
-  default `-std=c11`, `static_assert` and `_Alignof` compatibility shims, and a
-  K1OM-specific `_Py_atomic_thread_fence` patch replacing unsupported `mfence`
-  with `__sync_synchronize()`. Those private build-tree changes produced a
-  dynamically linked `python` executable with `Machine: Intel K1OM`. A
-  reversible MicDir boot test for the staged Python 3.12 payload did not reach
-  SSH reliably and was rolled back; Python 3.12 is therefore a promising build
-  probe, not a working packaged userland yet.
+- CPython 3.12.13 now has a rollback-verified expanded runtime smoke on
+  `mic0`. The K1OM cross build still requires `--disable-ipv6`, `-std=gnu1x`
+  instead of `-std=c11`, `static_assert` and `_Alignof` compatibility shims,
+  and a K1OM-specific `_Py_atomic_thread_fence` patch replacing unsupported
+  `mfence` with `__sync_synchronize()`. The latest private runtime build
+  statically enabled core modules and accelerators including `math`, `_struct`,
+  `_json`, `_decimal`, `_socket`, `_pickle`, `_csv`, `_random`, `_queue`,
+  `pyexpat`, `_elementtree`, `hashlib` backing modules, and `zlib`. The live
+  run `python312-static-expanded-sysconfig-overlay-20260729-031953` booted
+  `mic0`, ran Python 3.12.13 from `/usr/bin/python3.12`, imported and exercised
+  the expanded module set, reported `pysmoke_rc=0` and `pyimports_rc=0`, then
+  restored stock uOS and verified the Python 3.12 overlay paths were absent.
+  This is a working Python 3.12 runtime profile, but not yet a packaged Ubuntu
+  Python distribution.
 - The latest rollback-verified package-set run completed at
   `/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-022039`.
   Stock rollback succeeded afterward: SSH worked, the project profile,
@@ -293,10 +298,13 @@ image.
 - `manifests/experiments/k1om-bootstrap-package-set.yml`
 - `manifests/experiments/k1om-apt-sandbox.yml`
 - `manifests/experiments/python-3.12-k1om-probe.yml`
+- `manifests/experiments/python-3.12-k1om-expanded-runtime.yml`
 
 ## Safest Next Technical Action
 
-Turn the current project `dpkg`/`apt` shims into stricter package-manager
-compatibility tests, then build a smaller Python 3.12 packaging harness that can
-stage and run without destabilizing the MPSS boot path. Continue avoiding
-committed proprietary or uncertain-redistribution payloads.
+Convert the private Python 3.12 overlay recipe into K1OM package recipes for
+`python3.12-minimal-k1om`, `python3.12-stdlib-k1om`,
+`python3.12-sysconfig-k1om`, and `python3.12-smoke-k1om`, then test those
+packages through the same deterministic archive, simulated install, live MicDir
+boot, and rollback gates. Continue avoiding committed proprietary or
+uncertain-redistribution payloads.
