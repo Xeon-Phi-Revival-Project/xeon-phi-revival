@@ -4,7 +4,7 @@ set -euo pipefail
 usage() {
   cat >&2 <<'USAGE'
 usage:
-  build-k1om-bootstrap-packages.sh --payload-rootfs DIR --out-dir DIR [--version V]
+  build-k1om-bootstrap-packages.sh --payload-rootfs DIR --out-dir DIR [--sysroot DIR] [--version V]
 
 Build a small local K1OM bootstrap package set:
   base-files-k1om
@@ -16,6 +16,16 @@ Build a small local K1OM bootstrap package set:
   xpr-shell-compat
   xpr-busybox-compat
   xpr-pci-tools
+  dpkg-k1om
+  apt-k1om
+  libc6-k1om
+  libgcc1-k1om
+  libm6-k1om
+  libpthread0-k1om
+  libdl2-k1om
+  librt1-k1om
+  libutil1-k1om
+  libc-stack-smoke-k1om
   zlib-smoke-k1om
   libtinfo5-k1om
   ncurses-smoke-k1om
@@ -29,6 +39,7 @@ USAGE
 
 payload_rootfs=""
 out_dir=""
+sysroot="${K1OM_SYSROOT:-/opt/mpss/3.4.10/sysroots/k1om-mpss-linux}"
 version="0.1.0"
 arch="k1om"
 source_date_epoch="${SOURCE_DATE_EPOCH:-1704067200}"
@@ -37,6 +48,7 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --payload-rootfs) payload_rootfs="${2:-}"; shift 2 ;;
     --out-dir) out_dir="${2:-}"; shift 2 ;;
+    --sysroot) sysroot="${2:-}"; shift 2 ;;
     --version) version="${2:-}"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "unknown argument: $1" >&2; usage; exit 2 ;;
@@ -56,6 +68,25 @@ for path in \
   "$payload_rootfs/usr/bin/ncurses-smoke" \
   "$payload_rootfs/lib64/libtinfo.so.5"; do
   [[ -e "$path" ]] || { echo "required payload path missing: $path" >&2; exit 10; }
+done
+
+for path in \
+  "$sysroot/lib64/ld-linux-k1om.so.2" \
+  "$sysroot/lib64/ld-2.14.1.so" \
+  "$sysroot/lib64/libc.so.6" \
+  "$sysroot/lib64/libc-2.14.1.so" \
+  "$sysroot/lib64/libgcc_s.so.1" \
+  "$sysroot/lib64/libm.so.6" \
+  "$sysroot/lib64/libm-2.14.1.so" \
+  "$sysroot/lib64/libpthread.so.0" \
+  "$sysroot/lib64/libpthread-2.14.1.so" \
+  "$sysroot/lib64/libdl.so.2" \
+  "$sysroot/lib64/libdl-2.14.1.so" \
+  "$sysroot/lib64/librt.so.1" \
+  "$sysroot/lib64/librt-2.14.1.so" \
+  "$sysroot/lib64/libutil.so.1" \
+  "$sysroot/lib64/libutil-2.14.1.so"; do
+  [[ -e "$path" || -L "$path" ]] || { echo "required sysroot path missing: $path" >&2; exit 11; }
 done
 
 build_root="$out_dir/build"
@@ -112,6 +143,15 @@ new_data_dir() {
   rm -rf "$dir"
   mkdir -p "$dir"
   printf '%s\n' "$dir"
+}
+
+copy_lib64() {
+  local data_dir="$1"
+  shift
+  mkdir -p "$data_dir/opt/xeon-phi-revival/lib64"
+  for rel in "$@"; do
+    cp -a "$sysroot/lib64/$rel" "$data_dir/opt/xeon-phi-revival/lib64/$rel"
+  done
 }
 
 base_data="$(new_data_dir base-files-k1om)"
@@ -232,6 +272,417 @@ PCI
 chmod 0755 "$pci_tools_data/usr/bin/pcietool"
 ln -s ../../../usr/bin/pcietool "$pci_tools_data/opt/xeon-phi-revival/bin/pcietool"
 
+dpkg_data="$(new_data_dir dpkg-k1om)"
+mkdir -p "$dpkg_data/usr/bin" "$dpkg_data/opt/xeon-phi-revival/bin" "$dpkg_data/var/lib/dpkg/info" "$dpkg_data/etc/dpkg"
+cat > "$dpkg_data/etc/dpkg/dpkg.cfg" <<'DPKGCFG'
+# Bootstrap dpkg-k1om configuration.
+# This project implementation is intentionally limited to local K1OM package
+# query and install operations used by the Xeon Phi Revival profile.
+DPKGCFG
+cat > "$dpkg_data/usr/bin/dpkg" <<'DPKG'
+#!/bin/sh
+set -u
+STATUS=${DPKG_STATUS:-/var/lib/dpkg/status}
+INFO=${DPKG_INFO:-/var/lib/dpkg/info}
+
+usage() {
+  echo "usage: dpkg [--version|-l|-s PKG|-L PKG|-S PATH|-i DEB...]" >&2
+}
+
+status_has_package() {
+  pkg="$1"
+  awk -v p="$pkg" '
+    $1 == "Package:" && $2 == p { found=1 }
+    END { exit found ? 0 : 1 }
+  ' "$STATUS" 2>/dev/null
+}
+
+print_package_paragraph() {
+  pkg="$1"
+  awk -v p="$pkg" '
+    BEGIN { keep=0; matched=0; buf="" }
+    function flush() {
+      if (keep) {
+        print buf
+        print ""
+        matched=1
+      }
+      keep=0
+      buf=""
+    }
+    $0 == "" { flush(); next }
+    $1 == "Package:" && $2 == p { keep=1 }
+    { buf = (buf == "" ? $0 : buf "\n" $0) }
+    END { flush(); exit matched ? 0 : 1 }
+  ' "$STATUS"
+}
+
+remove_package_paragraph() {
+  pkg="$1"
+  src="$2"
+  dst="$3"
+  awk -v p="$pkg" '
+    BEGIN { drop=0; buf="" }
+    function flush() {
+      if (!drop && buf != "") {
+        print buf
+        print ""
+      }
+      drop=0
+      buf=""
+    }
+    $0 == "" { flush(); next }
+    $1 == "Package:" && $2 == p { drop=1 }
+    { buf = (buf == "" ? $0 : buf "\n" $0) }
+    END { flush() }
+  ' "$src" > "$dst"
+}
+
+list_packages() {
+  printf 'Desired=Unknown/Install/Remove/Purge/Hold\n'
+  printf '| Status=Not/Installed/Config-files/Unpacked\n'
+  printf '||/ Name                           Version              Architecture\n'
+  awk '
+    $1 == "Package:" { pkg=$2 }
+    $1 == "Version:" { ver=$2 }
+    $1 == "Architecture:" { arch=$2 }
+    $0 == "" && pkg != "" {
+      printf "ii  %-30s %-20s %s\n", pkg, ver, arch
+      pkg=ver=arch=""
+    }
+    END {
+      if (pkg != "") printf "ii  %-30s %-20s %s\n", pkg, ver, arch
+    }
+  ' "$STATUS" 2>/dev/null
+}
+
+install_deb() {
+  deb="$1"
+  [ -f "$deb" ] || { echo "dpkg: package file not found: $deb" >&2; return 2; }
+  tmp="/tmp/xpr-dpkg.$$.$(basename "$deb" | sed 's/[^A-Za-z0-9_.-]/_/g')"
+  rm -rf "$tmp"
+  mkdir -p "$tmp"
+  if ! extract_deb_members "$deb" "$tmp"; then
+    rm -rf "$tmp"
+    return 2
+  fi
+  control="$(tar -xOzf "$tmp/control.tar.gz" ./control)" || { rm -rf "$tmp"; return 2; }
+  pkg="$(printf '%s\n' "$control" | awk -F': ' '$1 == "Package" { print $2; exit }')"
+  [ -n "$pkg" ] || { echo "dpkg: missing Package field in $deb" >&2; rm -rf "$tmp"; return 2; }
+  mkdir -p "$INFO" "$(dirname "$STATUS")"
+  [ -f "$STATUS" ] || : > "$STATUS"
+  tmp_status="$STATUS.tmp.$$"
+  remove_package_paragraph "$pkg" "$STATUS" "$tmp_status"
+  {
+    printf '%s\n' "$control" | awk '{ print } /^Package:/ && !done { print "Status: install ok installed"; done=1 }'
+    printf '\n'
+  } >> "$tmp_status"
+  mv "$tmp_status" "$STATUS"
+  tar -tzf "$tmp/data.tar.gz" | sed 's#^\./#/#' | sort > "$INFO/$pkg.list"
+  if tar -tzf "$tmp/control.tar.gz" | grep -q './md5sums'; then
+    tar -xOzf "$tmp/control.tar.gz" ./md5sums > "$INFO/$pkg.md5sums"
+  fi
+  if tar -tzf "$tmp/control.tar.gz" | grep -q './conffiles'; then
+    tar -xOzf "$tmp/control.tar.gz" ./conffiles > "$INFO/$pkg.conffiles"
+  fi
+  tar -xzf "$tmp/data.tar.gz" -C /
+  rm -rf "$tmp"
+  echo "Setting up $pkg (bootstrap dpkg-k1om)"
+}
+
+extract_deb_members() {
+  deb="$1"
+  out="$2"
+  magic="$(dd if="$deb" bs=8 count=1 2>/dev/null)"
+  [ "$magic" = "!<arch>" ] || { echo "dpkg: unsupported deb archive: $deb" >&2; return 2; }
+  offset=8
+  found_control=0
+  found_data=0
+  size_total="$(wc -c < "$deb")"
+  while [ "$offset" -lt "$size_total" ]; do
+    header="$out/ar-header.$$"
+    dd if="$deb" of="$header" bs=1 skip="$offset" count=60 2>/dev/null
+    name="$(dd if="$header" bs=1 count=16 2>/dev/null | sed 's/[ /]*$//')"
+    size="$(dd if="$header" bs=1 skip=48 count=10 2>/dev/null | sed 's/ //g')"
+    [ -n "$name" ] || break
+    [ -n "$size" ] || break
+    data_offset=$((offset + 60))
+    case "$name" in
+      control.tar.gz)
+        dd if="$deb" of="$out/control.tar.gz" bs=1 skip="$data_offset" count="$size" 2>/dev/null
+        found_control=1
+        ;;
+      data.tar.gz)
+        dd if="$deb" of="$out/data.tar.gz" bs=1 skip="$data_offset" count="$size" 2>/dev/null
+        found_data=1
+        ;;
+    esac
+    pad=$((size % 2))
+    offset=$((data_offset + size + pad))
+  done
+  rm -f "$out/ar-header.$$"
+  [ "$found_control" -eq 1 ] && [ "$found_data" -eq 1 ] || {
+    echo "dpkg: missing control.tar.gz or data.tar.gz in $deb" >&2
+    return 2
+  }
+}
+
+cmd="${1:---help}"
+case "$cmd" in
+  --version)
+    echo "Debian dpkg bootstrap-compatible project implementation for k1om 0.1.0"
+    ;;
+  -l|--list)
+    list_packages
+    ;;
+  -s|--status)
+    [ $# -ge 2 ] || { usage; exit 2; }
+    print_package_paragraph "$2"
+    ;;
+  -L|--listfiles)
+    [ $# -ge 2 ] || { usage; exit 2; }
+    [ -f "$INFO/$2.list" ] || { echo "dpkg-query: package '$2' is not installed" >&2; exit 1; }
+    cat "$INFO/$2.list"
+    ;;
+  -S|--search)
+    [ $# -ge 2 ] || { usage; exit 2; }
+    found=1
+    for list in "$INFO"/*.list; do
+      [ -f "$list" ] || continue
+      if grep -q "$2" "$list"; then
+        pkg="${list##*/}"
+        pkg="${pkg%.list}"
+        echo "$pkg: $2"
+        found=0
+      fi
+    done
+    exit "$found"
+    ;;
+  -i|--install)
+    shift
+    [ $# -ge 1 ] || { usage; exit 2; }
+    for deb in "$@"; do
+      install_deb "$deb"
+    done
+    ;;
+  --help|-h)
+    usage
+    ;;
+  *)
+    echo "dpkg-k1om: unsupported option: $cmd" >&2
+    usage
+    exit 2
+    ;;
+esac
+DPKG
+chmod 0755 "$dpkg_data/usr/bin/dpkg"
+ln -s ../../../usr/bin/dpkg "$dpkg_data/opt/xeon-phi-revival/bin/dpkg"
+
+apt_data="$(new_data_dir apt-k1om)"
+mkdir -p "$apt_data/usr/bin" "$apt_data/opt/xeon-phi-revival/bin" "$apt_data/etc/apt" "$apt_data/var/lib/apt/lists/partial" "$apt_data/var/cache/apt/archives/partial"
+cat > "$apt_data/etc/apt/sources.list" <<'SOURCES'
+deb [trusted=yes arch=k1om] file:/opt/xeon-phi-revival/repo noble main
+SOURCES
+cat > "$apt_data/usr/bin/apt-cache" <<'APTCACHE'
+#!/bin/sh
+set -u
+LIST_DIR=${APT_LIST_DIR:-/var/lib/apt/lists}
+
+usage() {
+  echo "usage: apt-cache [--version|show PKG|policy PKG]" >&2
+}
+
+packages_files() {
+  for f in "$LIST_DIR"/*Packages /opt/xeon-phi-revival/repo/dists/noble/main/binary-k1om/Packages; do
+    [ -f "$f" ] && echo "$f"
+  done
+}
+
+show_package() {
+  pkg="$1"
+  found=1
+  for f in $(packages_files); do
+    awk -v p="$pkg" '
+      BEGIN { keep=0; matched=0; buf="" }
+      function flush() {
+        if (keep) {
+          print buf
+          print ""
+          matched=1
+        }
+        keep=0
+        buf=""
+      }
+      $0 == "" { flush(); next }
+      $1 == "Package:" && $2 == p { keep=1 }
+      { buf = (buf == "" ? $0 : buf "\n" $0) }
+      END { flush(); exit matched ? 0 : 1 }
+    ' "$f" && found=0
+  done
+  return "$found"
+}
+
+case "${1:---help}" in
+  --version)
+    echo "apt-cache bootstrap-compatible project implementation for k1om 0.1.0"
+    ;;
+  show)
+    [ $# -ge 2 ] || { usage; exit 2; }
+    show_package "$2"
+    ;;
+  policy)
+    [ $# -ge 2 ] || { usage; exit 2; }
+    echo "$2:"
+    echo "  Installed: $(dpkg -s "$2" 2>/dev/null | awk -F': ' '$1 == "Version" { print $2; exit }')"
+    echo "  Candidate: $(apt-cache show "$2" 2>/dev/null | awk -F': ' '$1 == "Version" { print $2; exit }')"
+    ;;
+  --help|-h)
+    usage
+    ;;
+  *)
+    echo "apt-cache-k1om: unsupported command: $1" >&2
+    usage
+    exit 2
+    ;;
+esac
+APTCACHE
+chmod 0755 "$apt_data/usr/bin/apt-cache"
+cat > "$apt_data/usr/bin/apt-get" <<'APTGET'
+#!/bin/sh
+set -u
+REPO=${XPR_APT_REPO:-/opt/xeon-phi-revival/repo}
+LIST_DIR=${APT_LIST_DIR:-/var/lib/apt/lists}
+
+usage() {
+  echo "usage: apt-get [--version|update|install [--reinstall] PKG...]" >&2
+}
+
+packages_file="$REPO/dists/noble/main/binary-k1om/Packages"
+list_file="$LIST_DIR/xpr_noble_main_binary-k1om_Packages"
+
+find_filename() {
+  pkg="$1"
+  awk -v p="$pkg" '
+    BEGIN { keep=0 }
+    $0 == "" { keep=0 }
+    $1 == "Package:" && $2 == p { keep=1 }
+    keep && $1 == "Filename:" { print $2; exit }
+  ' "$packages_file"
+}
+
+is_installed() {
+  dpkg -s "$1" >/dev/null 2>&1
+}
+
+case "${1:---help}" in
+  --version)
+    echo "apt-get bootstrap-compatible project implementation for k1om 0.1.0"
+    ;;
+  update)
+    [ -f "$packages_file" ] || { echo "apt-get: missing local Packages file: $packages_file" >&2; exit 1; }
+    mkdir -p "$LIST_DIR/partial"
+    cp "$packages_file" "$list_file"
+    echo "Reading package lists... Done"
+    ;;
+  install)
+    shift
+    reinstall=0
+    assume_yes=0
+    pkgs=""
+    while [ $# -gt 0 ]; do
+      case "$1" in
+        --reinstall) reinstall=1 ;;
+        -y|--yes|--assume-yes) assume_yes=1 ;;
+        -*) echo "apt-get-k1om: unsupported install option: $1" >&2; exit 2 ;;
+        *) pkgs="$pkgs $1" ;;
+      esac
+      shift
+    done
+    [ -n "$pkgs" ] || { usage; exit 2; }
+    [ -f "$packages_file" ] || { echo "apt-get: missing local Packages file: $packages_file" >&2; exit 1; }
+    for pkg in $pkgs; do
+      if is_installed "$pkg" && [ "$reinstall" -eq 0 ]; then
+        echo "$pkg is already the newest version."
+        continue
+      fi
+      filename="$(find_filename "$pkg")"
+      [ -n "$filename" ] || { echo "E: Unable to locate package $pkg" >&2; exit 1; }
+      deb="$REPO/$filename"
+      [ -f "$deb" ] || { echo "E: Package file missing: $deb" >&2; exit 1; }
+      echo "Installing $pkg from local k1om archive"
+      dpkg -i "$deb" || exit $?
+    done
+    echo "install complete"
+    ;;
+  --help|-h)
+    usage
+    ;;
+  *)
+    echo "apt-get-k1om: unsupported command: $1" >&2
+    usage
+    exit 2
+    ;;
+esac
+APTGET
+chmod 0755 "$apt_data/usr/bin/apt-get"
+ln -s ../../../usr/bin/apt-get "$apt_data/opt/xeon-phi-revival/bin/apt-get"
+ln -s ../../../usr/bin/apt-cache "$apt_data/opt/xeon-phi-revival/bin/apt-cache"
+
+libc_data="$(new_data_dir libc6-k1om)"
+copy_lib64 "$libc_data" \
+  ld-linux-k1om.so.2 ld-2.14.1.so \
+  libc.so.6 libc-2.14.1.so \
+  libanl.so.1 libanl-2.14.1.so \
+  libnsl.so.1 libnsl-2.14.1.so \
+  libnss_files.so.2 libnss_files-2.14.1.so \
+  libnss_dns.so.2 libnss_dns-2.14.1.so \
+  libresolv.so.2 libresolv-2.14.1.so
+
+libgcc_data="$(new_data_dir libgcc1-k1om)"
+copy_lib64 "$libgcc_data" libgcc_s.so.1
+if [[ -e "$sysroot/lib64/libgcc_s.so" || -L "$sysroot/lib64/libgcc_s.so" ]]; then
+  copy_lib64 "$libgcc_data" libgcc_s.so
+fi
+
+libm_data="$(new_data_dir libm6-k1om)"
+copy_lib64 "$libm_data" libm.so.6 libm-2.14.1.so
+
+libpthread_data="$(new_data_dir libpthread0-k1om)"
+copy_lib64 "$libpthread_data" libpthread.so.0 libpthread-2.14.1.so
+
+libdl_data="$(new_data_dir libdl2-k1om)"
+copy_lib64 "$libdl_data" libdl.so.2 libdl-2.14.1.so
+
+librt_data="$(new_data_dir librt1-k1om)"
+copy_lib64 "$librt_data" librt.so.1 librt-2.14.1.so
+
+libutil_data="$(new_data_dir libutil1-k1om)"
+copy_lib64 "$libutil_data" libutil.so.1 libutil-2.14.1.so
+
+libc_stack_smoke_data="$(new_data_dir libc-stack-smoke-k1om)"
+mkdir -p "$libc_stack_smoke_data/opt/xeon-phi-revival/bin"
+cat > "$libc_stack_smoke_data/opt/xeon-phi-revival/bin/libc-stack-smoke.sh" <<'LIBCSMOKE'
+#!/bin/sh
+set -u
+XPR_ROOT=${XPR_ROOT:-/opt/xeon-phi-revival}
+LOG_DIR=/var/log/xeon-phi-revival
+OUT="$LOG_DIR/libc-stack-smoke.out"
+LOADER="$XPR_ROOT/lib64/ld-linux-k1om.so.2"
+LIBPATH="$XPR_ROOT/lib64"
+mkdir -p "$LOG_DIR"
+{
+  echo "libc_stack_started=1"
+  test -x "$LOADER"
+  echo "loader=$LOADER"
+  "$LOADER" --library-path "$LIBPATH" "$XPR_ROOT/bin/hello-knc"
+  echo "hello_loader_rc=$?"
+  "$LOADER" --library-path "$LIBPATH" "$XPR_ROOT/bin/python3.5" -S -c 'import math, threading; print("python_libc_stack_ok"); print(int(math.sqrt(144))); t=threading.Thread(target=lambda: None); t.start(); t.join()'
+  echo "python_loader_rc=$?"
+  echo "libc_stack_done=1"
+} > "$OUT" 2>&1
+LIBCSMOKE
+chmod 0755 "$libc_stack_smoke_data/opt/xeon-phi-revival/bin/libc-stack-smoke.sh"
+
 os_data="$(new_data_dir xpr-os-smoke)"
 mkdir -p "$os_data/opt/xeon-phi-revival/bin"
 cat > "$os_data/opt/xeon-phi-revival/bin/os-smoke.sh" <<'OS'
@@ -322,6 +773,10 @@ case "$1" in
       LD_LIBRARY_PATH="$XPR_ROOT/lib64:${LD_LIBRARY_PATH:-}" "$XPR_ROOT/bin/ncurses-smoke" > "$LOG_DIR/ncurses-smoke.out" 2>&1
       echo "ncurses_rc=$?" >> "$LOG"
     fi
+    if [ -x "$XPR_ROOT/bin/libc-stack-smoke.sh" ]; then
+      "$XPR_ROOT/bin/libc-stack-smoke.sh"
+      echo "libc_stack_rc=$?" >> "$LOG"
+    fi
     if [ -x "$XPR_ROOT/bin/os-smoke.sh" ]; then
       "$XPR_ROOT/bin/os-smoke.sh"
       echo "os_smoke_rc=$?" >> "$LOG"
@@ -344,11 +799,21 @@ make_deb python3.5-smoke-k1om "$python_smoke_data" "base-files-k1om, python3.5-m
 make_deb xpr-shell-compat "$shell_compat_data" "base-files-k1om, python3.5-minimal-k1om, python3.5-stdlib-k1om, python3.5-lib-dynload-k1om" "Shell compatibility entrypoints for the K1OM profile" "shells"
 make_deb xpr-busybox-compat "$busybox_compat_data" "base-files-k1om" "BusyBox-backed shell command entrypoints for the K1OM profile" "shells"
 make_deb xpr-pci-tools "$pci_tools_data" "base-files-k1om, xpr-busybox-compat" "Small sysfs PCI inspection tools for the K1OM profile" "utils"
+make_deb dpkg-k1om "$dpkg_data" "base-files-k1om, xpr-busybox-compat" "Bootstrap dpkg-compatible package query and install tool for K1OM" "admin"
+make_deb apt-k1om "$apt_data" "base-files-k1om, xpr-busybox-compat, dpkg-k1om" "Bootstrap apt-compatible local archive tool for K1OM" "admin"
+make_deb libc6-k1om "$libc_data" "base-files-k1om" "K1OM glibc runtime loader and core libc payload" "libs"
+make_deb libgcc1-k1om "$libgcc_data" "base-files-k1om" "K1OM GCC runtime support library" "libs"
+make_deb libm6-k1om "$libm_data" "base-files-k1om, libc6-k1om" "K1OM glibc math runtime library" "libs"
+make_deb libpthread0-k1om "$libpthread_data" "base-files-k1om, libc6-k1om" "K1OM glibc pthread runtime library" "libs"
+make_deb libdl2-k1om "$libdl_data" "base-files-k1om, libc6-k1om" "K1OM glibc dynamic loading runtime library" "libs"
+make_deb librt1-k1om "$librt_data" "base-files-k1om, libc6-k1om, libpthread0-k1om" "K1OM glibc realtime runtime library" "libs"
+make_deb libutil1-k1om "$libutil_data" "base-files-k1om, libc6-k1om" "K1OM glibc util runtime library" "libs"
+make_deb libc-stack-smoke-k1om "$libc_stack_smoke_data" "base-files-k1om, hello-knc-smoke, python3.5-minimal-k1om, python3.5-stdlib-k1om, python3.5-lib-dynload-k1om, libc6-k1om, libgcc1-k1om, libm6-k1om, libpthread0-k1om, libdl2-k1om, librt1-k1om, libutil1-k1om" "K1OM packaged libc stack smoke test" "utils"
 make_deb zlib-smoke-k1om "$zlib_data" "base-files-k1om" "K1OM zlib smoke payload" "libs"
 make_deb libtinfo5-k1om "$libtinfo_data" "base-files-k1om" "K1OM terminfo runtime library" "libs"
 make_deb ncurses-smoke-k1om "$ncurses_data" "base-files-k1om, libtinfo5-k1om" "K1OM ncurses smoke payload" "utils"
 make_deb xpr-os-smoke "$os_data" "base-files-k1om" "Basic filesystem and OS smoke checks" "utils"
-make_deb xeon-phi-revival-stage2 "$stage2_data" "base-files-k1om, hello-knc-smoke, python3.5-minimal-k1om, python3.5-stdlib-k1om, python3.5-lib-dynload-k1om, python3.5-smoke-k1om, xpr-shell-compat, xpr-busybox-compat, xpr-pci-tools, zlib-smoke-k1om, libtinfo5-k1om, ncurses-smoke-k1om, xpr-os-smoke" "Second-stage service for K1OM profile" "admin"
+make_deb xeon-phi-revival-stage2 "$stage2_data" "base-files-k1om, hello-knc-smoke, python3.5-minimal-k1om, python3.5-stdlib-k1om, python3.5-lib-dynload-k1om, python3.5-smoke-k1om, xpr-shell-compat, xpr-busybox-compat, xpr-pci-tools, dpkg-k1om, apt-k1om, libc6-k1om, libgcc1-k1om, libm6-k1om, libpthread0-k1om, libdl2-k1om, librt1-k1om, libutil1-k1om, libc-stack-smoke-k1om, zlib-smoke-k1om, libtinfo5-k1om, ncurses-smoke-k1om, xpr-os-smoke" "Second-stage service for K1OM profile" "admin"
 
 {
   printf 'package\tversion\tarchitecture\tpath\tsha256\n'

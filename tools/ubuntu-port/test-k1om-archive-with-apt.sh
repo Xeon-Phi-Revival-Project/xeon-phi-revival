@@ -47,7 +47,7 @@ apt-get "${apt_opts[@]}" update > "$out_dir/apt-get-update.log" 2>&1
 packages_list="$(find "$state_lists" -type f -name '*_binary-k1om_Packages' -print | head -n 1)"
 [[ -n "$packages_list" ]] || { echo "APT did not create a binary-k1om Packages list" >&2; exit 20; }
 
-for package in base-files-k1om hello-knc-smoke python3.5-minimal-k1om python3.5-stdlib-k1om python3.5-lib-dynload-k1om python3.5-smoke-k1om xpr-shell-compat xpr-busybox-compat xpr-pci-tools zlib-smoke-k1om libtinfo5-k1om ncurses-smoke-k1om xpr-os-smoke xeon-phi-revival-stage2; do
+for package in base-files-k1om hello-knc-smoke python3.5-minimal-k1om python3.5-stdlib-k1om python3.5-lib-dynload-k1om python3.5-smoke-k1om xpr-shell-compat xpr-busybox-compat xpr-pci-tools dpkg-k1om apt-k1om libc6-k1om libgcc1-k1om libm6-k1om libpthread0-k1om libdl2-k1om librt1-k1om libutil1-k1om libc-stack-smoke-k1om zlib-smoke-k1om libtinfo5-k1om ncurses-smoke-k1om xpr-os-smoke xeon-phi-revival-stage2; do
   grep -q "^Package: $package$" "$packages_list" || { echo "APT list missing package: $package" >&2; exit 30; }
 done
 

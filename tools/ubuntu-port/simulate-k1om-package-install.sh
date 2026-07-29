@@ -114,6 +114,24 @@ for required in \
   "$rootfs/opt/xeon-phi-revival/bin/find" \
   "$rootfs/opt/xeon-phi-revival/bin/pcietool" \
   "$rootfs/usr/bin/pcietool" \
+  "$rootfs/usr/bin/dpkg" \
+  "$rootfs/usr/bin/apt-get" \
+  "$rootfs/usr/bin/apt-cache" \
+  "$rootfs/opt/xeon-phi-revival/bin/dpkg" \
+  "$rootfs/opt/xeon-phi-revival/bin/apt-get" \
+  "$rootfs/opt/xeon-phi-revival/bin/apt-cache" \
+  "$rootfs/etc/apt/sources.list" \
+  "$rootfs/var/lib/apt/lists/partial" \
+  "$rootfs/var/cache/apt/archives/partial" \
+  "$rootfs/opt/xeon-phi-revival/lib64/ld-linux-k1om.so.2" \
+  "$rootfs/opt/xeon-phi-revival/lib64/libc.so.6" \
+  "$rootfs/opt/xeon-phi-revival/lib64/libgcc_s.so.1" \
+  "$rootfs/opt/xeon-phi-revival/lib64/libm.so.6" \
+  "$rootfs/opt/xeon-phi-revival/lib64/libpthread.so.0" \
+  "$rootfs/opt/xeon-phi-revival/lib64/libdl.so.2" \
+  "$rootfs/opt/xeon-phi-revival/lib64/librt.so.1" \
+  "$rootfs/opt/xeon-phi-revival/lib64/libutil.so.1" \
+  "$rootfs/opt/xeon-phi-revival/bin/libc-stack-smoke.sh" \
   "$rootfs/opt/xeon-phi-revival/bin/zlib-smoke" \
   "$rootfs/opt/xeon-phi-revival/bin/ncurses-smoke" \
   "$rootfs/opt/xeon-phi-revival/lib64/libtinfo.so.5" \
@@ -132,6 +150,18 @@ for required in \
   "$info_dir/xpr-shell-compat.md5sums" \
   "$info_dir/xpr-busybox-compat.md5sums" \
   "$info_dir/xpr-pci-tools.md5sums" \
+  "$info_dir/dpkg-k1om.conffiles" \
+  "$info_dir/dpkg-k1om.md5sums" \
+  "$info_dir/apt-k1om.conffiles" \
+  "$info_dir/apt-k1om.md5sums" \
+  "$info_dir/libc6-k1om.md5sums" \
+  "$info_dir/libgcc1-k1om.md5sums" \
+  "$info_dir/libm6-k1om.md5sums" \
+  "$info_dir/libpthread0-k1om.md5sums" \
+  "$info_dir/libdl2-k1om.md5sums" \
+  "$info_dir/librt1-k1om.md5sums" \
+  "$info_dir/libutil1-k1om.md5sums" \
+  "$info_dir/libc-stack-smoke-k1om.md5sums" \
   "$info_dir/zlib-smoke-k1om.md5sums" \
   "$info_dir/libtinfo5-k1om.md5sums" \
   "$info_dir/ncurses-smoke-k1om.md5sums" \

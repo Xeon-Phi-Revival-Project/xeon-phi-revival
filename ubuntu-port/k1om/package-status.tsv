@@ -1,6 +1,16 @@
 package	version	status	notes
 base-files-k1om	0.1.0	passed	Package-built base profile metadata installed into MicDir and exposed /etc/xeon-phi-revival-release
+dpkg-k1om	0.1.0	passed	Bootstrap-compatible project dpkg installed on-card; listed/statused package metadata and installed a local .deb during live test
+apt-k1om	0.1.0	passed	Bootstrap-compatible project apt-get/apt-cache installed on-card; apt-get update and apt-get install --reinstall xpr-pci-tools passed against the local file archive
 hello-knc-smoke	0.1.0	passed	Package-built K1OM hello payload ran on mic0 from /opt/xeon-phi-revival
+libc6-k1om	0.1.0	passed	Project-packaged K1OM loader/libc payload installed under /opt/xeon-phi-revival/lib64; direct loader hello smoke passed
+libgcc1-k1om	0.1.0	passed	Project-packaged K1OM libgcc runtime installed under /opt/xeon-phi-revival/lib64
+libm6-k1om	0.1.0	passed	Project-packaged K1OM libm runtime installed under /opt/xeon-phi-revival/lib64
+libpthread0-k1om	0.1.0	passed	Project-packaged K1OM libpthread runtime installed under /opt/xeon-phi-revival/lib64
+libdl2-k1om	0.1.0	passed	Project-packaged K1OM libdl runtime installed under /opt/xeon-phi-revival/lib64
+librt1-k1om	0.1.0	passed	Project-packaged K1OM librt runtime installed under /opt/xeon-phi-revival/lib64
+libutil1-k1om	0.1.0	passed	Project-packaged K1OM libutil runtime installed under /opt/xeon-phi-revival/lib64
+libc-stack-smoke-k1om	0.1.0	passed	Package-built libc stack smoke ran hello-knc and Python core through the packaged loader/library path
 python3.5-minimal-k1om	0.1.0	passed	Package-built CPython interpreter payload ran with PYTHONHOME=/opt/xeon-phi-revival
 python3.5-stdlib-k1om	0.1.0	passed	Package-built CPython pure standard library payload installed under /opt/xeon-phi-revival/lib/python3.5
 python3.5-lib-dynload-k1om	0.1.0	passed	Package-built CPython dynamic extension payload installed under /opt/xeon-phi-revival/lib/python3.5/lib-dynload
@@ -19,3 +29,4 @@ ncurses	6.4+20240113-1ubuntu2.1	partial-pass	K1OM simple curses_version smoke pa
 sqlite3	3.45.1-1ubuntu2.7	blocked	Source verified and patched; build needs host tclsh
 libffi	3.4.6-1build1	blocked	Source verified and patched; source requires Autoconf 2.71+
 cpython	3.5.10	bootstrap-pass	K1OM interpreter runs core Python plus math and zlib in demo rootfs
+cpython	3.12.13	build-probe	Official source cross-build produced an ELF64 K1OM python executable after gnu1x/static_assert/_Alignof/fence patches; staged MicDir boot test did not reach a working on-card Python 3.12 userland

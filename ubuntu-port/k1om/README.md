@@ -51,17 +51,27 @@ manifests/experiments/k1om-profile-package-bootstrap.yml
 The current multi-package bootstrap archive also passed. It contains:
 
 - `base-files-k1om`
+- `dpkg-k1om`
+- `apt-k1om`
 - `hello-knc-smoke`
+- `libc6-k1om`
+- `libgcc1-k1om`
+- `libm6-k1om`
+- `libpthread0-k1om`
+- `libdl2-k1om`
+- `librt1-k1om`
+- `libutil1-k1om`
+- `libc-stack-smoke-k1om`
+- `libtinfo5-k1om`
+- `ncurses-smoke-k1om`
 - `python3.5-minimal-k1om`
 - `python3.5-stdlib-k1om`
 - `python3.5-lib-dynload-k1om`
 - `python3.5-smoke-k1om`
 - `xpr-shell-compat`
 - `xpr-busybox-compat`
-- `xpr-pci-tools`
 - `zlib-smoke-k1om`
-- `libtinfo5-k1om`
-- `ncurses-smoke-k1om`
+- `xpr-pci-tools`
 - `xpr-os-smoke`
 - `xeon-phi-revival-stage2`
 
@@ -72,9 +82,11 @@ MPSS MicDir staging, booted on `mic0`, runs `hello-knc`, runs CPython core,
 is parsed by host-side APT as `Architecture: k1om`, runs zlib and ncurses
 smoke payloads, uses a separately packaged `libtinfo5-k1om` runtime, verifies
 basic filesystem and OS behavior, exposes dpkg-style package status metadata
-on-card, provides `python3`/`python` command wrappers, exposes common
-BusyBox-backed command entrypoints, includes a small `pcietool` sysfs helper,
-and rolls back to the stock uOS.
+on-card, provides bootstrap-compatible `dpkg`/`apt-get`/`apt-cache` commands,
+provides `python3`/`python` command wrappers, exposes common BusyBox-backed
+command entrypoints, includes a small `pcietool` sysfs helper, packages a
+project-owned libc stack under `/opt/xeon-phi-revival/lib64`, and rolls back to
+the stock uOS.
 
 The passing run is documented in:
 

@@ -14,8 +14,15 @@ The project now has enough verified ground to begin the real Ubuntu-port lane:
 - Native K1OM binaries run on `mic0`.
 - Ubuntu-source `zlib` and `ncurses` have been rebuilt/tested for K1OM.
 - CPython 3.5.10 core userland runs on K1OM.
+- A CPython 3.12.13 K1OM build probe now produces an `EM_K1OM` executable
+  after source-compatibility patches, but it is not yet a working packaged
+  userland on-card.
 - Project PID 1 handoff works.
 - Project second-stage uOS profile works under stock MPSS init.
+- A project-owned dpkg/APT shim pair runs on-card against the local K1OM
+  archive.
+- A project-owned libc runtime stack is split into standalone packages under
+  `/opt/xeon-phi-revival/lib64`.
 - Rollback to stock uOS is repeatable.
 
 ## Port Boundary
@@ -51,18 +58,28 @@ It is Ubuntu-compatible research infrastructure, not Ubuntu itself.
 A first reproducible local package set now exists and has passed on `mic0`:
 
 ```text
+apt-k1om
 base-files-k1om
+dpkg-k1om
 hello-knc-smoke
+libc6-k1om
+libc-stack-smoke-k1om
+libdl2-k1om
+libgcc1-k1om
+libm6-k1om
+libpthread0-k1om
+librt1-k1om
+libtinfo5-k1om
+libutil1-k1om
+ncurses-smoke-k1om
 python3.5-minimal-k1om
 python3.5-stdlib-k1om
 python3.5-lib-dynload-k1om
 python3.5-smoke-k1om
 xpr-shell-compat
 xpr-busybox-compat
-xpr-pci-tools
 zlib-smoke-k1om
-libtinfo5-k1om
-ncurses-smoke-k1om
+xpr-pci-tools
 xpr-os-smoke
 xeon-phi-revival-stage2
 ```
@@ -74,8 +91,9 @@ audit path, simulated dpkg-style install/rootfs path with package `md5sums` and
 second-stage service path, K1OM hello payload, CPython core payload, zlib smoke,
 separate libtinfo runtime, ncurses smoke, basic filesystem smoke, on-card
 dpkg-style package status metadata, `python3`/`python` shell entrypoints,
-BusyBox-backed command entrypoints, a small `pcietool` sysfs helper, and stock
-rollback path.
+BusyBox-backed command entrypoints, a small `pcietool` sysfs helper,
+bootstrap-compatible `dpkg`/`apt-get`/`apt-cache` commands, a separately
+packaged libc stack, and stock rollback path.
 
 ## Immediate Next Track
 
@@ -95,6 +113,15 @@ Minimum first package targets:
 ```text
 base-files-k1om
 xeon-phi-revival-profile
+dpkg-k1om
+apt-k1om
+libc6-k1om
+libgcc1-k1om
+libm6-k1om
+libpthread0-k1om
+libdl2-k1om
+librt1-k1om
+libutil1-k1om
 zlib
 ncurses
 python3.5-minimal-k1om
@@ -114,4 +141,7 @@ dynamic-extension, and smoke-script packages under the same reversible gates.
 The profile now also exposes basic command entrypoints through
 `xpr-shell-compat` and `xpr-busybox-compat`, plus a first project-owned utility
 package through `xpr-pci-tools`. The next milestone is expanding smoke payload
-dependencies into standalone runtime/library packages.
+dependencies into standalone runtime/library packages and tightening
+package-manager compatibility. The Python 3.12 lane should continue as a
+separate source-compatibility and staging problem until a small modern Python
+runtime can boot and run on-card without destabilizing MPSS.

@@ -1,0 +1,37 @@
+id: python-3.12-k1om-probe
+title: CPython 3.12.13 K1OM source compatibility probe
+status: partial
+date_utc: 2026-07-29
+hardware:
+  card: Intel Xeon Phi 5110P
+  target: mic0
+  host_os: CentOS 7.4-era MPSS host
+source:
+  name: Python-3.12.13.tar.xz
+  upstream_release: https://www.python.org/downloads/release/python-31213/
+  upstream_directory: https://www.python.org/ftp/python/3.12.13/
+  sha256: c08bc65a81971c1dd5783182826503369466c7e67374d1646519adf05207b684
+private_work_dir: /root/xeon-phi-revival-local/ubuntu2404-level3/cpython-3.12.13-probe-20260729-001250
+toolchain:
+  prefix: k1om-mpss-linux-
+  environment: /opt/mpss/3.4.10/environment-setup-k1om-mpss-linux
+configure:
+  build_python: passed
+  cross_configure: passed_with_disable_ipv6
+build_patches_private_probe:
+  - replace -std=c11 with -std=gnu1x
+  - define static_assert as _Static_assert
+  - define _Alignof as __alignof__
+  - replace CPython x86 mfence atomic fence with __sync_synchronize for K1OM
+result:
+  host_build_python: passed
+  k1om_cross_python_executable: passed
+  readelf_machine: Intel K1OM
+  micdir_full_tree_boot_test: failed_or_timed_out
+  micdir_binary_only_boot_test: failed_ready_state
+  stock_rollback: passed
+evidence:
+  file: "python: ELF 64-bit LSB executable, dynamically linked, for GNU/Linux 2.6.16"
+  machine: "Machine: Intel K1OM"
+  final_stock: "stock_ssh_ok; python312_bin_absent; python312_opt_absent; dpkg_status_absent; init"
+next_dependency: Build a smaller Python 3.12 packaging harness that proves binary startup, minimum PYTHONHOME, dynamic loading, and rollback separately.

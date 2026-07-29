@@ -32,6 +32,7 @@ as a local reference under its own terms.
 | [Ubuntu Noble zlib source package](https://packages.ubuntu.com/source/noble/zlib) | Ubuntu 24.04 source baseline for K1OM zlib experiments. | Use Ubuntu source package terms; keep generated K1OM artifacts private unless licensing and payload provenance are clear. |
 | [Ubuntu Noble ncurses source package](https://packages.ubuntu.com/source/noble/ncurses) | Ubuntu 24.04 source baseline for K1OM ncurses/libtinfo experiments. | Use Ubuntu source package terms; keep generated K1OM artifacts private unless licensing and payload provenance are clear. |
 | [Launchpad ncurses source in Noble](https://launchpad.net/ubuntu/noble/+source/ncurses) | Version history, checksums, and Ubuntu publication metadata. | Link only or record small metadata. |
+| [Python 3.12.13 source release](https://www.python.org/downloads/release/python-31213/) | Official CPython 3.12.13 source and checksum used for the K1OM build probe. | Link only. Do not commit the source archive or generated K1OM binaries. |
 | [QPhiX documentation](https://jeffersonlab.github.io/qphix/) | Example of serious Xeon Phi-era HPC software targeting vectorized kernels. | Reference only unless a future port explicitly follows its license. |
 
 ## Known Local-Only Or Restricted Inputs
