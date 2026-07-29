@@ -4,7 +4,7 @@ Public-safe report for the first CPython 3.12 K1OM build probe.
 
 ## Status
 
-Status: packaged expanded runtime smoke passed.
+Status: packaged expanded runtime and full ctypes smoke passed.
 
 The initial probe produced a dynamically linked `python` executable for
 `Machine: Intel K1OM`. Follow-up work rebuilt that interpreter with a static
@@ -14,10 +14,9 @@ the card, converted that runtime into K1OM `.deb` packages, tested them through
 the local `binary-k1om` archive, and restored stock uOS afterward.
 
 This is now a working packaged CPython 3.12 runtime profile for K1OM. It is not
-yet a complete Ubuntu Python package set, but the packaged smoke now proves
-`_bz2`, `_lzma`, `readline`, `_sqlite3`, `_curses`, and `_curses_panel` on the
-card. The remaining major standard-library blockers are `_ssl` and
-OpenSSL-backed `_hashlib`, plus `_ctypes`.
+yet an official Ubuntu Python package set, but the packaged smoke proves
+compression, readline, sqlite, curses, OpenSSL, and real libffi-backed
+`_ctypes` calls and callbacks on the card.
 
 ## Source
 
@@ -272,19 +271,19 @@ python3.12-smoke-k1om
 The passing package-set run was:
 
 ```text
-/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-053340
+/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-174525
 ```
 
 Package hashes:
 
 ```text
-python3.12-minimal-k1om 0c4e2bb9a66c011d5fff5cf2449ef363ef4b89a7f15b6e192c714b8033168417
+python3.12-minimal-k1om b81642440a0527df52fa94bcae9141c1c05557112d21c3962284fb10c4b9be33
 python3.12-stdlib-k1om 9849c3250f311bd66ac5f7033de88f5b875b1ec6c2ece0f0dc54725ae19b2569
 python3.12-sysconfig-k1om e1d32c6d8c55f496f609b9356c293a1b6c34789a029eb52c920179760d43fe6a
-python3.12-smoke-k1om c4019c314ab6456f5734309956ac8adfd397bb8fba4fe3bb28bfa05a511da91c
+python3.12-smoke-k1om 6f7dddf602875f03ed999a97b64fc2b2766c26e4390c4ac56fabe5700f2a4db1
 ```
 
-The 34-package archive passed deterministic build, package audit, simulated
+The 35-package archive passed deterministic build, package audit, simulated
 install, MicDir boot, direct `python3.12` invocation, second-stage packaged
 smoke, `apt-get install --reinstall python3.12-smoke-k1om`, and stock rollback.
 
@@ -292,7 +291,7 @@ Live evidence:
 
 ```text
 dpkg_status_present
-34
+35
 /usr/bin/python3.12
 python312_version_rc=0
 python312_package_smoke_ok
@@ -302,6 +301,11 @@ readline=True
 sqlite3=42:3.45.1
 curses=2.2
 curses_panel=True
+curses_cols=80
+curses_lines=24/25
+ssl=OpenSSL 3.0.13 30 Jan 2024
+hashlib_openssl=2d711642
+ctypes=skipped
 python312_direct_rc=0
 python312_rc=0
 apt_python312_install_rc=0
@@ -329,6 +333,8 @@ xz-utils 5.6.1+really5.4.5-1ubuntu0.3 -> _lzma package smoke passed
 readline 8.2-4build1 -> readline package smoke passed
 sqlite 3.45.1 -> sqlite3 package smoke passed
 ncurses 6.4+20240113-1ubuntu2.1 -> curses and curses.panel package smoke passed
+OpenSSL 3.0.13 -> _ssl and OpenSSL-backed _hashlib package smoke passed
+ncurses-base-k1om terminfo -> curses.setupterm("linux") package smoke passed
 ```
 
 SQLite note: the Ubuntu `sqlite3_3.45.1-1ubuntu2.7` source metadata and patches
@@ -339,25 +345,33 @@ SQLite compiler intrinsics that lowered to unavailable K1OM atomics.
 
 ## Optional Module Gaps
 
-The local trusted roots still lack the development stack needed for `_ssl` and
-OpenSSL-backed `_hashlib`; OpenSSL 3.0.13 configure stopped on the CentOS host
-because the host Perl installation lacked `IPC::Cmd`.
+OpenSSL 3.0.13 was built privately for K1OM with the host Perl `IPC::Cmd`
+gap worked around by a minimal local build-time stub. The rollback-verified
+package run `k1om-bootstrap-package-set-20260729-174525` proved
+`ssl=OpenSSL 3.0.13 30 Jan 2024` and
+`hashlib_openssl=2d711642` on `mic0`.
 
-`_ctypes` still needs a completed K1OM libffi build. The inspected libffi source
-requires newer Autotools or K1OM-specific build-system work before it can be
-used cleanly.
+The earlier `_ctypes` shim result above is superseded. A real K1OM libffi
+backend now replaces unsupported XMM/SSE moves with IMCI zmm operations and
+removes the unsupported CET instruction from closure trampolines. Standalone
+calls and closures pass, as do packaged Python `ctypes.CDLL` calls and
+`CFUNCTYPE` callbacks. See
+`docs/ubuntu-port/k1om-libffi-ctypes-report.md`.
 
 K1OM ncurses headers and static libraries now work for static `_curses` and
 `_curses_panel` imports. The build-system trap was `Modules/makesetup` treating
 `-DHAVE_TERM_H=1` as a Makefile variable assignment; using `-DHAVE_TERM_H`
 without `=1`, plus a private `ncurses.h` include shim to the K1OM `curses.h`,
-produced a working package-smoked build. Terminal initialization and richer
-curses behavior still need runtime validation.
+produced a working package-smoked build. Adding `ncurses-base-k1om` with the
+`linux` terminfo entry allowed `curses.setupterm(term="linux")`,
+`curses.tigetnum("cols")`, and `curses.tigetnum("lines")` to pass in the
+Python 3.12 package smoke.
 
 ## Meaning
 
-The modern Python lane now has a rollback-verified, package-built CPython 3.12
-runtime on `mic0` with compression, readline, sqlite, and curses import support.
-The remaining work is normal Python-port expansion: OpenSSL/TLS, ctypes/libffi,
-fuller terminal behavior validation, and eventually a cleaner K1OM
-SOABI/dynamic-extension story.
+The modern Python lane now has a package-built CPython 3.12 runtime on `mic0`
+with compression, readline, sqlite, curses, OpenSSL/TLS, and complete
+libffi-backed ctypes call/callback support. Both `python3` and `python` select
+3.12.13 in the active profile. Remaining Python work is packaging polish,
+dynamic-extension naming, tests, and broader module coverage rather than a
+known core runtime blocker.

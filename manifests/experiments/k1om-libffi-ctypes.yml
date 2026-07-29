@@ -1,0 +1,53 @@
+id: k1om-libffi-ctypes
+title: K1OM libffi and CPython 3.12 ctypes acceptance
+status: passed
+date_utc: 2026-07-29
+hardware:
+  card: Intel Xeon Phi 5110P
+  target: mic0
+  host: CentOS 7.4-era MPSS 3.4.10
+source:
+  package: Ubuntu Noble libffi 3.4.6-1build1
+  source_version: 3.4.6
+toolchain:
+  prefix: k1om-mpss-linux-
+  elf_machine: 181
+tracked_inputs:
+  - ubuntu-port/k1om/patches/libffi-3.4.6-k1om.patch
+  - tools/ubuntu-port/build-libffi-k1om.sh
+  - tests/k1om/ffi-k1om-smoke.c
+private_runs:
+  reproducible_libffi: /root/xeon-phi-revival-local/ubuntu-port-runs/libffi-k1om-repro-20260729-185225
+  python_ctypes: /root/xeon-phi-revival-local/ubuntu-port-runs/python312-ctypes-libffi-k1om-20260729-183720
+  package_profile: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-185939
+hashes:
+  ffi_smoke: 32e8e36c4809600324943e75318924f2d58c82fe6b7e26c563a10738cf9138ba
+  libffi8_package: 6f4ab780bfbabd19aa7668cc1db0718f4b8254907abe2c827ce04f887ac596ae
+  python312_minimal_package: 60916cf026f4bbcfbcdaf4a8cdcb0d4bbc5402596168831c63f4d18b068c996f
+  python312_smoke_package: e1e3e6e31adfaef4ff2e67572483d58f8035516879b517012460de0c72bc2d0f
+  xpr_shell_compat_package: 4b5de1d5492fd73b2113383d57fbcc2cbd8e26a9c218e504df47fe405a9f36e1
+standalone_result:
+  sum8: 36
+  double: 3.75
+  float: 3.75
+  strlen: 11
+  aggregate: "20,10"
+  closure: 16
+python_result:
+  version: 3.12.13
+  ordinary_calls: passed
+  callback: passed
+  package_smoke: "ctypes_ptr=8; ctypes_strlen=3; ctypes_callback=42"
+  generic_commands: "python3=3.12.13; python=3.12.13"
+package_result:
+  package_count: 36
+  deterministic: passed
+  archive_audit: passed
+  simulated_install: passed
+  live_boot: passed
+  project_pid1_marker: passed
+  ssh: passed
+active_state:
+  profile_left_online: true
+  rollback_script: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-185939/rollback-stock.sh
+next_dependency: Replace bootstrap dpkg/APT shims and resolve Ubuntu libc versus stock MPSS kernel compatibility.

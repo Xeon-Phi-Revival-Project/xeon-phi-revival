@@ -1,0 +1,307 @@
+--- a/src/x86/ffi64.c
++++ b/src/x86/ffi64.c
+@@ -392,7 +392,7 @@
+ 
+ /* Perform machine dependent cif processing.  */
+ 
+-#ifndef __ILP32__
++#if !defined(__ILP32__) && !defined(__k1om__)
+ extern ffi_status
+ ffi_prep_cif_machdep_efi64(ffi_cif *cif);
+ #endif
+@@ -406,7 +406,7 @@
+   size_t bytes, n, rtype_size;
+   ffi_type *rtype;
+ 
+-#ifndef __ILP32__
++#if !defined(__ILP32__) && !defined(__k1om__)
+   if (cif->abi == FFI_EFI64 || cif->abi == FFI_GNUW64)
+     return ffi_prep_cif_machdep_efi64(cif);
+ #endif
+@@ -674,7 +674,7 @@
+ 		   flags, rvalue, fn);
+ }
+ 
+-#ifndef __ILP32__
++#if !defined(__ILP32__) && !defined(__k1om__)
+ extern void
+ ffi_call_efi64(ffi_cif *cif, void (*fn)(void), void *rvalue, void **avalue);
+ #endif
+@@ -700,7 +700,7 @@
+         }
+     }
+ 
+-#ifndef __ILP32__
++#if !defined(__ILP32__) && !defined(__k1om__)
+   if (cif->abi == FFI_EFI64 || cif->abi == FFI_GNUW64)
+     {
+       ffi_call_efi64(cif, fn, rvalue, avalue);
+@@ -712,7 +712,7 @@
+ 
+ #ifdef FFI_GO_CLOSURES
+ 
+-#ifndef __ILP32__
++#if !defined(__ILP32__) && !defined(__k1om__)
+ extern void
+ ffi_call_go_efi64(ffi_cif *cif, void (*fn)(void), void *rvalue,
+ 		  void **avalue, void *closure);
+@@ -722,7 +722,7 @@
+ ffi_call_go (ffi_cif *cif, void (*fn)(void), void *rvalue,
+ 	     void **avalue, void *closure)
+ {
+-#ifndef __ILP32__
++#if !defined(__ILP32__) && !defined(__k1om__)
+   if (cif->abi == FFI_EFI64 || cif->abi == FFI_GNUW64)
+     {
+       ffi_call_go_efi64(cif, fn, rvalue, avalue, closure);
+@@ -741,7 +741,7 @@
+ extern void ffi_closure_unix64_sse_alt(void) FFI_HIDDEN;
+ #endif
+ 
+-#ifndef __ILP32__
++#if !defined(__ILP32__) && !defined(__k1om__)
+ extern ffi_status
+ ffi_prep_closure_loc_efi64(ffi_closure* closure,
+ 			   ffi_cif* cif,
+@@ -758,8 +758,8 @@
+ 		      void *codeloc)
+ {
+   static const unsigned char trampoline[24] = {
+-    /* endbr64 */
+-    0xf3, 0x0f, 0x1e, 0xfa,
++    /* K1OM has no CET ENDBR64; preserve the four-byte layout with NOPs. */
++    0x90, 0x90, 0x90, 0x90,
+     /* leaq  -0xb(%rip),%r10   # 0x0  */
+     0x4c, 0x8d, 0x15, 0xf5, 0xff, 0xff, 0xff,
+     /* jmpq  *0x7(%rip)        # 0x18 */
+@@ -770,7 +770,7 @@
+   void (*dest)(void);
+   char *tramp = closure->tramp;
+ 
+-#ifndef __ILP32__
++#if !defined(__ILP32__) && !defined(__k1om__)
+   if (cif->abi == FFI_EFI64 || cif->abi == FFI_GNUW64)
+     return ffi_prep_closure_loc_efi64(closure, cif, fun, user_data, codeloc);
+ #endif
+@@ -907,7 +907,7 @@
+ extern void ffi_go_closure_unix64(void) FFI_HIDDEN;
+ extern void ffi_go_closure_unix64_sse(void) FFI_HIDDEN;
+ 
+-#ifndef __ILP32__
++#if !defined(__ILP32__) && !defined(__k1om__)
+ extern ffi_status
+ ffi_prep_go_closure_efi64(ffi_go_closure* closure, ffi_cif* cif,
+ 			  void (*fun)(ffi_cif*, void*, void**, void*));
+@@ -917,7 +917,7 @@
+ ffi_prep_go_closure (ffi_go_closure* closure, ffi_cif* cif,
+ 		     void (*fun)(ffi_cif*, void*, void**, void*))
+ {
+-#ifndef __ILP32__
++#if !defined(__ILP32__) && !defined(__k1om__)
+   if (cif->abi == FFI_EFI64 || cif->abi == FFI_GNUW64)
+     return ffi_prep_go_closure_efi64(closure, cif, fun);
+ #endif
+--- a/src/x86/unix64.S
++++ b/src/x86/unix64.S
+@@ -39,7 +39,10 @@
+    actual table.  The entry points into the table are all 8 bytes.
+    The use of ORG asserts that we're at the correct location.  */
+ /* ??? The clang assembler doesn't handle .org with symbolic expressions.  */
+-#ifdef __CET__
++#if defined(__k1om__)
++/* K1OM scalar vector moves need more than the x86-64 8-byte slots.  */
++# define E(BASE, X)	.balign 8; .org BASE + X * 32
++#elif defined(__CET__)
+ /* Double slot size to 16 byte to add 4 bytes of ENDBR64.  */
+ # define E(BASE, X)	.balign 8; .org BASE + X * 16
+ #elif defined(__clang__) || defined(__APPLE__) || (defined (__sun__) && defined(__svr4__))
+@@ -119,7 +122,10 @@
+ 	movzbl	%cl, %r10d
+ 	leaq	L(store_table)(%rip), %r11
+ 	ja	L(sa)
+-#ifdef __CET__
++	#ifdef __k1om__
++	/* K1OM uses 32-byte entries in the return dispatch table.  */
++	shll	$2, %r10d
++	#elif defined(__CET__)
+ 	/* NB: Originally, each slot is 8 byte.  4 bytes of ENDBR64 +
+ 	   4 bytes NOP padding double slot size to 16 bytes.  */
+ 	addl	%r10d, %r10d
+@@ -171,11 +177,15 @@
+ 	ret
+ E(L(store_table), UNIX64_RET_XMM32)
+ 	_CET_ENDBR
+-	movd	%xmm0, (%rdi)
++	movl	$1, %r10d
++	kmov	%r10d, %k1
++	vpackstorelps	%zmm0, (%rdi){%k1}
+ 	ret
+ E(L(store_table), UNIX64_RET_XMM64)
+ 	_CET_ENDBR
+-	movq	%xmm0, (%rdi)
++	movl	$1, %r10d
++	kmov	%r10d, %k1
++	vpackstorelpd	%zmm0, (%rdi){%k1}
+ 	ret
+ E(L(store_table), UNIX64_RET_X87)
+ 	_CET_ENDBR
+@@ -192,11 +202,15 @@
+ 	jmp	L(s3)
+ E(L(store_table), UNIX64_RET_ST_RAX_XMM0)
+ 	_CET_ENDBR
+-	movq	%xmm0, 8(%rsi)
++	movl	$1, %r10d
++	kmov	%r10d, %k1
++	vpackstorelq	%zmm0, 8(%rsi){%k1}
+ 	jmp	L(s2)
+ E(L(store_table), UNIX64_RET_ST_XMM0_XMM1)
+ 	_CET_ENDBR
+-	movq	%xmm1, 8(%rsi)
++	movl	$1, %r10d
++	kmov	%r10d, %k1
++	vpackstorelq	%zmm1, 8(%rsi){%k1}
+ 	jmp	L(s3)
+ E(L(store_table), UNIX64_RET_ST_RAX_RDX)
+ 	_CET_ENDBR
+@@ -208,7 +222,9 @@
+ 	ret
+ 	.balign 8
+ L(s3):
+-	movq	%xmm0, (%rsi)
++	movl	$1, %r10d
++	kmov	%r10d, %k1
++	vpackstorelq	%zmm0, (%rsi){%k1}
+ 	shrl	$UNIX64_SIZE_SHIFT, %ecx
+ 	rep movsb
+ 	ret
+@@ -222,14 +238,14 @@
+ L(UW3):
+ 	/* cfi_restore_state */
+ L(load_sse):
+-	movdqa	0x30(%r10), %xmm0
+-	movdqa	0x40(%r10), %xmm1
+-	movdqa	0x50(%r10), %xmm2
+-	movdqa	0x60(%r10), %xmm3
+-	movdqa	0x70(%r10), %xmm4
+-	movdqa	0x80(%r10), %xmm5
+-	movdqa	0x90(%r10), %xmm6
+-	movdqa	0xa0(%r10), %xmm7
++	vpbroadcastq	0x30(%r10), %zmm0
++	vpbroadcastq	0x40(%r10), %zmm1
++	vpbroadcastq	0x50(%r10), %zmm2
++	vpbroadcastq	0x60(%r10), %zmm3
++	vpbroadcastq	0x70(%r10), %zmm4
++	vpbroadcastq	0x80(%r10), %zmm5
++	vpbroadcastq	0x90(%r10), %zmm6
++	vpbroadcastq	0xa0(%r10), %zmm7
+ 	jmp	L(ret_from_load_sse)
+ 
+ L(UW4):
+@@ -256,14 +272,16 @@
+ L(UW6):
+ 	/* cfi_adjust_cfa_offset(ffi_closure_FS) */
+ 
+-	movdqa	%xmm0, ffi_closure_OFS_V+0x00(%rsp)
+-	movdqa	%xmm1, ffi_closure_OFS_V+0x10(%rsp)
+-	movdqa	%xmm2, ffi_closure_OFS_V+0x20(%rsp)
+-	movdqa	%xmm3, ffi_closure_OFS_V+0x30(%rsp)
+-	movdqa	%xmm4, ffi_closure_OFS_V+0x40(%rsp)
+-	movdqa	%xmm5, ffi_closure_OFS_V+0x50(%rsp)
+-	movdqa	%xmm6, ffi_closure_OFS_V+0x60(%rsp)
+-	movdqa	%xmm7, ffi_closure_OFS_V+0x70(%rsp)
++	movl	$1, %r11d
++	kmov	%r11d, %k1
++	vpackstorelq	%zmm0, ffi_closure_OFS_V+0x00(%rsp){%k1}
++	vpackstorelq	%zmm1, ffi_closure_OFS_V+0x10(%rsp){%k1}
++	vpackstorelq	%zmm2, ffi_closure_OFS_V+0x20(%rsp){%k1}
++	vpackstorelq	%zmm3, ffi_closure_OFS_V+0x30(%rsp){%k1}
++	vpackstorelq	%zmm4, ffi_closure_OFS_V+0x40(%rsp){%k1}
++	vpackstorelq	%zmm5, ffi_closure_OFS_V+0x50(%rsp){%k1}
++	vpackstorelq	%zmm6, ffi_closure_OFS_V+0x60(%rsp){%k1}
++	vpackstorelq	%zmm7, ffi_closure_OFS_V+0x70(%rsp){%k1}
+ 	jmp	L(sse_entry1)
+ 
+ L(UW7):
+@@ -312,7 +330,10 @@
+ 	movzbl	%al, %r10d
+ 	leaq	L(load_table)(%rip), %r11
+ 	ja	L(la)
+-#ifdef __CET__
++	#ifdef __k1om__
++	/* K1OM uses 32-byte entries in the return dispatch table.  */
++	shll	$2, %r10d
++	#elif defined(__CET__)
+ 	/* NB: Originally, each slot is 8 byte.  4 bytes of ENDBR64 +
+ 	   4 bytes NOP padding double slot size to 16 bytes.  */
+ 	addl	%r10d, %r10d
+@@ -356,11 +377,11 @@
+ 	ret
+ E(L(load_table), UNIX64_RET_XMM32)
+ 	_CET_ENDBR
+-	movd	(%rsi), %xmm0
++	vbroadcastss	(%rsi), %zmm0
+ 	ret
+ E(L(load_table), UNIX64_RET_XMM64)
+ 	_CET_ENDBR
+-	movq	(%rsi), %xmm0
++	vbroadcastsd	(%rsi), %zmm0
+ 	ret
+ E(L(load_table), UNIX64_RET_X87)
+ 	_CET_ENDBR
+@@ -377,11 +398,11 @@
+ 	jmp	L(l3)
+ E(L(load_table), UNIX64_RET_ST_RAX_XMM0)
+ 	_CET_ENDBR
+-	movq	8(%rsi), %xmm0
++	vpbroadcastq	8(%rsi), %zmm0
+ 	jmp	L(l2)
+ E(L(load_table), UNIX64_RET_ST_XMM0_XMM1)
+ 	_CET_ENDBR
+-	movq	8(%rsi), %xmm1
++	vpbroadcastq	8(%rsi), %zmm1
+ 	jmp	L(l3)
+ E(L(load_table), UNIX64_RET_ST_RAX_RDX)
+ 	_CET_ENDBR
+@@ -391,7 +412,7 @@
+ 	ret
+ 	.balign 8
+ L(l3):
+-	movq	(%rsi), %xmm0
++	vpbroadcastq	(%rsi), %zmm0
+ 	ret
+ 
+ L(la):	call	PLT(C(abort))
+@@ -410,14 +431,16 @@
+ L(UW13):
+ 	/* cfi_adjust_cfa_offset(ffi_closure_FS) */
+ 
+-	movdqa	%xmm0, ffi_closure_OFS_V+0x00(%rsp)
+-	movdqa	%xmm1, ffi_closure_OFS_V+0x10(%rsp)
+-	movdqa	%xmm2, ffi_closure_OFS_V+0x20(%rsp)
+-	movdqa	%xmm3, ffi_closure_OFS_V+0x30(%rsp)
+-	movdqa	%xmm4, ffi_closure_OFS_V+0x40(%rsp)
+-	movdqa	%xmm5, ffi_closure_OFS_V+0x50(%rsp)
+-	movdqa	%xmm6, ffi_closure_OFS_V+0x60(%rsp)
+-	movdqa	%xmm7, ffi_closure_OFS_V+0x70(%rsp)
++	movl	$1, %r11d
++	kmov	%r11d, %k1
++	vpackstorelq	%zmm0, ffi_closure_OFS_V+0x00(%rsp){%k1}
++	vpackstorelq	%zmm1, ffi_closure_OFS_V+0x10(%rsp){%k1}
++	vpackstorelq	%zmm2, ffi_closure_OFS_V+0x20(%rsp){%k1}
++	vpackstorelq	%zmm3, ffi_closure_OFS_V+0x30(%rsp){%k1}
++	vpackstorelq	%zmm4, ffi_closure_OFS_V+0x40(%rsp){%k1}
++	vpackstorelq	%zmm5, ffi_closure_OFS_V+0x50(%rsp){%k1}
++	vpackstorelq	%zmm6, ffi_closure_OFS_V+0x60(%rsp){%k1}
++	vpackstorelq	%zmm7, ffi_closure_OFS_V+0x70(%rsp){%k1}
+ 	jmp	L(sse_entry2)
+ 
+ L(UW14):
+@@ -564,7 +587,7 @@
+ #endif
+ 
+ /* Simplify advancing between labels.  Assume DW_CFA_advance_loc1 fits.  */
+-#ifdef __CET__
++#if defined(__k1om__) || defined(__CET__)
+ /* Use DW_CFA_advance_loc2 when IBT is enabled.  */
+ # define ADV(N, P)	.byte 3; .2byte L(N)-L(P)
+ #else

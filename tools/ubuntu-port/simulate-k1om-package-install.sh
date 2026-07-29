@@ -115,9 +115,11 @@ for required in \
   "$rootfs/opt/xeon-phi-revival/bin/pcietool" \
   "$rootfs/usr/bin/pcietool" \
   "$rootfs/usr/bin/dpkg" \
+  "$rootfs/usr/bin/dpkg-deb" \
   "$rootfs/usr/bin/apt-get" \
   "$rootfs/usr/bin/apt-cache" \
   "$rootfs/opt/xeon-phi-revival/bin/dpkg" \
+  "$rootfs/opt/xeon-phi-revival/bin/dpkg-deb" \
   "$rootfs/opt/xeon-phi-revival/bin/apt-get" \
   "$rootfs/opt/xeon-phi-revival/bin/apt-cache" \
   "$rootfs/etc/apt/sources.list" \
@@ -132,6 +134,8 @@ for required in \
   "$rootfs/opt/xeon-phi-revival/lib64/librt.so.1" \
   "$rootfs/opt/xeon-phi-revival/lib64/libutil.so.1" \
   "$rootfs/opt/xeon-phi-revival/bin/libc-stack-smoke.sh" \
+  "$rootfs/usr/share/terminfo/l/linux" \
+  "$rootfs/etc/terminfo/l/linux" \
   "$rootfs/opt/xeon-phi-revival/bin/zlib-smoke" \
   "$rootfs/opt/xeon-phi-revival/bin/ncurses-smoke" \
   "$rootfs/opt/xeon-phi-revival/lib64/libtinfo.so.5" \
@@ -162,6 +166,8 @@ for required in \
   "$info_dir/librt1-k1om.md5sums" \
   "$info_dir/libutil1-k1om.md5sums" \
   "$info_dir/libc-stack-smoke-k1om.md5sums" \
+  "$info_dir/ncurses-base-k1om.conffiles" \
+  "$info_dir/ncurses-base-k1om.md5sums" \
   "$info_dir/zlib-smoke-k1om.md5sums" \
   "$info_dir/libtinfo5-k1om.md5sums" \
   "$info_dir/ncurses-smoke-k1om.md5sums" \
@@ -220,7 +226,7 @@ rootfs=$rootfs
 dpkg_status=$status_file
 package_count=${#installed[@]}
 info_dir=$info_dir
-checks=dependency_order,extract_payloads,dpkg_status,package_file_lists,package_md5sums,package_conffiles,required_bootstrap_paths
+checks=dependency_order,extract_payloads,dpkg_status,package_file_lists,package_md5sums,package_conffiles,required_bootstrap_paths,dpkg_deb_entrypoint
 EOF
 
 echo "install_simulation_summary=$summary_file"

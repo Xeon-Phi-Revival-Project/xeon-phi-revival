@@ -83,6 +83,7 @@ pdf_path.txt
 xeon_phi_f2_research_summary.md
 
 # Temporary/editor/system files
+tmp/
 .vscode/
 .idea/
 __pycache__/

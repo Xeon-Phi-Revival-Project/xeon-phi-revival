@@ -238,6 +238,50 @@ image.
   core modules. Stock rollback was verified afterward with
   `python312_absent`, `python312_bin_absent`, `python312_smoke_absent`,
   `dpkg_status_absent`, `apt_get_absent`, `dpkg_absent`, and stock `init`.
+- The latest package-set run expanded to thirty-five packages by adding
+  `ncurses-base-k1om`, a tiny terminfo package carrying the `linux` terminal
+  entry needed by `curses.setupterm()`. The live run
+  `k1om-bootstrap-package-set-20260729-174525` verified deterministic package
+  hashes, archive audit, simulated install, `package_count=35`,
+  `/usr/bin/python3.12`, `/usr/bin/dpkg-deb`, `dpkg_audit_rc=0`,
+  `apt-cache pkgnames`, `apt-cache depends`, `apt-cache search`,
+  `apt-get download`, direct packaged smoke `python312_direct_rc=0`,
+  second-stage service `python312_rc=0`, and
+  `apt-get install --reinstall python3.12-smoke-k1om` with
+  `apt_python312_install_rc=0`. The Python 3.12 smoke now proves
+  OpenSSL-backed modules and terminfo-backed curses behavior on `mic0`:
+  `ssl=OpenSSL 3.0.13 30 Jan 2024`,
+  `hashlib_openssl=2d711642`, `curses=2.2`, `curses_panel=True`,
+  `curses_cols=80`, and `curses_lines=24`/`25`. `_ctypes` is intentionally
+  skipped in the passing package smoke because the minimal private libffi
+  shim can import `_ctypes` and report `ctypes.sizeof(ctypes.c_void_p) == 8`,
+  but any `ctypes.CDLL` function call still segfaults. A standalone K1OM C
+  harness can call `getpid()` through the same shim, so the remaining blocker
+  is the `_ctypes`/libffi call integration rather than OpenSSL, curses, or
+  Python import support.
+- The next live run expanded to thirty-six packages with `libffi8-k1om` and
+  completed the Python 3.12 FFI lane. The clean rebuild
+  `libffi-k1om-repro-20260729-185225` produced K1OM static/shared libffi
+  libraries. Its on-card acceptance test passed eight integer arguments,
+  float, double, pointer, aggregate return, and closure callback cases. The
+  package run `k1om-bootstrap-package-set-20260729-185939` passed deterministic
+  builds, archive audit, simulated install, PID 1 handoff, SSH, and all
+  existing smokes with `package_count=36`. Python reported
+  `ctypes_ptr=8`, `ctypes_strlen=3`, and `ctypes_callback=42`. A deterministic
+  `xpr-shell-compat` correction then made both `python3` and `python` select
+  Python 3.12.13; a final live check passed `ctypes_strlen=11` and callback
+  result `511`. The corrected profile remains online for inspection, with
+  rollback at
+  `/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-185939/rollback-stock.sh`.
+- A minimal Ubuntu-shaped K1OM rootfs builder and validator now pass in a
+  private toolcheck run:
+  `k1om-minimal-rootfs-toolcheck-20260729-174425`. The generated rootfs has
+  Ubuntu identity files, local `k1om` APT sources, `/var/lib/dpkg/status`,
+  root-level `/bin`, `/usr/bin`, `/lib64`, `/etc`, `/dev`, `/proc`, `/sys`,
+  and `/tmp` layout, `python3 -> python3.12`, package-manager entrypoints, and
+  required device nodes. Validation confirmed symlink integrity and every
+  detected ELF as K1OM machine `181`. The rootfs output remains private because
+  it can contain locally supplied MPSS runtime files and K1OM binaries.
 - CPython 3.12.13 now has a rollback-verified expanded runtime smoke on
   `mic0`. The K1OM cross build still requires `--disable-ipv6`, `-std=gnu1x`
   instead of `-std=c11`, `static_assert` and `_Alignof` compatibility shims,
@@ -253,7 +297,7 @@ image.
   `curses_panel=True`. This work is still a bootstrap distribution rather than
   an official Ubuntu Python build.
 - The latest rollback-verified package-set run completed at
-  `/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-053340`.
+  `/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-174525`.
   Stock rollback succeeded afterward: SSH worked, the project profile,
   `/var/lib/dpkg/status`, and the Python 3.12 staging paths were absent, and
   PID 1 was stock `init`.
@@ -286,6 +330,7 @@ image.
 - `docs/ubuntu-port/k1om-bootstrap-package-report.md`
 - `docs/ubuntu-port/k1om-bootstrap-package-set-report.md`
 - `docs/ubuntu-port/k1om-apt-sandbox-report.md`
+- `docs/ubuntu-port/k1om-libffi-ctypes-report.md`
 - `docs/toolchain/minimum-k1om-runtime.md`
 - `docs/toolchain/k1om-package-requirements.md`
 - `docs/toolchain/mpss-sdk-k1om-3.4.10-preinstall-report.md`
@@ -298,6 +343,7 @@ image.
 - `tools/ubuntu-port/check-k1om-package-determinism.sh`
 - `tools/ubuntu-port/audit-k1om-package-set.sh`
 - `tools/ubuntu-port/simulate-k1om-package-install.sh`
+- `tools/ubuntu-port/build-libffi-k1om.sh`
 - `manifests/experiments/native-runs/20260727-212630-start-exit42.yml`
 - `manifests/experiments/native-runs/20260727-212700-hello-libc.yml`
 - `manifests/experiments/native-runs/20260727-212720-hello-libc.yml`
@@ -317,9 +363,10 @@ image.
 
 ## Safest Next Technical Action
 
-Finish the remaining Python 3.12 optional-module dependencies in the K1OM
-package lane: OpenSSL 3.x headers/libraries for `_ssl` and OpenSSL-backed
-`_hashlib`, plus libffi for `_ctypes`. `_bz2`, `_lzma`, `readline`, `_sqlite3`,
-`_curses`, and `_curses_panel` now pass inside the packaged Python 3.12 smoke;
-fuller curses terminal behavior still needs runtime validation. Continue
-avoiding committed proprietary or uncertain-redistribution payloads.
+Replace the project dpkg/APT compatibility layer with builds of Ubuntu Noble
+`dpkg` and APT, beginning with host-only cross-build probes and explicit
+dependency reports. In parallel, determine whether an Ubuntu-era glibc can
+retain compatibility with the MPSS 2.6.38 kernel or whether the kernel lane
+must move first. Python 3.12, including libffi-backed `_ctypes`, is no longer
+the blocker. Continue avoiding committed proprietary or
+uncertain-redistribution payloads.

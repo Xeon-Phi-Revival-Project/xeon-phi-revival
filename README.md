@@ -25,6 +25,8 @@ actual Xeon Phi system before being treated as project facts.
   [K1OM Ubuntu Port Lab](ubuntu-port/k1om/README.md)
 - Latest package-set report:
   [K1OM Bootstrap Package Set](docs/ubuntu-port/k1om-bootstrap-package-set-report.md)
+- K1OM libffi/Python ctypes result:
+  [K1OM libffi and CPython ctypes](docs/ubuntu-port/k1om-libffi-ctypes-report.md)
 - Toolchain package notes:
   [MPSS SDK K1OM preinstall report](docs/toolchain/mpss-sdk-k1om-3.4.10-preinstall-report.md)
 
@@ -74,7 +76,7 @@ Ubuntu-style package experiments:
   `Release` checksum metadata.
 - Host-side APT can parse the local archive when forced to
   `APT::Architecture=k1om`.
-- The current thirty-four-package bootstrap set boots on `mic0`, runs
+- The current thirty-six-package bootstrap set boots on `mic0`, runs
   `hello-knc`, CPython core, zlib smoke, ncurses smoke through a separately
   packaged `libtinfo5-k1om` runtime, basic filesystem/OS smoke, exposes
   dpkg-style package status, provides project `dpkg`/`apt-get`/`apt-cache`
@@ -82,14 +84,15 @@ Ubuntu-style package experiments:
   command wrappers, exposes common BusyBox-backed command entrypoints, includes
   a small `pcietool` sysfs helper, packages a project-owned libc runtime stack
   and split zlib/ncurses/readline/OpenSSL-1.0 runtime libraries under
-  `/opt/xeon-phi-revival/lib64`, includes packaged CPython 3.12.13 runtime
-  packages, and rolls back to stock uOS.
+  `/opt/xeon-phi-revival/lib64`, includes packaged CPython 3.12.13 and
+  `libffi8-k1om`, includes OpenSSL-backed `_ssl`/`_hashlib`, and provides
+  working Python `_ctypes` calls and callbacks.
 - CPython 3.12.13 now runs on `mic0` as local `Architecture: k1om` packages:
   `python3.12-minimal-k1om`, `python3.12-stdlib-k1om`,
   `python3.12-sysconfig-k1om`, and `python3.12-smoke-k1om`. The packaged
   smoke covers zlib, hashes, XML, pickle, CSV, asyncio import, sysconfig,
   threading, decimal, socket, `bz2`, `lzma`, `readline`, `sqlite3`, `curses`,
-  `curses.panel`, and more.
+  `curses.panel`, `_ctypes` foreign calls, `_ctypes` callbacks, and more.
 
 See `docs/status.md` and `docs/ubuntu-port/` for the latest public-safe
 reports.
@@ -135,7 +138,7 @@ move should be collecting evidence, not guessing with firmware.
 
 ## Current Experimental Profile
 
-The latest local profile is a thirty-four-package `Architecture: k1om` set. It is
+The latest local profile is a thirty-six-package `Architecture: k1om` set. It is
 not a full Ubuntu port yet, but it behaves more like a small Linux userland:
 
 ```text
@@ -146,6 +149,7 @@ hello-knc-smoke
 libc6-k1om
 libc-stack-smoke-k1om
 libdl2-k1om
+libffi8-k1om
 libgcc1-k1om
 libm6-k1om
 libcrypto1.0.0-k1om
@@ -156,11 +160,16 @@ librt1-k1om
 libssl1.0.0-k1om
 libutil1-k1om
 libtinfo5-k1om
+ncurses-base-k1om
 ncurses-smoke-k1om
 python3.5-minimal-k1om
 python3.5-stdlib-k1om
 python3.5-lib-dynload-k1om
 python3.5-smoke-k1om
+python3.12-minimal-k1om
+python3.12-stdlib-k1om
+python3.12-sysconfig-k1om
+python3.12-smoke-k1om
 xpr-shell-compat
 xpr-busybox-compat
 xpr-runtime-libs-smoke
@@ -184,6 +193,8 @@ python3
 python
 pcietool
 dpkg
+dpkg-query
+dpkg-deb
 apt-get
 apt-cache
 cat /var/lib/dpkg/status
@@ -210,11 +221,11 @@ bring-up to repeatable native K1OM program execution.
 The active milestone is the true Ubuntu architecture-port lane: keep expanding
 the deterministic `k1om` package set and rootfs layout while preserving APT
 parser checks, package audits, simulated installs, live MicDir boot smoke tests,
-and verified rollback to stock uOS. The current sharp blockers before a more
-complete Ubuntu-style Python/userland are OpenSSL 3.x for `_ssl` and
-OpenSSL-backed `_hashlib`, plus libffi for `_ctypes`. Curses now imports from
-the packaged Python smoke, but fuller terminal behavior still needs runtime
-validation.
+and verified rollback to stock uOS. OpenSSL-backed `_ssl`/`_hashlib`, sqlite3,
+curses, curses.panel, terminfo-backed terminal setup, and full libffi-backed
+Python `_ctypes` calls and callbacks now pass inside packaged Python 3.12.
+The next major distribution boundary is replacing the bootstrap dpkg/APT
+compatibility tools and MPSS-era libc with genuine Ubuntu ports.
 
 ## Independence
 

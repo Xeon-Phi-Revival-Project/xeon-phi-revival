@@ -6,8 +6,9 @@ payload_rootfs="${2:-}"
 out_dir="${3:-}"
 runtime_root="${4:-${K1OM_RUNTIME_ROOT:-}}"
 python312_root="${5:-${K1OM_PYTHON312_ROOT:-}}"
+libffi_root="${6:-${K1OM_LIBFFI_ROOT:-}}"
 if [[ -z "$tools_dir" || -z "$payload_rootfs" || -z "$out_dir" ]]; then
-  echo "usage: $0 TOOLS_DIR PAYLOAD_ROOTFS OUT_DIR [RUNTIME_ROOT] [PYTHON312_ROOT]" >&2
+  echo "usage: $0 TOOLS_DIR PAYLOAD_ROOTFS OUT_DIR [RUNTIME_ROOT] [PYTHON312_ROOT] [LIBFFI_ROOT]" >&2
   exit 2
 fi
 
@@ -22,6 +23,9 @@ if [[ -n "$runtime_root" ]]; then
 fi
 if [[ -n "$python312_root" ]]; then
   build_args+=(--python312-root "$python312_root")
+fi
+if [[ -n "$libffi_root" ]]; then
+  build_args+=(--libffi-root "$libffi_root")
 fi
 SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-1704067200}" bash "$tools_dir/build-k1om-bootstrap-packages.sh" "${build_args[@]}" --out-dir "$first"
 SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-1704067200}" bash "$tools_dir/build-k1om-bootstrap-packages.sh" "${build_args[@]}" --out-dir "$second"

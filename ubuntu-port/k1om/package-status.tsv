@@ -41,6 +41,6 @@ xz-utils	5.6.1+really5.4.5-1ubuntu0.3	python-module-pass	Official Ubuntu source 
 readline	8.2-4build1	python-module-pass	Official Ubuntu source built a K1OM readline static library/header set; packaged Python 3.12 smoke imported readline successfully
 sqlite3	3.45.1-1ubuntu2.7	python-module-pass	Ubuntu source metadata was verified but source generation needs host tclsh; official upstream SQLite 3.45.1 autoconf amalgamation built for K1OM and packaged Python 3.12 smoke passed sqlite3=42:3.45.1
 openssl	3.0.13-0ubuntu3.11	blocked	Official Ubuntu source metadata found; configure currently blocked on CentOS host Perl missing IPC::Cmd, so _ssl and OpenSSL-backed _hashlib are not complete
-libffi	3.4.6-1build1	blocked	Source verified and patched; source requires Autoconf 2.71+ or K1OM-specific build-system work before _ctypes can be completed
+libffi	3.4.6-1build1	live-pass	K1OM call and closure backend passed standalone and packaged CPython 3.12 ctypes smokes on mic0
 cpython	3.5.10	bootstrap-pass	K1OM interpreter runs core Python plus math and zlib in demo rootfs
 cpython	3.12.13	package-pass	Official source cross-build plus K1OM compatibility patches produced ELF64 K1OM Python 3.12.13 packages that passed expanded core/zlib/hash/xml/pickle/csv/asyncio/bz2/lzma/readline/sqlite3/curses smoke on mic0 from the local k1om archive

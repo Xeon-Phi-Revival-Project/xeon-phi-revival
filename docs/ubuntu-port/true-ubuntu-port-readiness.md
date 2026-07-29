@@ -15,7 +15,8 @@ The project now has enough verified ground to begin the real Ubuntu-port lane:
 - Ubuntu-source `zlib` and `ncurses` have been rebuilt/tested for K1OM.
 - CPython 3.5.10 core userland runs on K1OM.
 - A CPython 3.12.13 K1OM runtime now boots and runs on `mic0` as local
-  `Architecture: k1om` packages with an expanded static module set and zlib.
+  `Architecture: k1om` packages with compression, sqlite, curses, OpenSSL,
+  and complete libffi-backed `_ctypes` call/callback support.
 - Project PID 1 handoff works.
 - Project second-stage uOS profile works under stock MPSS init.
 - A project-owned dpkg/APT shim pair runs on-card against the local K1OM
@@ -64,6 +65,7 @@ hello-knc-smoke
 libc6-k1om
 libc-stack-smoke-k1om
 libdl2-k1om
+libffi8-k1om
 libgcc1-k1om
 libm6-k1om
 libcrypto1.0.0-k1om
@@ -155,6 +157,8 @@ dependencies into standalone runtime/library packages and tightened
 package-manager compatibility. The Python 3.12 lane has crossed from build
 probe to packaged runtime profile, and now proves `bz2`, `lzma`, `readline`,
 `sqlite3`, `curses`, and `curses.panel` inside the packaged smoke on `mic0`.
-The next useful step is finishing the remaining Python/userland dependencies:
-OpenSSL 3.x for `_ssl` and OpenSSL-backed `_hashlib`, plus libffi for
-`_ctypes`. Fuller curses terminal behavior still needs runtime validation.
+The Python dependency lane is now complete enough for the bootstrap target:
+OpenSSL-backed `_ssl`/`_hashlib`, sqlite3, curses, terminfo, and libffi-backed
+`_ctypes` calls/callbacks pass on-card. The next useful step is replacing the
+project dpkg/APT shims with real Ubuntu builds and resolving the Ubuntu
+glibc-versus-MPSS-kernel compatibility boundary.

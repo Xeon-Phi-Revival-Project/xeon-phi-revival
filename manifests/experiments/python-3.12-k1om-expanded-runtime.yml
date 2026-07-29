@@ -80,6 +80,7 @@ static_builtin_modules:
   - _blake2
   - zlib
   - syslog
+  - _ctypes
 live_result:
   ssh: passed
   version: "Python 3.12.13"
@@ -90,7 +91,7 @@ live_result:
   sysconfig_soabi: cpython-312-k1om-linux-gnu
   stock_rollback: passed
   package_archive: passed
-  package_count: 34
+  package_count: 36
   apt_reinstall_python312_smoke: passed
 evidence:
   version_marker: "3.12.13 (main, Jul 29 2026, 03:15:12) [GCC 4.7.0 20110509 (experimental)]"
@@ -98,11 +99,15 @@ evidence:
   rc_markers: "pyver_rc=0; pysmoke_rc=0; pyimports_rc=0"
   package_markers: "python312_version_rc=0; python312_direct_rc=0; python312_rc=0; apt_python312_install_rc=0"
   rollback_marker: "stock_ssh_ok; python312_absent; python312_bin_absent; python312_smoke_absent; dpkg_status_absent; init"
-known_gaps:
-  - _ssl and OpenSSL-backed _hashlib need OpenSSL development headers
-  - readline needs readline development headers
-  - sqlite3 needs a K1OM sqlite development package
-  - _ctypes needs a completed K1OM libffi build
-  - bz2 and lzma need their development headers and libraries
-  - _curses needs a CPython makesetup/static build-system fix before retry
-next_dependency: Superseded by k1om-bootstrap-package-set-20260729-053340 for bz2, lzma, readline, sqlite3, curses, and curses.panel. Remaining Python blockers are OpenSSL 3.x for ssl/hashlib and libffi for ctypes.
+completed_optional_modules:
+  - bz2
+  - lzma
+  - readline
+  - sqlite3
+  - curses
+  - curses.panel
+  - ssl
+  - OpenSSL-backed hashlib
+  - ctypes calls
+  - ctypes callbacks
+next_dependency: Python bootstrap completeness passed; continue with real Ubuntu dpkg/APT and libc architecture-port work.

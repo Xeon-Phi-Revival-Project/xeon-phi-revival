@@ -4,7 +4,7 @@ set -euo pipefail
 usage() {
   cat >&2 <<'USAGE'
 usage:
-  build-k1om-bootstrap-packages.sh --payload-rootfs DIR --out-dir DIR [--sysroot DIR] [--runtime-root DIR] [--python312-root DIR] [--version V]
+  build-k1om-bootstrap-packages.sh --payload-rootfs DIR --out-dir DIR [--sysroot DIR] [--runtime-root DIR] [--python312-root DIR] [--libffi-root DIR] [--version V]
 
 Build a small local K1OM bootstrap package set:
   base-files-k1om
@@ -31,7 +31,9 @@ Build a small local K1OM bootstrap package set:
   libreadline6-k1om
   libssl1.0.0-k1om
   libcrypto1.0.0-k1om
+  libffi8-k1om
   xpr-runtime-libs-smoke
+  ncurses-base-k1om
   python3.12-minimal-k1om
   python3.12-stdlib-k1om
   python3.12-sysconfig-k1om
@@ -52,6 +54,7 @@ out_dir=""
 sysroot="${K1OM_SYSROOT:-/opt/mpss/3.4.10/sysroots/k1om-mpss-linux}"
 runtime_root="${K1OM_RUNTIME_ROOT:-}"
 python312_root="${K1OM_PYTHON312_ROOT:-}"
+libffi_root="${K1OM_LIBFFI_ROOT:-}"
 version="0.1.0"
 arch="k1om"
 source_date_epoch="${SOURCE_DATE_EPOCH:-1704067200}"
@@ -63,6 +66,7 @@ while [[ $# -gt 0 ]]; do
     --sysroot) sysroot="${2:-}"; shift 2 ;;
     --runtime-root) runtime_root="${2:-}"; shift 2 ;;
     --python312-root) python312_root="${2:-}"; shift 2 ;;
+    --libffi-root) libffi_root="${2:-}"; shift 2 ;;
     --version) version="${2:-}"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "unknown argument: $1" >&2; usage; exit 2 ;;
@@ -159,6 +163,20 @@ new_data_dir() {
   printf '%s\n' "$dir"
 }
 
+find_terminfo_linux() {
+  local candidate
+  for candidate in \
+    "$payload_rootfs/usr/share/terminfo/l/linux" \
+    "$payload_rootfs/etc/terminfo/l/linux" \
+    "${runtime_root:+$runtime_root/usr/share/terminfo/l/linux}" \
+    "${runtime_root:+$runtime_root/etc/terminfo/l/linux}" \
+    "$sysroot/usr/share/terminfo/l/linux" \
+    "$sysroot/etc/terminfo/l/linux"; do
+    [[ -n "$candidate" && -e "$candidate" ]] && { printf '%s\n' "$candidate"; return 0; }
+  done
+  return 1
+}
+
 copy_lib64() {
   local data_dir="$1"
   shift
@@ -220,20 +238,118 @@ if [[ -n "$python312_root" ]]; then
   python312_required=1
 fi
 
+libffi_required=0
+libffi_shared=""
+if [[ -n "$libffi_root" ]]; then
+  [[ -d "$libffi_root" ]] || { echo "libffi root is not a directory: $libffi_root" >&2; exit 18; }
+  libffi_shared="$(find "$libffi_root" -maxdepth 1 -type f -name 'libffi.so.8.*' | LC_ALL=C sort | head -1)"
+  [[ -n "$libffi_shared" ]] || { echo "libffi.so.8 implementation missing under: $libffi_root" >&2; exit 19; }
+  if ! readelf -h "$libffi_shared" 2>/dev/null | grep -q 'Machine:.*Intel K1OM'; then
+    echo "libffi shared library is not an Intel K1OM ELF: $libffi_shared" >&2
+    exit 20
+  fi
+  libffi_required=1
+fi
+
 base_data="$(new_data_dir base-files-k1om)"
-mkdir -p "$base_data/opt/xeon-phi-revival/bin" "$base_data/opt/xeon-phi-revival/lib" "$base_data/opt/xeon-phi-revival/python" "$base_data/opt/xeon-phi-revival/share" "$base_data/var/log/xeon-phi-revival" "$base_data/etc"
+mkdir -p \
+  "$base_data/opt/xeon-phi-revival/bin" \
+  "$base_data/opt/xeon-phi-revival/lib" \
+  "$base_data/opt/xeon-phi-revival/python" \
+  "$base_data/opt/xeon-phi-revival/share" \
+  "$base_data/var/log/xeon-phi-revival" \
+  "$base_data/etc" \
+  "$base_data/usr/bin"
 cat > "$base_data/opt/xeon-phi-revival/profile.env" <<EOF
 XPR_PROFILE_VERSION=$version
-XPR_PROFILE_KIND=stock-init-handoff-second-stage
+XPR_PROFILE_KIND=ubuntu-24.04-k1om-bootstrap
 XPR_PHASE=bootstrap
 XPR_ROOT=/opt/xeon-phi-revival
 EOF
 cat > "$base_data/etc/xeon-phi-revival-release" <<EOF
-NAME="Xeon Phi Revival Project uOS Profile"
+NAME="Xeon Phi Revival Project Ubuntu K1OM"
 VERSION="$version"
 ARCH="$arch"
 BASE="stock MPSS uOS"
+UBUNTU_SUITE="noble"
+UBUNTU_VERSION="24.04"
+PORT_STATUS="unofficial bootstrap port"
 EOF
+cat > "$base_data/etc/os-release" <<'EOF'
+PRETTY_NAME="Ubuntu 24.04 LTS (Xeon Phi Revival K1OM)"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+VERSION="24.04 LTS (Noble Numbat)"
+VERSION_CODENAME=noble
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://github.com/Xeon-Phi-Revival-Project"
+SUPPORT_URL="https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival"
+BUG_REPORT_URL="https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/issues"
+XPR_ARCH=k1om
+XPR_PORT_STATUS="unofficial bootstrap port"
+EOF
+cat > "$base_data/etc/lsb-release" <<'EOF'
+DISTRIB_ID=Ubuntu
+DISTRIB_RELEASE=24.04
+DISTRIB_CODENAME=noble
+DISTRIB_DESCRIPTION="Ubuntu 24.04 LTS (Xeon Phi Revival K1OM)"
+EOF
+cat > "$base_data/etc/debian_version" <<'EOF'
+trixie/sid
+EOF
+cat > "$base_data/etc/issue" <<'EOF'
+Ubuntu 24.04 LTS (Xeon Phi Revival K1OM) \n \l
+EOF
+cat > "$base_data/etc/motd" <<'EOF'
+Xeon Phi Revival Project
+Unofficial Ubuntu 24.04 K1OM bootstrap port for Knights Corner.
+EOF
+cat > "$base_data/usr/bin/lsb_release" <<'LSBRELEASE'
+#!/bin/sh
+short=0
+field=all
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    -s|--short) short=1 ;;
+    -i|--id) field=id ;;
+    -r|--release) field=release ;;
+    -c|--codename) field=codename ;;
+    -d|--description) field=description ;;
+    -a|--all) field=all ;;
+    -h|--help)
+      echo "Usage: lsb_release [-a] [-s] [-i|-d|-r|-c]"
+      exit 0
+      ;;
+    *) echo "lsb_release: unsupported option: $1" >&2; exit 2 ;;
+  esac
+  shift
+done
+
+emit() {
+  label="$1"
+  value="$2"
+  if [ "$short" -eq 1 ]; then
+    printf '%s\n' "$value"
+  else
+    printf '%s:\t%s\n' "$label" "$value"
+  fi
+}
+
+case "$field" in
+  id) emit "Distributor ID" "Ubuntu" ;;
+  release) emit "Release" "24.04" ;;
+  codename) emit "Codename" "noble" ;;
+  description) emit "Description" "Ubuntu 24.04 LTS (Xeon Phi Revival K1OM)" ;;
+  all)
+    emit "Distributor ID" "Ubuntu"
+    emit "Description" "Ubuntu 24.04 LTS (Xeon Phi Revival K1OM)"
+    emit "Release" "24.04"
+    emit "Codename" "noble"
+    ;;
+esac
+LSBRELEASE
+chmod 0755 "$base_data/usr/bin/lsb_release"
 
 hello_data="$(new_data_dir hello-knc-smoke)"
 mkdir -p "$hello_data/opt/xeon-phi-revival/bin"
@@ -281,8 +397,15 @@ cat > "$shell_compat_data/usr/bin/python3" <<'PYWRAP'
 #!/bin/sh
 XPR_ROOT=/opt/xeon-phi-revival
 export PYTHONHOME="$XPR_ROOT"
-export PYTHONPATH="$XPR_ROOT/lib/python3.5:$XPR_ROOT/lib/python3.5/lib-dynload"
 export LD_LIBRARY_PATH="$XPR_ROOT/lib64:${LD_LIBRARY_PATH:-}"
+if [ -x "$XPR_ROOT/bin/python3.12" ]; then
+  export PYTHONPATH="$XPR_ROOT/lib/python3.12"
+  if [ "${XPR_PYTHON_ENABLE_SITE:-0}" = "1" ]; then
+    exec "$XPR_ROOT/bin/python3.12" "$@"
+  fi
+  exec "$XPR_ROOT/bin/python3.12" -S "$@"
+fi
+export PYTHONPATH="$XPR_ROOT/lib/python3.5:$XPR_ROOT/lib/python3.5/lib-dynload"
 if [ "${XPR_PYTHON_ENABLE_SITE:-0}" = "1" ]; then
   exec "$XPR_ROOT/bin/python3.5" "$@"
 fi
@@ -396,10 +519,37 @@ except Exception as exc:
 try:
     import curses
     import curses.panel
+    os.environ.setdefault("TERM", "linux")
+    curses.setupterm(term=os.environ["TERM"])
     optional_results.append("curses=%s" % getattr(curses, "version", b"unknown").decode("ascii", "replace"))
     optional_results.append("curses_panel=%s" % (curses.panel.__name__ == "curses.panel"))
+    optional_results.append("curses_cols=%s" % curses.tigetnum("cols"))
+    optional_results.append("curses_lines=%s" % curses.tigetnum("lines"))
 except Exception as exc:
     optional_results.append("curses=fail:%s:%s" % (exc.__class__.__name__, exc))
+try:
+    import ssl
+    optional_results.append("ssl=%s" % ssl.OPENSSL_VERSION)
+except Exception as exc:
+    optional_results.append("ssl=fail:%s:%s" % (exc.__class__.__name__, exc))
+try:
+    import _hashlib
+    optional_results.append("hashlib_openssl=%s" % _hashlib.openssl_sha256(b"x").hexdigest()[:8])
+except Exception as exc:
+    optional_results.append("hashlib_openssl=fail:%s:%s" % (exc.__class__.__name__, exc))
+try:
+    import ctypes
+    optional_results.append("ctypes_ptr=%s" % ctypes.sizeof(ctypes.c_void_p))
+    libc = ctypes.CDLL(None)
+    strlen = libc.strlen
+    strlen.argtypes = [ctypes.c_char_p]
+    strlen.restype = ctypes.c_size_t
+    optional_results.append("ctypes_strlen=%s" % strlen(b"phi"))
+    callback_type = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_int, ctypes.c_int)
+    callback = callback_type(lambda left, right: left + right)
+    optional_results.append("ctypes_callback=%s" % callback(19, 23))
+except Exception as exc:
+    optional_results.append("ctypes=fail:%s:%s" % (exc.__class__.__name__, exc))
 for result in optional_results:
     print(result)
 if any("=fail:" in result for result in optional_results):
@@ -477,11 +627,11 @@ STATUS=${DPKG_STATUS:-/var/lib/dpkg/status}
 INFO=${DPKG_INFO:-/var/lib/dpkg/info}
 
 usage() {
-  echo "usage: dpkg [--version|-l|-s PKG|-L PKG|-S PATH|-i DEB...]" >&2
+  echo "usage: dpkg [--version|--print-architecture|--audit|--get-selections|-l|-s PKG|-L PKG|-S PATH|-W [PKG...]|-I DEB|-c DEB|-i DEB...]" >&2
 }
 
 status_has_package() {
-  pkg="$1"
+  local pkg="$1"
   awk -v p="$pkg" '
     $1 == "Package:" && $2 == p { found=1 }
     END { exit found ? 0 : 1 }
@@ -489,12 +639,14 @@ status_has_package() {
 }
 
 dep_name() {
-  printf '%s\n' "$1" | tr -d '\r' | sed 's/^ *//; s/ *$//; s/|.*//; s/ *(.*//; s/ *$//'
+  local dep_text="$1"
+  printf '%s\n' "$dep_text" | tr -d '\r' | sed 's/^ *//; s/ *$//; s/|.*//; s/ *(.*//; s/ *$//'
 }
 
 check_dependencies() {
-  pkg="$1"
-  control="$2"
+  local pkg="$1"
+  local control="$2"
+  local depends old_ifs dep_part dep
   depends="$(printf '%s\n' "$control" | tr -d '\r' | awk -F': ' '$1 == "Depends" { print $2; exit }')"
   [ -n "$depends" ] || return 0
   old_ifs="$IFS"
@@ -513,9 +665,10 @@ check_dependencies() {
 }
 
 check_file_conflicts() {
-  pkg="$1"
-  data_tar="$2"
-  pkg_owner="$(printf '%s\n' "$pkg" | tr -d '\r' | sed 's/^ *//; s/ *$//')"
+  local conflict_pkg="$1"
+  local data_tar="$2"
+  local pkg_owner same_package_list
+  pkg_owner="$(printf '%s\n' "$conflict_pkg" | tr -d '\r' | sed 's/^ *//; s/ *$//')"
   same_package_list="$INFO/$pkg_owner.list"
   tar -tzf "$data_tar" | sed 's#^\./#/#' | grep -v '/$' | while IFS= read -r path; do
     [ -n "$path" ] || continue
@@ -538,7 +691,7 @@ check_file_conflicts() {
 }
 
 print_package_paragraph() {
-  pkg="$1"
+  local pkg="$1"
   awk -v p="$pkg" '
     BEGIN { keep=0; matched=0; buf="" }
     function flush() {
@@ -558,9 +711,9 @@ print_package_paragraph() {
 }
 
 remove_package_paragraph() {
-  pkg="$1"
-  src="$2"
-  dst="$3"
+  local pkg="$1"
+  local src="$2"
+  local dst="$3"
   awk -v p="$pkg" '
     BEGIN { drop=0; buf="" }
     function flush() {
@@ -596,8 +749,109 @@ list_packages() {
   ' "$STATUS" 2>/dev/null
 }
 
+show_packages() {
+  if [ $# -eq 0 ]; then
+    awk '
+      $1 == "Package:" { pkg=$2 }
+      $1 == "Version:" { ver=$2 }
+      $0 == "" && pkg != "" {
+        printf "%s\t%s\n", pkg, ver
+        pkg=ver=""
+      }
+      END {
+        if (pkg != "") printf "%s\t%s\n", pkg, ver
+      }
+    ' "$STATUS" 2>/dev/null
+    return 0
+  fi
+  for query_pkg in "$@"; do
+    print_package_paragraph "$query_pkg" | awk -v p="$query_pkg" '
+      $1 == "Package:" { pkg=$2 }
+      $1 == "Version:" { ver=$2 }
+      END {
+        if (pkg != "") printf "%s\t%s\n", pkg, ver
+        else {
+          printf "dpkg-query: no packages found matching %s\n", p > "/dev/stderr"
+          exit 1
+        }
+      }
+    ' || return 1
+  done
+}
+
+deb_tempdir() {
+  local deb="$1"
+  local tmp="/tmp/xpr-dpkg-info.$$.$(basename "$deb" | sed 's/[^A-Za-z0-9_.-]/_/g')"
+  rm -rf "$tmp"
+  mkdir -p "$tmp"
+  if ! extract_deb_members "$deb" "$tmp"; then
+    rm -rf "$tmp"
+    return 2
+  fi
+  printf '%s\n' "$tmp"
+}
+
+print_deb_info() {
+  local deb="$1"
+  local tmp
+  [ -f "$deb" ] || { echo "dpkg: package file not found: $deb" >&2; return 2; }
+  tmp="$(deb_tempdir "$deb")" || return $?
+  echo " new Debian package, version 2.0."
+  echo " size $(wc -c < "$deb") bytes: control archive=$(wc -c < "$tmp/control.tar.gz") bytes."
+  tar -xOzf "$tmp/control.tar.gz" ./control
+  rm -rf "$tmp"
+}
+
+list_deb_contents() {
+  local deb="$1"
+  local tmp
+  [ -f "$deb" ] || { echo "dpkg: package file not found: $deb" >&2; return 2; }
+  tmp="$(deb_tempdir "$deb")" || return $?
+  tar -tzvf "$tmp/data.tar.gz"
+  rm -rf "$tmp"
+}
+
+extract_deb_payload() {
+  local deb="$1"
+  local dest="$2"
+  local tmp
+  [ -f "$deb" ] || { echo "dpkg-deb: package file not found: $deb" >&2; return 2; }
+  mkdir -p "$dest"
+  tmp="$(deb_tempdir "$deb")" || return $?
+  tar -xzf "$tmp/data.tar.gz" -C "$dest"
+  rm -rf "$tmp"
+}
+
+extract_deb_control() {
+  local deb="$1"
+  local dest="$2"
+  local tmp
+  [ -f "$deb" ] || { echo "dpkg-deb: package file not found: $deb" >&2; return 2; }
+  mkdir -p "$dest"
+  tmp="$(deb_tempdir "$deb")" || return $?
+  tar -xzf "$tmp/control.tar.gz" -C "$dest"
+  rm -rf "$tmp"
+}
+
+print_deb_field() {
+  local deb="$1"
+  local field="${2:-}"
+  local tmp rc
+  [ -f "$deb" ] || { echo "dpkg-deb: package file not found: $deb" >&2; return 2; }
+  tmp="$(deb_tempdir "$deb")" || return $?
+  if [ -n "$field" ]; then
+    tar -xOzf "$tmp/control.tar.gz" ./control | awk -F': ' -v f="$field" '$1 == f { print $2; found=1 } END { exit found ? 0 : 1 }'
+  else
+    tar -xOzf "$tmp/control.tar.gz" ./control
+  fi
+  rc=$?
+  rm -rf "$tmp"
+  return "$rc"
+}
+
 install_deb() {
-  deb="$1"
+  local deb="$1"
+  local tmp control pkg already_installed tmp_status
   [ -f "$deb" ] || { echo "dpkg: package file not found: $deb" >&2; return 2; }
   tmp="/tmp/xpr-dpkg.$$.$(basename "$deb" | sed 's/[^A-Za-z0-9_.-]/_/g')"
   rm -rf "$tmp"
@@ -678,12 +932,70 @@ extract_deb_members() {
 }
 
 cmd="${1:---help}"
+app="${0##*/}"
+if [ "$app" = "dpkg-deb" ]; then
+  case "$cmd" in
+    --version)
+      echo "Debian dpkg-deb bootstrap-compatible project implementation for k1om 0.1.0"
+      ;;
+    -I|--info)
+      [ $# -ge 2 ] || { usage; exit 2; }
+      print_deb_info "$2"
+      ;;
+    -c|--contents)
+      [ $# -ge 2 ] || { usage; exit 2; }
+      list_deb_contents "$2"
+      ;;
+    -f|--field)
+      [ $# -ge 2 ] || { usage; exit 2; }
+      print_deb_field "$2" "${3:-}"
+      ;;
+    -x|--extract)
+      [ $# -ge 3 ] || { usage; exit 2; }
+      extract_deb_payload "$2" "$3"
+      ;;
+    -e|--control)
+      [ $# -ge 3 ] || { usage; exit 2; }
+      extract_deb_control "$2" "$3"
+      ;;
+    --help|-h)
+      usage
+      ;;
+    *)
+      echo "dpkg-deb-k1om: unsupported option: $cmd" >&2
+      usage
+      exit 2
+      ;;
+  esac
+  exit 0
+fi
 case "$cmd" in
   --version)
     echo "Debian dpkg bootstrap-compatible project implementation for k1om 0.1.0"
     ;;
+  --print-architecture)
+    echo "k1om"
+    ;;
+  --audit|-C)
+    if [ ! -s "$STATUS" ]; then
+      echo "dpkg: status database is empty or missing" >&2
+      exit 1
+    fi
+    if awk '$1 == "Package:" { pkg=$2 } $1 == "Status:" && $2 " " $3 " " $4 != "install ok installed" { print pkg ": " $0; bad=1 } END { exit bad ? 1 : 0 }' "$STATUS"; then
+      :
+    else
+      exit 1
+    fi
+    ;;
+  --get-selections)
+    awk '$1 == "Package:" { print $2 "\tinstall" }' "$STATUS" 2>/dev/null
+    ;;
   -l|--list)
     list_packages
+    ;;
+  -W|--show)
+    shift
+    show_packages "$@"
     ;;
   -s|--status)
     [ $# -ge 2 ] || { usage; exit 2; }
@@ -708,6 +1020,14 @@ case "$cmd" in
     done
     exit "$found"
     ;;
+  -I|--info)
+    [ $# -ge 2 ] || { usage; exit 2; }
+    print_deb_info "$2"
+    ;;
+  -c|--contents)
+    [ $# -ge 2 ] || { usage; exit 2; }
+    list_deb_contents "$2"
+    ;;
   -i|--install)
     shift
     [ $# -ge 1 ] || { usage; exit 2; }
@@ -726,7 +1046,11 @@ case "$cmd" in
 esac
 DPKG
 chmod 0755 "$dpkg_data/usr/bin/dpkg"
+ln -s dpkg "$dpkg_data/usr/bin/dpkg-query"
+ln -s dpkg "$dpkg_data/usr/bin/dpkg-deb"
 ln -s ../../../usr/bin/dpkg "$dpkg_data/opt/xeon-phi-revival/bin/dpkg"
+ln -s ../../../usr/bin/dpkg-query "$dpkg_data/opt/xeon-phi-revival/bin/dpkg-query"
+ln -s ../../../usr/bin/dpkg-deb "$dpkg_data/opt/xeon-phi-revival/bin/dpkg-deb"
 
 apt_data="$(new_data_dir apt-k1om)"
 mkdir -p "$apt_data/usr/bin" "$apt_data/opt/xeon-phi-revival/bin" "$apt_data/etc/apt" "$apt_data/var/lib/apt/lists/partial" "$apt_data/var/cache/apt/archives/partial"
@@ -737,13 +1061,14 @@ cat > "$apt_data/usr/bin/apt-cache" <<'APTCACHE'
 #!/bin/sh
 set -u
 LIST_DIR=${APT_LIST_DIR:-/var/lib/apt/lists}
+REPO=${XPR_APT_REPO:-/opt/xeon-phi-revival/repo}
 
 usage() {
-  echo "usage: apt-cache [--version|show PKG|policy PKG]" >&2
+  echo "usage: apt-cache [--version|show PKG|policy PKG|depends PKG|pkgnames [PREFIX]|search TERM]" >&2
 }
 
 packages_files() {
-  for f in "$LIST_DIR"/*Packages /opt/xeon-phi-revival/repo/dists/noble/main/binary-k1om/Packages; do
+  for f in "$LIST_DIR"/*Packages "$REPO/dists/noble/main/binary-k1om/Packages"; do
     [ -f "$f" ] && echo "$f"
   done
 }
@@ -772,6 +1097,42 @@ show_package() {
   return "$found"
 }
 
+package_names() {
+  prefix="${1:-}"
+  for f in $(packages_files); do
+    awk -F': ' '$1 == "Package" { print $2 }' "$f"
+  done | sort -u | awk -v p="$prefix" 'p == "" || index($0, p) == 1'
+}
+
+depends_package() {
+  pkg="$1"
+  if ! show_package "$pkg" >/tmp/xpr-apt-cache-show.$$ 2>/dev/null; then
+    rm -f /tmp/xpr-apt-cache-show.$$
+    return 1
+  fi
+  echo "$pkg"
+  awk -F': ' '$1 == "Depends" { print $2 }' /tmp/xpr-apt-cache-show.$$ | tr ',' '\n' | sed 's/^ */  Depends: /; s/ *(.*//'
+  rm -f /tmp/xpr-apt-cache-show.$$
+}
+
+search_packages() {
+  term="$1"
+  for f in $(packages_files); do
+    awk -v t="$term" '
+      BEGIN { pkg=""; desc="" }
+      $1 == "Package:" { pkg=$2 }
+      $1 == "Description:" { sub(/^Description: /, ""); desc=$0 }
+      $0 == "" {
+        if (pkg != "" && (index(pkg, t) || index(desc, t))) print pkg " - " desc
+        pkg=desc=""
+      }
+      END {
+        if (pkg != "" && (index(pkg, t) || index(desc, t))) print pkg " - " desc
+      }
+    ' "$f"
+  done | sort -u
+}
+
 case "${1:---help}" in
   --version)
     echo "apt-cache bootstrap-compatible project implementation for k1om 0.1.0"
@@ -785,6 +1146,17 @@ case "${1:---help}" in
     echo "$2:"
     echo "  Installed: $(dpkg -s "$2" 2>/dev/null | awk -F': ' '$1 == "Version" { print $2; exit }')"
     echo "  Candidate: $(apt-cache show "$2" 2>/dev/null | awk -F': ' '$1 == "Version" { print $2; exit }')"
+    ;;
+  depends)
+    [ $# -ge 2 ] || { usage; exit 2; }
+    depends_package "$2"
+    ;;
+  pkgnames)
+    package_names "${2:-}"
+    ;;
+  search)
+    [ $# -ge 2 ] || { usage; exit 2; }
+    search_packages "$2"
     ;;
   --help|-h)
     usage
@@ -804,14 +1176,14 @@ REPO=${XPR_APT_REPO:-/opt/xeon-phi-revival/repo}
 LIST_DIR=${APT_LIST_DIR:-/var/lib/apt/lists}
 
 usage() {
-  echo "usage: apt-get [--version|update|install [--reinstall] PKG...]" >&2
+  echo "usage: apt-get [--version|update|download PKG|install [--reinstall] PKG...]" >&2
 }
 
 packages_file="$REPO/dists/noble/main/binary-k1om/Packages"
 list_file="$LIST_DIR/xpr_noble_main_binary-k1om_Packages"
 
 find_filename() {
-  pkg="$1"
+  local pkg="$1"
   awk -v p="$pkg" '
     BEGIN { keep=0 }
     $0 == "" { keep=0 }
@@ -821,7 +1193,7 @@ find_filename() {
 }
 
 depends_for() {
-  pkg="$1"
+  local pkg="$1"
   awk -v p="$pkg" '
     BEGIN { keep=0 }
     $0 == "" { keep=0 }
@@ -835,16 +1207,19 @@ depends_for() {
 }
 
 dep_name() {
-  printf '%s\n' "$1" | tr -d '\r' | sed 's/^ *//; s/ *$//; s/|.*//; s/ *(.*//; s/ *$//'
+  local dep_text="$1"
+  printf '%s\n' "$dep_text" | tr -d '\r' | sed 's/^ *//; s/ *$//; s/|.*//; s/ *(.*//; s/ *$//'
 }
 
 is_installed() {
+  local pkg="$1"
   dpkg -s "$1" >/dev/null 2>&1
 }
 
 install_one() {
-  pkg="$1"
-  mark="/tmp/xpr-apt-installing-$pkg"
+  local pkg="$1"
+  local mark="/tmp/xpr-apt-installing-$pkg"
+  local depends old_ifs dep_part dep filename deb rc
   if is_installed "$pkg" && [ "$reinstall" -eq 0 ]; then
     echo "$pkg is already the newest version."
     return 0
@@ -883,6 +1258,19 @@ case "${1:---help}" in
     mkdir -p "$LIST_DIR/partial"
     cp "$packages_file" "$list_file"
     echo "Reading package lists... Done"
+    ;;
+  download)
+    shift
+    [ $# -ge 1 ] || { usage; exit 2; }
+    [ -f "$packages_file" ] || { echo "apt-get: missing local Packages file: $packages_file" >&2; exit 1; }
+    for pkg in "$@"; do
+      filename="$(find_filename "$pkg")"
+      [ -n "$filename" ] || { echo "E: Unable to locate package $pkg" >&2; exit 1; }
+      deb="$REPO/$filename"
+      [ -f "$deb" ] || { echo "E: Package file missing: $deb" >&2; exit 1; }
+      cp "$deb" "./${deb##*/}"
+      echo "Downloaded ${deb##*/}"
+    done
     ;;
   install)
     shift
@@ -981,7 +1369,14 @@ libncurses5_data=""
 libreadline6_data=""
 libssl100_data=""
 libcrypto100_data=""
+libffi8_data=""
 runtime_libs_smoke_data=""
+ncurses_base_data="$(new_data_dir ncurses-base-k1om)"
+terminfo_linux="$(find_terminfo_linux)" || { echo "required terminfo entry missing: linux" >&2; exit 17; }
+mkdir -p "$ncurses_base_data/usr/share/terminfo/l" "$ncurses_base_data/etc/terminfo/l"
+cp -a "$terminfo_linux" "$ncurses_base_data/usr/share/terminfo/l/linux"
+cp -a "$terminfo_linux" "$ncurses_base_data/etc/terminfo/l/linux"
+
 if [[ "$runtime_required" -eq 1 ]]; then
   zlib1g_data="$(new_data_dir zlib1g-k1om)"
   copy_runtime_lib64 "$zlib1g_data" usr/lib64/libz.so.1 usr/lib64/libz.so.1.2.6
@@ -1027,6 +1422,15 @@ mkdir -p "$LOG_DIR"
 } > "$OUT" 2>&1
 RTLIBSMOKE
   chmod 0755 "$runtime_libs_smoke_data/opt/xeon-phi-revival/bin/runtime-libs-smoke.sh"
+fi
+
+if [[ "$libffi_required" -eq 1 ]]; then
+  libffi8_data="$(new_data_dir libffi8-k1om)"
+  mkdir -p "$libffi8_data/opt/xeon-phi-revival/lib64"
+  libffi_impl="$(basename "$libffi_shared")"
+  cp -a "$libffi_shared" "$libffi8_data/opt/xeon-phi-revival/lib64/$libffi_impl"
+  ln -s "$libffi_impl" "$libffi8_data/opt/xeon-phi-revival/lib64/libffi.so.8"
+  ln -s libffi.so.8 "$libffi8_data/opt/xeon-phi-revival/lib64/libffi.so"
 fi
 
 os_data="$(new_data_dir xpr-os-smoke)"
@@ -1163,20 +1567,26 @@ make_deb libdl2-k1om "$libdl_data" "base-files-k1om, libc6-k1om" "K1OM glibc dyn
 make_deb librt1-k1om "$librt_data" "base-files-k1om, libc6-k1om, libpthread0-k1om" "K1OM glibc realtime runtime library" "libs"
 make_deb libutil1-k1om "$libutil_data" "base-files-k1om, libc6-k1om" "K1OM glibc util runtime library" "libs"
 make_deb libc-stack-smoke-k1om "$libc_stack_smoke_data" "base-files-k1om, hello-knc-smoke, python3.5-minimal-k1om, python3.5-stdlib-k1om, python3.5-lib-dynload-k1om, libc6-k1om, libgcc1-k1om, libm6-k1om, libpthread0-k1om, libdl2-k1om, librt1-k1om, libutil1-k1om" "K1OM packaged libc stack smoke test" "utils"
+make_deb ncurses-base-k1om "$ncurses_base_data" "base-files-k1om" "K1OM ncurses linux terminfo entry" "misc"
 runtime_stage2_deps=""
 python312_stage2_deps=""
+libffi_python_dep=""
 zlib_smoke_deps="base-files-k1om"
-ncurses_smoke_deps="base-files-k1om, libtinfo5-k1om"
+ncurses_smoke_deps="base-files-k1om, libtinfo5-k1om, ncurses-base-k1om"
+if [[ "$libffi_required" -eq 1 ]]; then
+  make_deb libffi8-k1om "$libffi8_data" "base-files-k1om, libc6-k1om" "K1OM libffi runtime with call and closure support" "libs"
+  libffi_python_dep=", libffi8-k1om"
+fi
 if [[ "$python312_required" -eq 1 ]]; then
-  make_deb python3.12-minimal-k1om "$python312_minimal_data" "base-files-k1om, libc6-k1om, libm6-k1om, libpthread0-k1om, libdl2-k1om, librt1-k1om, libutil1-k1om" "K1OM Python 3.12 interpreter payload" "python"
+  make_deb python3.12-minimal-k1om "$python312_minimal_data" "base-files-k1om, libc6-k1om, libm6-k1om, libpthread0-k1om, libdl2-k1om, librt1-k1om, libutil1-k1om${libffi_python_dep}" "K1OM Python 3.12 interpreter payload" "python"
   make_deb python3.12-stdlib-k1om "$python312_stdlib_data" "base-files-k1om, python3.12-minimal-k1om" "K1OM Python 3.12 standard library payload" "python"
   make_deb python3.12-sysconfig-k1om "$python312_sysconfig_data" "base-files-k1om, python3.12-minimal-k1om, python3.12-stdlib-k1om" "K1OM Python 3.12 sysconfig metadata shim" "python"
-  make_deb python3.12-smoke-k1om "$python312_smoke_data" "base-files-k1om, python3.12-minimal-k1om, python3.12-stdlib-k1om, python3.12-sysconfig-k1om" "K1OM Python 3.12 expanded runtime smoke" "python"
+  make_deb python3.12-smoke-k1om "$python312_smoke_data" "base-files-k1om, python3.12-minimal-k1om, python3.12-stdlib-k1om, python3.12-sysconfig-k1om, ncurses-base-k1om" "K1OM Python 3.12 expanded runtime smoke" "python"
   python312_stage2_deps=", python3.12-minimal-k1om, python3.12-stdlib-k1om, python3.12-sysconfig-k1om, python3.12-smoke-k1om"
 fi
 if [[ "$runtime_required" -eq 1 ]]; then
   make_deb zlib1g-k1om "$zlib1g_data" "base-files-k1om, libc6-k1om" "K1OM zlib runtime library" "libs"
-  make_deb libncurses5-k1om "$libncurses5_data" "base-files-k1om, libc6-k1om, libtinfo5-k1om" "K1OM ncurses runtime library" "libs"
+  make_deb libncurses5-k1om "$libncurses5_data" "base-files-k1om, libc6-k1om, libtinfo5-k1om, ncurses-base-k1om" "K1OM ncurses runtime library" "libs"
   make_deb libreadline6-k1om "$libreadline6_data" "base-files-k1om, libc6-k1om, libncurses5-k1om, libtinfo5-k1om" "K1OM readline runtime library" "libs"
   make_deb libcrypto1.0.0-k1om "$libcrypto100_data" "base-files-k1om, libc6-k1om, libdl2-k1om" "K1OM OpenSSL crypto runtime library" "libs"
   make_deb libssl1.0.0-k1om "$libssl100_data" "base-files-k1om, libc6-k1om, libcrypto1.0.0-k1om" "K1OM OpenSSL SSL runtime library" "libs"

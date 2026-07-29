@@ -47,7 +47,7 @@ apt-get "${apt_opts[@]}" update > "$out_dir/apt-get-update.log" 2>&1
 packages_list="$(find "$state_lists" -type f -name '*_binary-k1om_Packages' -print | head -n 1)"
 [[ -n "$packages_list" ]] || { echo "APT did not create a binary-k1om Packages list" >&2; exit 20; }
 
-for package in base-files-k1om hello-knc-smoke python3.5-minimal-k1om python3.5-stdlib-k1om python3.5-lib-dynload-k1om python3.5-smoke-k1om xpr-shell-compat xpr-busybox-compat xpr-pci-tools dpkg-k1om apt-k1om libc6-k1om libgcc1-k1om libm6-k1om libpthread0-k1om libdl2-k1om librt1-k1om libutil1-k1om libc-stack-smoke-k1om zlib-smoke-k1om libtinfo5-k1om ncurses-smoke-k1om xpr-os-smoke xeon-phi-revival-stage2; do
+for package in base-files-k1om hello-knc-smoke python3.5-minimal-k1om python3.5-stdlib-k1om python3.5-lib-dynload-k1om python3.5-smoke-k1om xpr-shell-compat xpr-busybox-compat xpr-pci-tools dpkg-k1om apt-k1om libc6-k1om libgcc1-k1om libm6-k1om libpthread0-k1om libdl2-k1om librt1-k1om libutil1-k1om libc-stack-smoke-k1om ncurses-base-k1om zlib-smoke-k1om libtinfo5-k1om ncurses-smoke-k1om xpr-os-smoke xeon-phi-revival-stage2; do
   grep -q "^Package: $package$" "$packages_list" || { echo "APT list missing package: $package" >&2; exit 30; }
 done
 if grep -q '^Package: zlib1g-k1om$' "$packages_list"; then
@@ -63,13 +63,17 @@ fi
 
 apt-cache "${apt_opts[@]}" show base-files-k1om > "$out_dir/apt-cache-show-base-files-k1om.txt"
 grep -q '^Architecture: k1om$' "$out_dir/apt-cache-show-base-files-k1om.txt" || { echo "apt-cache show did not preserve Architecture: k1om" >&2; exit 40; }
+apt-cache "${apt_opts[@]}" pkgnames > "$out_dir/apt-cache-pkgnames.txt"
+grep -q '^python3.12-minimal-k1om$' "$out_dir/apt-cache-pkgnames.txt" || { echo "apt-cache pkgnames did not list python3.12-minimal-k1om" >&2; exit 41; }
+apt-cache "${apt_opts[@]}" depends python3.12-smoke-k1om > "$out_dir/apt-cache-depends-python312-smoke.txt"
+grep -q 'python3.12-minimal-k1om' "$out_dir/apt-cache-depends-python312-smoke.txt" || { echo "apt-cache depends did not list python3.12-minimal-k1om" >&2; exit 42; }
 
 cat > "$summary" <<EOF
 status=passed
 repo=$repo_dir
 apt_root=$apt_root
 packages_list=$packages_list
-checks=apt_get_update_file_repo,architecture_k1om,packages_visible,apt_cache_show
+checks=apt_get_update_file_repo,architecture_k1om,packages_visible,apt_cache_show,apt_cache_pkgnames,apt_cache_depends
 EOF
 
 echo "apt_sandbox_summary=$summary"

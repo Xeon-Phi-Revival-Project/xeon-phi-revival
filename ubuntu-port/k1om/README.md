@@ -66,8 +66,10 @@ The current multi-package bootstrap archive also passed. It contains:
 - `libncurses5-k1om`
 - `libreadline6-k1om`
 - `libcrypto1.0.0-k1om`
+- `libffi8-k1om`
 - `libssl1.0.0-k1om`
 - `xpr-runtime-libs-smoke`
+- `ncurses-base-k1om`
 - `python3.12-minimal-k1om`
 - `python3.12-stdlib-k1om`
 - `python3.12-sysconfig-k1om`
@@ -93,6 +95,7 @@ is parsed by host-side APT as `Architecture: k1om`, runs zlib and ncurses
 smoke payloads, uses a separately packaged `libtinfo5-k1om` runtime, verifies
 basic filesystem and OS behavior, exposes dpkg-style package status metadata
 on-card, provides bootstrap-compatible `dpkg`/`apt-get`/`apt-cache` commands,
+adds `dpkg-query` and `dpkg-deb` entrypoints for local package inspection,
 provides `python3`/`python` command wrappers, exposes common BusyBox-backed
 command entrypoints, includes a small `pcietool` sysfs helper, packages a
 project-owned libc stack and split zlib/ncurses/readline/OpenSSL-1.0 runtime
@@ -100,13 +103,30 @@ library packages under `/opt/xeon-phi-revival/lib64`, verifies runtime-library
 presence through `xpr-runtime-libs-smoke`, packages and runs CPython 3.12.13
 through `/usr/bin/python3.12`, verifies the packaged Python 3.12 smoke through
 the second-stage service and `apt-get install --reinstall`, exercises `bz2`,
-`lzma`, `readline`, `sqlite3`, `curses`, and `curses.panel`, and rolls back to
-the stock uOS.
+`lzma`, `readline`, `sqlite3`, `curses`, `curses.panel`, `_ssl`, and
+OpenSSL-backed `_hashlib`, full libffi-backed `_ctypes` calls and callbacks,
+and rolls back to the stock uOS.
 
-This is still a bootstrap archive, not a complete Ubuntu archive port. The
-remaining near-term Python/userland blockers are OpenSSL 3.x for `_ssl` and
-OpenSSL-backed `_hashlib`, plus libffi for `_ctypes`. Curses import now passes,
-but fuller terminal behavior still needs runtime validation.
+This is still a bootstrap archive, not a complete Ubuntu archive port. Python
+3.12 now has a working K1OM libffi backend: `ctypes.CDLL(...)`, integer,
+pointer, float/double, aggregate, and closure/callback paths pass on `mic0`.
+The remaining architecture-port work is real Ubuntu dpkg/APT/libc integration,
+broader package rebuilds, and eventually reducing dependence on stock MPSS
+userspace and init.
+
+## Minimal Ubuntu-Shaped Rootfs
+
+The package-set simulation can now be turned into a private minimal rootfs with
+Ubuntu identity files and a root-level filesystem layout:
+
+```text
+tools/ubuntu-port/build-k1om-minimal-ubuntu-rootfs.sh
+tools/ubuntu-port/validate-k1om-minimal-ubuntu-rootfs.sh
+```
+
+The generated rootfs is intentionally private because it can contain locally
+supplied MPSS runtime files and K1OM binaries. The public repo tracks only the
+recipe, validation checks, and public-safe reports.
 
 The passing run is documented in:
 
