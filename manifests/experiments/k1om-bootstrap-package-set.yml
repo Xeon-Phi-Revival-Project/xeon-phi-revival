@@ -13,9 +13,9 @@ stock_baseline:
 archive:
   suite: noble
   architecture: k1om
-  packages_file: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-041555/repo/dists/noble/main/binary-k1om/Packages
-  packages_gz_file: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-041555/repo/dists/noble/main/binary-k1om/Packages.gz
-  release_file: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-041555/repo/dists/noble/Release
+  packages_file: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-053340/repo/dists/noble/main/binary-k1om/Packages
+  packages_gz_file: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-053340/repo/dists/noble/main/binary-k1om/Packages.gz
+  release_file: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-053340/repo/dists/noble/Release
 packages:
   - { name: apt-k1om, version: 0.1.0, architecture: k1om, sha256: 20dd2a9d43d5a6b87b32750f33b9027bba8e0db07fb875daf7de561e4c190a6e }
   - { name: base-files-k1om, version: 0.1.0, architecture: k1om, sha256: fbfad5560b505fae7f7d1977a0b8e9a00408c1ce1b0bc8d76d60ec514913bc5d }
@@ -39,8 +39,8 @@ packages:
   - { name: python3.5-minimal-k1om, version: 0.1.0, architecture: k1om, sha256: 8b7108c2caa40b18a911d91c0b0790d3ac4588caddfc06bd658ce68d8e169abc }
   - { name: python3.5-smoke-k1om, version: 0.1.0, architecture: k1om, sha256: 50871fc9031cd0e7904a4861601c1b05a22e349fc3c4a3fbec34f60bdabcbb6a }
   - { name: python3.5-stdlib-k1om, version: 0.1.0, architecture: k1om, sha256: 8cabe59ea27bcb003665064f02613fd647457da40b8131720ab5d7f97f0d966a }
-  - { name: python3.12-minimal-k1om, version: 0.1.0, architecture: k1om, sha256: 48631812b5e72ed04427e723202e29f5266131807dddc41b0048a366f7eebd4c }
-  - { name: python3.12-smoke-k1om, version: 0.1.0, architecture: k1om, sha256: e455fcee6e34c0f5c1e8f7c659f3c99bc4b469825a86aa00bedaf34f92394750 }
+  - { name: python3.12-minimal-k1om, version: 0.1.0, architecture: k1om, sha256: 0c4e2bb9a66c011d5fff5cf2449ef363ef4b89a7f15b6e192c714b8033168417 }
+  - { name: python3.12-smoke-k1om, version: 0.1.0, architecture: k1om, sha256: c4019c314ab6456f5734309956ac8adfd397bb8fba4fe3bb28bfa05a511da91c }
   - { name: python3.12-stdlib-k1om, version: 0.1.0, architecture: k1om, sha256: 9849c3250f311bd66ac5f7033de88f5b875b1ec6c2ece0f0dc54725ae19b2569 }
   - { name: python3.12-sysconfig-k1om, version: 0.1.0, architecture: k1om, sha256: e1d32c6d8c55f496f609b9356c293a1b6c34789a029eb52c920179760d43fe6a }
   - { name: xeon-phi-revival-stage2, version: 0.1.0, architecture: k1om, sha256: 3d6478a9a0a0c620a0b2fe312e5b386b344730e96790112cabff4fec2f216bc1 }
@@ -81,7 +81,7 @@ result:
   pcietool_exec: passed
   rollback: passed
 evidence:
-  run_dir: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-041555
+  run_dir: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-053340
   package_determinism: "status=passed; source_date_epoch=1704067200; package_count=34; same_package_names; same_sha256"
   audit: "status=passed; package_count=34; Packages.gz matches Packages; Release hashes passed; dependencies_satisfied; no_duplicate_paths"
   install_simulation: "status=passed; package_count=34; dpkg_status generated; package file lists generated; md5sums/conffiles generated; required bootstrap paths present"
@@ -90,7 +90,7 @@ evidence:
   runtime_libs: "libz_present; libncurses_present; libreadline_present; libssl_present; libcrypto_present; runtime_libs_rc=0; runtime_libs_done=1"
   hello: "hello_rc=0; machine=k1om; sizeof(void*)=8; sizeof(long)=8"
   python: "python_rc=0; python stage2 demo ok; prefix=/opt/xeon-phi-revival"
-  python312: "python312_version_rc=0; python312_direct_rc=0; python312_rc=0; python312_package_smoke_ok; /usr/bin/python3.12; sysconfig SOABI cpython-312-k1om-linux-gnu"
+  python312: "python312_version_rc=0; python312_direct_rc=0; python312_rc=0; python312_package_smoke_ok; /usr/bin/python3.12; sysconfig SOABI cpython-312-k1om-linux-gnu; bz2=bz-ok; lzma=lzma-ok; readline=True; sqlite3=42:3.45.1; curses=2.2; curses_panel=True"
   zlib: "zlib_rc=0; zlib version=1.3 result=knc zlib smoke"
   ncurses: "ncurses_rc=0; ncurses version=ncurses 6.4.20240113"
   os_smoke: "os_smoke_rc=0; proc_mount present; sys_mount present; dev_mount present; tmp write/symlink/nested file passed; mic0 inet 172.31.1.1/24; os_smoke_done=1"
@@ -98,4 +98,4 @@ evidence:
   busybox_compat: "command -v cat=/bin/cat; grep=/bin/grep; sed=/bin/sed; awk=/usr/bin/awk; find=/usr/bin/find; sed/grep smoke printed Abc; awk smoke printed 3"
   pcietool: "command -v pcietool=/usr/bin/pcietool; pcietool list rc=0; captured listing was empty in this run"
   rollback: "stock_ssh_ok; profile_absent; stage2_log_absent; python312_absent; python312_bin_absent; python312_smoke_absent; dpkg_status_absent; init"
-next_dependency: Port optional CPython 3.12 dependencies for K1OM packages: OpenSSL headers, readline headers, sqlite, libffi for ctypes, bz2, lzma, and the curses build-system issue.
+next_dependency: Finish optional CPython 3.12 dependencies for K1OM packages: OpenSSL 3.x headers/libraries for ssl and OpenSSL-backed hashlib, plus libffi for ctypes. Curses import passes, but fuller terminal behavior still needs runtime validation.

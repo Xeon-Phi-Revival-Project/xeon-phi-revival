@@ -227,14 +227,15 @@ image.
   Ubuntu-shaped CPython 3.12.13 runtime package group:
   `python3.12-minimal-k1om`, `python3.12-stdlib-k1om`,
   `python3.12-sysconfig-k1om`, and `python3.12-smoke-k1om`. The live run
-  `k1om-bootstrap-package-set-20260729-041555` verified `package_count=34`,
+  `k1om-bootstrap-package-set-20260729-053340` verified `package_count=34`,
   deterministic package hashes, archive audit, simulated install, `/usr/bin/python3.12`,
   `python312_version_rc=0`, direct packaged smoke `python312_direct_rc=0`,
   second-stage service `python312_rc=0`, and
   `apt-get install --reinstall python3.12-smoke-k1om` with
   `apt_python312_install_rc=0`. The smoke covered zlib, hash modules, XML,
   pickle, CSV, asyncio import, sysconfig, threading, decimal, socket, pathlib,
-  and other core modules. Stock rollback was verified afterward with
+  `bz2`, `lzma`, `readline`, `sqlite3`, `curses`, `curses.panel`, and other
+  core modules. Stock rollback was verified afterward with
   `python312_absent`, `python312_bin_absent`, `python312_smoke_absent`,
   `dpkg_status_absent`, `apt_get_absent`, `dpkg_absent`, and stock `init`.
 - CPython 3.12.13 now has a rollback-verified expanded runtime smoke on
@@ -244,16 +245,15 @@ image.
   `mfence` with `__sync_synchronize()`. The latest private runtime build
   statically enabled core modules and accelerators including `math`, `_struct`,
   `_json`, `_decimal`, `_socket`, `_pickle`, `_csv`, `_random`, `_queue`,
-  `pyexpat`, `_elementtree`, `hashlib` backing modules, and `zlib`. The live
-  run `python312-static-expanded-sysconfig-overlay-20260729-031953` booted
-  `mic0`, ran Python 3.12.13 from `/usr/bin/python3.12`, imported and exercised
-  the expanded module set, reported `pysmoke_rc=0` and `pyimports_rc=0`, then
-  restored stock uOS and verified the Python 3.12 overlay paths were absent.
-  This work has now been converted into local K1OM packages in the
-  thirty-four-package archive, but it is still a bootstrap distribution rather
-  than an official Ubuntu Python build.
+  `pyexpat`, `_elementtree`, `hashlib` backing modules, `zlib`, `_bz2`,
+  `_lzma`, `readline`, `_sqlite3`, `_curses`, and `_curses_panel`. The latest
+  package run proved those
+  additions through `python3.12-smoke-k1om`: `bz2=bz-ok`, `lzma=lzma-ok`,
+  `readline=True`, `sqlite3=42:3.45.1`, `curses=2.2`, and
+  `curses_panel=True`. This work is still a bootstrap distribution rather than
+  an official Ubuntu Python build.
 - The latest rollback-verified package-set run completed at
-  `/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-041555`.
+  `/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-053340`.
   Stock rollback succeeded afterward: SSH worked, the project profile,
   `/var/lib/dpkg/status`, and the Python 3.12 staging paths were absent, and
   PID 1 was stock `init`.
@@ -317,8 +317,9 @@ image.
 
 ## Safest Next Technical Action
 
-Port the missing Python 3.12 optional-module dependencies into the K1OM package
-lane: OpenSSL development headers for `_ssl`/OpenSSL-backed `_hashlib`,
-readline headers, sqlite, libffi for `_ctypes`, bz2, lzma, and the separate
-`_curses` build-system issue. Continue avoiding committed proprietary or
-uncertain-redistribution payloads.
+Finish the remaining Python 3.12 optional-module dependencies in the K1OM
+package lane: OpenSSL 3.x headers/libraries for `_ssl` and OpenSSL-backed
+`_hashlib`, plus libffi for `_ctypes`. `_bz2`, `_lzma`, `readline`, `_sqlite3`,
+`_curses`, and `_curses_panel` now pass inside the packaged Python 3.12 smoke;
+fuller curses terminal behavior still needs runtime validation. Continue
+avoiding committed proprietary or uncertain-redistribution payloads.

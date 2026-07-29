@@ -35,8 +35,12 @@ xpr-os-smoke	0.1.0	passed	Package-built basic OS smoke verified proc/sys/dev/tmp
 xeon-phi-revival-stage2	0.1.0	passed	Package-built SysV second-stage service ran hello/Python/OS smoke through stock init
 xeon-phi-revival-profile	0.1.0	passed	Package-built k1om profile .deb installed into MicDir, ran hello/Python, and rolled back
 zlib	1:1.3.dfsg-3.1ubuntu2	passed	K1OM libz and Python zlib extension smoke passed
-ncurses	6.4+20240113-1ubuntu2.1	partial-pass	K1OM simple curses_version smoke passed; setupterm segfault needs investigation
-sqlite3	3.45.1-1ubuntu2.7	blocked	Source verified and patched; build needs host tclsh
-libffi	3.4.6-1build1	blocked	Source verified and patched; source requires Autoconf 2.71+
+ncurses	6.4+20240113-1ubuntu2.1	python-module-pass	K1OM simple curses_version smoke passed and packaged Python 3.12 imported curses/curses.panel; terminal initialization still needs runtime validation
+bzip2	1.0.8-5.1build0.1	python-module-pass	Official Ubuntu source built a K1OM static library/header set; packaged Python 3.12 smoke passed bz2=bz-ok
+xz-utils	5.6.1+really5.4.5-1ubuntu0.3	python-module-pass	Official Ubuntu source built a K1OM liblzma static library/header set; packaged Python 3.12 smoke passed lzma=lzma-ok
+readline	8.2-4build1	python-module-pass	Official Ubuntu source built a K1OM readline static library/header set; packaged Python 3.12 smoke imported readline successfully
+sqlite3	3.45.1-1ubuntu2.7	python-module-pass	Ubuntu source metadata was verified but source generation needs host tclsh; official upstream SQLite 3.45.1 autoconf amalgamation built for K1OM and packaged Python 3.12 smoke passed sqlite3=42:3.45.1
+openssl	3.0.13-0ubuntu3.11	blocked	Official Ubuntu source metadata found; configure currently blocked on CentOS host Perl missing IPC::Cmd, so _ssl and OpenSSL-backed _hashlib are not complete
+libffi	3.4.6-1build1	blocked	Source verified and patched; source requires Autoconf 2.71+ or K1OM-specific build-system work before _ctypes can be completed
 cpython	3.5.10	bootstrap-pass	K1OM interpreter runs core Python plus math and zlib in demo rootfs
-cpython	3.12.13	package-pass	Official source cross-build plus K1OM compatibility patches produced ELF64 K1OM Python 3.12.13 packages that passed expanded core/zlib/hash/xml/pickle/csv/asyncio import smoke on mic0 from the local k1om archive
+cpython	3.12.13	package-pass	Official source cross-build plus K1OM compatibility patches produced ELF64 K1OM Python 3.12.13 packages that passed expanded core/zlib/hash/xml/pickle/csv/asyncio/bz2/lzma/readline/sqlite3/curses smoke on mic0 from the local k1om archive

@@ -99,8 +99,14 @@ project-owned libc stack and split zlib/ncurses/readline/OpenSSL-1.0 runtime
 library packages under `/opt/xeon-phi-revival/lib64`, verifies runtime-library
 presence through `xpr-runtime-libs-smoke`, packages and runs CPython 3.12.13
 through `/usr/bin/python3.12`, verifies the packaged Python 3.12 smoke through
-the second-stage service and `apt-get install --reinstall`, and rolls back to
+the second-stage service and `apt-get install --reinstall`, exercises `bz2`,
+`lzma`, `readline`, `sqlite3`, `curses`, and `curses.panel`, and rolls back to
 the stock uOS.
+
+This is still a bootstrap archive, not a complete Ubuntu archive port. The
+remaining near-term Python/userland blockers are OpenSSL 3.x for `_ssl` and
+OpenSSL-backed `_hashlib`, plus libffi for `_ctypes`. Curses import now passes,
+but fuller terminal behavior still needs runtime validation.
 
 The passing run is documented in:
 

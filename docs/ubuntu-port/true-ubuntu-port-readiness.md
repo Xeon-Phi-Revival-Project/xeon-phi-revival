@@ -153,5 +153,8 @@ The profile now also exposes basic command entrypoints through
 package through `xpr-pci-tools`. The latest milestone expanded smoke payload
 dependencies into standalone runtime/library packages and tightened
 package-manager compatibility. The Python 3.12 lane has crossed from build
-probe to packaged runtime profile; the next useful step is expanding missing
-optional modules through real Ubuntu-source dependency ports.
+probe to packaged runtime profile, and now proves `bz2`, `lzma`, `readline`,
+`sqlite3`, `curses`, and `curses.panel` inside the packaged smoke on `mic0`.
+The next useful step is finishing the remaining Python/userland dependencies:
+OpenSSL 3.x for `_ssl` and OpenSSL-backed `_hashlib`, plus libffi for
+`_ctypes`. Fuller curses terminal behavior still needs runtime validation.

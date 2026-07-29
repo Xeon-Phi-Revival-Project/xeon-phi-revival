@@ -369,6 +369,41 @@ print(xml.parsers.expat.ParserCreate is not None)
 t = threading.Thread(target=lambda: None)
 t.start(); t.join()
 print(pathlib.PurePosixPath("/opt/xeon-phi-revival").name)
+optional_results = []
+try:
+    import bz2
+    optional_results.append("bz2=" + bz2.decompress(bz2.compress(b"bz-ok")).decode())
+except Exception as exc:
+    optional_results.append("bz2=fail:%s:%s" % (exc.__class__.__name__, exc))
+try:
+    import lzma
+    optional_results.append("lzma=" + lzma.decompress(lzma.compress(b"lzma-ok")).decode())
+except Exception as exc:
+    optional_results.append("lzma=fail:%s:%s" % (exc.__class__.__name__, exc))
+try:
+    import readline
+    optional_results.append("readline=%s" % (readline.__doc__ is not None))
+except Exception as exc:
+    optional_results.append("readline=fail:%s:%s" % (exc.__class__.__name__, exc))
+try:
+    import sqlite3
+    con = sqlite3.connect(":memory:")
+    con.execute("create table t(x)")
+    con.execute("insert into t values (?)", (42,))
+    optional_results.append("sqlite3=%s:%s" % (con.execute("select x from t").fetchone()[0], sqlite3.sqlite_version))
+except Exception as exc:
+    optional_results.append("sqlite3=fail:%s:%s" % (exc.__class__.__name__, exc))
+try:
+    import curses
+    import curses.panel
+    optional_results.append("curses=%s" % getattr(curses, "version", b"unknown").decode("ascii", "replace"))
+    optional_results.append("curses_panel=%s" % (curses.panel.__name__ == "curses.panel"))
+except Exception as exc:
+    optional_results.append("curses=fail:%s:%s" % (exc.__class__.__name__, exc))
+for result in optional_results:
+    print(result)
+if any("=fail:" in result for result in optional_results):
+    raise SystemExit(70)
 PY312SMOKE
   cat > "$python312_smoke_data/opt/xeon-phi-revival/bin/python312-smoke.sh" <<'PY312RUN'
 #!/bin/sh

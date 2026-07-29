@@ -70,7 +70,7 @@ Final Ubuntu-style deterministic, audited, simulated, live passing, and
 rollback-verified run:
 
 ```text
-/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-041555
+/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-053340
 ```
 
 Stock baseline:
@@ -104,10 +104,10 @@ python3.5-minimal-k1om 8b7108c2caa40b18a911d91c0b0790d3ac4588caddfc06bd658ce68d8
 python3.5-stdlib-k1om 8cabe59ea27bcb003665064f02613fd647457da40b8131720ab5d7f97f0d966a
 python3.5-lib-dynload-k1om 4e7f459404480f0ae66318adbead04fc22bb490714a62da0985cb7dc5a6546d7
 python3.5-smoke-k1om 50871fc9031cd0e7904a4861601c1b05a22e349fc3c4a3fbec34f60bdabcbb6a
-python3.12-minimal-k1om 48631812b5e72ed04427e723202e29f5266131807dddc41b0048a366f7eebd4c
+python3.12-minimal-k1om 0c4e2bb9a66c011d5fff5cf2449ef363ef4b89a7f15b6e192c714b8033168417
 python3.12-stdlib-k1om 9849c3250f311bd66ac5f7033de88f5b875b1ec6c2ece0f0dc54725ae19b2569
 python3.12-sysconfig-k1om e1d32c6d8c55f496f609b9356c293a1b6c34789a029eb52c920179760d43fe6a
-python3.12-smoke-k1om e455fcee6e34c0f5c1e8f7c659f3c99bc4b469825a86aa00bedaf34f92394750
+python3.12-smoke-k1om c4019c314ab6456f5734309956ac8adfd397bb8fba4fe3bb28bfa05a511da91c
 xpr-shell-compat a1edfde8a484b1a809d0f17a25d38acdd74e340d17bf0a0b65ef51a876c25121
 xpr-busybox-compat 7c2fae933becc268649e59af18935945a0d2097cb86bc4b0e1dd49746d883475
 xpr-pci-tools      5af084cbb54c5d536cb4bd54dfc9b9b2125f95f3427a7a49fa1a0e4e94e6aef3
@@ -127,7 +127,7 @@ status=passed
 source_date_epoch=1704067200
 package_count=34
 checks=same_package_names,same_sha256
-details=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-041555/determinism/package-determinism.tsv
+details=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-053340/determinism/package-determinism.tsv
 ```
 
 ## Archive Metadata
@@ -161,9 +161,9 @@ The package audit passed before installation:
 status=passed
 package_count=34
 checks=release_suite,release_codename,release_architecture,release_hash_blocks,release_packages_hashes,packages_gz_matches_packages,package_source,package_architecture,package_section,package_priority,package_md5sums,packages_filename,packages_md5sum,packages_sha1,packages_sha256,dependencies_satisfied,no_duplicate_paths
-ownership_file=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-041555/audit/package-ownership.tsv
-deps_file=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-041555/audit/package-dependencies.tsv
-hash_file=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-041555/audit/package-hashes.tsv
+ownership_file=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-053340/audit/package-ownership.tsv
+deps_file=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-053340/audit/package-dependencies.tsv
+hash_file=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-053340/audit/package-hashes.tsv
 ```
 
 The install simulation also passed before live install:
@@ -171,8 +171,8 @@ The install simulation also passed before live install:
 ```text
 status=passed
 package_count=34
-rootfs=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-041555/simulated-install/rootfs
-dpkg_status=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-041555/simulated-install/rootfs/var/lib/dpkg/status
+rootfs=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-053340/simulated-install/rootfs
+dpkg_status=/root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-053340/simulated-install/rootfs/var/lib/dpkg/status
 checks=dependency_order,extract_payloads,dpkg_status,package_file_lists,package_md5sums,package_conffiles,required_bootstrap_paths
 ```
 
@@ -267,6 +267,12 @@ linux
 k1om
 knc-zlib
 cpython-312-k1om-linux-gnu
+bz2=bz-ok
+lzma=lzma-ok
+readline=True
+sqlite3=42:3.45.1
+curses=2.2
+curses_panel=True
 python312_direct_rc=0
 python312_rc=0
 ```
@@ -288,7 +294,9 @@ pathlib
 pickle
 queue
 random
+readline
 socket
+sqlite3
 statistics
 struct
 sysconfig
@@ -296,6 +304,10 @@ threading
 unicodedata
 xml.etree.ElementTree
 xml.parsers.expat
+bz2
+curses
+curses.panel
+lzma
 zlib
 zoneinfo
 ```
@@ -452,7 +464,9 @@ but the package/archive spine can now carry a modern CPython runtime through
 deterministic package builds, archive indexing, audit, simulated install,
 MicDir boot, live package-manager reinstall, and stock rollback.
 
-The narrowest next dependency is no longer packaging Python 3.12 itself. It is
-expanding the missing optional-module dependencies: OpenSSL development headers
-for `_ssl` and OpenSSL-backed `_hashlib`, readline headers, sqlite, libffi for
-`_ctypes`, bz2, lzma, and the separate `_curses` static-build issue.
+The narrowest next dependency is no longer packaging Python 3.12 itself, nor is
+it `bz2`, `lzma`, `readline`, `sqlite3`, `_curses`, or `_curses_panel`; those
+now pass inside the packaged Python 3.12 smoke. The remaining Python
+completeness blockers are OpenSSL 3.x development headers/libraries for `_ssl`
+and OpenSSL-backed `_hashlib`, plus libffi for `_ctypes`. Fuller curses terminal
+behavior still needs runtime validation beyond import/panel smoke.

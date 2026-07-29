@@ -13,7 +13,7 @@ source:
   sha256: c08bc65a81971c1dd5783182826503369466c7e67374d1646519adf05207b684
 private_build_tree: /root/xeon-phi-revival-local/ubuntu2404-level3/cpython-3.12.13-probe-20260729-001250/cross-ipv6off/Python-3.12.13
 private_final_overlay_run: /root/xeon-phi-revival-local/ubuntu-port-runs/python312-static-expanded-sysconfig-overlay-20260729-031953
-private_final_package_run: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-041555
+private_final_package_run: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260729-053340
 toolchain:
   prefix: k1om-mpss-linux-
   environment: /opt/mpss/3.4.10/environment-setup-k1om-mpss-linux
@@ -34,10 +34,10 @@ package_shape:
   - python3.12-sysconfig-k1om
   - python3.12-smoke-k1om
 package_hashes:
-  python3.12-minimal-k1om: 48631812b5e72ed04427e723202e29f5266131807dddc41b0048a366f7eebd4c
+  python3.12-minimal-k1om: 0c4e2bb9a66c011d5fff5cf2449ef363ef4b89a7f15b6e192c714b8033168417
   python3.12-stdlib-k1om: 9849c3250f311bd66ac5f7033de88f5b875b1ec6c2ece0f0dc54725ae19b2569
   python3.12-sysconfig-k1om: e1d32c6d8c55f496f609b9356c293a1b6c34789a029eb52c920179760d43fe6a
-  python3.12-smoke-k1om: e455fcee6e34c0f5c1e8f7c659f3c99bc4b469825a86aa00bedaf34f92394750
+  python3.12-smoke-k1om: c4019c314ab6456f5734309956ac8adfd397bb8fba4fe3bb28bfa05a511da91c
 static_builtin_modules:
   - _asyncio
   - _contextvars
@@ -105,4 +105,4 @@ known_gaps:
   - _ctypes needs a completed K1OM libffi build
   - bz2 and lzma need their development headers and libraries
   - _curses needs a CPython makesetup/static build-system fix before retry
-next_dependency: Port optional CPython 3.12 dependencies for K1OM packages: OpenSSL headers, readline headers, sqlite, libffi for ctypes, bz2, lzma, and the curses build-system issue.
+next_dependency: Superseded by k1om-bootstrap-package-set-20260729-053340 for bz2, lzma, readline, sqlite3, curses, and curses.panel. Remaining Python blockers are OpenSSL 3.x for ssl/hashlib and libffi for ctypes.

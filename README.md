@@ -88,7 +88,8 @@ Ubuntu-style package experiments:
   `python3.12-minimal-k1om`, `python3.12-stdlib-k1om`,
   `python3.12-sysconfig-k1om`, and `python3.12-smoke-k1om`. The packaged
   smoke covers zlib, hashes, XML, pickle, CSV, asyncio import, sysconfig,
-  threading, decimal, socket, and more.
+  threading, decimal, socket, `bz2`, `lzma`, `readline`, `sqlite3`, `curses`,
+  `curses.panel`, and more.
 
 See `docs/status.md` and `docs/ubuntu-port/` for the latest public-safe
 reports.
@@ -209,7 +210,11 @@ bring-up to repeatable native K1OM program execution.
 The active milestone is the true Ubuntu architecture-port lane: keep expanding
 the deterministic `k1om` package set and rootfs layout while preserving APT
 parser checks, package audits, simulated installs, live MicDir boot smoke tests,
-and verified rollback to stock uOS.
+and verified rollback to stock uOS. The current sharp blockers before a more
+complete Ubuntu-style Python/userland are OpenSSL 3.x for `_ssl` and
+OpenSSL-backed `_hashlib`, plus libffi for `_ctypes`. Curses now imports from
+the packaged Python smoke, but fuller terminal behavior still needs runtime
+validation.
 
 ## Independence
 
