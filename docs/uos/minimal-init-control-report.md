@@ -704,3 +704,129 @@ The single next technical step for a later session is to instrument the stock
 `/init` wrapper around its final exec/handoff point, preserving stock behavior,
 so the exact branch and arguments used to start `init.sysvinit` can be recorded
 without replacing that target.
+
+## Stock `/init` Handoff Instrumentation Result
+
+Date: 2026-07-30
+
+Latest reviewed commit before this diagnostic:
+
+```text
+b300ec5 Prove stock init executes in Base CPIO lane
+```
+
+The stock `/init` wrapper handoff line was identified as:
+
+```text
+exec /sbin/switch_root /new_root /sbin/init
+```
+
+The stock-derived builder gained a focused mode:
+
+```sh
+tools/uos/build-stockderived-min-k1om-initramfs.sh \
+  --replace instrument-stock-handoff \
+  --name xpr-stock-init-handoff
+```
+
+This mode preserves stock `/sbin/init`, stock `/sbin/init.sysvinit`, stock
+`/etc/inittab`, and the original handoff `exec`. It changes only `/init` by
+inserting a marker block immediately before the `switch_root` handoff.
+
+The marker is written both to early output paths and to the future switched
+root:
+
+```text
+/new_root/xpr-stock-init-handoff.txt
+```
+
+Private build directory:
+
+```text
+/root/xeon-phi-revival-local/uos-min-init-builds/xpr-stock-init-handoff-20260730-155529
+```
+
+The generated private image was:
+
+```text
+image=/root/xeon-phi-revival-local/uos-min-init-builds/xpr-stock-init-handoff-20260730-155529/xpr-stock-init-handoff.cpio.gz
+image_sha256=5698d1048defe115191375ee8303e5fea87c57cc519f0bd3ca6615bb0f0e11c3
+compressed_bytes=20408820
+uncompressed_bytes=53688320
+init_sha256=25511376470c96c8d26a33b4348439a5472f346ee91076725210bd23d8e13f79
+link_mode=stock-shell-script
+elf_machine=script
+stock_cpio_sha256=44ecb9b0dbfbe9c5d880cbfe85fe53b65b000e1b66d6c1e779821f4e36923acd
+```
+
+Private run directory:
+
+```text
+/root/xeon-phi-revival-local/uos-min-init-runs/min-init-20260730-155606
+```
+
+Exact boot command:
+
+```sh
+micctrl --configdir=/root/xeon-phi-revival-local/uos-min-init-runs/min-init-20260730-155606/mpss-conf --boot mic0
+```
+
+The card reached `online` during the experimental boot:
+
+```text
+boot_poll_5
+mic0: online (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+```
+
+The marker was recovered over SSH before rollback from the switched root as
+`/xpr-stock-init-handoff.txt`:
+
+```text
+ssh_marker_probe
+XPR_MIN_INIT_ENTERED
+XPR_STOCK_INIT_HANDOFF
+PID=1
+CMD=/sbin/switch_root /new_root /sbin/init
+XPR_MIN_INIT_IDLE
+```
+
+Summary result:
+
+```text
+marker_pass=1
+rollback_pass=1
+private_ramfs_sha256=3292a4cfaaeae3d12bfe8a7e4b6576da8126e6a111330410da255963b8240263
+```
+
+Final stock verification passed:
+
+```text
+mic0: online (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+stock_ssh_ok
+/proc/1/comm=init
+uname -m=k1om
+```
+
+### Updated Handoff Conclusion
+
+This proves the alternate Base CPIO path reaches stock `/init` as PID 1 and
+continues all the way to the stock `switch_root` handoff:
+
+```text
+/init PID 1 -> /sbin/switch_root /new_root /sbin/init
+```
+
+Because replacing `/sbin/init` or `/sbin/init.sysvinit` inside the Base CPIO
+did not work, while preserving the stock `switch_root` handoff did work, the
+next likely boundary is the switched root itself. The replacement attempts were
+made in the Base CPIO, but stock `/init` hands off to `/new_root/sbin/init`.
+
+The single next technical step for a later session is to inspect how
+`/new_root` is assembled and test a reversible replacement or wrapper at:
+
+```text
+/new_root/sbin/init
+```
+
+That should be done without replacing stock firmware, kernel, or the active
+host MPSS configuration.

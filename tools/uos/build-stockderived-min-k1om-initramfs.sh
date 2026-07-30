@@ -18,6 +18,9 @@ replace modes:
                           /sbin/init.sysvinit
   instrument-stock-init  insert a marker block after stock /init shebang and
                           preserve the rest of stock /init behavior
+  instrument-stock-handoff
+                         insert a marker block immediately before stock /init
+                          execs switch_root, preserving the original exec
 USAGE
 }
 
@@ -41,10 +44,10 @@ done
 
 [[ -f "$stock_cpio" ]] || { echo "stock cpio missing: $stock_cpio" >&2; exit 3; }
 case "$replace_mode" in
-  init-and-sbin-init|sbin-init|sbin-init-sysvinit|instrument-stock-init) ;;
+  init-and-sbin-init|sbin-init|sbin-init-sysvinit|instrument-stock-init|instrument-stock-handoff) ;;
   *) echo "invalid --replace mode: $replace_mode" >&2; usage; exit 2 ;;
 esac
-if [[ "$replace_mode" != "instrument-stock-init" ]]; then
+if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" ]]; then
   [[ -n "$source_file" && -f "$source_file" ]] || { usage; exit 2; }
 fi
 
@@ -52,11 +55,11 @@ for cmd in awk chmod cpio date file find gzip mkdir readelf rm sha256sum sort st
   command -v "$cmd" >/dev/null 2>&1 || { echo "required host tool missing: $cmd" >&2; exit 10; }
 done
 
-if [[ "$replace_mode" != "instrument-stock-init" ]] && ! command -v k1om-mpss-linux-gcc >/dev/null 2>&1 && [[ -f /opt/mpss/3.4.10/environment-setup-k1om-mpss-linux ]]; then
+if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" ]] && ! command -v k1om-mpss-linux-gcc >/dev/null 2>&1 && [[ -f /opt/mpss/3.4.10/environment-setup-k1om-mpss-linux ]]; then
   # shellcheck disable=SC1091
   source /opt/mpss/3.4.10/environment-setup-k1om-mpss-linux
 fi
-if [[ "$replace_mode" != "instrument-stock-init" ]]; then
+if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" ]]; then
   command -v k1om-mpss-linux-gcc >/dev/null 2>&1 || { echo "k1om-mpss-linux-gcc not found" >&2; exit 11; }
 fi
 
@@ -80,7 +83,7 @@ echo "run_dir=$run_dir"
 echo "replace_mode=$replace_mode"
 echo "warning=generated image contains stock MPSS userspace and must stay private"
 
-if [[ "$replace_mode" != "instrument-stock-init" ]]; then
+if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" ]]; then
   k1om-mpss-linux-gcc -Os -static -s "$source_file" -o "$min_init" >"$run_dir/static-link.log" 2>&1
   chmod 0755 "$min_init"
 fi
@@ -163,9 +166,55 @@ EOF
     chmod --reference="$stock_init" "$rootfs/init"
     inspect_path="$rootfs/init"
     ;;
+  instrument-stock-handoff)
+    stock_init="$run_dir/replaced/init.stock"
+    tmp_init="$run_dir/init.instrumented"
+    awk '
+      /^exec[ \t]+\/sbin\/switch_root[ \t]+\/new_root[ \t]+\/sbin\/init([ \t]|$)/ && !inserted {
+        print "# XPR stock-init handoff instrumentation. Preserve the following exec line."
+        print "xpr_emit_handoff_marker() {"
+        print "  xpr_handoff_cmd=\"/sbin/switch_root /new_root /sbin/init\""
+        print "  for xpr_marker in /xpr-stock-init-handoff.txt /tmp/xpr-stock-init-handoff.txt /new_root/xpr-stock-init-handoff.txt; do"
+        print "    {"
+        print "      echo XPR_MIN_INIT_ENTERED"
+        print "      echo XPR_STOCK_INIT_HANDOFF"
+        print "      echo PID=$$"
+        print "      echo CMD=\"$xpr_handoff_cmd\""
+        print "      echo XPR_MIN_INIT_IDLE"
+        print "    } > \"$xpr_marker\" 2>/dev/null || true"
+        print "  done"
+        print "  for xpr_console in /dev/console /dev/hvc0 /dev/ttyMIC0 /dev/kmsg; do"
+        print "    if [ -e \"$xpr_console\" ]; then"
+        print "      {"
+        print "        echo XPR_MIN_INIT_ENTERED"
+        print "        echo XPR_STOCK_INIT_HANDOFF"
+        print "        echo PID=$$"
+        print "        echo CMD=\"$xpr_handoff_cmd\""
+        print "        echo XPR_MIN_INIT_IDLE"
+        print "      } > \"$xpr_console\" 2>&1 || true"
+        print "    fi"
+        print "  done"
+        print "}"
+        print "xpr_emit_handoff_marker"
+        print "unset -f xpr_emit_handoff_marker 2>/dev/null || true"
+        print "unset xpr_console xpr_handoff_cmd xpr_marker 2>/dev/null || true"
+        inserted=1
+      }
+      { print }
+      END {
+        if (!inserted) {
+          print "xpr_error=no-switch-root-exec-found" > "/dev/stderr"
+          exit 23
+        }
+      }
+    ' "$stock_init" > "$tmp_init"
+    cp -a "$tmp_init" "$rootfs/init"
+    chmod --reference="$stock_init" "$rootfs/init"
+    inspect_path="$rootfs/init"
+    ;;
 esac
 
-if [[ "$replace_mode" == "instrument-stock-init" ]]; then
+if [[ "$replace_mode" == "instrument-stock-init" || "$replace_mode" == "instrument-stock-handoff" ]]; then
   echo "== instrumented init script =="
   file "$inspect_path"
   head -40 "$inspect_path" > "$run_dir/init.instrumented-head.txt"
@@ -238,7 +287,8 @@ $(case "$replace_mode" in
   init-and-sbin-init) printf '%s\n%s\n' '- /init' '- /sbin/init' ;;
   sbin-init) printf '%s\n' '- /sbin/init' ;;
   sbin-init-sysvinit) printf '%s\n' '- /sbin/init.sysvinit' ;;
-  instrument-stock-init) printf '%s\n' '- /init (instrumented only)' ;;
+  instrument-stock-init) printf '%s\n' '- /init (entry instrumented only)' ;;
+  instrument-stock-handoff) printf '%s\n' '- /init (handoff instrumented only)' ;;
 esac)
 left_stock_present:
 $(case "$replace_mode" in
@@ -246,6 +296,7 @@ $(case "$replace_mode" in
   sbin-init) printf '%s\n%s\n%s\n' '- /init' '- /sbin/init.sysvinit' '- /etc/inittab' ;;
   sbin-init-sysvinit) printf '%s\n%s\n%s\n' '- /init' '- /sbin/init' '- /etc/inittab' ;;
   instrument-stock-init) printf '%s\n%s\n%s\n' '- /sbin/init' '- /sbin/init.sysvinit' '- /etc/inittab' ;;
+  instrument-stock-handoff) printf '%s\n%s\n%s\n' '- /sbin/init' '- /sbin/init.sysvinit' '- /etc/inittab' ;;
 esac)
 private_reason=contains stock MPSS Base CPIO userspace
 EOF
@@ -261,7 +312,7 @@ manifest_sha256=$(awk -v mf="$manifest" '$2 == mf {print $1}' "$hashes")
 replace_mode=$replace_mode
 init=$inspect_path
 init_sha256=$(sha256sum "$inspect_path" | awk '{print $1}')
-link_mode=$(if [[ "$replace_mode" == "instrument-stock-init" ]]; then echo stock-shell-script; else echo static; fi)
+link_mode=$(if [[ "$replace_mode" == "instrument-stock-init" || "$replace_mode" == "instrument-stock-handoff" ]]; then echo stock-shell-script; else echo static; fi)
 elf_machine=$machine
 elf_interpreter=$(if [[ -f "$run_dir/init.readelf-l.txt" ]]; then awk '/Requesting program interpreter/ {gsub(/[][]/,"",$NF); print $NF; exit}' "$run_dir/init.readelf-l.txt"; fi)
 stock_cpio=$stock_cpio
