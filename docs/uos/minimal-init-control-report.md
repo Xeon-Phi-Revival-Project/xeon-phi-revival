@@ -915,3 +915,88 @@ level. A later, separate experiment can install a temporary wrapper at
 `/new_root/sbin/init` that records execution and `exec`s the preserved stock
 `/sbin/init.sysvinit`. That test is intentionally out of scope for this
 mapping-only milestone.
+
+## `/new_root/sbin/init` Wrapper Result
+
+Date: 2026-07-30
+
+Latest reviewed commit before this diagnostic:
+
+```text
+cb7054f Map stock new_root handoff target
+```
+
+The stock-derived builder gained the focused mode:
+
+```sh
+tools/uos/build-stockderived-min-k1om-initramfs.sh \
+  --replace instrument-new-root-init-wrapper \
+  --name xpr-new-root-init-wrapper
+```
+
+Immediately before stock `/init` runs `switch_root`, the private experimental
+copy renames only the switched-root binary:
+
+```text
+/new_root/sbin/init.sysvinit
+  -> /new_root/sbin/init.sysvinit.xpr-stock
+```
+
+It then writes a POSIX-shell wrapper at the original path. The existing
+`/new_root/sbin/init -> /sbin/init.sysvinit` link therefore starts the wrapper
+as PID 1 after `switch_root`; the wrapper writes a marker and executes the
+preserved stock binary. No active MPSS file or persistent stock card-side file
+is modified.
+
+Private build output:
+
+```text
+image=/root/xeon-phi-revival-local/uos-min-init-builds/xpr-new-root-init-wrapper-20260730-233916/xpr-new-root-init-wrapper.cpio.gz
+image_sha256=fd2da35d9fd56b0ab777128fbbfb5c1fb11756c4f9b70a7ae8e94f1f0f193628
+compressed_bytes=20408720
+uncompressed_bytes=53688320
+init_sha256=b58b07c7159731b608e254c838da728220ce9540fcb683d68bc74864e55fc30d
+stock_cpio_sha256=44ecb9b0dbfbe9c5d880cbfe85fe53b65b000e1b66d6c1e779821f4e36923acd
+redistribution=private-stock-derived-do-not-publish
+```
+
+The boot reached `online`, and SSH recovered the post-`switch_root` marker:
+
+```text
+XPR_MIN_INIT_ENTERED
+XPR_NEW_ROOT_INIT_WRAPPER
+PID=1
+STOCK_INIT=/sbin/init.sysvinit.xpr-stock
+XPR_MIN_INIT_IDLE
+```
+
+This proves a project-controlled executable can run as PID 1 in the switched
+root and safely hand control back to the stock init binary. The stock rollback
+was verified directly afterward:
+
+```text
+mic0: online (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+ssh 172.31.1.1: uname -m=k1om
+ssh 172.31.1.1: /proc/1/comm=init
+```
+
+### Smallest Fully Project-Built Boot Boundary
+
+Read-only inspection of the stock `/init` showed it mounts a tmpfs at
+`/new_root`, copies the assembled initramfs tree there, then runs:
+
+```text
+exec /sbin/switch_root /new_root /sbin/init
+```
+
+The private MPSS-generated Ramfs is a complete filesystem archive containing
+`/init`, `/sbin/init`, `/sbin/init.sysvinit`, and `/bin/sh`. Therefore the
+smallest next standalone milestone is not a new kernel or firmware path. It is
+a project-built Ramfs containing the project rootfs and a project `/init` that
+mounts the required pseudo-filesystems and switches into the project root.
+MPSS remains only the host-side kernel and Ramfs loader.
+
+That standalone Ramfs must be built solely from project-owned or
+redistribution-cleared files; it must not copy the stock init, stock shell, or
+stock card-side utility tree. This is the next session's boundary and was not
+booted in this wrapper experiment.

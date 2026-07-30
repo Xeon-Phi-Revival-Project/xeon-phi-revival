@@ -24,6 +24,9 @@ replace modes:
   instrument-new-root-inventory
                          write a bounded inventory of the prepared /new_root
                           immediately before switch_root, preserving the exec
+  instrument-new-root-init-wrapper
+                         install a temporary wrapper at /new_root/sbin/init
+                          that records PID 1 and execs stock init.sysvinit
 USAGE
 }
 
@@ -47,10 +50,10 @@ done
 
 [[ -f "$stock_cpio" ]] || { echo "stock cpio missing: $stock_cpio" >&2; exit 3; }
 case "$replace_mode" in
-  init-and-sbin-init|sbin-init|sbin-init-sysvinit|instrument-stock-init|instrument-stock-handoff|instrument-new-root-inventory) ;;
+  init-and-sbin-init|sbin-init|sbin-init-sysvinit|instrument-stock-init|instrument-stock-handoff|instrument-new-root-inventory|instrument-new-root-init-wrapper) ;;
   *) echo "invalid --replace mode: $replace_mode" >&2; usage; exit 2 ;;
 esac
-if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" ]]; then
+if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" && "$replace_mode" != "instrument-new-root-init-wrapper" ]]; then
   [[ -n "$source_file" && -f "$source_file" ]] || { usage; exit 2; }
 fi
 
@@ -58,11 +61,11 @@ for cmd in awk chmod cpio date file find gzip mkdir readelf rm sha256sum sort st
   command -v "$cmd" >/dev/null 2>&1 || { echo "required host tool missing: $cmd" >&2; exit 10; }
 done
 
-if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" ]] && ! command -v k1om-mpss-linux-gcc >/dev/null 2>&1 && [[ -f /opt/mpss/3.4.10/environment-setup-k1om-mpss-linux ]]; then
+if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" && "$replace_mode" != "instrument-new-root-init-wrapper" ]] && ! command -v k1om-mpss-linux-gcc >/dev/null 2>&1 && [[ -f /opt/mpss/3.4.10/environment-setup-k1om-mpss-linux ]]; then
   # shellcheck disable=SC1091
   source /opt/mpss/3.4.10/environment-setup-k1om-mpss-linux
 fi
-if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" ]]; then
+if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" && "$replace_mode" != "instrument-new-root-init-wrapper" ]]; then
   command -v k1om-mpss-linux-gcc >/dev/null 2>&1 || { echo "k1om-mpss-linux-gcc not found" >&2; exit 11; }
 fi
 
@@ -86,7 +89,7 @@ echo "run_dir=$run_dir"
 echo "replace_mode=$replace_mode"
 echo "warning=generated image contains stock MPSS userspace and must stay private"
 
-if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" ]]; then
+if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" && "$replace_mode" != "instrument-new-root-init-wrapper" ]]; then
   k1om-mpss-linux-gcc -Os -static -s "$source_file" -o "$min_init" >"$run_dir/static-link.log" 2>&1
   chmod 0755 "$min_init"
 fi
@@ -259,9 +262,51 @@ EOF
     chmod --reference="$stock_init" "$rootfs/init"
     inspect_path="$rootfs/init"
     ;;
+  instrument-new-root-init-wrapper)
+    stock_init="$run_dir/replaced/init.stock"
+    tmp_init="$run_dir/init.instrumented"
+    awk '
+      /^exec[ \t]+\/sbin\/switch_root[ \t]+\/new_root[ \t]+\/sbin\/init([ \t]|$)/ && !inserted {
+        print "# XPR temporary /new_root init wrapper. Preserve the following switch_root exec."
+        print "xpr_install_new_root_init_wrapper() {"
+        print "  xpr_root=/new_root"
+        print "  xpr_stock_init=$xpr_root/sbin/init.sysvinit"
+        print "  xpr_saved_init=$xpr_root/sbin/init.sysvinit.xpr-stock"
+        print "  test -x \"$xpr_stock_init\" || return 0"
+        print "  mv \"$xpr_stock_init\" \"$xpr_saved_init\" || return 0"
+        print "  cat > \"$xpr_stock_init\" <<'\''XPR_NEW_ROOT_INIT_WRAPPER'\''"
+        print "#!/bin/sh"
+        print "{"
+        print "  echo XPR_MIN_INIT_ENTERED"
+        print "  echo XPR_NEW_ROOT_INIT_WRAPPER"
+        print "  echo PID=$$"
+        print "  echo STOCK_INIT=/sbin/init.sysvinit.xpr-stock"
+        print "  echo XPR_MIN_INIT_IDLE"
+        print "} > /xpr-new-root-init-wrapper.txt 2>&1 || true"
+        print "exec /sbin/init.sysvinit.xpr-stock \"$@\""
+        print "XPR_NEW_ROOT_INIT_WRAPPER"
+        print "  chmod 0755 \"$xpr_stock_init\" || return 0"
+        print "}"
+        print "xpr_install_new_root_init_wrapper"
+        print "unset -f xpr_install_new_root_init_wrapper 2>/dev/null || true"
+        print "unset xpr_root xpr_stock_init xpr_saved_init 2>/dev/null || true"
+        inserted=1
+      }
+      { print }
+      END {
+        if (!inserted) {
+          print "xpr_error=no-switch-root-exec-found" > "/dev/stderr"
+          exit 23
+        }
+      }
+    ' "$stock_init" > "$tmp_init"
+    cp -a "$tmp_init" "$rootfs/init"
+    chmod --reference="$stock_init" "$rootfs/init"
+    inspect_path="$rootfs/init"
+    ;;
 esac
 
-if [[ "$replace_mode" == "instrument-stock-init" || "$replace_mode" == "instrument-stock-handoff" || "$replace_mode" == "instrument-new-root-inventory" ]]; then
+if [[ "$replace_mode" == "instrument-stock-init" || "$replace_mode" == "instrument-stock-handoff" || "$replace_mode" == "instrument-new-root-inventory" || "$replace_mode" == "instrument-new-root-init-wrapper" ]]; then
   echo "== instrumented init script =="
   file "$inspect_path"
   head -40 "$inspect_path" > "$run_dir/init.instrumented-head.txt"
