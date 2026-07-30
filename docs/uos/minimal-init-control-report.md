@@ -830,3 +830,88 @@ The single next technical step for a later session is to inspect how
 
 That should be done without replacing stock firmware, kernel, or the active
 host MPSS configuration.
+
+## `/new_root` Inventory Result
+
+Date: 2026-07-30
+
+Latest reviewed commit before this diagnostic:
+
+```text
+13af4b4 Trace stock init switch_root handoff
+```
+
+The stock-derived builder now has a narrow inspection mode:
+
+```sh
+tools/uos/build-stockderived-min-k1om-initramfs.sh \
+  --replace instrument-new-root-inventory \
+  --name xpr-new-root-inventory
+```
+
+It changes only the private Base CPIO copy of stock `/init`. Immediately before
+the proven stock handoff, it writes a bounded metadata-only inventory to
+`/new_root/xpr-new-root-inventory.txt` and then preserves the original command:
+
+```text
+exec /sbin/switch_root /new_root /sbin/init
+```
+
+Private build directory:
+
+```text
+/root/xeon-phi-revival-local/uos-min-init-builds/xpr-new-root-inventory-20260730-210445
+```
+
+The generated private image was:
+
+```text
+image=/root/xeon-phi-revival-local/uos-min-init-builds/xpr-new-root-inventory-20260730-210445/xpr-new-root-inventory.cpio.gz
+image_sha256=2108e58acdde6d4ac7c604f59387144141aa52a6e0e9569c900752d5f36af06f
+compressed_bytes=20408409
+uncompressed_bytes=53688320
+init_sha256=17b05c863f69d5910d718ecc70ece0b699745a9ed730c6ce3e570d07a062167d
+link_mode=stock-shell-script
+elf_machine=script
+stock_cpio_sha256=44ecb9b0dbfbe9c5d880cbfe85fe53b65b000e1b66d6c1e779821f4e36923acd
+```
+
+The bounded experiment booted to `online` and recovered the inventory over SSH
+before restoring stock. The relevant on-card evidence was:
+
+```text
+XPR_MIN_INIT_ENTERED
+XPR_NEW_ROOT_INVENTORY
+PID=1
+PWD=/
+drwxr-xr-x ... /new_root
+drwxr-xr-x ... /new_root/sbin
+lrwxrwxrwx ... /new_root/sbin/init -> /sbin/init.sysvinit
+-rwxr-xr-x ... /new_root/sbin/init.sysvinit
+rootfs on / type rootfs (rw)
+none on /proc type proc (rw,relatime)
+none on /new_root type tmpfs (rw,relatime,size=6699996k,mode=755)
+XPR_MIN_INIT_IDLE
+```
+
+The stock initramfs lacks `stat`, so no ownership or device metadata beyond the
+listed modes was captured. The result is still sufficient to identify the
+insertion point: `/new_root` is the root switched into by stock `/init`, and
+the executable run there is `/new_root/sbin/init.sysvinit` through the
+`/new_root/sbin/init` absolute symlink.
+
+After automatic recovery, the host verified:
+
+```text
+mic0: online (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+ssh 172.31.1.1: uname -m=k1om
+ssh 172.31.1.1: /proc/1/comm=init
+```
+
+### Updated Handoff Conclusion
+
+The first distributable-uOS insertion point is now verified at the filesystem
+level. A later, separate experiment can install a temporary wrapper at
+`/new_root/sbin/init` that records execution and `exec`s the preserved stock
+`/sbin/init.sysvinit`. That test is intentionally out of scope for this
+mapping-only milestone.
