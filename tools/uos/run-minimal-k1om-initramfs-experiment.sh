@@ -4,7 +4,7 @@ set -euo pipefail
 usage() {
   cat >&2 <<'USAGE'
 usage:
-  run-minimal-k1om-initramfs-experiment.sh --image FILE --expected-conf-sha SHA [--mic mic0]
+  run-minimal-k1om-initramfs-experiment.sh --image FILE --expected-conf-sha SHA [--mic mic0] [--ssh-marker-path PATH]
 
 Boot a tiny K1OM control initramfs through an alternate MPSS config, capture
 early console evidence, and restore stock MPSS. The only pass condition is the
@@ -17,6 +17,7 @@ expected_conf_sha=""
 mic="mic0"
 run_root="${HOME}/xeon-phi-revival-local/uos-min-init-runs"
 boot_polls=24
+ssh_marker_path=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -25,6 +26,7 @@ while [[ $# -gt 0 ]]; do
     --mic) mic="${2:-}"; shift 2 ;;
     --run-root) run_root="${2:-}"; shift 2 ;;
     --boot-polls) boot_polls="${2:-}"; shift 2 ;;
+    --ssh-marker-path) ssh_marker_path="${2:-}"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "unknown argument: $1" >&2; usage; exit 2 ;;
   esac
@@ -193,6 +195,16 @@ sleep 5
 kill "$console_pid" >/dev/null 2>&1 || true
 wait "$console_pid" >/dev/null 2>&1 || true
 
+if [[ -n "$ssh_marker_path" ]]; then
+  {
+    echo "== ssh-marker =="
+    micctrl --status || true
+    ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+      -o ConnectTimeout=6 "$mic" \
+      "echo ssh_marker_probe; cat '$ssh_marker_path'; test -f /tmp/xpr-stock-init-marker.txt && cat /tmp/xpr-stock-init-marker.txt || true" || true
+  } > "$run_dir/ssh-marker.txt" 2>&1
+fi
+
 micctrl --status > "$run_dir/final-mic-status.txt" 2>&1 || true
 dmesg | grep -iE 'mic|mpss|knc|k1om|xeon phi' | tail -200 > "$run_dir/dmesg-mic-tail.txt" || true
 tail -200 /var/log/mpssd > "$run_dir/mpssd-tail.txt" 2>/dev/null || true
@@ -206,6 +218,10 @@ cat /proc/mic_ramoops/"${mic}_prev" > "$run_dir/ramoops-prev.txt" 2>/dev/null ||
   cat "$run_dir/ramoops-current.txt" 2>/dev/null || true
   echo "== ramoops-prev =="
   cat "$run_dir/ramoops-prev.txt" 2>/dev/null || true
+  if [[ -n "$ssh_marker_path" ]]; then
+    echo "== ssh-marker =="
+    cat "$run_dir/ssh-marker.txt" 2>/dev/null || true
+  fi
 } > "$evidence"
 
 marker_pass=0

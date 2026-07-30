@@ -588,6 +588,119 @@ alternate Base CPIO boot lane, or the failure happens before userspace marker
 output becomes visible on the host-captured MIC console.
 ```
 
-The single next technical step for a later session is to instrument stock
-`/init` minimally, preserving its final behavior, so the first executable shell
-line can prove whether `/init` itself starts under this MPSS config path.
+## Stock `/init` Instrumentation Result
+
+Date: 2026-07-30
+
+Latest reviewed commit before this diagnostic:
+
+```text
+1a5765e Test stock init boundary replacements
+```
+
+The stock-derived builder gained a focused mode:
+
+```sh
+tools/uos/build-stockderived-min-k1om-initramfs.sh \
+  --replace instrument-stock-init \
+  --name xpr-stock-init-instrumented-file
+```
+
+This mode preserves stock `/sbin/init`, stock `/sbin/init.sysvinit`, stock
+`/etc/inittab`, and the rest of the stock Base CPIO. It changes only `/init`
+by inserting a small marker block immediately after the shebang, then continues
+into the original stock script body.
+
+The marker block writes to early console paths and also records file-backed
+evidence:
+
+```text
+/xpr-stock-init-marker.txt
+/tmp/xpr-stock-init-marker.txt
+```
+
+Private build directory:
+
+```text
+/root/xeon-phi-revival-local/uos-min-init-builds/xpr-stock-init-instrumented-file-20260730-153854
+```
+
+The generated image was:
+
+```text
+image=/root/xeon-phi-revival-local/uos-min-init-builds/xpr-stock-init-instrumented-file-20260730-153854/xpr-stock-init-instrumented-file.cpio.gz
+image_sha256=852b2d04841e1c99d90ce4e6fd4f42167bd4241d54535dffd23edec55fb0a0a4
+compressed_bytes=20408824
+uncompressed_bytes=53688320
+init_sha256=e555b0cee3d4b580311fec2a4a90d6fde8d7c1926d53e2d07fac19e912c7a2dd
+link_mode=stock-shell-script
+elf_machine=script
+stock_cpio_sha256=44ecb9b0dbfbe9c5d880cbfe85fe53b65b000e1b66d6c1e779821f4e36923acd
+```
+
+Private run directory:
+
+```text
+/root/xeon-phi-revival-local/uos-min-init-runs/min-init-20260730-153931
+```
+
+Exact boot command:
+
+```sh
+micctrl --configdir=/root/xeon-phi-revival-local/uos-min-init-runs/min-init-20260730-153931/mpss-conf --boot mic0
+```
+
+The card reached `online` during the experimental boot:
+
+```text
+boot_poll_5
+mic0: online (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+```
+
+The runner then used bounded SSH to read the marker file before rollback. This
+proved that the stock `/init` wrapper executed as PID 1:
+
+```text
+ssh_marker_probe
+XPR_MIN_INIT_ENTERED
+PID=1
+XPR_MIN_INIT_IDLE
+```
+
+Summary result:
+
+```text
+marker_pass=1
+rollback_pass=1
+private_ramfs_sha256=6aaf5803886bb4ed6913ba408d6f4db36f4721aa6238f35325f69a3319bc5694
+```
+
+Final stock verification passed:
+
+```text
+mic0: online (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+stock_ssh_ok
+/proc/1/comm=init
+uname -m=k1om
+```
+
+### Updated Boundary Conclusion
+
+This proves the alternate Base CPIO boot lane does execute stock `/init` as PID
+1 when the stock wrapper behavior is preserved. The earlier static-ELF
+replacement failures are therefore not a generic MPSS/kernel/initramfs handoff
+failure.
+
+The current narrow blocker is:
+
+```text
+Stock /init runs, but replacing its later handoff target with a static K1OM
+marker prevents successful userspace transition. The next boundary is inside
+the stock /init wrapper's handoff logic and expected environment before it
+execs stock init.sysvinit.
+```
+
+The single next technical step for a later session is to instrument the stock
+`/init` wrapper around its final exec/handoff point, preserving stock behavior,
+so the exact branch and arguments used to start `init.sysvinit` can be recorded
+without replacing that target.

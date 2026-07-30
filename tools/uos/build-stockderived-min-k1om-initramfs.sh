@@ -4,7 +4,7 @@ set -euo pipefail
 usage() {
   cat >&2 <<'USAGE'
 usage:
-  build-stockderived-min-k1om-initramfs.sh --source FILE [--replace MODE] [--stock-cpio FILE] [--out-root DIR] [--name NAME]
+  build-stockderived-min-k1om-initramfs.sh [--source FILE] [--replace MODE] [--stock-cpio FILE] [--out-root DIR] [--name NAME]
 
 Build a private stock-derived MPSS Base CPIO diagnostic image by replacing one
 small init boundary with the minimal K1OM init program. This is a narrow
@@ -16,6 +16,8 @@ replace modes:
   sbin-init              preserve /init, replace only /sbin/init
   sbin-init-sysvinit     preserve /init and /sbin/init, replace only
                           /sbin/init.sysvinit
+  instrument-stock-init  insert a marker block after stock /init shebang and
+                          preserve the rest of stock /init behavior
 USAGE
 }
 
@@ -37,22 +39,26 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-[[ -n "$source_file" && -f "$source_file" ]] || { usage; exit 2; }
 [[ -f "$stock_cpio" ]] || { echo "stock cpio missing: $stock_cpio" >&2; exit 3; }
 case "$replace_mode" in
-  init-and-sbin-init|sbin-init|sbin-init-sysvinit) ;;
+  init-and-sbin-init|sbin-init|sbin-init-sysvinit|instrument-stock-init) ;;
   *) echo "invalid --replace mode: $replace_mode" >&2; usage; exit 2 ;;
 esac
+if [[ "$replace_mode" != "instrument-stock-init" ]]; then
+  [[ -n "$source_file" && -f "$source_file" ]] || { usage; exit 2; }
+fi
 
 for cmd in awk chmod cpio date file find gzip mkdir readelf rm sha256sum sort stat zcat; do
   command -v "$cmd" >/dev/null 2>&1 || { echo "required host tool missing: $cmd" >&2; exit 10; }
 done
 
-if ! command -v k1om-mpss-linux-gcc >/dev/null 2>&1 && [[ -f /opt/mpss/3.4.10/environment-setup-k1om-mpss-linux ]]; then
+if [[ "$replace_mode" != "instrument-stock-init" ]] && ! command -v k1om-mpss-linux-gcc >/dev/null 2>&1 && [[ -f /opt/mpss/3.4.10/environment-setup-k1om-mpss-linux ]]; then
   # shellcheck disable=SC1091
   source /opt/mpss/3.4.10/environment-setup-k1om-mpss-linux
 fi
-command -v k1om-mpss-linux-gcc >/dev/null 2>&1 || { echo "k1om-mpss-linux-gcc not found" >&2; exit 11; }
+if [[ "$replace_mode" != "instrument-stock-init" ]]; then
+  command -v k1om-mpss-linux-gcc >/dev/null 2>&1 || { echo "k1om-mpss-linux-gcc not found" >&2; exit 11; }
+fi
 
 timestamp="$(date -u +%Y%m%d-%H%M%S)"
 run_dir="$out_root/${name}-${timestamp}"
@@ -74,8 +80,10 @@ echo "run_dir=$run_dir"
 echo "replace_mode=$replace_mode"
 echo "warning=generated image contains stock MPSS userspace and must stay private"
 
-k1om-mpss-linux-gcc -Os -static -s "$source_file" -o "$min_init" >"$run_dir/static-link.log" 2>&1
-chmod 0755 "$min_init"
+if [[ "$replace_mode" != "instrument-stock-init" ]]; then
+  k1om-mpss-linux-gcc -Os -static -s "$source_file" -o "$min_init" >"$run_dir/static-link.log" 2>&1
+  chmod 0755 "$min_init"
+fi
 
 echo "== unpack stock Base CPIO =="
 (
@@ -109,22 +117,78 @@ case "$replace_mode" in
     chmod 0755 "$rootfs/sbin/init.sysvinit"
     inspect_path="$rootfs/sbin/init.sysvinit"
     ;;
+  instrument-stock-init)
+    stock_init="$run_dir/replaced/init.stock"
+    tmp_init="$run_dir/init.instrumented"
+    {
+      IFS= read -r shebang < "$stock_init"
+      printf '%s\n' "$shebang"
+      cat <<'EOF'
+# XPR minimal stock-init instrumentation. Keep this block side-effect-light:
+# emit evidence, then continue into the original stock init wrapper.
+xpr_emit_init_marker() {
+  {
+    echo XPR_MIN_INIT_ENTERED
+    echo PID=$$
+    echo XPR_MIN_INIT_IDLE
+  } > /xpr-stock-init-marker.txt 2>/dev/null || true
+  mkdir -p /tmp 2>/dev/null || true
+  {
+    echo XPR_MIN_INIT_ENTERED
+    echo PID=$$
+    echo XPR_MIN_INIT_IDLE
+  } > /tmp/xpr-stock-init-marker.txt 2>/dev/null || true
+  for xpr_console in /dev/console /dev/hvc0 /dev/ttyMIC0; do
+    if [ -e "$xpr_console" ]; then
+      {
+        echo XPR_MIN_INIT_ENTERED
+        echo PID=$$
+        echo XPR_MIN_INIT_IDLE
+      } > "$xpr_console" 2>&1 || true
+    fi
+  done
+  {
+    echo XPR_MIN_INIT_ENTERED
+    echo PID=$$
+    echo XPR_MIN_INIT_IDLE
+  } || true
+}
+xpr_emit_init_marker
+unset -f xpr_emit_init_marker 2>/dev/null || true
+unset xpr_console 2>/dev/null || true
+EOF
+      tail -n +2 "$stock_init"
+    } > "$tmp_init"
+    cp -a "$tmp_init" "$rootfs/init"
+    chmod --reference="$stock_init" "$rootfs/init"
+    inspect_path="$rootfs/init"
+    ;;
 esac
 
-echo "== init ELF =="
-file "$inspect_path"
-readelf -h "$inspect_path" > "$run_dir/init.readelf-h.txt"
-readelf -l "$inspect_path" > "$run_dir/init.readelf-l.txt"
-readelf -d "$inspect_path" > "$run_dir/init.readelf-d.txt" 2>&1 || true
-readelf -h "$inspect_path" | grep -E 'Class:|Machine:|Entry point'
-readelf -l "$inspect_path" | grep -E 'Requesting program interpreter' || true
-readelf -d "$inspect_path" | grep 'NEEDED' || true
+if [[ "$replace_mode" == "instrument-stock-init" ]]; then
+  echo "== instrumented init script =="
+  file "$inspect_path"
+  head -40 "$inspect_path" > "$run_dir/init.instrumented-head.txt"
+  machine="script"
+else
+  echo "== init ELF =="
+  file "$inspect_path"
+  readelf -h "$inspect_path" > "$run_dir/init.readelf-h.txt"
+  readelf -l "$inspect_path" > "$run_dir/init.readelf-l.txt"
+  readelf -d "$inspect_path" > "$run_dir/init.readelf-d.txt" 2>&1 || true
+  readelf -h "$inspect_path" | grep -E 'Class:|Machine:|Entry point'
+  readelf -l "$inspect_path" | grep -E 'Requesting program interpreter' || true
+  readelf -d "$inspect_path" | grep 'NEEDED' || true
 
-machine="$(readelf -h "$inspect_path" | awk -F: '/Machine:/ {sub(/^[ \t]+/,"",$2); print $2}')"
-[[ "$machine" == "Intel K1OM" ]] || { echo "init ELF machine is not Intel K1OM: $machine" >&2; exit 12; }
+  machine="$(readelf -h "$inspect_path" | awk -F: '/Machine:/ {sub(/^[ \t]+/,"",$2); print $2}')"
+  [[ "$machine" == "Intel K1OM" ]] || { echo "init ELF machine is not Intel K1OM: $machine" >&2; exit 12; }
+fi
 
 echo "== replaced path hashes =="
-sha256sum "$inspect_path" "$min_init"
+sha256sum "$inspect_path"
+if [[ -f "$min_init" ]]; then
+  sha256sum "$min_init"
+fi
 find "$run_dir/replaced" -maxdepth 1 -type f -print0 | sort -z | xargs -0 sha256sum
 find "$run_dir/replaced" -maxdepth 1 -type l -printf '%f_link_target=%l\n' | sort
 
@@ -174,12 +238,14 @@ $(case "$replace_mode" in
   init-and-sbin-init) printf '%s\n%s\n' '- /init' '- /sbin/init' ;;
   sbin-init) printf '%s\n' '- /sbin/init' ;;
   sbin-init-sysvinit) printf '%s\n' '- /sbin/init.sysvinit' ;;
+  instrument-stock-init) printf '%s\n' '- /init (instrumented only)' ;;
 esac)
 left_stock_present:
 $(case "$replace_mode" in
   init-and-sbin-init) printf '%s\n%s\n' '- /sbin/init.sysvinit' '- /etc/inittab' ;;
   sbin-init) printf '%s\n%s\n%s\n' '- /init' '- /sbin/init.sysvinit' '- /etc/inittab' ;;
   sbin-init-sysvinit) printf '%s\n%s\n%s\n' '- /init' '- /sbin/init' '- /etc/inittab' ;;
+  instrument-stock-init) printf '%s\n%s\n%s\n' '- /sbin/init' '- /sbin/init.sysvinit' '- /etc/inittab' ;;
 esac)
 private_reason=contains stock MPSS Base CPIO userspace
 EOF
@@ -195,9 +261,9 @@ manifest_sha256=$(awk -v mf="$manifest" '$2 == mf {print $1}' "$hashes")
 replace_mode=$replace_mode
 init=$inspect_path
 init_sha256=$(sha256sum "$inspect_path" | awk '{print $1}')
-link_mode=static
+link_mode=$(if [[ "$replace_mode" == "instrument-stock-init" ]]; then echo stock-shell-script; else echo static; fi)
 elf_machine=$machine
-elf_interpreter=$(awk '/Requesting program interpreter/ {gsub(/[][]/,"",$NF); print $NF; exit}' "$run_dir/init.readelf-l.txt")
+elf_interpreter=$(if [[ -f "$run_dir/init.readelf-l.txt" ]]; then awk '/Requesting program interpreter/ {gsub(/[][]/,"",$NF); print $NF; exit}' "$run_dir/init.readelf-l.txt"; fi)
 stock_cpio=$stock_cpio
 stock_cpio_sha256=$(awk -v stock="$stock_cpio" '$2 == stock {print $1}' "$hashes")
 image_size=$(du -h "$image" | awk '{print $1}')
