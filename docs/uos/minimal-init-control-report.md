@@ -256,3 +256,156 @@ For the next session, keep the same tiny static init but place it inside a
 stock-derived Base CPIO copy by replacing only `/init` and `/sbin/init` in the
 stock archive. That will test whether the blocker is the minimal archive layout
 versus the project init binary itself.
+
+## Stock-Derived Follow-Up
+
+The focused builder for that exact next step is:
+
+```sh
+tools/uos/build-stockderived-min-k1om-initramfs.sh \
+  --source src/uos/xpr_min_init.c
+```
+
+It creates a private image by unpacking the stock MPSS Base CPIO and replacing
+only:
+
+```text
+/init
+/sbin/init
+```
+
+It intentionally leaves stock `/sbin/init.sysvinit`, `/etc/inittab`, and the
+rest of the stock Base CPIO present so the live test can isolate whether the
+previous failure was caused by the minimal archive layout. The generated image
+contains stock MPSS userspace and must not be published.
+
+## Stock-Derived Live Result
+
+Date: 2026-07-30
+
+Private build directory:
+
+```text
+/root/xeon-phi-revival-local/uos-min-init-builds/xpr-min-init-stockderived-20260730-073726
+```
+
+Private run directory:
+
+```text
+/root/xeon-phi-revival-local/uos-min-init-runs/min-init-20260730-073805
+```
+
+The stock-derived diagnostic image was built by unpacking:
+
+```text
+/usr/share/mpss/boot/initramfs-knightscorner.cpio.gz
+stock_cpio_sha256=44ecb9b0dbfbe9c5d880cbfe85fe53b65b000e1b66d6c1e779821f4e36923acd
+```
+
+Only these paths were replaced:
+
+```text
+/init
+/sbin/init
+```
+
+The original stock `/sbin/init` was a symlink to `/sbin/init.sysvinit`. The
+stock-derived diagnostic left these stock paths present:
+
+```text
+/sbin/init.sysvinit
+/etc/inittab
+```
+
+The replacement init remained the same static K1OM ELF:
+
+```text
+link_mode=static
+elf_machine=Intel K1OM
+elf_interpreter=
+init_sha256=2aa7539c629c19def86f542e9561146ddbd2ae601d4d04c3e6ff629df7af6cba
+```
+
+Generated image:
+
+```text
+image=/root/xeon-phi-revival-local/uos-min-init-builds/xpr-min-init-stockderived-20260730-073726/xpr-min-init-stockderived.cpio.gz
+image_size=20M
+compressed_bytes=20934054
+uncompressed_bytes=54844928
+image_sha256=e23146753423bf58e9865fcf2f7bf49aa0560d01d56df08c61278d274b7fa2a1
+manifest_sha256=4a1a3c29436b2df1c0bf4e784e7cfc53be248780234f7113e56b92bc85d60920
+```
+
+Exact boot command:
+
+```sh
+micctrl --configdir=/root/xeon-phi-revival-local/uos-min-init-runs/min-init-20260730-073805/mpss-conf --boot mic0
+```
+
+The MPSS-generated ramfs consumed by the boot attempt contained:
+
+```text
+dev/console
+etc/inittab
+init
+sbin/init
+sbin/init.sysvinit
+```
+
+The generated ramfs hash was:
+
+```text
+private_ramfs=/root/xeon-phi-revival-local/uos-min-init-runs/min-init-20260730-073805/mic0.min-init.image.gz
+private_ramfs_sha256=bc95b4598acb77255947dfe82762f6ce1d7e0a336eab8087cd345b8b17cfb37b
+compressed_bytes=21112458
+uncompressed_bytes=54871552
+```
+
+Console output again reached early kernel/MPSS text but did not include the
+minimal init markers:
+
+```text
+XPR_MIN_INIT_ENTERED
+PID=1
+XPR_MIN_INIT_IDLE
+```
+
+The card remained in:
+
+```text
+mic0: booting (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+```
+
+until the bounded wait ended. `marker_pass=0`.
+
+Rollback passed:
+
+```text
+stock_conf_sha256=9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51
+mic0: online (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+mpss.service=active
+stock_ssh_ok
+/proc/1/comm=init
+uname -m=k1om
+```
+
+### Updated Blocker
+
+The stock-derived test rules out the minimal archive layout as the primary
+blocker. The stock Base CPIO layout, stock `/etc/inittab`, stock
+`/sbin/init.sysvinit`, and stock device nodes were present, but replacing
+`/init` and `/sbin/init` with a static K1OM ELF still produced no userspace
+marker.
+
+The likely blocker is now earlier or more specific:
+
+```text
+The MPSS/KNC boot path may not use the Base CPIO /init in the way a normal
+Linux initramfs does, or it may require the stock init wrapper behavior before
+console-visible userspace output and monitor handoff occur.
+```
+
+The next diagnostic should inspect the stock `/init` wrapper semantics and test
+a stock-derived image that preserves `/init` while replacing only
+`/sbin/init` or only `/sbin/init.sysvinit`, one at a time.
