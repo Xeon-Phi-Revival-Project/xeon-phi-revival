@@ -409,3 +409,185 @@ console-visible userspace output and monitor handoff occur.
 The next diagnostic should inspect the stock `/init` wrapper semantics and test
 a stock-derived image that preserves `/init` while replacing only
 `/sbin/init` or only `/sbin/init.sysvinit`, one at a time.
+
+## One-At-A-Time Stock Init Boundary Results
+
+Date: 2026-07-30
+
+Latest reviewed commit before these diagnostics:
+
+```text
+2e1a2fb Test stock-derived minimal K1OM init image
+```
+
+The stock Base CPIO init boundary was identified as:
+
+```text
+/init: POSIX shell script, 3946 bytes
+/sbin/init: symlink to /sbin/init.sysvinit
+/sbin/init.sysvinit: dynamic K1OM ELF, 34744 bytes
+/etc/inittab: present
+stock /init sha256=cd0c4b87f31a5d595567a3013fd9f735c1e7dc58d920a1e0e4b315706f1999c6
+```
+
+Only the first lines of stock `/init` were inspected. The file is a shell
+wrapper that sets an early `PATH` and prepares the card filesystem before later
+init handling.
+
+### Preserve `/init`, Replace Only `/sbin/init`
+
+Private build directory:
+
+```text
+/root/xeon-phi-revival-local/uos-min-init-builds/xpr-min-init-stock-sbin-init-20260730-145819
+```
+
+Private run directory:
+
+```text
+/root/xeon-phi-revival-local/uos-min-init-runs/min-init-20260730-150009
+```
+
+Replacement mode:
+
+```text
+replace_mode=sbin-init
+```
+
+The generated image preserved stock `/init`, stock `/sbin/init.sysvinit`, and
+stock `/etc/inittab`, but replaced `/sbin/init` with the static marker binary:
+
+```text
+link_mode=static
+elf_machine=Intel K1OM
+elf_interpreter=
+init_sha256=2aa7539c629c19def86f542e9561146ddbd2ae601d4d04c3e6ff629df7af6cba
+image_sha256=a987d18982702afa1462e0263ff5592735ee1c9f43d9ec7d5765230ecf100867
+compressed_bytes=20672076
+uncompressed_bytes=54267904
+```
+
+Exact boot command:
+
+```sh
+micctrl --configdir=/root/xeon-phi-revival-local/uos-min-init-runs/min-init-20260730-150009/mpss-conf --boot mic0
+```
+
+The MPSS-generated ramfs consumed by the boot attempt contained:
+
+```text
+etc/inittab
+init
+sbin/init
+sbin/init.sysvinit
+sbin/telinit -> init
+```
+
+No marker was captured:
+
+```text
+marker_pass=0
+```
+
+Rollback passed:
+
+```text
+rollback_pass=1
+mic0: online (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+mpss.service=active
+stock_ssh_ok
+/proc/1/comm=init
+uname -m=k1om
+```
+
+### Preserve `/init` and `/sbin/init`, Replace Only `/sbin/init.sysvinit`
+
+Private build directory:
+
+```text
+/root/xeon-phi-revival-local/uos-min-init-builds/xpr-min-init-stock-sysvinit-20260730-150545
+```
+
+Private run directory:
+
+```text
+/root/xeon-phi-revival-local/uos-min-init-runs/min-init-20260730-150719
+```
+
+Replacement mode:
+
+```text
+replace_mode=sbin-init-sysvinit
+```
+
+The generated image preserved stock `/init`, preserved `/sbin/init` as a
+symlink to `/sbin/init.sysvinit`, preserved stock `/etc/inittab`, and replaced
+only `/sbin/init.sysvinit` with the static marker binary:
+
+```text
+link_mode=static
+elf_machine=Intel K1OM
+elf_interpreter=
+init_sha256=2aa7539c629c19def86f542e9561146ddbd2ae601d4d04c3e6ff629df7af6cba
+image_sha256=e9e3bbdb76314f7aab754d3c0198e5abd15344aaa0ed6000817811718f12b6a8
+compressed_bytes=20653257
+uncompressed_bytes=54233088
+```
+
+Exact boot command:
+
+```sh
+micctrl --configdir=/root/xeon-phi-revival-local/uos-min-init-runs/min-init-20260730-150719/mpss-conf --boot mic0
+```
+
+The MPSS-generated ramfs consumed by the boot attempt contained:
+
+```text
+etc/inittab
+init
+sbin/init -> /sbin/init.sysvinit
+sbin/init.sysvinit
+sbin/telinit -> init
+```
+
+No marker was captured:
+
+```text
+marker_pass=0
+```
+
+Rollback passed:
+
+```text
+rollback_pass=1
+mic0: online (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+mpss.service=active
+stock_ssh_ok
+/proc/1/comm=init
+uname -m=k1om
+```
+
+### Boundary Conclusion
+
+These two runs rule out both of the simple stock init boundary replacements:
+
+```text
+preserve stock /init, replace /sbin/init only
+preserve stock /init and /sbin/init symlink, replace /sbin/init.sysvinit only
+```
+
+In both cases the replacement static K1OM ELF survived into the exact
+MPSS-generated ramfs, but the marker did not appear and the card remained in
+`booting` until the bounded wait ended.
+
+The current narrow blocker is:
+
+```text
+The stock /init wrapper is not reaching the replaced init boundary in this
+alternate Base CPIO boot lane, or the failure happens before userspace marker
+output becomes visible on the host-captured MIC console.
+```
+
+The single next technical step for a later session is to instrument stock
+`/init` minimally, preserving its final behavior, so the first executable shell
+line can prove whether `/init` itself starts under this MPSS config path.
