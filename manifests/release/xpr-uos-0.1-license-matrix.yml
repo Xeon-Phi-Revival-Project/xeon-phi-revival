@@ -1,0 +1,115 @@
+title: Xeon Phi Revival uOS 0.1 release license matrix
+status: engineering-review
+not_legal_advice: true
+reviewed_private_build: /root/xeon-phi-revival-local/uos-rc-builds/xpr-uos-rc-20260730-053125
+reviewed_host:
+  mpss_version: "3.4.10"
+  target: "Intel Xeon Phi 5110P / Knights Corner / K1OM"
+release_recommendation:
+  first_release_type: source-metadata-byo-mpss-builder
+  do_not_publish_current_rootfs: true
+  reason: current private rootfs contains copied or lineage-uncertain K1OM binaries and local MPSS/SDK-derived inputs that require redistribution review
+mpss_license_rpm:
+  filename: mpss-license-3.4.10-1.glibc2.12.x86_64.rpm
+  installed: false
+  package_license_field: Intel-MPSS-License
+  vendor: Intel Corporation
+  build_host: sid-bld24.pdx.intel.com
+  build_date: "2017-01-12"
+  signature: "DSA/SHA1 key ID 94619b594a86c38d; local RPM key unavailable, reported NOKEY"
+  extracted_file: /usr/share/doc/mpss-3.4.10/license.txt
+  extracted_file_sha256: 622b8be9dd2c1add746d1f8ddc0f9a0b1c8cd818906fc6f398511f6eb2fea0e0
+installed_mpss_license_fields:
+  glibc2.12pkg-libmicmgmt0-3.4.10-1.glibc2.12.x86_64: LGPLv2.1
+  glibc2.12pkg-mpss-flash-3.4.10-1.glibc2.12.x86_64: Intel-MPSS-License
+  glibc2.12pkg-mpss-rasmm-kernel-3.4.10-1.glibc2.12.x86_64: Intel-MPSS-License
+  microcode_ctl-2.1-22.el7.x86_64: GPLv2+ and Redistributable, no modification permitted
+  mpss-boot-files-3.4.10-1.glibc2.12.x86_64: GPLv2
+  mpss-core-3.4.10-1.glibc2.12.x86_64: MIT
+  mpss-daemon-3.4.10-1.glibc2.12.x86_64: GPLv2 LGPLv2.1
+  mpss-micmgmt-3.4.10-1.glibc2.12.x86_64: LGPLv2.1
+  mpss-modules-3.10.0-693.el7.x86_64-3.4.10-1.x86_64: GPLv2
+  mpss-myo-3.4.10-1.glibc2.12.x86_64: LGPLv2.1
+  mpss-sdk-k1om-3.4.10-1.x86_64: various
+components:
+  - name: project-docs-scripts
+    observed_license: MIT
+    release_decision: redistributable-now
+    action: include repository LICENSE and keep generated artifacts traceable
+  - name: intel-mpss-rpms-firmware-stock-uos-stock-kernel
+    observed_license: mixed-includes-intel-mpss-license
+    release_decision: bring-your-own-only
+    action: never attach to GitHub releases from this project
+  - name: mpss-sdk-k1om-sysroot
+    observed_license: various
+    release_decision: bring-your-own-only
+    action: use only as local input unless every copied file is replaced or separately approved
+  - name: eglibc-runtime
+    observed_license: LGPL-family
+    release_decision: possible-after-compliance
+    action: provide exact source, patches, notices, and LGPL compliance material
+  - name: busybox
+    observed_license: GPLv2
+    release_decision: do-not-publish-current-copied-binary
+    action: rebuild from source and provide corresponding source or keep local-only
+  - name: cpython-3.12
+    observed_license: PSF-2.0-plus-incorporated-licenses
+    release_decision: possible-after-compliance
+    action: include license stack, source provenance, and build recipe
+  - name: cpython-3.5-legacy
+    observed_license: python-license-but-current-provenance-unneeded
+    release_decision: remove-from-public-rc
+    action: drop unless rebuilt from source and required
+  - name: libffi
+    observed_license: MIT-style
+    release_decision: possible-after-compliance
+    action: include license and exact source provenance
+  - name: zlib
+    observed_license: zlib
+    release_decision: possible-after-compliance
+    action: rebuild or prove source provenance for shipped K1OM binary
+  - name: ncurses-libtinfo
+    observed_license: permissive-ncurses
+    release_decision: possible-after-compliance
+    action: rebuild or prove source provenance and include notices
+  - name: readline
+    observed_license: GPLv3
+    release_decision: optional-avoid-for-first-binary-rc
+    action: include only with GPL compliance and if interactive Python requires it
+  - name: openssl-1.0.x
+    observed_license: openssl-ssleay
+    release_decision: optional-avoid-for-first-binary-rc
+    action: rebuild from source and review notices/compatibility before shipping
+  - name: libgcc_s
+    observed_license: gcc-runtime-library-exception-expected
+    release_decision: provenance-review-required
+    action: rebuild or trace exact source and exception notices
+release_options:
+  source_metadata:
+    safe_now: true
+    includes:
+      - repository source
+      - docs
+      - manifests
+      - build scripts
+      - sanitized smoke-test evidence
+    excludes:
+      - rootfs images
+      - MPSS payloads
+      - uncertain binary packages
+  byo_mpss_builder:
+    recommended_first_usable_release: true
+    includes:
+      - public build orchestration
+      - local MPSS input validation
+      - local-only rootfs generation
+      - reversible MicDir boot script
+  prebuilt_binary_rootfs:
+    safe_now: false
+    blockers:
+      - remove Python 3.5 legacy payload
+      - rebuild or replace BusyBox
+      - rebuild/trace all runtime libraries
+      - include source and license bundles for GPL/LGPL/permissive components
+      - prove no Intel MPSS payloads are included
+      - human legal review

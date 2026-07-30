@@ -223,3 +223,10 @@ split the RC output into:
 - public metadata/source/package recipes;
 - redistributable generated outputs;
 - bring-your-own-MPSS local inputs.
+
+That review is now tracked in
+`docs/release/xpr-uos-0.1-license-review.md`. The current recommendation is to
+publish the first usable release as a source/metadata/BYO-MPSS builder release,
+not as a prebuilt rootfs. A public binary rootfs should wait until copied or
+lineage-uncertain payloads are removed, rebuilt from documented public sources,
+or covered by a human legal review.

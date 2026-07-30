@@ -42,6 +42,24 @@ as a local reference under its own terms.
 | [Python 3.12.13 source release](https://www.python.org/downloads/release/python-31213/) | Official CPython 3.12.13 source and checksum used for the K1OM build probe. | Link only. Do not commit the source archive or generated K1OM binaries. |
 | [QPhiX documentation](https://jeffersonlab.github.io/qphix/) | Example of serious Xeon Phi-era HPC software targeting vectorized kernels. | Reference only unless a future port explicitly follows its license. |
 
+## License References
+
+These links are release-review references. They do not override the exact
+license files shipped in a source tarball, Debian source package, RPM, or local
+build tree.
+
+| Source | Use | Repository Handling |
+| --- | --- | --- |
+| [Python license](https://docs.python.org/3/license.html) | CPython 3.12 license stack and incorporated software notices. | Include license/provenance records before distributing Python binaries. |
+| [GNU C Library](https://www.gnu.org/software/libc/) | glibc/eglibc licensing entry point. | Treat K1OM eglibc binaries as LGPL-family payloads requiring source and compliance material. |
+| [BusyBox license](https://busybox.net/license.html) | BusyBox GPLv2 release obligations. | Rebuild from source or keep copied BusyBox local-only. |
+| [zlib license](https://www.zlib.net/zlib_license.html) | zlib runtime license. | Rebuild or prove source provenance before distributing K1OM binaries. |
+| [ncurses licensing FAQ](https://invisible-island.net/ncurses/ncurses.faq.html#licensing) | ncurses/libtinfo license reference. | Include notices and source provenance before binary publication. |
+| [libffi](https://sourceware.org/libffi/) | libffi source/license reference. | Include license and source provenance before binary publication. |
+| [GNU Readline](https://tiswww.case.edu/php/chet/readline/rltop.html) | Readline GPLv3 reference. | Optional; avoid in first binary rootfs unless GPL obligations are intentionally accepted. |
+| [OpenSSL release license overview](https://openssl-library.org/source/license/index.html) | OpenSSL 1.0.x vs 3.x license split. | Optional; rebuild and review before shipping `_ssl`/`_hashlib` support. |
+| [GCC Runtime Library Exception](https://www.gnu.org/licenses/gcc-exception.html) | libgcc/libstdc++ runtime exception reference. | Trace exact K1OM `libgcc_s` provenance or rebuild from known GCC source. |
+
 ## Known Local-Only Or Restricted Inputs
 
 These are important for reproducing the current private lab result, but they do

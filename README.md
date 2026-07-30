@@ -260,6 +260,13 @@ software.
 
 For public links and source notes, see [Source Index](docs/source-index.md).
 
+Release packaging is currently conservative by design. The first practical
+public release should be a source/metadata/BYO-MPSS builder release, not a
+prebuilt rootfs image, until every K1OM binary payload has a recorded source,
+license, and redistribution decision. See the
+[XPR uOS 0.1 license review](docs/release/xpr-uos-0.1-license-review.md) and
+[license matrix](manifests/release/xpr-uos-0.1-license-matrix.yml).
+
 ## Status
 
 Phase 1 is complete: a real Xeon Phi 5110P moved from PCIe enumeration and MPSS
