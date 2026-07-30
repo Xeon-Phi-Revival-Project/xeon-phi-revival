@@ -42,6 +42,10 @@ The project now has enough verified ground to begin the real Ubuntu-port lane:
   builder, and the 36-package live gate now passes with eglibc-linked
   `hello-knc`, Python 3.12, zlib/ncurses smokes, `_ctypes`, package-manager
   checks, OS/filesystem checks, and verified stock rollback.
+- A first `xpr-uos` 0.1 release-candidate pipeline now builds a coherent
+  private rootfs, creates checksums and artifact manifests, boots through the
+  reversible MPSS/MicDir path, passes release smoke over SSH, and rolls back to
+  stock MPSS.
 - Rollback to stock uOS is repeatable.
 
 ## Port Boundary
@@ -87,10 +91,9 @@ Minimum claim line:
 
 The project already satisfies much of the package-manager and userland surface.
 The previous immediate runtime boundary, `libpthread`, now passes in the
-side-by-side eglibc 2.19 probe and in the reversible package gate. The smallest
-remaining technical gap before a minimal true-port claim is packaging the
-remaining Python 3.12 optional extension dependencies and broadening the rootfs
-service/filesystem surface without relying on stock MPSS runtime paths.
+side-by-side eglibc 2.19 probe, in the reversible package gate, and in the
+first RC smoke. The smallest remaining gap before a public downloadable uOS is
+redistribution review and artifact splitting, not another boot-path milestone.
 
 ## Bare-Minimum Smoke Test
 

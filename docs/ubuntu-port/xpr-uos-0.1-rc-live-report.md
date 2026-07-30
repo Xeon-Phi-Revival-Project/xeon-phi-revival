@@ -1,0 +1,225 @@
+# Xeon Phi Revival uOS 0.1 RC Live Report
+
+Date: 2026-07-30
+
+## Result
+
+Status: passed live on `mic0`.
+
+The first release-candidate pipeline produced a coherent private K1OM rootfs,
+booted the project profile through the supported MPSS/MicDir lane, ran the RC
+smoke test over SSH, and rolled back to stock MPSS.
+
+This is a minimal Ubuntu-derived K1OM uOS release candidate. It is not an
+official Ubuntu, Canonical, or Intel release, and it does not replace the stock
+kernel, firmware, host MPSS driver, or the stock-init networking handoff.
+
+## Reviewed Baseline
+
+Latest repository commit reviewed before this work:
+
+```text
+1b6d76e Document passing eglibc K1OM package gate
+```
+
+Active MPSS config hash checked before live modification:
+
+```text
+9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51
+```
+
+## Private Build Artifacts
+
+Private RC build run:
+
+```text
+/root/xeon-phi-revival-local/uos-rc-builds/xpr-uos-rc-20260730-053125
+```
+
+Produced artifacts:
+
+```text
+rootfs=/root/xeon-phi-revival-local/uos-rc-builds/xpr-uos-rc-20260730-053125/rootfs/rootfs
+rootfs_archive=/root/xeon-phi-revival-local/uos-rc-builds/xpr-uos-rc-20260730-053125/xpr-uos-0.1-k1om-rootfs.tar.gz
+rootfs_archive_sha256=55a4cc64d78b7d7aab328f521816dcb5ad2a279f9b82bae481aa776351149147
+package_repo=/root/xeon-phi-revival-local/uos-rc-builds/xpr-uos-rc-20260730-053125/packages/repo
+artifact_manifest=/root/xeon-phi-revival-local/uos-rc-builds/xpr-uos-rc-20260730-053125/artifact-manifest.tsv
+release_candidate_manifest=/root/xeon-phi-revival-local/uos-rc-builds/xpr-uos-rc-20260730-053125/release-candidate.yml
+```
+
+Size:
+
+```text
+rootfs directory: 126M
+rootfs archive:   37M
+```
+
+Package count:
+
+```text
+36
+```
+
+The generated rootfs and `.deb` repository are private artifacts. They are not
+committed because they can contain locally supplied MPSS/K1OM material and
+generated binaries that require redistribution review.
+
+## Live Run
+
+Private live run:
+
+```text
+/root/xeon-phi-revival-local/uos-rc-live-runs/xpr-uos-rc-live-20260730-053936
+```
+
+Live summary:
+
+```text
+status=passed
+ssh=passed
+package_install=passed
+rollback=passed
+```
+
+The card presented:
+
+```text
+Linux unknownf48e38c1a578-mic0.home 2.6.38.8+mpss3.4.10 #1 SMP Thu Jan 12 16:38:30 EST 2017 k1om GNU/Linux
+```
+
+Project identity:
+
+```text
+NAME="Xeon Phi Revival uOS"
+PRETTY_NAME="Xeon Phi Revival Ubuntu-derived K1OM uOS"
+ID=xpr-uos
+ID_LIKE=ubuntu
+VERSION_ID="0.1"
+VERSION="0.1 release candidate"
+VERSION_CODENAME=noble
+ARCHITECTURE="k1om"
+```
+
+## Smoke Evidence
+
+The RC smoke test passed these checks:
+
+```text
+PASS:uname_machine_k1om
+PASS:os_id_xpr
+PASS:os_like_ubuntu
+PASS:os_arch_k1om
+PASS:pid1_visible
+PASS:sh_command
+PASS:cmd_ls
+PASS:cmd_cat
+PASS:cmd_cp
+PASS:cmd_mv
+PASS:cmd_rm
+PASS:cmd_mkdir
+PASS:cmd_mount
+PASS:cmd_uname
+PASS:cmd_ps
+PASS:cmd_env
+PASS:file_ops
+PASS:proc_dir
+PASS:sys_dir
+PASS:dev_dir
+PASS:run_dir
+PASS:tmp_writable
+PASS:proc_mounted
+PASS:sys_mounted
+PASS:dev_null
+PASS:dpkg_arch
+PASS:dpkg_query
+PASS:dpkg_deb
+PASS:apt_update
+PASS:apt_cache
+PASS:apt_reinstall
+PASS:loader
+PASS:libc
+PASS:libpthread
+PASS:hello_loader
+PASS:stage2_log
+PASS:hello_stage2
+PASS:pthread_stack
+PASS:zlib_stage2
+PASS:ncurses_stage2
+PASS:python3_exec
+PASS:python_default
+PASS:python312_smoke
+PASS:ctypes_call
+PASS:ctypes_callback
+PASS:zlib_import
+PASS:network_visibility
+PASS:ssh_available
+```
+
+Package-management evidence:
+
+```text
+dpkg --print-architecture => k1om
+apt-get update => passed
+apt-get install --reinstall xpr-pci-tools => passed
+```
+
+Python evidence:
+
+```text
+Python 3.12.13
+ctypes_strlen=3
+ctypes_callback=42
+```
+
+## Optional Python Gaps
+
+These optional modules remain gaps in the eglibc RC profile:
+
+```text
+OPTIONAL_GAP:bz2:ModuleNotFoundError:No module named '_bz2'
+OPTIONAL_GAP:lzma:ModuleNotFoundError:No module named '_lzma'
+OPTIONAL_GAP:readline:ModuleNotFoundError:No module named 'readline'
+OPTIONAL_GAP:sqlite3:ModuleNotFoundError:No module named '_sqlite3'
+OPTIONAL_GAP:curses:ModuleNotFoundError:No module named '_curses'
+OPTIONAL_GAP:curses.panel:ModuleNotFoundError:No module named '_curses'
+```
+
+These were explicitly treated as non-blocking for RC 0.1. `_ssl` and
+`_hashlib` are also not part of the RC success line.
+
+## Rollback
+
+Rollback verified stock MPSS recovery:
+
+```text
+stock_ssh_ok
+profile_absent
+stage2_log_absent
+dpkg_status_absent
+python3_absent
+apt_get_absent
+init
+```
+
+As seen in earlier MPSS runs, `micctrl --boot` printed `Boot failed - card
+state online` during rollback, but immediate status and SSH checks showed
+`mic0` online and stock rollback complete.
+
+## Remaining Blockers To A Public Downloadable uOS
+
+- Redistribution review for generated rootfs archives and K1OM binaries.
+- Clear per-file classification for Ubuntu/GNU-derived binary outputs.
+- Removal or replacement of remaining private Intel/MPSS payload dependencies
+  where redistribution is not allowed.
+- Optional Python extension packaging for `_bz2`, `_lzma`, `readline`,
+  `_sqlite3`, `_curses`, and `curses.panel`.
+- A downloadable release procedure that publishes only approved artifacts.
+
+## Highest-Value Next Step
+
+Run the redistribution review path against the generated artifact manifest and
+split the RC output into:
+
+- public metadata/source/package recipes;
+- redistributable generated outputs;
+- bring-your-own-MPSS local inputs.

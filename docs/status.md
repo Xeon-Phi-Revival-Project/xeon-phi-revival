@@ -340,6 +340,14 @@ image.
   several Python 3.12 optional extension modules remain outside this minimal
   eglibc gate: `_bz2`, `_lzma`, `readline`, `_sqlite3`, `_curses`, `_ssl`, and
   `_hashlib`.
+- The first K1OM uOS 0.1 release-candidate pipeline now passes live. Build run
+  `xpr-uos-rc-20260730-053125` produced a private coherent rootfs
+  (`126M`, compressed archive `37M`, SHA-256
+  `55a4cc64d78b7d7aab328f521816dcb5ad2a279f9b82bae481aa776351149147`).
+  Live run `xpr-uos-rc-live-20260730-053936` booted through MicDir, presented
+  `ID=xpr-uos` / `ID_LIKE=ubuntu`, passed shell/filesystem/package-manager/
+  Python 3.12/ctypes/pthread/zlib/ncurses/network/SSH smoke checks, and rolled
+  back to stock MPSS.
 
 ## Current Public Artifacts
 
@@ -373,6 +381,9 @@ image.
 - `docs/ubuntu-port/real-dpkg-k1om-report.md`
 - `docs/ubuntu-port/real-apt-k1om-bridge-report.md`
 - `docs/ubuntu-port/eglibc-2.19-k1om-pthread-runtime-report.md`
+- `docs/ubuntu-port/uos-rc-acceptance-checklist.md`
+- `docs/ubuntu-port/uos-rc-build-install.md`
+- `docs/ubuntu-port/xpr-uos-0.1-rc-live-report.md`
 - `docs/toolchain/minimum-k1om-runtime.md`
 - `docs/toolchain/k1om-package-requirements.md`
 - `docs/toolchain/mpss-sdk-k1om-3.4.10-preinstall-report.md`
@@ -406,11 +417,11 @@ image.
 - `manifests/experiments/python-3.12-k1om-expanded-runtime.yml`
 - `manifests/experiments/eglibc-2.19-k1om-pthread-runtime.yml`
 - `manifests/experiments/eglibc-2.19-k1om-package-gate.yml`
+- `manifests/experiments/xpr-uos-0.1-rc.yml`
 
 ## Safest Next Technical Action
 
-Package the remaining Python 3.12 optional extension dependencies against the
-passing eglibc 2.19 K1OM runtime, then broaden the rootfs toward essential
-filesystem and service behavior. In parallel, define the modern K1OM
-compiler/libstdc++ work needed by Noble APT 2.8. Continue avoiding committed
-proprietary or uncertain-redistribution payloads.
+Review the generated RC artifact manifest for redistribution and split the
+output into public metadata/source recipes, redistributable generated outputs,
+and bring-your-own-MPSS local inputs. Continue avoiding committed proprietary
+or uncertain-redistribution payloads.

@@ -33,7 +33,7 @@ result:
 evidence:
   rootfs_summary: "status=prepared; suite=noble; version=24.04; note=private rootfs output may contain non-redistributable locally supplied K1OM runtime payloads"
   required_paths: "/etc/os-release; /etc/lsb-release; /etc/passwd; /etc/group; /etc/profile; /etc/apt/sources.list; /var/lib/dpkg/status; /bin/sh; /bin/ls; /usr/bin/python3; /usr/bin/python3.12; /usr/bin/dpkg; /usr/bin/dpkg-query; /usr/bin/dpkg-deb; /usr/bin/apt-get; /usr/bin/apt-cache; /usr/bin/pcietool; /opt/xeon-phi-revival/bin/hello-knc; /lib64/ld-linux-k1om.so.2; /dev/null; /proc; /sys"
-  os_release: "ID=ubuntu; VERSION_CODENAME=noble; XPR_ARCH=k1om"
+  os_release: "ID=xpr-uos; ID_LIKE=ubuntu; VERSION_CODENAME=noble; XPR_ARCH=k1om"
   python3_default: "/usr/bin/python3 -> python3.12"
   elf_machine: "all detected ELF files validated as e_machine 181, including hello-knc, python3.5, python3.12, busybox, loader, libc, libssl, libcrypto, libncurses, libreadline, libz, libtinfo"
   package_manager: "dpkg --audit passed; dpkg --get-selections listed xpr-pci-tools; apt-cache pkgnames python3.12 listed python3.12-minimal-k1om; apt-cache depends python3.12-smoke-k1om listed python3.12-minimal-k1om; apt-cache search pci listed xpr-pci-tools; apt-get download xpr-pci-tools produced xpr-pci-tools_0.1.0_k1om.deb"

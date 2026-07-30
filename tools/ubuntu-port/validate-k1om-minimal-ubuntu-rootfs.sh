@@ -54,7 +54,8 @@ for path in "${required[@]}"; do
 done
 [[ "$missing" -eq 0 ]] || exit 10
 
-grep -q '^ID=ubuntu$' "$rootfs/etc/os-release" || { echo "os-release missing ID=ubuntu" >&2; exit 11; }
+grep -q '^ID=xpr-uos$' "$rootfs/etc/os-release" || { echo "os-release missing ID=xpr-uos" >&2; exit 11; }
+grep -q '^ID_LIKE=ubuntu$' "$rootfs/etc/os-release" || { echo "os-release missing ID_LIKE=ubuntu" >&2; exit 11; }
 grep -Eq '^VERSION_CODENAME="?noble"?$' "$rootfs/etc/os-release" || { echo "os-release missing noble codename" >&2; exit 12; }
 grep -Eq '^XPR_ARCH="?k1om"?$' "$rootfs/etc/os-release" || { echo "os-release missing XPR_ARCH k1om marker" >&2; exit 13; }
 grep -q '^deb \[trusted=yes arch=k1om\] file:/opt/xeon-phi-revival/repo noble main$' "$rootfs/etc/apt/sources.list" || { echo "sources.list does not point at local k1om archive" >&2; exit 14; }

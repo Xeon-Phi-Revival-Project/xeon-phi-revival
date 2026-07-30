@@ -1,0 +1,58 @@
+id: xpr-uos-0.1-rc
+title: Xeon Phi Revival K1OM uOS release candidate 0.1
+status: passed
+architecture: k1om
+identity:
+  id: xpr-uos
+  id_like: ubuntu
+  pretty_name: Xeon Phi Revival Ubuntu-derived K1OM uOS
+claim_boundary: Minimal Ubuntu-derived K1OM uOS through supported MPSS/MicDir and stock-init networking handoff.
+required_tools:
+  - tools/ubuntu-port/build-k1om-uos-rc.sh
+  - tools/ubuntu-port/boot-k1om-uos-rc-micdir.sh
+  - tools/ubuntu-port/run-k1om-uos-rc-smoke.sh
+  - tools/ubuntu-port/package-k1om-uos-rc-release.sh
+  - tools/ubuntu-port/build-k1om-bootstrap-packages.sh
+  - tools/ubuntu-port/build-k1om-minimal-ubuntu-rootfs.sh
+  - tools/ubuntu-port/validate-k1om-minimal-ubuntu-rootfs.sh
+locally_supplied_inputs:
+  - MPSS K1OM sysroot
+  - project-built eglibc 2.19 K1OM runtime
+  - rebuilt eglibc-linked smoke payload root
+  - runtime-library root
+  - CPython 3.12.13 K1OM root
+  - eglibc-linked libffi root
+public_outputs:
+  - docs/ubuntu-port/uos-rc-acceptance-checklist.md
+  - docs/ubuntu-port/uos-rc-build-install.md
+private_outputs:
+  - rootfs directory
+  - rootfs tar.gz archive
+  - local binary-k1om package repository
+  - SHA-256 reports
+  - live boot logs
+  - rollback logs
+verified_run:
+  build_run: /root/xeon-phi-revival-local/uos-rc-builds/xpr-uos-rc-20260730-053125
+  live_run: /root/xeon-phi-revival-local/uos-rc-live-runs/xpr-uos-rc-live-20260730-053936
+  rootfs_size: 126M
+  rootfs_archive_size: 37M
+  rootfs_archive_sha256: 55a4cc64d78b7d7aab328f521816dcb5ad2a279f9b82bae481aa776351149147
+  package_count: 36
+  ssh: passed
+  package_install: passed
+  python312: passed
+  ctypes: passed
+  rollback: passed
+  optional_python_gaps:
+    - _bz2
+    - _lzma
+    - readline
+    - _sqlite3
+    - _curses
+    - curses.panel
+redistribution_policy:
+  project_code: redistributable under repository license
+  ubuntu_gnu_patches: preserve upstream licenses and review before binary publication
+  intel_mpss_payloads: must be supplied locally; do not redistribute
+  generated_rootfs: private until redistribution review is complete

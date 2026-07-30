@@ -95,29 +95,31 @@ if [[ -e "$rootfs/usr/bin/python3.12" || -L "$rootfs/usr/bin/python3.12" ]]; the
 fi
 
 cat > "$rootfs/etc/os-release" <<EOF
-PRETTY_NAME="Ubuntu ${version} LTS (Xeon Phi Revival K1OM minimal)"
-NAME="Ubuntu"
-VERSION_ID="${version}"
-VERSION="${version} LTS (${suite})"
+NAME="Xeon Phi Revival uOS"
+PRETTY_NAME="Xeon Phi Revival Ubuntu-derived K1OM uOS"
+ID=xpr-uos
+ID_LIKE=ubuntu
+VERSION_ID="0.1"
+VERSION="0.1 release candidate"
 VERSION_CODENAME="${suite}"
-ID=ubuntu
-ID_LIKE=debian
+ARCHITECTURE="k1om"
 HOME_URL="https://github.com/Xeon-Phi-Revival-Project"
 SUPPORT_URL="https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival"
 BUG_REPORT_URL="https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/issues"
 XPR_ARCH="k1om"
-XPR_NOTE="Minimal Ubuntu-shaped compatibility rootfs; not an official Ubuntu port."
+XPR_DERIVED_FROM="Ubuntu ${version} ${suite} source/package metadata"
+XPR_NOTE="Minimal Ubuntu-derived K1OM uOS; not an official Ubuntu, Intel, or Canonical release."
 EOF
 
 cat > "$rootfs/etc/lsb-release" <<EOF
-DISTRIB_ID=Ubuntu
-DISTRIB_RELEASE=${version}
+DISTRIB_ID=Xeon Phi Revival uOS
+DISTRIB_RELEASE=0.1
 DISTRIB_CODENAME=${suite}
-DISTRIB_DESCRIPTION="Ubuntu ${version} LTS (Xeon Phi Revival K1OM minimal)"
+DISTRIB_DESCRIPTION="Xeon Phi Revival Ubuntu-derived K1OM uOS"
 EOF
 
 cat > "$rootfs/etc/debian_version" <<'EOF'
-trixie/sid
+xpr-uos 0.1 ${suite}-derived
 EOF
 
 cat > "$rootfs/etc/passwd" <<'EOF'

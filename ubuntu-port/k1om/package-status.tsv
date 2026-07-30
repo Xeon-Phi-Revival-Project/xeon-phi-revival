@@ -49,3 +49,4 @@ apt	1.0.1ubuntu2.24	bridge-pass	Ubuntu APT compatibility bridge built reproducib
 apt	2.8.3	blocked	Ubuntu Noble APT requires C++17; MPSS K1OM GCC 4.7 accepts gnu++0x but rejects gnu++11, gnu++14, and gnu++17
 eglibc	2.19	pthread-runtime-pass	Ubuntu-source eglibc 2.19 side-by-side K1OM loader/libc/pthread runtime built; dynamic hello and pthread smokes ran on real k1om uOS with exit code 0
 eglibc-package-gate	0.1.0	passed	36-package deterministic eglibc-backed package gate passed on mic0 after rebuilding hello, Python 3.12, zlib/ncurses smokes, libffi, and runtime payloads against the eglibc loader/libc stack; stock rollback verified
+xpr-uos-rc	0.1	passed	Private coherent K1OM uOS rootfs built and compressed; reversible MicDir live RC smoke passed shell/filesystem, native dpkg/APT, Python 3.12, ctypes, pthread, zlib, ncurses, network/SSH, and stock rollback

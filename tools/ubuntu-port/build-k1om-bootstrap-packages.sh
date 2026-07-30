@@ -301,48 +301,50 @@ mkdir -p \
   "$base_data/usr/bin"
 cat > "$base_data/opt/xeon-phi-revival/profile.env" <<EOF
 XPR_PROFILE_VERSION=$version
-XPR_PROFILE_KIND=ubuntu-24.04-k1om-bootstrap
-XPR_PHASE=bootstrap
+XPR_PROFILE_KIND=xpr-uos-0.1-k1om-rc
+XPR_PHASE=release-candidate
 XPR_ROOT=/opt/xeon-phi-revival
 EOF
 cat > "$base_data/etc/xeon-phi-revival-release" <<EOF
-NAME="Xeon Phi Revival Project Ubuntu K1OM"
+NAME="Xeon Phi Revival uOS"
 VERSION="$version"
 ARCH="$arch"
 BASE="stock MPSS uOS"
 UBUNTU_SUITE="noble"
 UBUNTU_VERSION="24.04"
-PORT_STATUS="unofficial bootstrap port"
+PORT_STATUS="unofficial Ubuntu-derived release candidate"
 EOF
 cat > "$base_data/etc/os-release" <<'EOF'
-PRETTY_NAME="Ubuntu 24.04 LTS (Xeon Phi Revival K1OM)"
-NAME="Ubuntu"
-VERSION_ID="24.04"
-VERSION="24.04 LTS (Noble Numbat)"
+NAME="Xeon Phi Revival uOS"
+PRETTY_NAME="Xeon Phi Revival Ubuntu-derived K1OM uOS"
+ID=xpr-uos
+ID_LIKE=ubuntu
+VERSION_ID="0.1"
+VERSION="0.1 release candidate"
 VERSION_CODENAME=noble
-ID=ubuntu
-ID_LIKE=debian
+ARCHITECTURE="k1om"
 HOME_URL="https://github.com/Xeon-Phi-Revival-Project"
 SUPPORT_URL="https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival"
 BUG_REPORT_URL="https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/issues"
 XPR_ARCH=k1om
-XPR_PORT_STATUS="unofficial bootstrap port"
+XPR_DERIVED_FROM="Ubuntu 24.04 Noble source/package metadata"
+XPR_PORT_STATUS="unofficial release candidate; not endorsed by Intel, Canonical, or Ubuntu"
 EOF
 cat > "$base_data/etc/lsb-release" <<'EOF'
-DISTRIB_ID=Ubuntu
-DISTRIB_RELEASE=24.04
+DISTRIB_ID=Xeon Phi Revival uOS
+DISTRIB_RELEASE=0.1
 DISTRIB_CODENAME=noble
-DISTRIB_DESCRIPTION="Ubuntu 24.04 LTS (Xeon Phi Revival K1OM)"
+DISTRIB_DESCRIPTION="Xeon Phi Revival Ubuntu-derived K1OM uOS"
 EOF
 cat > "$base_data/etc/debian_version" <<'EOF'
-trixie/sid
+xpr-uos 0.1 noble-derived
 EOF
 cat > "$base_data/etc/issue" <<'EOF'
-Ubuntu 24.04 LTS (Xeon Phi Revival K1OM) \n \l
+Xeon Phi Revival Ubuntu-derived K1OM uOS 0.1 \n \l
 EOF
 cat > "$base_data/etc/motd" <<'EOF'
 Xeon Phi Revival Project
-Unofficial Ubuntu 24.04 K1OM bootstrap port for Knights Corner.
+Unofficial Ubuntu-derived K1OM uOS release candidate for Knights Corner.
 EOF
 cat > "$base_data/usr/bin/lsb_release" <<'LSBRELEASE'
 #!/bin/sh
@@ -376,14 +378,14 @@ emit() {
 }
 
 case "$field" in
-  id) emit "Distributor ID" "Ubuntu" ;;
-  release) emit "Release" "24.04" ;;
+  id) emit "Distributor ID" "Xeon Phi Revival uOS" ;;
+  release) emit "Release" "0.1" ;;
   codename) emit "Codename" "noble" ;;
-  description) emit "Description" "Ubuntu 24.04 LTS (Xeon Phi Revival K1OM)" ;;
+  description) emit "Description" "Xeon Phi Revival Ubuntu-derived K1OM uOS" ;;
   all)
-    emit "Distributor ID" "Ubuntu"
-    emit "Description" "Ubuntu 24.04 LTS (Xeon Phi Revival K1OM)"
-    emit "Release" "24.04"
+    emit "Distributor ID" "Xeon Phi Revival uOS"
+    emit "Description" "Xeon Phi Revival Ubuntu-derived K1OM uOS"
+    emit "Release" "0.1"
     emit "Codename" "noble"
     ;;
 esac

@@ -102,6 +102,10 @@ Ubuntu-style package experiments:
   updates from the local Noble-style `file:` repository, resolves dependencies,
   and drove real dpkg through a complete isolated 36-package install. This is a
   compatibility bridge; it is not Noble APT or an upstream Ubuntu port.
+- The first `xpr-uos` 0.1 release-candidate flow now builds a coherent private
+  K1OM rootfs and boots it through the reversible MPSS/MicDir path. The live RC
+  smoke passed shell/filesystem, dpkg/APT, Python 3.12, ctypes, pthread, zlib,
+  ncurses, network/SSH, and stock rollback checks on `mic0`.
 
 See `docs/status.md` and `docs/ubuntu-port/` for the latest public-safe
 reports.
