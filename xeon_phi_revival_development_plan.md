@@ -53,6 +53,34 @@ toolchain, runtime, and GitHub project planning.
 - The incoming 5110P should be treated as a fresh hardware target and verified
   from first principles.
 
+## Minimum True Ubuntu Port Definition
+
+Do not describe the project output as a true Ubuntu K1OM port until the minimum
+base can be rebuilt, installed, tested, and rolled back from public-safe
+manifests.
+
+The smallest acceptable true-port target is:
+
+- `k1om` architecture metadata for dpkg/Ubuntu package tooling.
+- A local Ubuntu-style archive with `binary-k1om` indexes.
+- Ubuntu-source libc/loader runtime packages for `libc6`, `libgcc1`, `libm6`,
+  `libpthread0`, `libdl2`, `librt1`, and `libutil1`.
+- Real native K1OM `dpkg` installing the essential package set into a clean
+  root or isolated target.
+- Native K1OM APT updating from the local archive and installing packages
+  through real dpkg.
+- A coherent root/profile with `/etc/os-release`, package status, `/dev`,
+  `/proc`, `/sys`, `/tmp`, basic shell commands, `python3`, and rollback to
+  stock MPSS.
+- On-card smoke tests for package manager behavior, libc, pthread, Python,
+  file I/O, shell commands, and rollback.
+
+Current status: the package-manager and Python/userland lanes are already
+substantially proven. The narrowest remaining blocker is replacing the
+MPSS-derived runtime dependency with a project-built Ubuntu-source libc/loader
+stack; the active eglibc/glibc probe has reached K1OM `libc.so` and `ld.so`,
+with `libpthread.so` still unresolved.
+
 ## Knowledge Base From Reference Materials
 
 This section captures reusable facts from the local PDFs, Intel community
@@ -1043,6 +1071,23 @@ True Ubuntu port:
   rebuilds, and boot/userland integration.
 - This likely requires substantial distro engineering and may never be practical.
 - Treat this as a long-term research question, not a near-term milestone.
+
+### Current Architecture-Port Checkpoint
+
+As of 2026-07-29:
+
+- Ubuntu Noble dpkg `1.22.6ubuntu6.6` builds reproducibly for K1OM and has
+  completed a full 36-package isolated transaction on the 5110P.
+- Ubuntu APT `1.0.1ubuntu2.24` builds as a native local-file compatibility
+  bridge and has driven real dpkg through the same archive.
+- CPython 3.12.13, libffi callbacks, SQLite, compression, curses, and OpenSSL
+  modules pass in the packaged K1OM profile.
+- Noble APT `2.8.3` is blocked by the MPSS K1OM compiler's lack of C++17.
+- The active loader and libc remain MPSS-derived, so the result is still an
+  Ubuntu-derived bootstrap distribution rather than a true Ubuntu port.
+
+The next two distribution dependencies are a modern K1OM C++ toolchain and an
+Ubuntu-source libc build that can run on the MPSS 2.6.38 kernel.
 
 ### Constraints To Prove
 

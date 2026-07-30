@@ -44,3 +44,6 @@ openssl	3.0.13-0ubuntu3.11	blocked	Official Ubuntu source metadata found; config
 libffi	3.4.6-1build1	live-pass	K1OM call and closure backend passed standalone and packaged CPython 3.12 ctypes smokes on mic0
 cpython	3.5.10	bootstrap-pass	K1OM interpreter runs core Python plus math and zlib in demo rootfs
 cpython	3.12.13	package-pass	Official source cross-build plus K1OM compatibility patches produced ELF64 K1OM Python 3.12.13 packages that passed expanded core/zlib/hash/xml/pickle/csv/asyncio/bz2/lzma/readline/sqlite3/curses smoke on mic0 from the local k1om archive
+dpkg	1.22.6ubuntu6.6	live-pass	Ubuntu Noble dpkg built reproducibly for K1OM and completed a clean full 36-package isolated transaction on mic0
+apt	1.0.1ubuntu2.24	bridge-pass	Ubuntu APT compatibility bridge built reproducibly for K1OM and drove real dpkg through a full local-file archive transaction on mic0
+apt	2.8.3	blocked	Ubuntu Noble APT requires C++17; MPSS K1OM GCC 4.7 accepts gnu++0x but rejects gnu++11, gnu++14, and gnu++17

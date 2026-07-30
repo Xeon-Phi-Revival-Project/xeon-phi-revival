@@ -8,6 +8,16 @@ Intel Xeon Phi Knights Corner / K1OM.
 Status: ready to start architecture-port design, not ready to claim a true
 Ubuntu port.
 
+Latest package-manager checkpoint:
+
+- Ubuntu Noble dpkg `1.22.6ubuntu6.6` runs natively on K1OM and completed a
+  full 36-package isolated transaction.
+- A native Ubuntu APT `1.0.1ubuntu2.24` compatibility bridge updated from the
+  local archive and drove the same full transaction through real dpkg.
+- Noble APT `2.8.3` requires C++17; MPSS K1OM GCC 4.7 only accepts
+  `gnu++0x`.
+- The active loader/libc stack is still MPSS-derived.
+
 The project now has enough verified ground to begin the real Ubuntu-port lane:
 
 - K1OM toolchain installed and working on the MPSS host.
@@ -19,8 +29,8 @@ The project now has enough verified ground to begin the real Ubuntu-port lane:
   and complete libffi-backed `_ctypes` call/callback support.
 - Project PID 1 handoff works.
 - Project second-stage uOS profile works under stock MPSS init.
-- A project-owned dpkg/APT shim pair runs on-card against the local K1OM
-  archive, including update and reinstall smoke tests.
+- Both the project dpkg/APT shim pair and side-by-side real Ubuntu dpkg/APT
+  builds run on-card against the local K1OM archive.
 - A project-owned libc/runtime stack is split into standalone packages under
   `/opt/xeon-phi-revival/lib64`.
 - Rollback to stock uOS is repeatable.
@@ -41,17 +51,62 @@ It is Ubuntu-compatible research infrastructure, not Ubuntu itself.
 
 ## Required Before Claiming True Ubuntu
 
+Minimum claim line:
+
 - Final architecture name decision, likely `k1om`.
-- Debian/Ubuntu architecture tuple policy decision.
-- `dpkg-architecture` metadata fragments.
-- Minimal package archive layout.
-- Reproducible bootstrap package set.
-- Public-safe build manifests that do not redistribute Intel MPSS payloads.
-- Clear split between Ubuntu-source outputs and bring-your-own-MPSS runtime
-  material.
-- Package tests for libc, zlib, ncurses, Python core, and basic shell tools.
-- A project uOS profile package format that can install into the MicDir overlay
-  or an equivalent generated rootfs without touching stock base images.
+- Debian/Ubuntu architecture tuple policy decision and working
+  `dpkg-architecture` metadata fragments.
+- Minimal Ubuntu-style archive layout with `dists/.../binary-k1om/Packages`,
+  `Packages.gz`, and checksum metadata.
+- Ubuntu-source base runtime packages for the core dynamic runtime:
+  `libc6`, loader, `libgcc1`, `libm6`, `libpthread0`, `libdl2`, `librt1`,
+  and `libutil1`.
+- Real native K1OM `dpkg` installing the essential package set into a clean
+  root or isolated target directory.
+- Native K1OM APT updating from the local project archive and installing K1OM
+  packages through real dpkg.
+- Usable minimal command surface: `sh`, `ls`, `cat`, `python3`, `dpkg`,
+  `dpkg-query`, `dpkg-deb`, `apt-get`, and `apt-cache`.
+- Coherent root/profile identity with `/etc/os-release`, `/dev`, `/proc`,
+  `/sys`, `/tmp`, package status metadata, and a repeatable stock MPSS rollback.
+- Package tests for libc, zlib, ncurses, Python core, package-manager
+  transactions, and basic shell tools.
+- Public-safe build manifests that do not redistribute Intel MPSS payloads,
+  extracted sysroots, firmware, private rootfs images, or binaries with unclear
+  redistribution rights.
+- Clear split between Ubuntu-source outputs and bring-your-own-MPSS material.
+
+The project already satisfies much of the package-manager and userland surface.
+The smallest remaining technical gap before a minimal true-port claim is a
+project-built Ubuntu-source libc/loader stack that can run the package set
+side-by-side on the MPSS kernel. The current eglibc/glibc probe has reached
+K1OM `libc.so` and `ld.so`; `libpthread.so` remains the immediate link/runtime
+boundary.
+
+## Bare-Minimum Smoke Test
+
+The first true-port candidate should pass this exact style of on-card smoke
+before being described as a minimal Ubuntu K1OM port:
+
+```bash
+uname -a
+cat /etc/os-release
+dpkg --print-architecture
+dpkg-query -W
+apt-get update
+apt-get install hello-knc-smoke
+hello-knc
+python3 -c "import ctypes, sqlite3, zlib; print('ubuntu-k1om-ok')"
+```
+
+Expected result:
+
+```text
+dpkg --print-architecture => k1om
+hello-knc exits 0
+python3 smoke exits 0
+rollback to stock MPSS succeeds afterward
+```
 
 ## Completed Bootstrap Archive Step
 
@@ -159,6 +214,7 @@ probe to packaged runtime profile, and now proves `bz2`, `lzma`, `readline`,
 `sqlite3`, `curses`, and `curses.panel` inside the packaged smoke on `mic0`.
 The Python dependency lane is now complete enough for the bootstrap target:
 OpenSSL-backed `_ssl`/`_hashlib`, sqlite3, curses, terminfo, and libffi-backed
-`_ctypes` calls/callbacks pass on-card. The next useful step is replacing the
-project dpkg/APT shims with real Ubuntu builds and resolving the Ubuntu
-glibc-versus-MPSS-kernel compatibility boundary.
+`_ctypes` calls/callbacks pass on-card. Real Ubuntu dpkg and a local-file APT
+bridge now pass too. The next useful step is resolving the Ubuntu
+glibc-versus-MPSS-kernel compatibility boundary and modernizing the K1OM C++
+toolchain enough to build Noble APT.

@@ -1,0 +1,76 @@
+diff --git a/configure b/configure
+index 936457d..8f64489 100755
+--- a/configure
++++ b/configure
+@@ -3313,7 +3313,7 @@ else
+     We can't simply define LARGE_OFF_T to be 9223372036854775807,
+     since some C++ compilers masquerading as C compilers
+     incorrectly reject 9223372036854775807.  */
+-#define LARGE_OFF_T ((((off_t) 1 << 31) << 31) - 1 + (((off_t) 1 << 31) << 31))
++#define LARGE_OFF_T (((off_t) 1 << 62) - 1 + ((off_t) 1 << 62))
+   int off_t_is_large[(LARGE_OFF_T % 2147483629 == 721
+                        && LARGE_OFF_T % 2147483647 == 1)
+                       ? 1 : -1];
+@@ -3359,7 +3359,7 @@ else
+     We can't simply define LARGE_OFF_T to be 9223372036854775807,
+     since some C++ compilers masquerading as C compilers
+     incorrectly reject 9223372036854775807.  */
+-#define LARGE_OFF_T ((((off_t) 1 << 31) << 31) - 1 + (((off_t) 1 << 31) << 31))
++#define LARGE_OFF_T (((off_t) 1 << 62) - 1 + ((off_t) 1 << 62))
+   int off_t_is_large[(LARGE_OFF_T % 2147483629 == 721
+                        && LARGE_OFF_T % 2147483647 == 1)
+                       ? 1 : -1];
+@@ -3383,7 +3383,7 @@ else
+     We can't simply define LARGE_OFF_T to be 9223372036854775807,
+     since some C++ compilers masquerading as C compilers
+     incorrectly reject 9223372036854775807.  */
+-#define LARGE_OFF_T ((((off_t) 1 << 31) << 31) - 1 + (((off_t) 1 << 31) << 31))
++#define LARGE_OFF_T (((off_t) 1 << 62) - 1 + ((off_t) 1 << 62))
+   int off_t_is_large[(LARGE_OFF_T % 2147483629 == 721
+                        && LARGE_OFF_T % 2147483647 == 1)
+                       ? 1 : -1];
+@@ -3428,7 +3428,7 @@ else
+     We can't simply define LARGE_OFF_T to be 9223372036854775807,
+     since some C++ compilers masquerading as C compilers
+     incorrectly reject 9223372036854775807.  */
+-#define LARGE_OFF_T ((((off_t) 1 << 31) << 31) - 1 + (((off_t) 1 << 31) << 31))
++#define LARGE_OFF_T (((off_t) 1 << 62) - 1 + ((off_t) 1 << 62))
+   int off_t_is_large[(LARGE_OFF_T % 2147483629 == 721
+                        && LARGE_OFF_T % 2147483647 == 1)
+                       ? 1 : -1];
+@@ -3452,7 +3452,7 @@ else
+     We can't simply define LARGE_OFF_T to be 9223372036854775807,
+     since some C++ compilers masquerading as C compilers
+     incorrectly reject 9223372036854775807.  */
+-#define LARGE_OFF_T ((((off_t) 1 << 31) << 31) - 1 + (((off_t) 1 << 31) << 31))
++#define LARGE_OFF_T (((off_t) 1 << 62) - 1 + ((off_t) 1 << 62))
+   int off_t_is_large[(LARGE_OFF_T % 2147483629 == 721
+                        && LARGE_OFF_T % 2147483647 == 1)
+                       ? 1 : -1];
+@@ -4534,7 +4534,7 @@ if test "x$curl_ok" = "xyes"; then
+
+
+ else
+-  as_fn_error $? "failed: I need CURL due https support" "$LINENO" 5
++  curl_ok=no
+ fi
+
+
+diff --git a/methods/makefile b/methods/makefile
+index 0e965f0..6d0f49f 100644
+--- a/methods/makefile
++++ b/methods/makefile
+@@ -52,12 +52,5 @@
+ include $(PROGRAM_H)
+
+-# The https method
+-PROGRAM=https
+-SLIBS = -lapt-pkg -lcurl $(INTLLIBS)
+-LIB_MAKES = apt-pkg/makefile
+-SOURCE = https.cc server.cc
+-include $(PROGRAM_H)
+-
+ # The ftp method
+ PROGRAM=ftp
+ SLIBS = -lapt-pkg $(SOCKETLIBS) $(INTLLIBS)
+ include $(PROGRAM_H)

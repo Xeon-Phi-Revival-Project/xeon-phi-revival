@@ -1,5 +1,8 @@
-# Experimental dpkg tupletable fragment for K1OM.
+# Experimental dpkg tupletable note for K1OM.
 # This is not upstream dpkg metadata.
 #
-# <Debian arch>    <Debian OS>    <GNU CPU>    <GNU system>
-k1om               linux          k1om         linux-gnu
+# dpkg 1.22's generic mapping already resolves:
+#
+#   base-gnu-linux-<cpu>    <cpu>
+#
+# Once cputable contains k1om, no explicit tupletable row is required.

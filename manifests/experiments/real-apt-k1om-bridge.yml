@@ -1,0 +1,47 @@
+id: real-apt-k1om-bridge
+title: Real Ubuntu APT compatibility bridge and full archive transaction
+status: passed
+date_utc: 2026-07-29
+hardware:
+  card: Intel Xeon Phi 5110P
+  target: mic0
+  host: CentOS 7.4-era MPSS 3.4.10
+source:
+  apt: Ubuntu 1.0.1ubuntu2.24
+  zlib: Ubuntu Noble 1.3.dfsg-3.1ubuntu2.1
+verification:
+  apt_dsc_sha256: 3e2e99fc464b10660035c92e3791fd303d1b23c1abbfc4c590db7e7b62b3fdc7
+  apt_tar_sha256: 6241527ac778b1e9008a21e0e8de57dc48798f078d95ae59fc6e347559abb5d7
+  apt_tar_verified_from_dsc: true
+  zlib_sources_verified_from_dsc: true
+toolchain:
+  compiler: k1om-mpss-linux-gcc/g++ 4.7.0
+  cxx_mode: gnu++0x
+  elf_machine: 181
+tracked_inputs:
+  - tools/ubuntu-port/build-apt-k1om-bridge.sh
+  - ubuntu-port/k1om/patches/apt-1.0.1ubuntu2.24-k1om-bridge.patch
+private_run: /root/xeon-phi-revival-local/ubuntu-port-runs/apt-legacy-k1om-20260729-194129
+result:
+  configure: passed
+  build: passed
+  staged_elf_count: 14
+  stage_audit: passed
+  on_card_version: 1.0.1ubuntu2.24 for k1om
+  local_file_update: passed
+  dependency_resolution: passed
+  three_package_transaction: passed
+  full_archive_transaction: passed
+  installed_package_count: 36
+  dpkg_audit: passed
+  python312_from_installed_root: passed
+  clean_reproduction: passed
+active_state:
+  install_path: /opt/xeon-phi-revival/apt-real
+  replaced_bootstrap_apt: false
+  profile_left_online: true
+limitations:
+  https_method: disabled
+  signed_network_archive: not_tested
+  noble_apt_2_8: blocked_by_k1om_cxx17
+next_dependency: Modern K1OM C++ compiler/libstdc++ for Ubuntu Noble APT 2.8.

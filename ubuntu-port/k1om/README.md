@@ -114,6 +114,57 @@ The remaining architecture-port work is real Ubuntu dpkg/APT/libc integration,
 broader package rebuilds, and eventually reducing dependence on stock MPSS
 userspace and init.
 
+## What Barely Counts As A True Port
+
+The smallest useful true Ubuntu K1OM port is not the whole Noble archive. It is
+a reproducible `Architecture: k1om` base that can install and run itself enough
+to behave like a real Ubuntu root:
+
+- `dpkg-architecture` and package metadata know `k1om`.
+- The local archive exposes `binary-k1om` package indexes.
+- Real K1OM `dpkg` installs the essential package set.
+- Native K1OM APT updates from the local archive and installs packages through
+  real dpkg.
+- The core runtime comes from Ubuntu-source libc/loader packages rather than
+  the stock MPSS runtime.
+- Basic commands, package status, `python3`, `/etc/os-release`, `/dev`,
+  `/proc`, `/sys`, and `/tmp` work in the root/profile.
+- Stock MPSS rollback remains verified.
+
+Most of the package-manager and userland behavior is already proven. The
+critical missing piece is completing the Ubuntu-source libc/loader runtime,
+especially `libpthread`, and then rerunning the existing package and Python
+smokes against that runtime.
+
+## Native Package Managers
+
+Ubuntu Noble dpkg `1.22.6ubuntu6.6` now builds and runs as native K1OM. It
+completed a clean reproducibility build and a full 36-package isolated
+transaction on `mic0`.
+
+Ubuntu APT `1.0.1ubuntu2.24` also builds as a native compatibility bridge. It
+uses real APT dependency resolution and real dpkg transactions against the
+trusted local `file:` archive. APT installed all 36 packages into a fresh root,
+after which Python 3.12 passed from that root.
+
+These builds remain side-by-side under `/opt/xeon-phi-revival`; the bootstrap
+commands have not been overwritten. The bridge is deliberately narrower than
+a true Ubuntu port:
+
+- HTTPS is disabled.
+- The archive is local and project-controlled.
+- Noble APT `2.8.3` remains blocked by the MPSS compiler's lack of C++17.
+- The active loader and libc are still MPSS-derived rather than Ubuntu-built.
+
+See:
+
+```text
+docs/ubuntu-port/real-dpkg-k1om-report.md
+docs/ubuntu-port/real-apt-k1om-bridge-report.md
+tools/ubuntu-port/build-dpkg-k1om.sh
+tools/ubuntu-port/build-apt-k1om-bridge.sh
+```
+
 ## Minimal Ubuntu-Shaped Rootfs
 
 The package-set simulation can now be turned into a private minimal rootfs with

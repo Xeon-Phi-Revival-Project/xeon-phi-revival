@@ -301,6 +301,21 @@ image.
   Stock rollback succeeded afterward: SSH worked, the project profile,
   `/var/lib/dpkg/status`, and the Python 3.12 staging paths were absent, and
   PID 1 was stock `init`.
+- Ubuntu Noble dpkg `1.22.6ubuntu6.6` and Noble libmd were cleanly cross-built
+  for K1OM. Seven core dpkg executables were audited as machine 181, a clean
+  reproducibility run passed, and real dpkg completed both a package smoke and
+  a full 36-package isolated transaction on `mic0`.
+- Ubuntu APT `1.0.1ubuntu2.24` was built as a native K1OM compatibility bridge
+  with a PIC Noble zlib. Fourteen staged ELF files passed machine-181 audit.
+  On `mic0`, real APT updated from the local Noble-style `file:` archive,
+  resolved dependencies, installed three packages through real dpkg, then
+  installed and configured all 36 packages into a fresh isolated root.
+  `dpkg --audit` was clean and Python 3.12 ran from the APT-created root with
+  `ctypes`, SQLite, and zlib.
+- Ubuntu Noble APT `2.8.3` was probed but not built. It requires C++17, while
+  MPSS K1OM GCC 4.7 accepts `gnu++0x` and rejects `gnu++11`, `gnu++14`, and
+  `gnu++17`. A modern K1OM compiler and compatible C++ runtime are now an
+  explicit architecture-port dependency.
 
 ## Current Public Artifacts
 
@@ -331,6 +346,8 @@ image.
 - `docs/ubuntu-port/k1om-bootstrap-package-set-report.md`
 - `docs/ubuntu-port/k1om-apt-sandbox-report.md`
 - `docs/ubuntu-port/k1om-libffi-ctypes-report.md`
+- `docs/ubuntu-port/real-dpkg-k1om-report.md`
+- `docs/ubuntu-port/real-apt-k1om-bridge-report.md`
 - `docs/toolchain/minimum-k1om-runtime.md`
 - `docs/toolchain/k1om-package-requirements.md`
 - `docs/toolchain/mpss-sdk-k1om-3.4.10-preinstall-report.md`
@@ -344,6 +361,8 @@ image.
 - `tools/ubuntu-port/audit-k1om-package-set.sh`
 - `tools/ubuntu-port/simulate-k1om-package-install.sh`
 - `tools/ubuntu-port/build-libffi-k1om.sh`
+- `tools/ubuntu-port/build-dpkg-k1om.sh`
+- `tools/ubuntu-port/build-apt-k1om-bridge.sh`
 - `manifests/experiments/native-runs/20260727-212630-start-exit42.yml`
 - `manifests/experiments/native-runs/20260727-212700-hello-libc.yml`
 - `manifests/experiments/native-runs/20260727-212720-hello-libc.yml`
@@ -363,10 +382,9 @@ image.
 
 ## Safest Next Technical Action
 
-Replace the project dpkg/APT compatibility layer with builds of Ubuntu Noble
-`dpkg` and APT, beginning with host-only cross-build probes and explicit
-dependency reports. In parallel, determine whether an Ubuntu-era glibc can
-retain compatibility with the MPSS 2.6.38 kernel or whether the kernel lane
-must move first. Python 3.12, including libffi-backed `_ctypes`, is no longer
-the blocker. Continue avoiding committed proprietary or
-uncertain-redistribution payloads.
+Probe an Ubuntu-source glibc build that can retain compatibility with the MPSS
+2.6.38 kernel, beginning side-by-side and without replacing the stock loader.
+In parallel, define the modern K1OM compiler/libstdc++ work needed by Noble APT
+2.8. Python 3.12, real dpkg, and real local-file APT are no longer the immediate
+blockers. Continue avoiding committed proprietary or uncertain-redistribution
+payloads.

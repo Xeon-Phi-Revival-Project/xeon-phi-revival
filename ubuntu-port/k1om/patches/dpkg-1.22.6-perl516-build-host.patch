@@ -1,0 +1,59 @@
+diff --git a/scripts/Dpkg/Arch.pm b/scripts/Dpkg/Arch.pm
+--- a/scripts/Dpkg/Arch.pm
++++ b/scripts/Dpkg/Arch.pm
+@@ -95,7 +95,7 @@ our @EXPORT_OK = qw(
+ );
+
+ use Exporter qw(import);
+-use List::Util qw(any);
++sub any (&@) { my $code = shift; for (@_) { return 1 if $code->() } return 0; }
+
+ use Dpkg ();
+ use Dpkg::Gettext;
+@@ -523,7 +523,7 @@ sub debarch_to_cpubits($)
+     my $arch = shift;
+     my $cpu;
+
+-    ((undef) x 3, $cpu) = debarch_to_debtuple($arch);
++    (undef, undef, undef, $cpu) = debarch_to_debtuple($arch);
+
+     if (defined $cpu) {
+         return $cpubits{$cpu};
+diff --git a/scripts/Dpkg/Changelog/Parse.pm b/scripts/Dpkg/Changelog/Parse.pm
+--- a/scripts/Dpkg/Changelog/Parse.pm
++++ b/scripts/Dpkg/Changelog/Parse.pm
+@@ -38,7 +38,7 @@ our @EXPORT = qw(
+ );
+
+ use Exporter qw(import);
+-use List::Util qw(none);
++sub none (&@) { my $code = shift; for (@_) { return 0 if $code->() } return 1; }
+
+ use Dpkg ();
+ use Dpkg::Gettext;
+diff --git a/scripts/dpkg-architecture.pl b/scripts/dpkg-architecture.pl
+--- a/scripts/dpkg-architecture.pl
++++ b/scripts/dpkg-architecture.pl
+@@ -205,11 +205,11 @@ while (@ARGV) {
+         $req_match_endian = shift;
+     } elsif ($arg eq '-e' or $arg eq '--equal') {
+         $req_eq_arch = shift;
+-        %req_vars = %arch_vars{DEB_HOST_ARCH};
++        %req_vars = (DEB_HOST_ARCH => $arch_vars{DEB_HOST_ARCH});
+         $action = 'equal';
+     } elsif ($arg eq '-i' or $arg eq '--is') {
+         $req_is_arch = shift;
+-        %req_vars = %arch_vars{DEB_HOST_ARCH};
++        %req_vars = (DEB_HOST_ARCH => $arch_vars{DEB_HOST_ARCH});
+         $action = 'is';
+     } elsif ($arg eq '-u' or $arg eq '--print-unset') {
+         %req_vars = ();
+@@ -230,7 +230,7 @@ while (@ARGV) {
+         error(g_('%s is not a supported variable name'), $varname)
+             unless (exists $arch_vars{$varname});
+         $req_variable_to_print = "$varname";
+-        %req_vars = %arch_vars{$varname};
++        %req_vars = ($varname => $arch_vars{$varname});
+         $action = 'query';
+     } elsif ($arg eq '-c' or $arg eq '--command') {
+         $action = 'command';

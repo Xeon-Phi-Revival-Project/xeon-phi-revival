@@ -1,0 +1,42 @@
+id: real-dpkg-k1om
+title: Real Ubuntu Noble dpkg build and sandbox install on K1OM
+status: passed
+date_utc: 2026-07-29
+hardware:
+  card: Intel Xeon Phi 5110P
+  target: mic0
+  host: CentOS 7.4-era MPSS 3.4.10
+source:
+  dpkg: Ubuntu Noble 1.22.6ubuntu6.6
+  libmd: Ubuntu Noble 1.1.0-2build1.1
+verification:
+  dpkg_source_sha256: 7048ee31e30066ae123cdcb891cfa1ad55b2f42a4e04fca2c5db41607ae25196
+  libmd_sources_verified_from_dsc: true
+toolchain:
+  compiler: k1om-mpss-linux-gcc 4.7.0
+  elf_machine: 181
+tracked_inputs:
+  - tools/ubuntu-port/build-dpkg-k1om.sh
+  - ubuntu-port/k1om/patches/dpkg-1.22.6-k1om.patch
+  - ubuntu-port/k1om/patches/dpkg-1.22.6-perl516-build-host.patch
+private_run: /root/xeon-phi-revival-local/ubuntu-port-runs/dpkg-real-k1om-20260729-191253
+result:
+  configure: passed
+  build: passed
+  stage_audit: passed
+  on_card_version: "1.22.6 (k1om)"
+  architecture: k1om
+  package_query: passed
+  package_metadata: passed
+  package_contents: passed
+  sandbox_unpack: passed
+  sandbox_configure: passed
+  full_archive_transaction: passed
+  installed_package_count: 36
+  clean_reproduction: passed
+active_state:
+  install_path: /opt/xeon-phi-revival/dpkg-real
+  replaced_bootstrap_dpkg: false
+  profile_left_online: true
+rollback: remove /opt/xeon-phi-revival/dpkg-real from mic0 and MicDir staging
+next_dependency: Package the clean real-dpkg database and integrate the real APT bridge.

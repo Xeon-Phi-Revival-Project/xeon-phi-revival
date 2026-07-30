@@ -27,6 +27,9 @@ actual Xeon Phi system before being treated as project facts.
   [K1OM Bootstrap Package Set](docs/ubuntu-port/k1om-bootstrap-package-set-report.md)
 - K1OM libffi/Python ctypes result:
   [K1OM libffi and CPython ctypes](docs/ubuntu-port/k1om-libffi-ctypes-report.md)
+- Native package-manager results:
+  [real dpkg](docs/ubuntu-port/real-dpkg-k1om-report.md) and
+  [real APT bridge](docs/ubuntu-port/real-apt-k1om-bridge-report.md)
 - Toolchain package notes:
   [MPSS SDK K1OM preinstall report](docs/toolchain/mpss-sdk-k1om-3.4.10-preinstall-report.md)
 
@@ -93,9 +96,44 @@ Ubuntu-style package experiments:
   smoke covers zlib, hashes, XML, pickle, CSV, asyncio import, sysconfig,
   threading, decimal, socket, `bz2`, `lzma`, `readline`, `sqlite3`, `curses`,
   `curses.panel`, `_ctypes` foreign calls, `_ctypes` callbacks, and more.
+- Ubuntu Noble dpkg `1.22.6ubuntu6.6` now builds as native K1OM and completed
+  clean single-package and full 36-package transactions on `mic0`.
+- A real Ubuntu APT `1.0.1ubuntu2.24` compatibility build now runs natively,
+  updates from the local Noble-style `file:` repository, resolves dependencies,
+  and drove real dpkg through a complete isolated 36-package install. This is a
+  compatibility bridge; it is not Noble APT or an upstream Ubuntu port.
 
 See `docs/status.md` and `docs/ubuntu-port/` for the latest public-safe
 reports.
+
+## Minimum True Ubuntu Port Line
+
+The project should only call the result a true Ubuntu K1OM port after these
+minimum pieces are reproducible and tested:
+
+- Ubuntu package metadata recognizes a real `k1om` architecture, including
+  `dpkg-architecture` fragments and a `binary-k1om` archive path.
+- Ubuntu-source base runtime packages provide the loader and core libraries:
+  `libc6`, `libgcc1`, `libm6`, `libpthread0`, `libdl2`, `librt1`, and
+  `libutil1`.
+- Real K1OM `dpkg` can install the essential package set into a clean root.
+- Native K1OM APT can update from the local project archive and install K1OM
+  packages through real dpkg.
+- The resulting root/profile exposes normal system commands such as `sh`,
+  `ls`, `cat`, `python3`, `dpkg`, `dpkg-query`, `dpkg-deb`, `apt-get`, and
+  `apt-cache`.
+- A boot or controlled stock-init handoff presents a coherent Ubuntu-shaped
+  root with `/etc/os-release`, `/dev`, `/proc`, `/sys`, `/tmp`, package status,
+  and rollback to stock MPSS.
+- Public scripts and manifests can rebuild the package set without committing
+  Intel MPSS payloads, extracted sysroots, firmware, private rootfs images, or
+  uncertain-redistribution binaries.
+
+The narrowest remaining blocker is the Ubuntu-source libc/loader layer. The
+current side-by-side package stack still depends on the MPSS-derived runtime;
+the active glibc/eglibc probe has reached K1OM `libc.so` and `ld.so`, but
+`libpthread.so` still needs completion before the runtime can replace that
+dependency in a minimal port claim.
 
 ## What You Can Do Today
 
@@ -224,8 +262,10 @@ parser checks, package audits, simulated installs, live MicDir boot smoke tests,
 and verified rollback to stock uOS. OpenSSL-backed `_ssl`/`_hashlib`, sqlite3,
 curses, curses.panel, terminfo-backed terminal setup, and full libffi-backed
 Python `_ctypes` calls and callbacks now pass inside packaged Python 3.12.
-The next major distribution boundary is replacing the bootstrap dpkg/APT
-compatibility tools and MPSS-era libc with genuine Ubuntu ports.
+The dpkg boundary is now crossed and the local-file APT shim has a working real
+Ubuntu-code replacement. The next major distribution boundary is a modern
+K1OM C++ toolchain for Noble APT 2.8 and an Ubuntu-built glibc/runtime that
+remains compatible with the MPSS 2.6.38 kernel.
 
 ## Independence
 
