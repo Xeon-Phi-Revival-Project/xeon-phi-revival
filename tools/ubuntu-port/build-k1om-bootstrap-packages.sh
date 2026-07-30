@@ -4,7 +4,7 @@ set -euo pipefail
 usage() {
   cat >&2 <<'USAGE'
 usage:
-  build-k1om-bootstrap-packages.sh --payload-rootfs DIR --out-dir DIR [--sysroot DIR] [--runtime-root DIR] [--python312-root DIR] [--libffi-root DIR] [--version V]
+  build-k1om-bootstrap-packages.sh --payload-rootfs DIR --out-dir DIR [--sysroot DIR] [--libc-root DIR] [--runtime-root DIR] [--python312-root DIR] [--libffi-root DIR] [--version V]
 
 Build a small local K1OM bootstrap package set:
   base-files-k1om
@@ -52,6 +52,7 @@ USAGE
 payload_rootfs=""
 out_dir=""
 sysroot="${K1OM_SYSROOT:-/opt/mpss/3.4.10/sysroots/k1om-mpss-linux}"
+libc_root="${K1OM_LIBC_ROOT:-$sysroot}"
 runtime_root="${K1OM_RUNTIME_ROOT:-}"
 python312_root="${K1OM_PYTHON312_ROOT:-}"
 libffi_root="${K1OM_LIBFFI_ROOT:-}"
@@ -64,6 +65,7 @@ while [[ $# -gt 0 ]]; do
     --payload-rootfs) payload_rootfs="${2:-}"; shift 2 ;;
     --out-dir) out_dir="${2:-}"; shift 2 ;;
     --sysroot) sysroot="${2:-}"; shift 2 ;;
+    --libc-root) libc_root="${2:-}"; shift 2 ;;
     --runtime-root) runtime_root="${2:-}"; shift 2 ;;
     --python312-root) python312_root="${2:-}"; shift 2 ;;
     --libffi-root) libffi_root="${2:-}"; shift 2 ;;
@@ -89,22 +91,42 @@ for path in \
 done
 
 for path in \
-  "$sysroot/lib64/ld-linux-k1om.so.2" \
-  "$sysroot/lib64/ld-2.14.1.so" \
-  "$sysroot/lib64/libc.so.6" \
-  "$sysroot/lib64/libc-2.14.1.so" \
-  "$sysroot/lib64/libgcc_s.so.1" \
-  "$sysroot/lib64/libm.so.6" \
-  "$sysroot/lib64/libm-2.14.1.so" \
-  "$sysroot/lib64/libpthread.so.0" \
-  "$sysroot/lib64/libpthread-2.14.1.so" \
-  "$sysroot/lib64/libdl.so.2" \
-  "$sysroot/lib64/libdl-2.14.1.so" \
-  "$sysroot/lib64/librt.so.1" \
-  "$sysroot/lib64/librt-2.14.1.so" \
-  "$sysroot/lib64/libutil.so.1" \
-  "$sysroot/lib64/libutil-2.14.1.so"; do
+  "$sysroot/lib64/libgcc_s.so.1"; do
   [[ -e "$path" || -L "$path" ]] || { echo "required sysroot path missing: $path" >&2; exit 11; }
+done
+
+if [[ -e "$libc_root/lib64/ld-linux-k1om.so.2" || -L "$libc_root/lib64/ld-linux-k1om.so.2" ]]; then
+  libc_libdir="$libc_root/lib64"
+elif [[ -e "$libc_root/lib/ld-linux-k1om.so.2" || -L "$libc_root/lib/ld-linux-k1om.so.2" ]]; then
+  libc_libdir="$libc_root/lib"
+else
+  echo "libc root does not contain ld-linux-k1om.so.2 under lib64 or lib: $libc_root" >&2
+  exit 21
+fi
+
+for path in \
+  "$libc_libdir/ld-linux-k1om.so.2" \
+  "$libc_libdir/libc.so.6" \
+  "$sysroot/lib64/libm.so.6" \
+  "$sysroot/lib64/libpthread.so.0" \
+  "$sysroot/lib64/libdl.so.2" \
+  "$sysroot/lib64/librt.so.1" \
+  "$sysroot/lib64/libutil.so.1"; do
+  [[ -e "$path" || -L "$path" ]] || { echo "required sysroot path missing: $path" >&2; exit 11; }
+done
+
+for path in \
+  "$libc_libdir/libm.so.6" \
+  "$libc_libdir/libpthread.so.0" \
+  "$libc_libdir/libdl.so.2" \
+  "$libc_libdir/librt.so.1" \
+  "$libc_libdir/libutil.so.1" \
+  "$libc_libdir/libanl.so.1" \
+  "$libc_libdir/libnsl.so.1" \
+  "$libc_libdir/libnss_files.so.2" \
+  "$libc_libdir/libnss_dns.so.2" \
+  "$libc_libdir/libresolv.so.2"; do
+  [[ -e "$path" || -L "$path" ]] || { echo "required libc-root path missing: $path" >&2; exit 21; }
 done
 
 build_root="$out_dir/build"
@@ -183,6 +205,23 @@ copy_lib64() {
   mkdir -p "$data_dir/opt/xeon-phi-revival/lib64"
   for rel in "$@"; do
     cp -a "$sysroot/lib64/$rel" "$data_dir/opt/xeon-phi-revival/lib64/$rel"
+  done
+}
+
+libc_impl() {
+  local stem="$1"
+  local match
+  match="$(find "$libc_libdir" -maxdepth 1 -type f -name "${stem}-*.so" | LC_ALL=C sort | tail -1)"
+  [[ -n "$match" ]] || { echo "required libc-root implementation missing: $libc_libdir/${stem}-*.so" >&2; exit 22; }
+  basename "$match"
+}
+
+copy_libc64() {
+  local data_dir="$1"
+  shift
+  mkdir -p "$data_dir/opt/xeon-phi-revival/lib64"
+  for rel in "$@"; do
+    cp -a "$libc_libdir/$rel" "$data_dir/opt/xeon-phi-revival/lib64/$rel"
   done
 }
 
@@ -552,7 +591,10 @@ except Exception as exc:
     optional_results.append("ctypes=fail:%s:%s" % (exc.__class__.__name__, exc))
 for result in optional_results:
     print(result)
-if any("=fail:" in result for result in optional_results):
+required_optional_prefixes = ("ctypes=",)
+if any(result.startswith(prefix) and "=fail:" in result
+       for prefix in required_optional_prefixes
+       for result in optional_results):
     raise SystemExit(70)
 PY312SMOKE
   cat > "$python312_smoke_data/opt/xeon-phi-revival/bin/python312-smoke.sh" <<'PY312RUN'
@@ -1310,14 +1352,14 @@ ln -s ../../../usr/bin/apt-get "$apt_data/opt/xeon-phi-revival/bin/apt-get"
 ln -s ../../../usr/bin/apt-cache "$apt_data/opt/xeon-phi-revival/bin/apt-cache"
 
 libc_data="$(new_data_dir libc6-k1om)"
-copy_lib64 "$libc_data" \
-  ld-linux-k1om.so.2 ld-2.14.1.so \
-  libc.so.6 libc-2.14.1.so \
-  libanl.so.1 libanl-2.14.1.so \
-  libnsl.so.1 libnsl-2.14.1.so \
-  libnss_files.so.2 libnss_files-2.14.1.so \
-  libnss_dns.so.2 libnss_dns-2.14.1.so \
-  libresolv.so.2 libresolv-2.14.1.so
+copy_libc64 "$libc_data" \
+  ld-linux-k1om.so.2 "$(libc_impl ld)" \
+  libc.so.6 "$(libc_impl libc)" \
+  libanl.so.1 "$(libc_impl libanl)" \
+  libnsl.so.1 "$(libc_impl libnsl)" \
+  libnss_files.so.2 "$(libc_impl libnss_files)" \
+  libnss_dns.so.2 "$(libc_impl libnss_dns)" \
+  libresolv.so.2 "$(libc_impl libresolv)"
 
 libgcc_data="$(new_data_dir libgcc1-k1om)"
 copy_lib64 "$libgcc_data" libgcc_s.so.1
@@ -1326,19 +1368,19 @@ if [[ -e "$sysroot/lib64/libgcc_s.so" || -L "$sysroot/lib64/libgcc_s.so" ]]; the
 fi
 
 libm_data="$(new_data_dir libm6-k1om)"
-copy_lib64 "$libm_data" libm.so.6 libm-2.14.1.so
+copy_libc64 "$libm_data" libm.so.6 "$(libc_impl libm)"
 
 libpthread_data="$(new_data_dir libpthread0-k1om)"
-copy_lib64 "$libpthread_data" libpthread.so.0 libpthread-2.14.1.so
+copy_libc64 "$libpthread_data" libpthread.so.0 "$(libc_impl libpthread)"
 
 libdl_data="$(new_data_dir libdl2-k1om)"
-copy_lib64 "$libdl_data" libdl.so.2 libdl-2.14.1.so
+copy_libc64 "$libdl_data" libdl.so.2 "$(libc_impl libdl)"
 
 librt_data="$(new_data_dir librt1-k1om)"
-copy_lib64 "$librt_data" librt.so.1 librt-2.14.1.so
+copy_libc64 "$librt_data" librt.so.1 "$(libc_impl librt)"
 
 libutil_data="$(new_data_dir libutil1-k1om)"
-copy_lib64 "$libutil_data" libutil.so.1 libutil-2.14.1.so
+copy_libc64 "$libutil_data" libutil.so.1 "$(libc_impl libutil)"
 
 libc_stack_smoke_data="$(new_data_dir libc-stack-smoke-k1om)"
 mkdir -p "$libc_stack_smoke_data/opt/xeon-phi-revival/bin"

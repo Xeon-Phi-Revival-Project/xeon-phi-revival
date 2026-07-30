@@ -316,6 +316,30 @@ image.
   MPSS K1OM GCC 4.7 accepts `gnu++0x` and rejects `gnu++11`, `gnu++14`, and
   `gnu++17`. A modern K1OM compiler and compatible C++ runtime are now an
   explicit architecture-port dependency.
+- The Ubuntu-source eglibc 2.19 side-by-side runtime probe now passes the
+  immediate pthread boundary. K1OM `ld-linux-k1om.so.2`, `libc.so.6`,
+  `libpthread.so.0`, `libm.so.6`, `libdl.so.2`, `librt.so.1`, and
+  `libutil.so.1` were built under `/opt/xeon-phi-revival/eglibc-2.19`.
+  On the real `k1om` uOS, the dynamic hello smoke printed
+  `eglibc-v21 hello pid=4901` and exited `0`; the pthread smoke printed
+  `eglibc-v21 pthread value=219 same=1` and exited `0`.
+- The package builder now accepts `--libc-root`; pointed at the eglibc 2.19
+  prefix, it produced a deterministic 36-package bootstrap set with
+  eglibc-backed `libc6-k1om`, `libpthread0-k1om`, `libm6-k1om`, `libdl2-k1om`,
+  `librt1-k1om`, and `libutil1-k1om`.
+- The live eglibc-backed package gate now passes. The earlier ABI failure was
+  resolved by rebuilding `hello-knc`, CPython 3.12.13, zlib/ncurses smokes,
+  libffi, and runtime payload layout against the eglibc loader/libc stack. The
+  final run `k1om-bootstrap-package-set-20260730-050604` booted on `mic0`,
+  showed Ubuntu/K1OM identity, populated 36 dpkg status records, ran APT update
+  and install paths, verified `python3`/`python` as Python 3.12.13, passed
+  `_ctypes` calls and callbacks, passed zlib/ncurses/runtime-library/OS smokes,
+  and rolled back to stock MPSS uOS.
+- Residual cleanup: the legacy Python 3.5 compatibility package still logs
+  MPSS `GLIBC_2.14` symbol-version mismatches under the eglibc profile, and
+  several Python 3.12 optional extension modules remain outside this minimal
+  eglibc gate: `_bz2`, `_lzma`, `readline`, `_sqlite3`, `_curses`, `_ssl`, and
+  `_hashlib`.
 
 ## Current Public Artifacts
 
@@ -348,6 +372,7 @@ image.
 - `docs/ubuntu-port/k1om-libffi-ctypes-report.md`
 - `docs/ubuntu-port/real-dpkg-k1om-report.md`
 - `docs/ubuntu-port/real-apt-k1om-bridge-report.md`
+- `docs/ubuntu-port/eglibc-2.19-k1om-pthread-runtime-report.md`
 - `docs/toolchain/minimum-k1om-runtime.md`
 - `docs/toolchain/k1om-package-requirements.md`
 - `docs/toolchain/mpss-sdk-k1om-3.4.10-preinstall-report.md`
@@ -379,12 +404,13 @@ image.
 - `manifests/experiments/k1om-apt-sandbox.yml`
 - `manifests/experiments/python-3.12-k1om-probe.yml`
 - `manifests/experiments/python-3.12-k1om-expanded-runtime.yml`
+- `manifests/experiments/eglibc-2.19-k1om-pthread-runtime.yml`
+- `manifests/experiments/eglibc-2.19-k1om-package-gate.yml`
 
 ## Safest Next Technical Action
 
-Probe an Ubuntu-source glibc build that can retain compatibility with the MPSS
-2.6.38 kernel, beginning side-by-side and without replacing the stock loader.
-In parallel, define the modern K1OM compiler/libstdc++ work needed by Noble APT
-2.8. Python 3.12, real dpkg, and real local-file APT are no longer the immediate
-blockers. Continue avoiding committed proprietary or uncertain-redistribution
-payloads.
+Package the remaining Python 3.12 optional extension dependencies against the
+passing eglibc 2.19 K1OM runtime, then broaden the rootfs toward essential
+filesystem and service behavior. In parallel, define the modern K1OM
+compiler/libstdc++ work needed by Noble APT 2.8. Continue avoiding committed
+proprietary or uncertain-redistribution payloads.

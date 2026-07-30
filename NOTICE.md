@@ -20,3 +20,7 @@ sponsored, endorsed, or supported by Intel.
 The MIT License applies only to original project work in this repository. It
 does not grant rights to Intel software, firmware, documentation, or third-party
 components.
+
+Some source overlays under `ubuntu-port/k1om/glibc/` are derived from
+glibc/eglibc files and retain their upstream GNU Lesser General Public License
+headers. Those files remain under their original upstream license terms.

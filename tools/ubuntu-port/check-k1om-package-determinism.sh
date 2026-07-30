@@ -7,8 +7,10 @@ out_dir="${3:-}"
 runtime_root="${4:-${K1OM_RUNTIME_ROOT:-}}"
 python312_root="${5:-${K1OM_PYTHON312_ROOT:-}}"
 libffi_root="${6:-${K1OM_LIBFFI_ROOT:-}}"
+libc_root="${K1OM_LIBC_ROOT:-}"
 if [[ -z "$tools_dir" || -z "$payload_rootfs" || -z "$out_dir" ]]; then
   echo "usage: $0 TOOLS_DIR PAYLOAD_ROOTFS OUT_DIR [RUNTIME_ROOT] [PYTHON312_ROOT] [LIBFFI_ROOT]" >&2
+  echo "optional env: K1OM_LIBC_ROOT" >&2
   exit 2
 fi
 
@@ -18,6 +20,9 @@ mkdir -p "$out_dir"
 rm -rf "$first" "$second"
 
 build_args=(--payload-rootfs "$payload_rootfs")
+if [[ -n "$libc_root" ]]; then
+  build_args+=(--libc-root "$libc_root")
+fi
 if [[ -n "$runtime_root" ]]; then
   build_args+=(--runtime-root "$runtime_root")
 fi

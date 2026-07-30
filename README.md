@@ -129,11 +129,16 @@ minimum pieces are reproducible and tested:
   Intel MPSS payloads, extracted sysroots, firmware, private rootfs images, or
   uncertain-redistribution binaries.
 
-The narrowest remaining blocker is the Ubuntu-source libc/loader layer. The
-current side-by-side package stack still depends on the MPSS-derived runtime;
-the active glibc/eglibc probe has reached K1OM `libc.so` and `ld.so`, but
-`libpthread.so` still needs completion before the runtime can replace that
-dependency in a minimal port claim.
+The previous narrow blocker, `libpthread`, has now passed in the side-by-side
+Ubuntu-source eglibc 2.19 probe: K1OM `ld-linux-k1om.so.2`, `libc.so.6`, and
+`libpthread.so.0` ran a dynamic hello and pthread smoke on real uOS. The package
+builder can also produce deterministic eglibc-backed libc packages, and the
+36-package live gate now passes after rebuilding the core payloads against that
+runtime. The final gate verified Ubuntu/K1OM identity, APT/dpkg paths,
+`python3`/`python` as Python 3.12.13, `_ctypes`, zlib/ncurses/runtime-library
+smokes, filesystem/OS smokes, and stock rollback. The next blocker is packaging
+the remaining Python 3.12 optional extension dependencies and broadening the
+minimal rootfs service/filesystem surface.
 
 ## What You Can Do Today
 

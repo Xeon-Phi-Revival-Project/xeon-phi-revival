@@ -16,7 +16,9 @@ Latest package-manager checkpoint:
   local archive and drove the same full transaction through real dpkg.
 - Noble APT `2.8.3` requires C++17; MPSS K1OM GCC 4.7 only accepts
   `gnu++0x`.
-- The active loader/libc stack is still MPSS-derived.
+- The active minimal package gate can now run against the Ubuntu-source eglibc
+  2.19 loader/libc/pthread runtime after rebuilding the core payloads against
+  that ABI.
 
 The project now has enough verified ground to begin the real Ubuntu-port lane:
 
@@ -31,8 +33,15 @@ The project now has enough verified ground to begin the real Ubuntu-port lane:
 - Project second-stage uOS profile works under stock MPSS init.
 - Both the project dpkg/APT shim pair and side-by-side real Ubuntu dpkg/APT
   builds run on-card against the local K1OM archive.
-- A project-owned libc/runtime stack is split into standalone packages under
-  `/opt/xeon-phi-revival/lib64`.
+- A project-owned MPSS-derived libc/runtime stack is split into standalone
+  packages under `/opt/xeon-phi-revival/lib64`.
+- Ubuntu-source eglibc 2.19 now builds side-by-side K1OM `ld.so`, `libc`,
+  `libpthread`, `libm`, `libdl`, `librt`, and `libutil`; dynamic hello and
+  pthread smoke binaries ran on real `k1om` uOS with exit code `0`.
+- The eglibc stack is packaged deterministically through the local bootstrap
+  builder, and the 36-package live gate now passes with eglibc-linked
+  `hello-knc`, Python 3.12, zlib/ncurses smokes, `_ctypes`, package-manager
+  checks, OS/filesystem checks, and verified stock rollback.
 - Rollback to stock uOS is repeatable.
 
 ## Port Boundary
@@ -77,11 +86,11 @@ Minimum claim line:
 - Clear split between Ubuntu-source outputs and bring-your-own-MPSS material.
 
 The project already satisfies much of the package-manager and userland surface.
-The smallest remaining technical gap before a minimal true-port claim is a
-project-built Ubuntu-source libc/loader stack that can run the package set
-side-by-side on the MPSS kernel. The current eglibc/glibc probe has reached
-K1OM `libc.so` and `ld.so`; `libpthread.so` remains the immediate link/runtime
-boundary.
+The previous immediate runtime boundary, `libpthread`, now passes in the
+side-by-side eglibc 2.19 probe and in the reversible package gate. The smallest
+remaining technical gap before a minimal true-port claim is packaging the
+remaining Python 3.12 optional extension dependencies and broadening the rootfs
+service/filesystem surface without relying on stock MPSS runtime paths.
 
 ## Bare-Minimum Smoke Test
 
@@ -214,7 +223,10 @@ probe to packaged runtime profile, and now proves `bz2`, `lzma`, `readline`,
 `sqlite3`, `curses`, and `curses.panel` inside the packaged smoke on `mic0`.
 The Python dependency lane is now complete enough for the bootstrap target:
 OpenSSL-backed `_ssl`/`_hashlib`, sqlite3, curses, terminfo, and libffi-backed
-`_ctypes` calls/callbacks pass on-card. Real Ubuntu dpkg and a local-file APT
-bridge now pass too. The next useful step is resolving the Ubuntu
-glibc-versus-MPSS-kernel compatibility boundary and modernizing the K1OM C++
-toolchain enough to build Noble APT.
+`_ctypes` calls/callbacks pass on-card in the MPSS-runtime package profile.
+Real Ubuntu dpkg and a local-file APT bridge now pass too. The Ubuntu-source
+eglibc 2.19 loader/libc/pthread runtime now passes direct on-card smokes,
+deterministic package construction, and the 36-package live gate after the core
+payloads were rebuilt against it. The next useful step is packaging the
+remaining Python 3.12 optional extension dependencies for the eglibc profile
+and modernizing the K1OM C++ toolchain enough to build Noble APT.

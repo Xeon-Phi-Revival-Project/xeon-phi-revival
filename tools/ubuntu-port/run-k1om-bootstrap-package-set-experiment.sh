@@ -4,6 +4,7 @@ set -euo pipefail
 tools_dir=""
 payload_rootfs="${PAYLOAD_ROOTFS:-/root/xeon-phi-revival-local/uos-rootfs/k1om-demo-python-fixed-20260727-233215}"
 runtime_root="${K1OM_RUNTIME_ROOT:-/root/xeon-phi-revival-local/uos-boot-builds/repacked-stock-control-20260728-050610/rootfs}"
+libc_root="${K1OM_LIBC_ROOT:-}"
 python312_root="${K1OM_PYTHON312_ROOT:-/root/xeon-phi-revival-local/ubuntu2404-level3/cpython-3.12.13-probe-20260729-001250/cross-ipv6off/Python-3.12.13}"
 libffi_root="${K1OM_LIBFFI_ROOT:-}"
 mic="mic0"
@@ -17,6 +18,7 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --tools-dir) tools_dir="${2:-}"; shift 2 ;;
     --payload-rootfs) payload_rootfs="${2:-}"; shift 2 ;;
+    --libc-root) libc_root="${2:-}"; shift 2 ;;
     --runtime-root) runtime_root="${2:-}"; shift 2 ;;
     --python312-root) python312_root="${2:-}"; shift 2 ;;
     --libffi-root) libffi_root="${2:-}"; shift 2 ;;
@@ -54,6 +56,9 @@ log "active_conf_sha=$sha"
 [[ "$sha" == "$expected_conf_sha" ]] || { echo "stock config hash mismatch" >&2; exit 11; }
 
 build_args=(--payload-rootfs "$payload_rootfs")
+if [[ -n "$libc_root" && -d "$libc_root" ]]; then
+  build_args+=(--libc-root "$libc_root")
+fi
 if [[ -n "$runtime_root" && -d "$runtime_root" ]]; then
   build_args+=(--runtime-root "$runtime_root")
 fi
@@ -64,7 +69,7 @@ if [[ -n "$libffi_root" && -d "$libffi_root" ]]; then
   build_args+=(--libffi-root "$libffi_root")
 fi
 bash "$tools_dir/build-k1om-bootstrap-packages.sh" "${build_args[@]}" --out-dir "$run_dir"
-bash "$tools_dir/check-k1om-package-determinism.sh" "$tools_dir" "$payload_rootfs" "$run_dir/determinism" "${runtime_root:-}" "${python312_root:-}" "${libffi_root:-}"
+K1OM_LIBC_ROOT="${libc_root:-}" bash "$tools_dir/check-k1om-package-determinism.sh" "$tools_dir" "$payload_rootfs" "$run_dir/determinism" "${runtime_root:-}" "${python312_root:-}" "${libffi_root:-}"
 bash "$tools_dir/index-k1om-local-archive.sh" "$run_dir/repo"
 bash "$tools_dir/audit-k1om-package-set.sh" "$run_dir/repo" "$run_dir/audit"
 bash "$tools_dir/simulate-k1om-package-install.sh" "$run_dir/repo" "$run_dir/simulated-install"

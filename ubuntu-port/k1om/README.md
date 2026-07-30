@@ -132,9 +132,13 @@ to behave like a real Ubuntu root:
 - Stock MPSS rollback remains verified.
 
 Most of the package-manager and userland behavior is already proven. The
-critical missing piece is completing the Ubuntu-source libc/loader runtime,
-especially `libpthread`, and then rerunning the existing package and Python
-smokes against that runtime.
+previous critical missing piece, `libpthread`, now passes in the side-by-side
+Ubuntu-source eglibc 2.19 runtime probe and in the reversible 36-package
+eglibc-backed live gate. The core payloads were rebuilt against that runtime,
+including `hello-knc`, CPython 3.12.13, zlib/ncurses smokes, libffi, and the
+runtime library layout. The remaining libc-track work is to package the
+remaining Python 3.12 optional extension dependencies and remove remaining
+stock-runtime assumptions from the minimal rootfs.
 
 ## Native Package Managers
 
@@ -154,7 +158,9 @@ a true Ubuntu port:
 - HTTPS is disabled.
 - The archive is local and project-controlled.
 - Noble APT `2.8.3` remains blocked by the MPSS compiler's lack of C++17.
-- The active loader and libc are still MPSS-derived rather than Ubuntu-built.
+- The latest eglibc-backed package gate passes, but the profile remains a
+  reversible research root rather than a permanent Ubuntu boot/runtime
+  replacement.
 
 See:
 
@@ -163,6 +169,7 @@ docs/ubuntu-port/real-dpkg-k1om-report.md
 docs/ubuntu-port/real-apt-k1om-bridge-report.md
 tools/ubuntu-port/build-dpkg-k1om.sh
 tools/ubuntu-port/build-apt-k1om-bridge.sh
+docs/ubuntu-port/eglibc-2.19-k1om-pthread-runtime-report.md
 ```
 
 ## Minimal Ubuntu-Shaped Rootfs

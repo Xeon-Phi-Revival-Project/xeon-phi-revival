@@ -1,0 +1,64 @@
+id: eglibc-2.19-k1om-package-gate
+date: 2026-07-30
+status: passed
+scope: public-safe-summary
+input_runtime:
+  libc_root: /opt/xeon-phi-revival/eglibc-2.19
+  source_family: Ubuntu-source eglibc 2.19 probe
+package_build:
+  status: passed
+  package_count: 36
+  deterministic: true
+  source_date_epoch: 1704067200
+  run_dir: /root/xeon-phi-revival-local/ubuntu-port-runs/eglibc-packaging-check-20260729-2235
+  libc_packages:
+    - libc6-k1om
+    - libm6-k1om
+    - libpthread0-k1om
+    - libdl2-k1om
+    - librt1-k1om
+    - libutil1-k1om
+live_gate:
+  run_dir: /root/xeon-phi-revival-local/ubuntu-port-runs/k1om-bootstrap-package-set-20260730-050604
+  booted: true
+  package_identity_available: true
+  dpkg_status_records: 36
+  apt_update: passed
+  apt_reinstall_xpr_pci_tools: passed
+  apt_install_runtime_libs: passed
+  apt_install_python312: passed
+  shell_os_smoke: passed
+  rebuilt_payload_root: /root/xeon-phi-revival-local/ubuntu-port-runs/eglibc-payload-rebuild-20260730/payload-rootfs
+  python312_root: /root/xeon-phi-revival-local/ubuntu-port-runs/eglibc-payload-rebuild-20260730/python312-eglibc-root
+  libffi_root: /root/xeon-phi-revival-local/ubuntu-port-runs/eglibc-payload-rebuild-20260730/libffi-eglibc-prefix/lib64
+  runtime_root: /root/xeon-phi-revival-local/ubuntu-port-runs/eglibc-payload-rebuild-20260730/runtime-root-stockpaths
+  hello_loader_direct_rc: 0
+  python3_plain_rc: 0
+  python_plain_rc: 0
+  python312_version_rc: 0
+  python312_direct_rc: 0
+  python312_rc: 0
+  ctypes_strlen: 3
+  ctypes_callback: 42
+  zlib_rc: 0
+  ncurses_rc: 0
+  runtime_libs_rc: 0
+  os_smoke_rc: 0
+  legacy_python35_note: python3.5 remains an MPSS-glibc compatibility payload and still logs GLIBC_2.14 mismatch in libc-stack-smoke; Python 3.12 is the active passed default.
+  optional_python312_modules_remaining:
+    - _bz2
+    - _lzma
+    - readline
+    - _sqlite3
+    - _curses
+    - _ssl
+    - _hashlib
+rollback:
+  result: restored stock MPSS uOS
+  stock_ssh: passed
+  profile_absent: passed
+  stage2_log_absent: passed
+  pid1_comm: init
+  mic0_status: online
+previous_failure: the 20260730-024217 run booted and passed identity/APT/OS checks, but MPSS-glibc-linked payloads failed against the eglibc package stack with GLIBC_2.14 symbol-version mismatches
+next_dependency: package the remaining Python 3.12 optional extension dependencies against the eglibc stack, then broaden essential filesystem and service behavior

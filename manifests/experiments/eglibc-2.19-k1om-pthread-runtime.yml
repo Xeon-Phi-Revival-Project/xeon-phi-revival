@@ -1,0 +1,46 @@
+id: eglibc-2.19-k1om-pthread-runtime
+date: 2026-07-29
+status: passed
+scope: public-safe-summary
+hardware:
+  card: Intel Xeon Phi 5110P
+  target: mic0
+  uos: 2.6.38.8+mpss3.4.10
+  architecture: k1om
+host:
+  os: CentOS 7.4.1708
+  mpss: 3.4.10
+  sdk_environment: /opt/mpss/3.4.10/environment-setup-k1om-mpss-linux
+runtime:
+  source_family: Ubuntu-source eglibc 2.19 probe
+  prefix: /opt/xeon-phi-revival/eglibc-2.19
+  loader: /opt/xeon-phi-revival/eglibc-2.19/lib/ld-linux-k1om.so.2
+  libraries:
+    - libc.so.6
+    - libpthread.so.0
+    - libm.so.6
+    - libdl.so.2
+    - librt.so.1
+    - libutil.so.1
+validation:
+  card_uname: "Linux unknownf48e38c1a578-mic0.home 2.6.38.8+mpss3.4.10 #1 SMP Thu Jan 12 16:38:30 EST 2017 k1om GNU/Linux"
+  hello:
+    path: /tmp/xeon-phi-revival-eglibc-v21/eglibc-v21-hello
+    output: "eglibc-v21 hello pid=4901"
+    exit_code: 0
+  pthread:
+    path: /tmp/xeon-phi-revival-eglibc-v21/eglibc-v21-pthread
+    output: "eglibc-v21 pthread value=219 same=1"
+    exit_code: 0
+safety:
+  stock_kernel_modified: false
+  stock_loader_replaced: false
+  firmware_modified: false
+  runtime_location: project-owned side-by-side prefix
+  config_backup: /etc/mpss/mic0.conf.bak-20260729-222845-before-remove-invalid-family-mpssversion
+artifacts_not_committed:
+  - private build directory
+  - private staging directory
+  - generated runtime binaries
+  - Intel MPSS payloads
+  - stock uOS contents
