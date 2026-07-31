@@ -4,7 +4,7 @@ set -euo pipefail
 usage() {
   cat >&2 <<'USAGE'
 usage:
-  build-stockderived-min-k1om-initramfs.sh [--source FILE] [--replace MODE] [--stock-cpio FILE] [--out-root DIR] [--name NAME]
+  build-stockderived-min-k1om-initramfs.sh [--source FILE] [--project-rootfs DIR] [--project-init FILE] [--replace MODE] [--stock-cpio FILE] [--out-root DIR] [--name NAME]
 
 Build a private stock-derived MPSS Base CPIO diagnostic image by replacing one
 small init boundary with the minimal K1OM init program. This is a narrow
@@ -27,10 +27,16 @@ replace modes:
   instrument-new-root-init-wrapper
                          install a temporary wrapper at /new_root/sbin/init
                           that records PID 1 and execs stock init.sysvinit
+  handoff-project-root   preserve stock bootstrap, overlay a project root at
+                          /new_root, then retain the stock switch_root exec
+  handoff-project-init   preserve the complete stock root, replace only its
+                          /new_root/sbin/init with the project init script
 USAGE
 }
 
 source_file=""
+project_rootfs=""
+project_init=""
 stock_cpio="/usr/share/mpss/boot/initramfs-knightscorner.cpio.gz"
 out_root="${HOME}/xeon-phi-revival-local/uos-min-init-builds"
 name="xpr-min-init-stockderived"
@@ -39,6 +45,8 @@ replace_mode="init-and-sbin-init"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --source) source_file="${2:-}"; shift 2 ;;
+    --project-rootfs) project_rootfs="${2:-}"; shift 2 ;;
+    --project-init) project_init="${2:-}"; shift 2 ;;
     --replace) replace_mode="${2:-}"; shift 2 ;;
     --stock-cpio) stock_cpio="${2:-}"; shift 2 ;;
     --out-root) out_root="${2:-}"; shift 2 ;;
@@ -50,22 +58,29 @@ done
 
 [[ -f "$stock_cpio" ]] || { echo "stock cpio missing: $stock_cpio" >&2; exit 3; }
 case "$replace_mode" in
-  init-and-sbin-init|sbin-init|sbin-init-sysvinit|instrument-stock-init|instrument-stock-handoff|instrument-new-root-inventory|instrument-new-root-init-wrapper) ;;
+  init-and-sbin-init|sbin-init|sbin-init-sysvinit|instrument-stock-init|instrument-stock-handoff|instrument-new-root-inventory|instrument-new-root-init-wrapper|handoff-project-root|handoff-project-init) ;;
   *) echo "invalid --replace mode: $replace_mode" >&2; usage; exit 2 ;;
 esac
-if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" && "$replace_mode" != "instrument-new-root-init-wrapper" ]]; then
+if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" && "$replace_mode" != "instrument-new-root-init-wrapper" && "$replace_mode" != "handoff-project-root" && "$replace_mode" != "handoff-project-init" ]]; then
   [[ -n "$source_file" && -f "$source_file" ]] || { usage; exit 2; }
+fi
+if [[ "$replace_mode" == "handoff-project-root" ]]; then
+  [[ -n "$project_rootfs" && -d "$project_rootfs" ]] || { echo "--project-rootfs is required for handoff-project-root" >&2; exit 2; }
+  [[ -x "$project_rootfs/sbin/init" ]] || { echo "project root is missing executable /sbin/init" >&2; exit 2; }
+fi
+if [[ "$replace_mode" == "handoff-project-init" ]]; then
+  [[ -n "$project_init" && -f "$project_init" && -x "$project_init" ]] || { echo "--project-init must name an executable project init script" >&2; exit 2; }
 fi
 
 for cmd in awk chmod cpio date file find gzip mkdir readelf rm sha256sum sort stat zcat; do
   command -v "$cmd" >/dev/null 2>&1 || { echo "required host tool missing: $cmd" >&2; exit 10; }
 done
 
-if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" && "$replace_mode" != "instrument-new-root-init-wrapper" ]] && ! command -v k1om-mpss-linux-gcc >/dev/null 2>&1 && [[ -f /opt/mpss/3.4.10/environment-setup-k1om-mpss-linux ]]; then
+if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" && "$replace_mode" != "instrument-new-root-init-wrapper" && "$replace_mode" != "handoff-project-root" && "$replace_mode" != "handoff-project-init" ]] && ! command -v k1om-mpss-linux-gcc >/dev/null 2>&1 && [[ -f /opt/mpss/3.4.10/environment-setup-k1om-mpss-linux ]]; then
   # shellcheck disable=SC1091
   source /opt/mpss/3.4.10/environment-setup-k1om-mpss-linux
 fi
-if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" && "$replace_mode" != "instrument-new-root-init-wrapper" ]]; then
+if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" && "$replace_mode" != "instrument-new-root-init-wrapper" && "$replace_mode" != "handoff-project-root" && "$replace_mode" != "handoff-project-init" ]]; then
   command -v k1om-mpss-linux-gcc >/dev/null 2>&1 || { echo "k1om-mpss-linux-gcc not found" >&2; exit 11; }
 fi
 
@@ -84,12 +99,14 @@ exec > >(tee "$run_dir/build.log") 2>&1
 echo "== stock-derived minimal K1OM initramfs build =="
 date -u
 echo "source_file=$source_file"
+echo "project_rootfs=$project_rootfs"
+echo "project_init=$project_init"
 echo "stock_cpio=$stock_cpio"
 echo "run_dir=$run_dir"
 echo "replace_mode=$replace_mode"
 echo "warning=generated image contains stock MPSS userspace and must stay private"
 
-if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" && "$replace_mode" != "instrument-new-root-init-wrapper" ]]; then
+if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" && "$replace_mode" != "instrument-new-root-init-wrapper" && "$replace_mode" != "handoff-project-root" && "$replace_mode" != "handoff-project-init" ]]; then
   k1om-mpss-linux-gcc -Os -static -s "$source_file" -o "$min_init" >"$run_dir/static-link.log" 2>&1
   chmod 0755 "$min_init"
 fi
@@ -99,6 +116,15 @@ echo "== unpack stock Base CPIO =="
   cd "$rootfs"
   zcat "$stock_cpio" | cpio -idm --quiet --no-absolute-filenames
 )
+
+if [[ "$replace_mode" == "handoff-project-root" ]]; then
+  mkdir -p "$rootfs/xpr-project-root"
+  cp -a "$project_rootfs/." "$rootfs/xpr-project-root/"
+fi
+if [[ "$replace_mode" == "handoff-project-init" ]]; then
+  mkdir -p "$rootfs/xpr-project-init/sbin"
+  cp -a "$project_init" "$rootfs/xpr-project-init/sbin/init"
+fi
 
 mkdir -p "$run_dir/replaced"
 for path in init sbin/init sbin/init.sysvinit; do
@@ -304,9 +330,75 @@ EOF
     chmod --reference="$stock_init" "$rootfs/init"
     inspect_path="$rootfs/init"
     ;;
+  handoff-project-root)
+    stock_init="$run_dir/replaced/init.stock"
+    tmp_init="$run_dir/init.instrumented"
+    awk '
+      /^exec[ \t]+\/sbin\/switch_root[ \t]+\/new_root[ \t]+\/sbin\/init([ \t]|$)/ && !inserted {
+        print "# XPR project-root handoff. Preserve the following switch_root exec."
+        print "xpr_stage_project_root() {"
+        print "  test -x /xpr-project-root/sbin/init || return 0"
+        print "  rm -f /new_root/sbin/init || return 0"
+        print "  cp -a /xpr-project-root/. /new_root/ || return 0"
+        print "  {"
+        print "    echo XPR_PROJECT_ROOT_STAGED"
+        print "    echo PID=$$"
+        print "    echo INIT=/sbin/init"
+        print "  } > /new_root/xpr-project-root-handoff.txt 2>/dev/null || true"
+        print "  echo XPR_PROJECT_ROOT_STAGED > /dev/console 2>/dev/null || true"
+        print "}"
+        print "xpr_stage_project_root"
+        print "unset -f xpr_stage_project_root 2>/dev/null || true"
+        inserted=1
+      }
+      { print }
+      END {
+        if (!inserted) {
+          print "xpr_error=no-switch-root-exec-found" > "/dev/stderr"
+          exit 23
+        }
+      }
+    ' "$stock_init" > "$tmp_init"
+    cp -a "$tmp_init" "$rootfs/init"
+    chmod --reference="$stock_init" "$rootfs/init"
+    inspect_path="$rootfs/init"
+    ;;
+  handoff-project-init)
+    stock_init="$run_dir/replaced/init.stock"
+    tmp_init="$run_dir/init.instrumented"
+    awk '
+      /^exec[ \t]+\/sbin\/switch_root[ \t]+\/new_root[ \t]+\/sbin\/init([ \t]|$)/ && !inserted {
+        print "# XPR project-init handoff. Preserve the following switch_root exec."
+        print "xpr_stage_project_init() {"
+        print "  test -x /xpr-project-init/sbin/init || return 0"
+        print "  rm -f /new_root/sbin/init || return 0"
+        print "  cp -a /xpr-project-init/sbin/init /new_root/sbin/init || return 0"
+        print "  {"
+        print "    echo XPR_PROJECT_INIT_STAGED"
+        print "    echo PID=$$"
+        print "    echo INIT=/sbin/init"
+        print "  } > /new_root/xpr-project-init-handoff.txt 2>/dev/null || true"
+        print "  echo XPR_PROJECT_INIT_STAGED > /dev/console 2>/dev/null || true"
+        print "}"
+        print "xpr_stage_project_init"
+        print "unset -f xpr_stage_project_init 2>/dev/null || true"
+        inserted=1
+      }
+      { print }
+      END {
+        if (!inserted) {
+          print "xpr_error=no-switch-root-exec-found" > "/dev/stderr"
+          exit 23
+        }
+      }
+    ' "$stock_init" > "$tmp_init"
+    cp -a "$tmp_init" "$rootfs/init"
+    chmod --reference="$stock_init" "$rootfs/init"
+    inspect_path="$rootfs/init"
+    ;;
 esac
 
-if [[ "$replace_mode" == "instrument-stock-init" || "$replace_mode" == "instrument-stock-handoff" || "$replace_mode" == "instrument-new-root-inventory" || "$replace_mode" == "instrument-new-root-init-wrapper" ]]; then
+if [[ "$replace_mode" == "instrument-stock-init" || "$replace_mode" == "instrument-stock-handoff" || "$replace_mode" == "instrument-new-root-inventory" || "$replace_mode" == "instrument-new-root-init-wrapper" || "$replace_mode" == "handoff-project-root" || "$replace_mode" == "handoff-project-init" ]]; then
   echo "== instrumented init script =="
   file "$inspect_path"
   head -40 "$inspect_path" > "$run_dir/init.instrumented-head.txt"

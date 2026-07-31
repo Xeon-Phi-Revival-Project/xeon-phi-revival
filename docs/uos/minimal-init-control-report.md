@@ -1000,3 +1000,58 @@ That standalone Ramfs must be built solely from project-owned or
 redistribution-cleared files; it must not copy the stock init, stock shell, or
 stock card-side utility tree. This is the next session's boundary and was not
 booted in this wrapper experiment.
+
+## Project Handoff Bootstrap Attempts
+
+Date: 2026-07-31
+
+Two bounded, reversible attempts tested project userspace while retaining the
+proven stock Base-CPIO bootstrap.
+
+Attempt one staged the complete project root under `/xpr-project-root` and
+modified stock `/init` to overlay it onto `/new_root` immediately before the
+unchanged `switch_root` command:
+
+```text
+image=xpr-project-root-handoff.cpio.gz
+image_sha256=333f73208f4ceb18ca26b0ec2f75a5cb29bcebaf51af9cb03afcb040ac018d7d
+compressed_bytes=27332635
+```
+
+Attempt two reduced that payload to only the project `/sbin/init` script under
+`/xpr-project-init`, replacing only `/new_root/sbin/init` immediately before
+the unchanged handoff:
+
+```text
+image=xpr-project-init-handoff.cpio.gz
+image_sha256=68c829bb7003b19bac0f35acb7176f07c6b2f72d5a9229e34ddbd49f0173dc70
+compressed_bytes=20409961
+```
+
+Neither image reached stock `/init` or the project handoff logic. The expected
+`XPR_PROJECT_ROOT_STAGED`, `XPR_PROJECT_INIT_STAGED`, `BOOT_START`, and
+`RESIDENT_IDLE=1` markers were absent. In both cases the 72-line console ended
+at the same early kernel point:
+
+```text
+[    7.741221] Have you set virtblk file?
+[    9.793972] [ pm_scif_init : 344 ]:==> pm_scif_init
+```
+
+This is earlier than the stock-init and switched-root wrapper milestones that
+previously passed. The newly added project payload changes the MPSS-generated
+boot image in a way that prevents the kernel from reaching Base-CPIO `/init`.
+It is not yet evidence of a project shell, runtime, or `switch_root` failure.
+
+After the second attempt, stock recovery was verified directly:
+
+```text
+mic0: online (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+systemctl is-active mpss=active
+ssh 172.31.1.1: uname -m=k1om
+ssh 172.31.1.1: /proc/1/comm=init
+```
+
+The next investigation must compare the exact MPSS-generated ramfs layout and
+metadata for a passing stock-derived wrapper image against these two failing
+payload-bearing images before another boot is attempted.
