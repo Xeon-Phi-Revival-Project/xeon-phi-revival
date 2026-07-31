@@ -34,6 +34,9 @@ replace modes:
   handoff-embedded-project-init
                          embed the project init in stock /init so the archive
                           member list remains identical to the stock image
+  handoff-embedded-project-init-size-matched
+                         embed the project init while matching the known stock
+                          MPSS 3.4.10 CPIO size and member count exactly
 USAGE
 }
 
@@ -61,29 +64,29 @@ done
 
 [[ -f "$stock_cpio" ]] || { echo "stock cpio missing: $stock_cpio" >&2; exit 3; }
 case "$replace_mode" in
-  init-and-sbin-init|sbin-init|sbin-init-sysvinit|instrument-stock-init|instrument-stock-handoff|instrument-new-root-inventory|instrument-new-root-init-wrapper|handoff-project-root|handoff-project-init|handoff-embedded-project-init) ;;
+  init-and-sbin-init|sbin-init|sbin-init-sysvinit|instrument-stock-init|instrument-stock-handoff|instrument-new-root-inventory|instrument-new-root-init-wrapper|handoff-project-root|handoff-project-init|handoff-embedded-project-init|handoff-embedded-project-init-size-matched) ;;
   *) echo "invalid --replace mode: $replace_mode" >&2; usage; exit 2 ;;
 esac
-if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" && "$replace_mode" != "instrument-new-root-init-wrapper" && "$replace_mode" != "handoff-project-root" && "$replace_mode" != "handoff-project-init" && "$replace_mode" != "handoff-embedded-project-init" ]]; then
+if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" && "$replace_mode" != "instrument-new-root-init-wrapper" && "$replace_mode" != "handoff-project-root" && "$replace_mode" != "handoff-project-init" && "$replace_mode" != "handoff-embedded-project-init" && "$replace_mode" != "handoff-embedded-project-init-size-matched" ]]; then
   [[ -n "$source_file" && -f "$source_file" ]] || { usage; exit 2; }
 fi
 if [[ "$replace_mode" == "handoff-project-root" ]]; then
   [[ -n "$project_rootfs" && -d "$project_rootfs" ]] || { echo "--project-rootfs is required for handoff-project-root" >&2; exit 2; }
   [[ -x "$project_rootfs/sbin/init" ]] || { echo "project root is missing executable /sbin/init" >&2; exit 2; }
 fi
-if [[ "$replace_mode" == "handoff-project-init" || "$replace_mode" == "handoff-embedded-project-init" ]]; then
+if [[ "$replace_mode" == "handoff-project-init" || "$replace_mode" == "handoff-embedded-project-init" || "$replace_mode" == "handoff-embedded-project-init-size-matched" ]]; then
   [[ -n "$project_init" && -f "$project_init" && -x "$project_init" ]] || { echo "--project-init must name an executable project init script" >&2; exit 2; }
 fi
 
-for cmd in awk chmod cpio date file find gzip mkdir readelf rm sha256sum sort stat zcat; do
+for cmd in awk chmod cpio date file find gzip mkdir readelf rm sha256sum sort stat truncate wc zcat; do
   command -v "$cmd" >/dev/null 2>&1 || { echo "required host tool missing: $cmd" >&2; exit 10; }
 done
 
-if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" && "$replace_mode" != "instrument-new-root-init-wrapper" && "$replace_mode" != "handoff-project-root" && "$replace_mode" != "handoff-project-init" && "$replace_mode" != "handoff-embedded-project-init" ]] && ! command -v k1om-mpss-linux-gcc >/dev/null 2>&1 && [[ -f /opt/mpss/3.4.10/environment-setup-k1om-mpss-linux ]]; then
+if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" && "$replace_mode" != "instrument-new-root-init-wrapper" && "$replace_mode" != "handoff-project-root" && "$replace_mode" != "handoff-project-init" && "$replace_mode" != "handoff-embedded-project-init" && "$replace_mode" != "handoff-embedded-project-init-size-matched" ]] && ! command -v k1om-mpss-linux-gcc >/dev/null 2>&1 && [[ -f /opt/mpss/3.4.10/environment-setup-k1om-mpss-linux ]]; then
   # shellcheck disable=SC1091
   source /opt/mpss/3.4.10/environment-setup-k1om-mpss-linux
 fi
-if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" && "$replace_mode" != "instrument-new-root-init-wrapper" && "$replace_mode" != "handoff-project-root" && "$replace_mode" != "handoff-project-init" && "$replace_mode" != "handoff-embedded-project-init" ]]; then
+if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" && "$replace_mode" != "instrument-new-root-init-wrapper" && "$replace_mode" != "handoff-project-root" && "$replace_mode" != "handoff-project-init" && "$replace_mode" != "handoff-embedded-project-init" && "$replace_mode" != "handoff-embedded-project-init-size-matched" ]]; then
   command -v k1om-mpss-linux-gcc >/dev/null 2>&1 || { echo "k1om-mpss-linux-gcc not found" >&2; exit 11; }
 fi
 
@@ -110,11 +113,11 @@ echo "run_dir=$run_dir"
 echo "replace_mode=$replace_mode"
 echo "warning=generated image contains stock MPSS userspace and must stay private"
 
-if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" && "$replace_mode" != "instrument-new-root-init-wrapper" && "$replace_mode" != "handoff-project-root" && "$replace_mode" != "handoff-project-init" && "$replace_mode" != "handoff-embedded-project-init" ]]; then
+if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" && "$replace_mode" != "instrument-new-root-init-wrapper" && "$replace_mode" != "handoff-project-root" && "$replace_mode" != "handoff-project-init" && "$replace_mode" != "handoff-embedded-project-init" && "$replace_mode" != "handoff-embedded-project-init-size-matched" ]]; then
   k1om-mpss-linux-gcc -Os -static -s "$source_file" -o "$min_init" >"$run_dir/static-link.log" 2>&1
   chmod 0755 "$min_init"
 fi
-if [[ "$replace_mode" == "handoff-embedded-project-init" ]]; then
+if [[ "$replace_mode" == "handoff-embedded-project-init" || "$replace_mode" == "handoff-embedded-project-init-size-matched" ]]; then
   tail -n +2 "$project_init" > "$project_init_body"
 fi
 
@@ -123,6 +126,13 @@ echo "== unpack stock Base CPIO =="
   cd "$rootfs"
   zcat "$stock_cpio" | cpio -idm --quiet --no-absolute-filenames
 )
+
+if [[ "$replace_mode" == "handoff-embedded-project-init-size-matched" ]]; then
+  padding_donor="$rootfs/usr/share/gnupg/help.hu.txt"
+  [[ -f "$padding_donor" && ! -L "$padding_donor" ]] || { echo "missing size-match padding donor: $padding_donor" >&2; exit 13; }
+  [[ "$(stat -c '%s' "$padding_donor")" == "8204" ]] || { echo "unexpected size-match padding donor length" >&2; exit 13; }
+  truncate -s 5132 "$padding_donor"
+fi
 
 if [[ "$replace_mode" == "handoff-project-root" ]]; then
   mkdir -p "$rootfs/xpr-project-root"
@@ -403,7 +413,7 @@ EOF
     chmod --reference="$stock_init" "$rootfs/init"
     inspect_path="$rootfs/init"
     ;;
-  handoff-embedded-project-init)
+  handoff-embedded-project-init|handoff-embedded-project-init-size-matched)
     stock_init="$run_dir/replaced/init.stock"
     tmp_init="$run_dir/init.instrumented"
     awk -v payload="$project_init_body" '
@@ -439,7 +449,7 @@ EOF
     ;;
 esac
 
-if [[ "$replace_mode" == "instrument-stock-init" || "$replace_mode" == "instrument-stock-handoff" || "$replace_mode" == "instrument-new-root-inventory" || "$replace_mode" == "instrument-new-root-init-wrapper" || "$replace_mode" == "handoff-project-root" || "$replace_mode" == "handoff-project-init" || "$replace_mode" == "handoff-embedded-project-init" ]]; then
+if [[ "$replace_mode" == "instrument-stock-init" || "$replace_mode" == "instrument-stock-handoff" || "$replace_mode" == "instrument-new-root-inventory" || "$replace_mode" == "instrument-new-root-init-wrapper" || "$replace_mode" == "handoff-project-root" || "$replace_mode" == "handoff-project-init" || "$replace_mode" == "handoff-embedded-project-init" || "$replace_mode" == "handoff-embedded-project-init-size-matched" ]]; then
   echo "== instrumented init script =="
   file "$inspect_path"
   head -40 "$inspect_path" > "$run_dir/init.instrumented-head.txt"
@@ -482,6 +492,10 @@ find "$run_dir/replaced" -maxdepth 1 -type l -printf '%f_link_target=%l\n' | sor
 gzip -t "$image"
 gzip -l "$image" > "$run_dir/image.gzip.txt" 2>&1 || true
 zcat "$image" | cpio -itv > "$run_dir/image.cpio-listing.txt" 2>&1
+if [[ "$replace_mode" == "handoff-embedded-project-init-size-matched" ]]; then
+  [[ "$(awk 'NR == 2 { print $2 }' "$run_dir/image.gzip.txt")" == "53688320" ]] || { echo "size-matched CPIO did not match stock uncompressed size" >&2; exit 13; }
+  [[ "$(zcat "$image" | cpio -it --quiet | wc -l)" == "1787" ]] || { echo "size-matched CPIO did not match stock member count" >&2; exit 13; }
+fi
 grep -Eq '(^| )init$' "$run_dir/image.cpio-listing.txt"
 grep -Eq '(^| )sbin/init( ->|$)' "$run_dir/image.cpio-listing.txt"
 grep -Eq 'sbin/init.sysvinit$' "$run_dir/image.cpio-listing.txt"
