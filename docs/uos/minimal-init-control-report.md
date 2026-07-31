@@ -1111,6 +1111,27 @@ ssh 172.31.1.1: uname -m=k1om
 ssh 172.31.1.1: /proc/1/comm=init
 ```
 
-Before another live test, identify a removable or replaceable stock payload
-large enough to keep the experimental Base CPIO at or below the last known
-passing uncompressed size, while preserving the stock bootstrap requirements.
+That size hypothesis was tested by the follow-up below. Matching the known
+stock size did not allow the project marker to appear, so size reduction is no
+longer the next investigation.
+
+## Size-Matched Follow-Up
+
+Date: 2026-07-31
+
+The follow-up preserved the stock archive member count and reduced an unused
+localized GnuPG help file by 3,072 bytes. The resulting embedded-project-init
+image matched the known passing stock archive exactly:
+
+```text
+commit=985946529a6c6d27b2b9afe3deada19866814e24
+image_sha256=e87e4b50b26a2ded51ee1c0402f1a6546212a6bfb3acb105c17a6ef3c796f030
+uncompressed_bytes=53688320
+cpio_members=1787
+```
+
+The bounded live attempt still left `mic0` in `booting` and produced no
+project-init marker. Automatic recovery passed: MPSS became active, `mic0`
+returned online, stock SSH returned `k1om`, and stock PID 1 was `systemd`.
+Matching total archive size and member count is therefore not the immediate
+cause. The next control is the no-op stock unpack/repack experiment.

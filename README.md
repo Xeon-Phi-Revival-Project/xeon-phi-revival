@@ -274,18 +274,24 @@ license, and redistribution decision. See the
 ## Status
 
 Phase 1 is complete: a real Xeon Phi 5110P moved from PCIe enumeration and MPSS
-bring-up to repeatable native K1OM program execution.
+bring-up to repeatable native K1OM program execution. The project is currently
+temporarily paused because the available development-tool quota is nearly
+exhausted; see [the current pause status](docs/project-status-paused.md).
 
-The active milestone is the true Ubuntu architecture-port lane: keep expanding
-the deterministic `k1om` package set and rootfs layout while preserving APT
-parser checks, package audits, simulated installs, live MicDir boot smoke tests,
-and verified rollback to stock uOS. OpenSSL-backed `_ssl`/`_hashlib`, sqlite3,
-curses, curses.panel, terminfo-backed terminal setup, and full libffi-backed
-Python `_ctypes` calls and callbacks now pass inside packaged Python 3.12.
-The dpkg boundary is now crossed and the local-file APT shim has a working real
-Ubuntu-code replacement. The next major distribution boundary is a modern
-K1OM C++ toolchain for Noble APT 2.8 and an Ubuntu-built glibc/runtime that
-remains compatible with the MPSS 2.6.38 kernel.
+The private release-candidate userspace has passed the documented second-stage
+package, Python, libc, networking, SSH, and rollback tests. The remaining boot
+blocker is earlier: modified Base CPIO/initramfs images have not reached the
+project-controlled early `/init` on live hardware. A size-matched experiment
+matched the known stock archive at 53,688,320 uncompressed bytes and 1,787
+members, but still remained in `booting`. The exact resume point is a no-op
+unpack/repack control using the project archive-generation process.
+
+The earlier non-eglibc package set demonstrated OpenSSL-backed Python modules,
+SQLite, curses, terminfo, libffi, and `_ctypes`; the later eglibc-backed RC gate
+should be treated as the authoritative current boundary and reports optional
+module gaps separately. The project has crossed the native dpkg boundary and
+has a local-file APT path, but this is not yet a standalone or official Ubuntu
+port.
 
 ## Independence
 

@@ -230,11 +230,12 @@ Important files:
 
 ## Next Step
 
-The next narrow step is to reduce the standalone boot path further: build a
-tiny control initramfs containing only a statically linked or loader-minimal
-K1OM init that writes directly to `/dev/console` and idles. That will separate
-an MPSS/kernel/initramfs handoff problem from a dynamic BusyBox/eglibc startup
-problem before adding the full rootfs back.
+The tiny control-init experiment has now been completed and did not reach its
+project marker. The next narrow step is the no-op stock Base CPIO reconstruction
+control: unpack the stock archive, change no files, repack it with the project
+archive-generation process, and perform one bounded boot with rollback. This
+separates archive-generation effects from payload changes before any further
+rootfs or application work.
 
 ## Project `/init` Rebuild Retest
 

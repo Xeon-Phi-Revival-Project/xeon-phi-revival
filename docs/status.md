@@ -39,16 +39,18 @@
 
 ## Current Blocker
 
-The first native execution milestone is no longer blocked. The narrowest next
-technical blocker is using the proven C/runtime baseline to advance the first
-small port feasibility lanes:
+The first native execution and second-stage userspace milestones are proven.
+The current blocker is earlier in the boot path: modified Base CPIO/initramfs
+images have not reached the project-controlled early `/init` on live hardware.
+They remain in `booting` without project-init markers, while the known stock
+image and later MicDir handoff path work.
 
-- Python feasibility from libc, `libm`, pthreads, file I/O, and dynamic loading;
-- Doom feasibility from libc, file I/O, timing/input/video abstraction, and
-  minimal framebuffer or terminal output strategy;
-- Ubuntu 24.04 uOS feasibility from the stock MPSS boot model, beginning with a
-  tiny local-only K1OM rootfs rather than a full Ubuntu boot;
-- keep proprietary MPSS payloads out of the repository.
+The latest size-matched experiment matched the known stock archive exactly at
+53,688,320 uncompressed bytes and 1,787 CPIO members, but still did not reach
+project init. The project is paused after this result. The next technical
+control is a no-op unpack/repack of the stock Base CPIO using the project
+archive-generation process, followed by one bounded boot and automatic
+rollback.
 
 ## Ubuntu 24.04 uOS Track
 
@@ -80,10 +82,10 @@ enough to open Level 3, and started Level 3:
   architecture metadata, dpkg metadata fragments, a local archive skeleton, and
   a source-package status matrix.
 
-The Ubuntu package-expansion lane is paused while the uOS boot lane advances.
-The current narrowest dependency is proving a tiny native K1OM PID 1 handoff
-with an observable marker before adding Python or broader userland to the boot
-image.
+The Ubuntu package-expansion lane is paused while the Base CPIO boot-path
+control is pending. The tiny native PID 1 and later project handoff milestones
+are already proven; do not treat the early Base CPIO failure as a Python,
+package-manager, or K1OM execution failure.
 
 ## Project PID 1 uOS Boot Track
 
@@ -372,6 +374,7 @@ image.
 - `docs/uos/stock-rollback-baseline.md`
 - `docs/uos/first-project-pid1-report.md`
 - `docs/uos/project-uos-profile-report.md`
+- `docs/project-status-paused.md`
 - `docs/ubuntu-port/k1om-architecture-port-start.md`
 - `docs/ubuntu-port/true-ubuntu-port-readiness.md`
 - `docs/ubuntu-port/k1om-bootstrap-package-report.md`
@@ -421,7 +424,6 @@ image.
 
 ## Safest Next Technical Action
 
-Review the generated RC artifact manifest for redistribution and split the
-output into public metadata/source recipes, redistributable generated outputs,
-and bring-your-own-MPSS local inputs. Continue avoiding committed proprietary
-or uncertain-redistribution payloads.
+Perform the no-op stock Base CPIO reconstruction control recorded in
+`docs/project-status-paused.md`. Continue avoiding committed proprietary or
+uncertain-redistribution payloads.
