@@ -31,6 +31,9 @@ replace modes:
                           /new_root, then retain the stock switch_root exec
   handoff-project-init   preserve the complete stock root, replace only its
                           /new_root/sbin/init with the project init script
+  handoff-embedded-project-init
+                         embed the project init in stock /init so the archive
+                          member list remains identical to the stock image
 USAGE
 }
 
@@ -58,17 +61,17 @@ done
 
 [[ -f "$stock_cpio" ]] || { echo "stock cpio missing: $stock_cpio" >&2; exit 3; }
 case "$replace_mode" in
-  init-and-sbin-init|sbin-init|sbin-init-sysvinit|instrument-stock-init|instrument-stock-handoff|instrument-new-root-inventory|instrument-new-root-init-wrapper|handoff-project-root|handoff-project-init) ;;
+  init-and-sbin-init|sbin-init|sbin-init-sysvinit|instrument-stock-init|instrument-stock-handoff|instrument-new-root-inventory|instrument-new-root-init-wrapper|handoff-project-root|handoff-project-init|handoff-embedded-project-init) ;;
   *) echo "invalid --replace mode: $replace_mode" >&2; usage; exit 2 ;;
 esac
-if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" && "$replace_mode" != "instrument-new-root-init-wrapper" && "$replace_mode" != "handoff-project-root" && "$replace_mode" != "handoff-project-init" ]]; then
+if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" && "$replace_mode" != "instrument-new-root-init-wrapper" && "$replace_mode" != "handoff-project-root" && "$replace_mode" != "handoff-project-init" && "$replace_mode" != "handoff-embedded-project-init" ]]; then
   [[ -n "$source_file" && -f "$source_file" ]] || { usage; exit 2; }
 fi
 if [[ "$replace_mode" == "handoff-project-root" ]]; then
   [[ -n "$project_rootfs" && -d "$project_rootfs" ]] || { echo "--project-rootfs is required for handoff-project-root" >&2; exit 2; }
   [[ -x "$project_rootfs/sbin/init" ]] || { echo "project root is missing executable /sbin/init" >&2; exit 2; }
 fi
-if [[ "$replace_mode" == "handoff-project-init" ]]; then
+if [[ "$replace_mode" == "handoff-project-init" || "$replace_mode" == "handoff-embedded-project-init" ]]; then
   [[ -n "$project_init" && -f "$project_init" && -x "$project_init" ]] || { echo "--project-init must name an executable project init script" >&2; exit 2; }
 fi
 
@@ -76,11 +79,11 @@ for cmd in awk chmod cpio date file find gzip mkdir readelf rm sha256sum sort st
   command -v "$cmd" >/dev/null 2>&1 || { echo "required host tool missing: $cmd" >&2; exit 10; }
 done
 
-if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" && "$replace_mode" != "instrument-new-root-init-wrapper" && "$replace_mode" != "handoff-project-root" && "$replace_mode" != "handoff-project-init" ]] && ! command -v k1om-mpss-linux-gcc >/dev/null 2>&1 && [[ -f /opt/mpss/3.4.10/environment-setup-k1om-mpss-linux ]]; then
+if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" && "$replace_mode" != "instrument-new-root-init-wrapper" && "$replace_mode" != "handoff-project-root" && "$replace_mode" != "handoff-project-init" && "$replace_mode" != "handoff-embedded-project-init" ]] && ! command -v k1om-mpss-linux-gcc >/dev/null 2>&1 && [[ -f /opt/mpss/3.4.10/environment-setup-k1om-mpss-linux ]]; then
   # shellcheck disable=SC1091
   source /opt/mpss/3.4.10/environment-setup-k1om-mpss-linux
 fi
-if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" && "$replace_mode" != "instrument-new-root-init-wrapper" && "$replace_mode" != "handoff-project-root" && "$replace_mode" != "handoff-project-init" ]]; then
+if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" && "$replace_mode" != "instrument-new-root-init-wrapper" && "$replace_mode" != "handoff-project-root" && "$replace_mode" != "handoff-project-init" && "$replace_mode" != "handoff-embedded-project-init" ]]; then
   command -v k1om-mpss-linux-gcc >/dev/null 2>&1 || { echo "k1om-mpss-linux-gcc not found" >&2; exit 11; }
 fi
 
@@ -92,6 +95,7 @@ manifest="$run_dir/${name}.manifest.tsv"
 hashes="$run_dir/SHA256SUMS"
 summary="$run_dir/build-summary.txt"
 min_init="$run_dir/xpr_min_init"
+project_init_body="$run_dir/project-init.body"
 
 mkdir -p "$rootfs"
 exec > >(tee "$run_dir/build.log") 2>&1
@@ -106,9 +110,12 @@ echo "run_dir=$run_dir"
 echo "replace_mode=$replace_mode"
 echo "warning=generated image contains stock MPSS userspace and must stay private"
 
-if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" && "$replace_mode" != "instrument-new-root-init-wrapper" && "$replace_mode" != "handoff-project-root" && "$replace_mode" != "handoff-project-init" ]]; then
+if [[ "$replace_mode" != "instrument-stock-init" && "$replace_mode" != "instrument-stock-handoff" && "$replace_mode" != "instrument-new-root-inventory" && "$replace_mode" != "instrument-new-root-init-wrapper" && "$replace_mode" != "handoff-project-root" && "$replace_mode" != "handoff-project-init" && "$replace_mode" != "handoff-embedded-project-init" ]]; then
   k1om-mpss-linux-gcc -Os -static -s "$source_file" -o "$min_init" >"$run_dir/static-link.log" 2>&1
   chmod 0755 "$min_init"
+fi
+if [[ "$replace_mode" == "handoff-embedded-project-init" ]]; then
+  tail -n +2 "$project_init" > "$project_init_body"
 fi
 
 echo "== unpack stock Base CPIO =="
@@ -396,9 +403,43 @@ EOF
     chmod --reference="$stock_init" "$rootfs/init"
     inspect_path="$rootfs/init"
     ;;
+  handoff-embedded-project-init)
+    stock_init="$run_dir/replaced/init.stock"
+    tmp_init="$run_dir/init.instrumented"
+    awk -v payload="$project_init_body" '
+      /^exec[ \t]+\/sbin\/switch_root[ \t]+\/new_root[ \t]+\/sbin\/init([ \t]|$)/ && !inserted {
+        print "# XPR embedded project-init handoff. Preserve the following switch_root exec."
+        print "xpr_stage_embedded_project_init() {"
+        print "  rm -f /new_root/sbin/init || return 0"
+        print "  cat > /new_root/sbin/init <<'\''XPR_PROJECT_INIT_PAYLOAD'\''"
+        print "#!/bin/sh"
+        print "echo XPR_PROJECT_INIT_ENTERED > /dev/console 2>/dev/null || true"
+        print "echo PID=$$ > /dev/console 2>/dev/null || true"
+        while ((getline line < payload) > 0) print line
+        close(payload)
+        print "XPR_PROJECT_INIT_PAYLOAD"
+        print "  chmod 0755 /new_root/sbin/init || return 0"
+        print "  echo XPR_PROJECT_INIT_STAGED > /dev/console 2>/dev/null || true"
+        print "}"
+        print "xpr_stage_embedded_project_init"
+        print "unset -f xpr_stage_embedded_project_init 2>/dev/null || true"
+        inserted=1
+      }
+      { print }
+      END {
+        if (!inserted) {
+          print "xpr_error=no-switch-root-exec-found" > "/dev/stderr"
+          exit 23
+        }
+      }
+    ' "$stock_init" > "$tmp_init"
+    cp -a "$tmp_init" "$rootfs/init"
+    chmod --reference="$stock_init" "$rootfs/init"
+    inspect_path="$rootfs/init"
+    ;;
 esac
 
-if [[ "$replace_mode" == "instrument-stock-init" || "$replace_mode" == "instrument-stock-handoff" || "$replace_mode" == "instrument-new-root-inventory" || "$replace_mode" == "instrument-new-root-init-wrapper" || "$replace_mode" == "handoff-project-root" || "$replace_mode" == "handoff-project-init" ]]; then
+if [[ "$replace_mode" == "instrument-stock-init" || "$replace_mode" == "instrument-stock-handoff" || "$replace_mode" == "instrument-new-root-inventory" || "$replace_mode" == "instrument-new-root-init-wrapper" || "$replace_mode" == "handoff-project-root" || "$replace_mode" == "handoff-project-init" || "$replace_mode" == "handoff-embedded-project-init" ]]; then
   echo "== instrumented init script =="
   file "$inspect_path"
   head -40 "$inspect_path" > "$run_dir/init.instrumented-head.txt"

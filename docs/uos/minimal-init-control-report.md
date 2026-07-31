@@ -1055,3 +1055,62 @@ ssh 172.31.1.1: /proc/1/comm=init
 The next investigation must compare the exact MPSS-generated ramfs layout and
 metadata for a passing stock-derived wrapper image against these two failing
 payload-bearing images before another boot is attempted.
+
+## Embedded Project Init Size-Boundary Test
+
+Date: 2026-07-31
+
+The project init was embedded directly inside the existing stock `/init` file.
+At runtime, stock `/init` would write it to `/new_root/sbin/init` and retain
+the original `switch_root` command. This image added no archive members:
+
+```text
+stock CPIO entries=1787
+embedded-project-init CPIO entries=1787
+```
+
+Static inspection confirmed the embedded script contained direct console
+markers before the project init body:
+
+```text
+XPR_PROJECT_INIT_ENTERED
+PID=$$
+```
+
+The resulting private image was:
+
+```text
+image=xpr-embedded-project-init.cpio.gz
+image_sha256=f2c54d562a5b9a054c975f80a2ab6f4ef74ab4b4ba67cdf09e048d4411661b17
+compressed_bytes=20409820
+uncompressed_bytes=53691392
+```
+
+It again stopped before Base-CPIO `/init`; no `XPR_PROJECT_INIT_ENTERED`,
+`XPR_PROJECT_INIT_STAGED`, `BOOT_START`, or `RESIDENT_IDLE=1` marker appeared.
+The early console ending matched the prior failures:
+
+```text
+[    7.741221] Have you set virtblk file?
+[    9.793972] [ pm_scif_init : 344 ]:==> pm_scif_init
+```
+
+This rules out the added-path hypothesis. The strongest current correlation is
+the uncompressed ramfs size. The last passing stock-wrapper image was
+53,688,320 bytes; this image and the small extra-path project-init image were
+both 53,691,392 bytes, exactly 3,072 bytes larger. The complete project-root
+attempt was larger still at 73,630,208 bytes. This is a working hypothesis,
+not a proven MPSS limit.
+
+Stock recovery after the test was verified directly:
+
+```text
+mic0: online (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+systemctl is-active mpss=active
+ssh 172.31.1.1: uname -m=k1om
+ssh 172.31.1.1: /proc/1/comm=init
+```
+
+Before another live test, identify a removable or replaceable stock payload
+large enough to keep the experimental Base CPIO at or below the last known
+passing uncompressed size, while preserving the stock bootstrap requirements.
