@@ -276,7 +276,8 @@ license, and redistribution decision. See the
 Phase 1 is complete: a real Xeon Phi 5110P moved from PCIe enumeration and MPSS
 bring-up to repeatable native K1OM program execution. The project is currently
 temporarily paused because the available development-tool quota is nearly
-exhausted; see [the current pause status](docs/project-status-paused.md).
+exhausted. This is a temporary pause, not project abandonment; see
+[the current pause status](docs/project-status-paused.md).
 
 The private release-candidate userspace has passed the documented second-stage
 package, Python, libc, networking, SSH, and rollback tests. The remaining boot
