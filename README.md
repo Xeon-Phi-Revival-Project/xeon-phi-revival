@@ -25,6 +25,10 @@ actual Xeon Phi system before being treated as project facts.
   [K1OM Ubuntu Port Lab](ubuntu-port/k1om/README.md)
 - Latest package-set report:
   [K1OM Bootstrap Package Set](docs/ubuntu-port/k1om-bootstrap-package-set-report.md)
+- Development status: XPR-OS is temporarily paused due to development-tool quota
+  limits. The project remains active. See
+  [the pause status](docs/project-status-paused.md) for the current technical
+  status and exact resume point.
 - K1OM libffi/Python ctypes result:
   [K1OM libffi and CPython ctypes](docs/ubuntu-port/k1om-libffi-ctypes-report.md)
 - Native package-manager results:
