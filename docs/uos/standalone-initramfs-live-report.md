@@ -235,3 +235,39 @@ tiny control initramfs containing only a statically linked or loader-minimal
 K1OM init that writes directly to `/dev/console` and idles. That will separate
 an MPSS/kernel/initramfs handoff problem from a dynamic BusyBox/eglibc startup
 problem before adding the full rootfs back.
+
+## Project `/init` Rebuild Retest
+
+Date: 2026-07-30
+
+A fresh project-only standalone image was built from the validated RC rootfs:
+
+```text
+image=/root/xeon-phi-revival-local/uos-standalone-builds/xpr-uos-project-init-20260730-234930/xpr-uos-project-init.cpio.gz
+image_sha256=fe70ccf3876451379ad766044180ed2f44e904b2e607839a564abe5737986f0e
+compressed_bytes=6925519
+```
+
+Static inspection confirmed `/init -> sbin/init`, an executable project
+`/sbin/init`, K1OM BusyBox and `hello-knc`, `/bin/sh`, `/etc/os-release`, and
+the native pthread smoke binary. The image was booted only through an alternate
+MPSS configuration with private Base CPIO and Ramfs paths.
+
+The live boot did not reach the project init. All 24 bounded status polls
+remained `booting`; no `XPR_`, `BOOT_START`, or `RESIDENT_IDLE=1` marker was
+captured on `/dev/ttyMIC0`, ramoops, or the host evidence file. MPSS eventually
+reported `boot failed`.
+
+The rollback helper's `systemctl stop mpss` call blocked without a timeout, so
+the specific stuck stop operation was terminated to allow the existing rollback
+sequence to continue. Stock recovery was then verified directly:
+
+```text
+mic0: online (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+systemctl is-active mpss=active
+ssh 172.31.1.1: uname -m=k1om
+ssh 172.31.1.1: /proc/1/comm=init
+```
+
+The standalone runner now bounds that stop call with `timeout 45`. No
+project-root handoff was attempted because project PID 1 was not reached.

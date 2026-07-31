@@ -76,7 +76,7 @@ capture_host_state() {
 stock_boot_and_verify() {
   set +e
   log "== rollback stock MPSS =="
-  systemctl stop mpss || true
+  timeout 45 systemctl stop mpss || true
   sleep 5
   pkill -TERM mpssd || true
   sleep 3
