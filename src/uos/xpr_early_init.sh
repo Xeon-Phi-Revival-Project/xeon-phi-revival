@@ -34,7 +34,8 @@ printf '%s\n' XPR_EARLY_INIT_ROOT_READY > /new_root/etc/xpr-early-init
 rm -f /new_root/sbin/init
 cat > /new_root/sbin/init <<'XPR_PROJECT_SBIN_INIT'
 #!/bin/sh
-printf '%s\n' XPR_PROJECT_SBIN_INIT_PID1 > /etc/xpr-project-sbin-init
+printf '%s\n' XPR > /etc/xpr-project-sbin-init
+printf '%s\n' XPR_PROJECT_SBIN_INIT_PID1 >> /etc/xpr-project-sbin-init
 printf 'pid=%s\n' "$$" >> /etc/xpr-project-sbin-init
 exec /sbin/init.sysvinit
 XPR_PROJECT_SBIN_INIT
