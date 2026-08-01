@@ -165,6 +165,8 @@ def main():
     parser.add_argument("--with", dest="replacement")
     parser.add_argument("--xprinit-marker", action="store_true",
                         help="replace one same-length stock /init module echo with XPRINIT")
+    parser.add_argument("--xprinit-file-marker", action="store_true",
+                        help="replace one same-length stock /init module echo with a /tmp/x marker")
     args = parser.parse_args()
 
     source_compressed = read_bytes(args.source)
@@ -176,12 +178,14 @@ def main():
         raise ValueError("invalid source archive state")
 
     output_source_entries = [dict(entry) for entry in source_entries]
-    if args.xprinit_marker:
+    if args.xprinit_marker or args.xprinit_file_marker:
         if args.replace_entry or args.replace_once or args.replacement:
-            raise ValueError("--xprinit-marker cannot be combined with replacement arguments")
+            raise ValueError("marker modes cannot be combined with replacement arguments")
+        if args.xprinit_marker and args.xprinit_file_marker:
+            raise ValueError("select only one marker mode")
         args.replace_entry = "init"
         args.replace_once = "echo $module $args"
-        args.replacement = "echo XPRINIT $args"
+        args.replacement = "echo XPRINIT $args" if args.xprinit_marker else "echo XPR >/tmp/x  "
     if args.replace_entry or args.replace_once or args.replacement:
         if not (args.replace_entry and args.replace_once is not None and args.replacement is not None):
             raise ValueError("all replacement arguments are required together")
