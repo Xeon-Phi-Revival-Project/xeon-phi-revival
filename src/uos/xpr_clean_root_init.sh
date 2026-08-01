@@ -9,6 +9,11 @@ mkdir -p /proc /sys /dev /run /tmp /etc
 mount -t proc proc /proc 2>/dev/null || true
 mount -t sysfs sysfs /sys 2>/dev/null || true
 mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
+test -c /dev/console || mknod -m 600 /dev/console c 5 1
+test -c /dev/null || mknod -m 666 /dev/null c 1 3
+test -c /dev/zero || mknod -m 666 /dev/zero c 1 5
+test -c /dev/random || mknod -m 666 /dev/random c 1 8
+test -c /dev/urandom || mknod -m 666 /dev/urandom c 1 9
 mount -t tmpfs -o mode=0755 tmpfs /run 2>/dev/null || true
 mount -t tmpfs -o mode=1777 tmpfs /tmp 2>/dev/null || chmod 1777 /tmp
 hostname xpr-uos
@@ -28,6 +33,16 @@ ifconfig mic0 172.31.1.1 netmask 255.255.255.0 mtu 64512 up >> /run/xpr-os-init 
 /usr/bin/xpr-statusd >> /run/xpr-os-init 2>&1 &
 statusd_pid=$!
 printf 'statusd_pid=%s\n' "$statusd_pid" >> /run/xpr-os-init
+mkdir -p /etc/dropbear
+/usr/sbin/dropbear -R -F -p 22 >> /run/xpr-os-init 2>&1 &
+dropbear_pid=$!
+printf 'dropbear_pid=%s\n' "$dropbear_pid" >> /run/xpr-os-init
+sleep 1
+if kill -0 "$dropbear_pid" 2>/dev/null; then
+    printf '%s\n' XPR_DROPBEAR_RUNNING >> /run/xpr-os-init
+else
+    printf '%s\n' XPR_DROPBEAR_EXITED >> /run/xpr-os-init
+fi
 
 if test -e /sys/class/micnotify/notify/host_notified; then
     printf '%s\n' done > /sys/class/micnotify/notify/host_notified

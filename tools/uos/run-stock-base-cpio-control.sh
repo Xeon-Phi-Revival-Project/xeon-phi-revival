@@ -3,7 +3,7 @@ set -euo pipefail
 
 usage() {
   cat >&2 <<'USAGE'
-usage: run-stock-base-cpio-control.sh --image FILE --expected-conf-sha SHA [--mic mic0] [--boot-polls 18] [--expect-console TEXT] [--expect-ssh-path PATH] [--expect-tcp-port PORT] [--expect-tcp-text TEXT]
+usage: run-stock-base-cpio-control.sh --image FILE --expected-conf-sha SHA [--mic mic0] [--boot-polls 18] [--expect-console TEXT] [--expect-ssh-path PATH] [--expect-ssh-file PATH --expect-ssh-text TEXT] [--expect-tcp-port PORT] [--expect-tcp-text TEXT]
 
 Boot a byte-preserving stock Base CPIO reconstruction through an alternate MPSS
 configuration, capture bounded evidence, and restore the stock configuration.
@@ -16,6 +16,8 @@ mic="mic0"
 boot_polls=18
 expect_console=""
 expect_ssh_path=""
+expect_ssh_file=""
+expect_ssh_text=""
 expect_tcp_port=""
 expect_tcp_text=""
 run_root="${HOME}/xeon-phi-revival-local/stock-cpio-control-runs"
@@ -28,6 +30,8 @@ while [[ $# -gt 0 ]]; do
     --boot-polls) boot_polls="${2:-}"; shift 2 ;;
     --expect-console) expect_console="${2:-}"; shift 2 ;;
     --expect-ssh-path) expect_ssh_path="${2:-}"; shift 2 ;;
+    --expect-ssh-file) expect_ssh_file="${2:-}"; shift 2 ;;
+    --expect-ssh-text) expect_ssh_text="${2:-}"; shift 2 ;;
     --expect-tcp-port) expect_tcp_port="${2:-}"; shift 2 ;;
     --expect-tcp-text) expect_tcp_text="${2:-}"; shift 2 ;;
     --run-root) run_root="${2:-}"; shift 2 ;;
@@ -38,6 +42,8 @@ done
 
 [[ -f "$image" && -n "$expected_conf_sha" ]] || { usage; exit 2; }
 [[ -z "$expect_ssh_path" || "$expect_ssh_path" =~ ^/[A-Za-z0-9._/-]+$ ]] || { echo "invalid SSH marker path" >&2; exit 2; }
+[[ -z "$expect_ssh_file" || "$expect_ssh_file" =~ ^/[A-Za-z0-9._/-]+$ ]] || { echo "invalid SSH marker file" >&2; exit 2; }
+[[ -z "$expect_ssh_file" || -n "$expect_ssh_text" ]] || { echo "SSH text is required with SSH file" >&2; exit 2; }
 [[ -z "$expect_tcp_port" || "$expect_tcp_port" =~ ^[0-9]+$ ]] || { echo "invalid TCP port" >&2; exit 2; }
 [[ -z "$expect_tcp_port" || -n "$expect_tcp_text" ]] || { echo "TCP text is required with TCP port" >&2; exit 2; }
 for cmd in awk cat cp date diff grep gzip mkdir sed sha256sum sleep tee timeout zcat cpio; do
@@ -145,6 +151,12 @@ if [[ -n "$expect_ssh_path" ]]; then
     ssh_marker_pass=0
   fi
 fi
+ssh_file_pass=1
+if [[ -n "$expect_ssh_file" ]]; then
+  ssh_file_output="$(ssh -n -l root -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=8 "$mic" "cat '$expect_ssh_file'" 2>/dev/null || true)"
+  printf '%s\n' "$ssh_file_output" > "${run_dir}/ssh-file-marker.txt"
+  [[ "$ssh_file_output" == *"$expect_ssh_text"* ]] || ssh_file_pass=0
+fi
 tcp_marker_pass=1
 if [[ -n "$expect_tcp_port" ]]; then
   tcp_output="$(timeout 8 bash -c "exec 3<>/dev/tcp/172.31.1.1/${expect_tcp_port}; cat <&3" 2>/dev/null || true)"
@@ -159,10 +171,11 @@ grep -q 'stock_ssh_ready=1' "${run_dir}/rollback-verify.txt" && grep -q "${mic}:
   echo "boot_pass=${boot_pass}"
   echo "marker_pass=${marker_pass}"
   echo "ssh_marker_pass=${ssh_marker_pass}"
+  echo "ssh_file_pass=${ssh_file_pass}"
   echo "tcp_marker_pass=${tcp_marker_pass}"
   echo "rollback_pass=${rollback_pass}"
   echo "run_dir=${run_dir}"
   echo "image_sha256=$(sha256sum "$private_image" | awk '{print $1}')"
   echo "boot_command=$(cat "${run_dir}/boot-command.txt")"
 } | tee "${run_dir}/summary.txt"
-[[ "$boot_pass" == 1 && "$marker_pass" == 1 && "$ssh_marker_pass" == 1 && "$tcp_marker_pass" == 1 && "$rollback_pass" == 1 ]] || exit 20
+[[ "$boot_pass" == 1 && "$marker_pass" == 1 && "$ssh_marker_pass" == 1 && "$ssh_file_pass" == 1 && "$tcp_marker_pass" == 1 && "$rollback_pass" == 1 ]] || exit 20

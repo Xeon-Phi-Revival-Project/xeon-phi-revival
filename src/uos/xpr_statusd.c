@@ -1,6 +1,7 @@
 /* Minimal project-owned status endpoint for clean-root boot evidence. */
 
 #include <arpa/inet.h>
+#include <fcntl.h>
 #include <netinet/in.h>
 #include <stdio.h>
 #include <string.h>
@@ -28,7 +29,17 @@ int main(void) {
     for (;;) {
         int client = accept(listener, 0, 0);
         if (client >= 0) {
+            int logfd;
+            char buffer[512];
+            ssize_t length;
             (void)write(client, reply, sizeof(reply) - 1);
+            logfd = open("/run/xpr-os-init", O_RDONLY);
+            if (logfd >= 0) {
+                while ((length = read(logfd, buffer, sizeof(buffer))) > 0) {
+                    (void)write(client, buffer, (size_t)length);
+                }
+                close(logfd);
+            }
             close(client);
         }
     }

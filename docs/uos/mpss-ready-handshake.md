@@ -60,9 +60,16 @@ hash remained:
 After the final run, stock `mic0` was online, MPSS was active, and stock SSH
 again reported `k1om` with stock `init` as PID 1.
 
-## Next Step
+## SSH Follow-On
 
-Add a project-owned SSH server to the now-working clean root, then verify
-project PID 1, filesystem behavior, hello, pthread, networking, and SSH over
-three consecutive boots. Do not add Python or package-management payloads to
-this boot lane first.
+The first project-owned SSH boot is documented in
+`docs/uos/clean-root-ssh-experiment.md`. The clean root reached project
+`/sbin/init` as PID 1, configured the MPSS virtual interface, started
+project-built Dropbear, accepted public-key authentication, and returned the
+project status log over SSH before stock rollback succeeded.
+
+Three consecutive boots have now passed the project SSH and stock rollback
+checks. The remaining early-boot boundary is the local MPSS module tree still
+provided by the Base CPIO before the project early init performs
+`switch_root`. Do not add Python or package-management payloads to this boot
+lane first.
