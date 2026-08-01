@@ -108,6 +108,16 @@ def serialize(entries, trailing):
     return b"".join(parts)
 
 
+def replace_payload(entry, payload):
+    if len(payload) > 0xffffffff:
+        raise ValueError("replacement payload is too large for newc")
+    header = entry["header"]
+    size_start = 6 + 6 * 8
+    entry["header"] = header[:size_start] + ("%08X" % len(payload)).encode("ascii") + header[size_start + 8:]
+    entry["payload"] = payload
+    entry["data_padding"] = b"\0" * (align4(len(payload)) - len(payload))
+
+
 def entry_metadata_fingerprint(entry):
     return (
         entry["header"], entry["name_blob"], entry["name_padding"], entry["data_padding"],
@@ -163,6 +173,7 @@ def main():
     parser.add_argument("--replace-entry")
     parser.add_argument("--replace-once")
     parser.add_argument("--with", dest="replacement")
+    parser.add_argument("--replace-entry-from", metavar="FILE")
     parser.add_argument("--xprinit-marker", action="store_true",
                         help="replace one same-length stock /init module echo with XPRINIT")
     parser.add_argument("--xprinit-file-marker", action="store_true",
@@ -179,27 +190,34 @@ def main():
 
     output_source_entries = [dict(entry) for entry in source_entries]
     if args.xprinit_marker or args.xprinit_file_marker:
-        if args.replace_entry or args.replace_once or args.replacement:
+        if args.replace_entry or args.replace_once or args.replacement or args.replace_entry_from:
             raise ValueError("marker modes cannot be combined with replacement arguments")
         if args.xprinit_marker and args.xprinit_file_marker:
             raise ValueError("select only one marker mode")
         args.replace_entry = "init"
         args.replace_once = "echo $module $args"
         args.replacement = "echo XPRINIT $args" if args.xprinit_marker else "echo XPR >/etc/x  "
-    if args.replace_entry or args.replace_once or args.replacement:
-        if not (args.replace_entry and args.replace_once is not None and args.replacement is not None):
-            raise ValueError("all replacement arguments are required together")
-        old = args.replace_once.encode("ascii")
-        new = args.replacement.encode("ascii")
-        if len(old) != len(new):
-            raise ValueError("replacement must preserve payload length")
+    if args.replace_entry or args.replace_once or args.replacement or args.replace_entry_from:
+        if not args.replace_entry:
+            raise ValueError("--replace-entry is required for a replacement")
         matches = [entry for entry in output_source_entries if entry["name"] == args.replace_entry.encode("ascii")]
         if len(matches) != 1:
             raise ValueError("replacement entry not found exactly once")
         entry = matches[0]
-        if entry["payload"].count(old) != 1:
-            raise ValueError("replacement text not found exactly once")
-        entry["payload"] = entry["payload"].replace(old, new, 1)
+        if args.replace_entry_from:
+            if args.replace_once is not None or args.replacement is not None:
+                raise ValueError("file and text replacement modes cannot be combined")
+            replace_payload(entry, read_bytes(args.replace_entry_from))
+        else:
+            if args.replace_once is None or args.replacement is None:
+                raise ValueError("text replacement requires --replace-once and --with")
+            old = args.replace_once.encode("ascii")
+            new = args.replacement.encode("ascii")
+            if len(old) != len(new):
+                raise ValueError("replacement must preserve payload length")
+            if entry["payload"].count(old) != 1:
+                raise ValueError("replacement text not found exactly once")
+            entry["payload"] = entry["payload"].replace(old, new, 1)
 
     reconstructed = serialize(output_source_entries, source_trailing)
     if not args.replace_entry and reconstructed != source_plain:
