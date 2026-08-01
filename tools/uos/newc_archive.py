@@ -166,7 +166,7 @@ def main():
     parser.add_argument("--xprinit-marker", action="store_true",
                         help="replace one same-length stock /init module echo with XPRINIT")
     parser.add_argument("--xprinit-file-marker", action="store_true",
-                        help="replace one same-length stock /init module echo with a /tmp/x marker")
+                        help="replace one same-length stock /init module echo with an /etc/x marker")
     args = parser.parse_args()
 
     source_compressed = read_bytes(args.source)
@@ -185,7 +185,7 @@ def main():
             raise ValueError("select only one marker mode")
         args.replace_entry = "init"
         args.replace_once = "echo $module $args"
-        args.replacement = "echo XPRINIT $args" if args.xprinit_marker else "echo XPR >/tmp/x  "
+        args.replacement = "echo XPRINIT $args" if args.xprinit_marker else "echo XPR >/etc/x  "
     if args.replace_entry or args.replace_once or args.replacement:
         if not (args.replace_entry and args.replace_once is not None and args.replacement is not None):
             raise ValueError("all replacement arguments are required together")
