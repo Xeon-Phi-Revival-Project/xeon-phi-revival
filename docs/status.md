@@ -39,17 +39,15 @@
 
 ## Current Blocker
 
-The first native execution and second-stage userspace milestones are proven.
-The current blocker is earlier in the boot path: modified Base CPIO/initramfs
-images have not reached the project-controlled early `/init` on live hardware.
-They remain in `booting` without project-init markers, while the known stock
-image and later MicDir handoff path work.
+The first native execution, second-stage userspace, Base CPIO reconstruction,
+project early `/init`, and project `/sbin/init` handoff milestones are proven.
+The current blocker is a clean project-owned rootfs with a project resident
+init, shell/filesystem tools, pthread smoke, MPSS virtual networking, and SSH.
+It must boot three consecutive times through the reversible Base CPIO path
+before RAM-only loader work begins.
 
-The latest size-matched experiment matched the known stock archive exactly at
-53,688,320 uncompressed bytes and 1,787 CPIO members, but still did not reach
-project init. The next technical control is a no-op unpack/repack of the stock Base CPIO using the project
-archive-generation process, followed by one bounded boot and automatic
-rollback.
+The no-op reconstruction control and project early-init evidence are recorded
+in `docs/uos/base-cpio-reconstruction-control.md`.
 
 ## Ubuntu 24.04 uOS Track
 
@@ -81,9 +79,9 @@ enough to open Level 3, and started Level 3:
   architecture metadata, dpkg metadata fragments, a local archive skeleton, and
   a source-package status matrix.
 
-The Ubuntu package-expansion lane is paused while the Base CPIO boot-path
-control is pending. The tiny native PID 1 and later project handoff milestones
-are already proven; do not treat the early Base CPIO failure as a Python,
+The Ubuntu package-expansion lane remains on hold while the clean-root boot
+path is established. The early Base CPIO execution and project handoff
+milestones are proven; do not treat the remaining rootfs work as a Python,
 package-manager, or K1OM execution failure.
 
 ## Project PID 1 uOS Boot Track
@@ -373,6 +371,7 @@ package-manager, or K1OM execution failure.
 - `docs/uos/stock-rollback-baseline.md`
 - `docs/uos/first-project-pid1-report.md`
 - `docs/uos/project-uos-profile-report.md`
+- `docs/uos/base-cpio-reconstruction-control.md`
 - `docs/project-status-paused.md`
 - `docs/ubuntu-port/k1om-architecture-port-start.md`
 - `docs/ubuntu-port/true-ubuntu-port-readiness.md`
@@ -423,6 +422,6 @@ package-manager, or K1OM execution failure.
 
 ## Safest Next Technical Action
 
-Perform the no-op stock Base CPIO reconstruction control recorded in
-the documented no-op reconstruction procedure. Continue avoiding committed
-proprietary or uncertain-redistribution payloads.
+Build and validate the smallest clean project-owned rootfs for the proven
+project early-init handoff path. Continue avoiding committed proprietary or
+uncertain-redistribution payloads.

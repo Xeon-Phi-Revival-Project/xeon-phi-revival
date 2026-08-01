@@ -273,12 +273,12 @@ Phase 1 is complete: a real Xeon Phi 5110P moved from PCIe enumeration and MPSS
 bring-up to repeatable native K1OM program execution.
 
 The private release-candidate userspace has passed the documented second-stage
-package, Python, libc, networking, SSH, and rollback tests. The remaining boot
-blocker is earlier: modified Base CPIO/initramfs images have not reached the
-project-controlled early `/init` on live hardware. A size-matched experiment
-matched the known stock archive at 53,688,320 uncompressed bytes and 1,787
-members, but still remained in `booting`. The exact resume point is a no-op
-unpack/repack control using the project archive-generation process.
+package, Python, libc, networking, SSH, and rollback tests. The Base CPIO
+archive-generation path, project early `/init`, and project `/sbin/init`
+handoff are now proven on live hardware. The next boundary is a clean
+project-owned rootfs that retains MPSS networking and SSH without stock
+card-side userspace after the handoff. See
+[the Base CPIO control report](docs/uos/base-cpio-reconstruction-control.md).
 
 The earlier non-eglibc package set demonstrated OpenSSL-backed Python modules,
 SQLite, curses, terminfo, libffi, and `_ctypes`; the later eglibc-backed RC gate
