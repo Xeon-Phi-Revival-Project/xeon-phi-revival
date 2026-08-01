@@ -28,7 +28,7 @@ load_module ramoops ${ramoops_size:+mem_size=$ramoops_size} ${ramoops_addr:+mem_
 load_module micras
 
 mount -t tmpfs none /new_root -o mode=0755,size=85%
-find . -xdev -path ./new_root -prune -o -path ./RPMs-to-install -prune -o -print | /usr/bin/cpio -m -p /new_root
+find . -xdev -path ./new_root -prune -o -path ./RPMs-to-install -prune -o -print | /bin/cpio -m -p /new_root
 printf '%s\n' XPR_EARLY_INIT_ROOT_READY > /new_root/etc/xpr-early-init
 
 rm -f /new_root/sbin/init
