@@ -21,9 +21,13 @@ mark XPR_CLEAN_ROOT_EARLY_INIT_ENTERED
 load_module michvc ${vcons_hdr_addr:+vcons_hdr_addr=$vcons_hdr_addr}
 load_module intel_micveth ${vnet:+vnet=$vnet} ${vnet_addr:+vnet_addr=$vnet_addr} ${vnet_num_buffers:+vnet_num_buffers=$vnet_num_buffers}
 load_module micscif ${p2p:+p2p=$p2p} ${p2p_proxy:+p2p_proxy=$p2p_proxy} ${p2p_proxy_thresh:+p2p_proxy_thresh=$p2p_proxy_thresh} ${numa_node:+numa_node=$numa_node} ${scif_id:+scif_id=$scif_id} ${scif_addr:+scif_addr=$scif_addr} ${reg_cache:+reg_cache=$reg_cache} ${ulimit:+ulimit=$ulimit} ${huge_page:+huge_page=$huge_page} ${pm_qos_cpu_dma_lat:+pm_qos_cpu_dma_lat=$pm_qos_cpu_dma_lat}
-load_module mic_virtblk ${virtio_addr:+virtio_addr=$virtio_addr}
-load_module ramoops ${ramoops_size:+mem_size=$ramoops_size} ${ramoops_addr:+mem_address=$ramoops_addr}
-load_module micras
+# The project root is unpacked from the ramfs and has no block-device mount.
+# Keep mic_virtblk out of the minimal module boundary unless an omission test
+# proves that the stock kernel requires it for this path.
+# Crash persistence is not used by the minimal project root. Keep ramoops out
+# of the module boundary unless an omission test proves it is boot-critical.
+# RAS/HW monitoring is not part of the project boot, networking, readiness, or
+# SSH path. Keep micras out unless an omission test proves it boot-critical.
 # Load this before switch_root while MPSS supplies the module tree. Project PID
 # 1 performs the host notification after the clean-root handoff.
 load_module mpssboot
