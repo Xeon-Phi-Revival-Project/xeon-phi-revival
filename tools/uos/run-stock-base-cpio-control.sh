@@ -3,7 +3,7 @@ set -euo pipefail
 
 usage() {
   cat >&2 <<'USAGE'
-usage: run-stock-base-cpio-control.sh --image FILE --expected-conf-sha SHA [--mic mic0] [--boot-polls 18] [--expect-console TEXT] [--expect-ssh-path PATH]
+usage: run-stock-base-cpio-control.sh --image FILE --expected-conf-sha SHA [--mic mic0] [--boot-polls 18] [--expect-console TEXT] [--expect-ssh-path PATH] [--expect-tcp-port PORT] [--expect-tcp-text TEXT]
 
 Boot a byte-preserving stock Base CPIO reconstruction through an alternate MPSS
 configuration, capture bounded evidence, and restore the stock configuration.
@@ -16,6 +16,8 @@ mic="mic0"
 boot_polls=18
 expect_console=""
 expect_ssh_path=""
+expect_tcp_port=""
+expect_tcp_text=""
 run_root="${HOME}/xeon-phi-revival-local/stock-cpio-control-runs"
 
 while [[ $# -gt 0 ]]; do
@@ -26,6 +28,8 @@ while [[ $# -gt 0 ]]; do
     --boot-polls) boot_polls="${2:-}"; shift 2 ;;
     --expect-console) expect_console="${2:-}"; shift 2 ;;
     --expect-ssh-path) expect_ssh_path="${2:-}"; shift 2 ;;
+    --expect-tcp-port) expect_tcp_port="${2:-}"; shift 2 ;;
+    --expect-tcp-text) expect_tcp_text="${2:-}"; shift 2 ;;
     --run-root) run_root="${2:-}"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) usage; exit 2 ;;
@@ -34,6 +38,8 @@ done
 
 [[ -f "$image" && -n "$expected_conf_sha" ]] || { usage; exit 2; }
 [[ -z "$expect_ssh_path" || "$expect_ssh_path" =~ ^/[A-Za-z0-9._/-]+$ ]] || { echo "invalid SSH marker path" >&2; exit 2; }
+[[ -z "$expect_tcp_port" || "$expect_tcp_port" =~ ^[0-9]+$ ]] || { echo "invalid TCP port" >&2; exit 2; }
+[[ -z "$expect_tcp_port" || -n "$expect_tcp_text" ]] || { echo "TCP text is required with TCP port" >&2; exit 2; }
 for cmd in awk cat cp date diff grep gzip mkdir sed sha256sum sleep tee timeout zcat cpio; do
   command -v "$cmd" >/dev/null 2>&1 || { echo "missing host tool: $cmd" >&2; exit 10; }
 done
@@ -69,11 +75,19 @@ restore_stock() {
     micctrl --status 2>/dev/null | grep -q "${mic}: online" && break
     sleep 5
   done
+  stock_ssh_ok=0
+  for i in $(seq 1 8); do
+    if ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=6 "$mic" 'echo stock_ssh_ok; uname -m; cat /proc/1/comm'; then
+      stock_ssh_ok=1
+      break
+    fi
+    sleep 5
+  done
   {
     echo "stock_conf_sha256=$(sha256sum "$stock_conf" | awk '{print $1}')"
+    echo "stock_ssh_ready=${stock_ssh_ok}"
     micctrl --status || true
     systemctl is-active mpss || true
-    ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=6 "$mic" 'echo stock_ssh_ok; uname -m; cat /proc/1/comm' || true
   } > "${run_dir}/rollback-verify.txt"
 }
 
@@ -131,17 +145,24 @@ if [[ -n "$expect_ssh_path" ]]; then
     ssh_marker_pass=0
   fi
 fi
+tcp_marker_pass=1
+if [[ -n "$expect_tcp_port" ]]; then
+  tcp_output="$(timeout 8 bash -c "exec 3<>/dev/tcp/172.31.1.1/${expect_tcp_port}; cat <&3" 2>/dev/null || true)"
+  printf '%s\n' "$tcp_output" > "${run_dir}/tcp-marker.txt"
+  [[ "$tcp_output" == *"$expect_tcp_text"* ]] || tcp_marker_pass=0
+fi
 trap - EXIT
 restore_stock
 rollback_pass=0
-grep -q 'stock_ssh_ok' "${run_dir}/rollback-verify.txt" && grep -q 'k1om' "${run_dir}/rollback-verify.txt" && rollback_pass=1
+grep -q 'stock_ssh_ready=1' "${run_dir}/rollback-verify.txt" && grep -q "${mic}: online" "${run_dir}/rollback-verify.txt" && rollback_pass=1
 {
   echo "boot_pass=${boot_pass}"
   echo "marker_pass=${marker_pass}"
   echo "ssh_marker_pass=${ssh_marker_pass}"
+  echo "tcp_marker_pass=${tcp_marker_pass}"
   echo "rollback_pass=${rollback_pass}"
   echo "run_dir=${run_dir}"
   echo "image_sha256=$(sha256sum "$private_image" | awk '{print $1}')"
   echo "boot_command=$(cat "${run_dir}/boot-command.txt")"
 } | tee "${run_dir}/summary.txt"
-[[ "$boot_pass" == 1 && "$marker_pass" == 1 && "$ssh_marker_pass" == 1 && "$rollback_pass" == 1 ]] || exit 20
+[[ "$boot_pass" == 1 && "$marker_pass" == 1 && "$ssh_marker_pass" == 1 && "$tcp_marker_pass" == 1 && "$rollback_pass" == 1 ]] || exit 20

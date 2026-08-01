@@ -62,8 +62,9 @@ ARCHITECTURE="k1om"
 EOF
 k1om-mpss-linux-gcc -Os -static -s "$repo_root/src/uos/xpr_hello.c" -o "$rootfs/usr/bin/xpr-hello"
 k1om-mpss-linux-gcc -Os -static -s -pthread "$repo_root/src/uos/xpr_pthread_smoke.c" -o "$rootfs/usr/bin/xpr-pthread-smoke"
-chmod 0755 "$rootfs/usr/bin/xpr-hello" "$rootfs/usr/bin/xpr-pthread-smoke"
-for elf in "$rootfs/bin/busybox" "$rootfs/usr/bin/xpr-hello" "$rootfs/usr/bin/xpr-pthread-smoke"; do
+k1om-mpss-linux-gcc -Os -static -s "$repo_root/src/uos/xpr_statusd.c" -o "$rootfs/usr/bin/xpr-statusd"
+chmod 0755 "$rootfs/usr/bin/xpr-hello" "$rootfs/usr/bin/xpr-pthread-smoke" "$rootfs/usr/bin/xpr-statusd"
+for elf in "$rootfs/bin/busybox" "$rootfs/usr/bin/xpr-hello" "$rootfs/usr/bin/xpr-pthread-smoke" "$rootfs/usr/bin/xpr-statusd"; do
   readelf -h "$elf" | grep -q 'Machine:.*Intel K1OM' || { echo "non-K1OM ELF: $elf" >&2; exit 14; }
   readelf -d "$elf" 2>/dev/null | grep -q NEEDED && { echo "dynamic ELF: $elf" >&2; exit 15; } || true
 done
@@ -85,5 +86,5 @@ gzip -t "$image"
     fi
   done < <(find "$rootfs" -mindepth 1 -print0 | sort -z)
 } > "$manifest"
-sha256sum "$image" "$manifest" "$rootfs/bin/busybox" "$rootfs/usr/bin/xpr-hello" "$rootfs/usr/bin/xpr-pthread-smoke" > "$run_dir/SHA256SUMS"
+sha256sum "$image" "$manifest" "$rootfs/bin/busybox" "$rootfs/usr/bin/xpr-hello" "$rootfs/usr/bin/xpr-pthread-smoke" "$rootfs/usr/bin/xpr-statusd" > "$run_dir/SHA256SUMS"
 printf 'rootfs=%s\nimage=%s\nmanifest=%s\n' "$rootfs" "$image" "$manifest"

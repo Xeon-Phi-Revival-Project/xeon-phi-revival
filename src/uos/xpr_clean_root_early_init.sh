@@ -24,6 +24,9 @@ load_module micscif ${p2p:+p2p=$p2p} ${p2p_proxy:+p2p_proxy=$p2p_proxy} ${p2p_pr
 load_module mic_virtblk ${virtio_addr:+virtio_addr=$virtio_addr}
 load_module ramoops ${ramoops_size:+mem_size=$ramoops_size} ${ramoops_addr:+mem_address=$ramoops_addr}
 load_module micras
+# Load this before switch_root while MPSS supplies the module tree. Project PID
+# 1 performs the host notification after the clean-root handoff.
+load_module mpssboot
 
 "$BB" mount -t tmpfs none /new_root -o mode=0755,size=85% || {
     mark XPR_CLEAN_ROOT_TMPFS_FAIL

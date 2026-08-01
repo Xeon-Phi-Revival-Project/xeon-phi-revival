@@ -99,6 +99,10 @@ package-manager, or K1OM execution failure.
 - The rootfs validator confirmed checked ELF files are K1OM `e_machine=181`
   and required runtime libraries resolve inside the rootfs.
 - A private gzip/newc cpio image was packed and hashed.
+- The clean project root now performs the MPSS online notification through a
+  project-owned readiness path. Three identical bounded boots reached `online`
+  and returned a project TCP marker; each recovered to stock SSH. The remaining
+  boot-lane task is project-owned SSH and shell verification.
 - Activation was attempted through direct `micctrl --configdir`, service
   environment selection, temporary `/etc/sysconfig/mpss.conf` selection,
   dynamic `Ramfs`, direct `StaticRamFS`, and foreground

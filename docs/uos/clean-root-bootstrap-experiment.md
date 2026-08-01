@@ -88,8 +88,11 @@ stock SSH: k1om
 
 ## Next Narrow Step
 
-Map the stock card-side service or binary that signals MPSS readiness after
-the virtual link appears, using the stock uOS only as a private reference.
-Then implement or replace that one handshake in project-controlled userland
-before attempting another clean-root boot. Do not add Python, APT, or broad
-packages first.
+The readiness handshake is now mapped and reproduced by project code. Three
+consecutive boots of the same image reached MPSS `online` and returned the
+project TCP marker; each was followed by verified stock recovery. See
+`docs/uos/mpss-ready-handshake.md`.
+
+The next narrow step is a project-owned SSH server so the clean root can prove
+its PID 1, filesystem, and smoke tests without relying on stock userspace.
+Do not add Python, APT, or broad packages first.
