@@ -76,9 +76,9 @@ the run, `mic0` was online, `mpss.service` was active, stock SSH returned
 
 ## Current Boundary
 
-The Base CPIO serialization path and project early `/init` are now proven.
-The next task is a clean project-owned rootfs: it must provide the project
-`/sbin/init`, shell and filesystem tools, pthread smoke, MPSS virtual
-networking, and SSH without depending on stock card-side userspace after the
-handoff. That rootfs must pass three consecutive boots with verified rollback
-before RAM-only loader work begins.
+The Base CPIO serialization path and project early `/init` are now proven. A
+first static project-owned root archive was also constructed and injected into
+the Base CPIO. Its first bounded boot brought up the MIC virtual network link
+but did not reach MPSS `online`; rollback passed. The remaining narrow blocker
+is the card-side MPSS ready/lifecycle handshake. See
+`docs/uos/clean-root-bootstrap-experiment.md` for the evidence.

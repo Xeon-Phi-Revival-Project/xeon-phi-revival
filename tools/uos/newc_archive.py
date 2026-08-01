@@ -6,6 +6,7 @@ import argparse
 import gzip
 import hashlib
 import os
+import stat
 import struct
 import sys
 import zlib
@@ -118,6 +119,32 @@ def replace_payload(entry, payload):
     entry["data_padding"] = b"\0" * (align4(len(payload)) - len(payload))
 
 
+def new_entry(name, mode, payload):
+    """Create a deterministic newc entry for a project-supplied payload."""
+    name_blob = name.encode("ascii") + b"\0"
+    values = (0, mode, 0, 0, 1, 0, len(payload), 0, 0, 0, 0, len(name_blob), 0)
+    header = NEWC_MAGIC + b"".join(("%08X" % value).encode("ascii") for value in values)
+    return {
+        "offset": None,
+        "header": header,
+        "fields": list(values),
+        "name": name.encode("ascii"),
+        "name_blob": name_blob,
+        "name_padding": b"\0" * (align4(len(header) + len(name_blob)) - len(header) - len(name_blob)),
+        "payload": payload,
+        "data_padding": b"\0" * (align4(len(payload)) - len(payload)),
+    }
+
+
+def append_entry(entries, name, mode, payload):
+    if name.startswith("/") or not name or ".." in name.split("/"):
+        raise ValueError("invalid archive member name: {0}".format(name))
+    encoded = name.encode("ascii")
+    if any(entry["name"] == encoded for entry in entries):
+        raise ValueError("archive member already exists: {0}".format(name))
+    entries.insert(-1, new_entry(name, mode, payload))
+
+
 def entry_metadata_fingerprint(entry):
     return (
         entry["header"], entry["name_blob"], entry["name_padding"], entry["data_padding"],
@@ -133,6 +160,7 @@ def write_report(path, source_path, source_compressed, source_plain, source_tail
     metadata_match = [entry_metadata_fingerprint(entry) for entry in source_entries] == [entry_metadata_fingerprint(entry) for entry in output_entries]
     changed_payloads = [source_names[index] for index, entry in enumerate(source_entries)
                         if entry["payload"] != output_entries[index]["payload"]]
+    added_members = [name for name in output_names if name not in source_names]
     lines = [
         "format=SVR4-newc",
         "source={0}".format(source_path),
@@ -158,6 +186,7 @@ def write_report(path, source_path, source_compressed, source_plain, source_tail
         "member_order_match={0}".format(source_names == output_names),
         "entry_metadata_match={0}".format(metadata_match),
         "payload_changes={0}".format(",".join(changed_payloads)),
+        "added_members={0}".format(",".join(added_members)),
         "archive_bytes_match={0}".format(source_plain == output_plain),
         "gzip_bytes_match={0}".format(source_compressed == output_compressed),
     ]
@@ -174,6 +203,8 @@ def main():
     parser.add_argument("--replace-once")
     parser.add_argument("--with", dest="replacement")
     parser.add_argument("--replace-entry-from", metavar="FILE")
+    parser.add_argument("--add-directory", action="append", default=[], metavar="NAME")
+    parser.add_argument("--add-entry-from", action="append", default=[], metavar="NAME=FILE")
     parser.add_argument("--xprinit-marker", action="store_true",
                         help="replace one same-length stock /init module echo with XPRINIT")
     parser.add_argument("--xprinit-file-marker", action="store_true",
@@ -219,8 +250,18 @@ def main():
                 raise ValueError("replacement text not found exactly once")
             entry["payload"] = entry["payload"].replace(old, new, 1)
 
+    for name in args.add_directory:
+        append_entry(output_source_entries, name.rstrip("/"), stat.S_IFDIR | 0755, b"")
+    for spec in args.add_entry_from:
+        if "=" not in spec:
+            raise ValueError("--add-entry-from must be NAME=FILE")
+        name, path = spec.split("=", 1)
+        source_mode = stat.S_IMODE(os.stat(path).st_mode)
+        append_entry(output_source_entries, name, stat.S_IFREG | source_mode, read_bytes(path))
+
     reconstructed = serialize(output_source_entries, source_trailing)
-    if not args.replace_entry and reconstructed != source_plain:
+    has_changes = bool(args.replace_entry or args.add_directory or args.add_entry_from)
+    if not has_changes and reconstructed != source_plain:
         raise ValueError("serializer did not preserve decompressed archive bytes")
 
     output_dir = os.path.dirname(os.path.abspath(args.output))
@@ -237,7 +278,7 @@ def main():
         raise ValueError("unexpected bytes after output gzip stream: {0}".format(len(output_tail)))
     write_report(args.report, args.source, source_compressed, source_plain, source_tail, source_gzip_members, source_entries, source_trailer_end,
                  args.output, output_compressed, output_plain, output_tail, output_gzip_members, output_entries, output_trailer_end)
-    if not args.replace_entry and source_plain != output_plain:
+    if not has_changes and source_plain != output_plain:
         raise ValueError("reconstructed decompressed archive differs from source")
 
 
