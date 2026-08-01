@@ -25,10 +25,6 @@ actual Xeon Phi system before being treated as project facts.
   [K1OM Ubuntu Port Lab](ubuntu-port/k1om/README.md)
 - Latest package-set report:
   [K1OM Bootstrap Package Set](docs/ubuntu-port/k1om-bootstrap-package-set-report.md)
-- Development status: XPR-OS is temporarily paused due to development-tool quota
-  limits. The project remains active. See
-  [the pause status](docs/project-status-paused.md) for the current technical
-  status and exact resume point.
 - K1OM libffi/Python ctypes result:
   [K1OM libffi and CPython ctypes](docs/ubuntu-port/k1om-libffi-ctypes-report.md)
 - Native package-manager results:
@@ -274,10 +270,7 @@ license, and redistribution decision. See the
 ## Status
 
 Phase 1 is complete: a real Xeon Phi 5110P moved from PCIe enumeration and MPSS
-bring-up to repeatable native K1OM program execution. The project is currently
-temporarily paused while the available development-tool quota is replenished.
-The project remains active, with the current results and next steps recorded in
-[the project status note](docs/project-status-paused.md).
+bring-up to repeatable native K1OM program execution.
 
 The private release-candidate userspace has passed the documented second-stage
 package, Python, libc, networking, SSH, and rollback tests. The remaining boot

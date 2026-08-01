@@ -47,8 +47,7 @@ image and later MicDir handoff path work.
 
 The latest size-matched experiment matched the known stock archive exactly at
 53,688,320 uncompressed bytes and 1,787 CPIO members, but still did not reach
-project init. The project is paused after this result. The next technical
-control is a no-op unpack/repack of the stock Base CPIO using the project
+project init. The next technical control is a no-op unpack/repack of the stock Base CPIO using the project
 archive-generation process, followed by one bounded boot and automatic
 rollback.
 
@@ -425,5 +424,5 @@ package-manager, or K1OM execution failure.
 ## Safest Next Technical Action
 
 Perform the no-op stock Base CPIO reconstruction control recorded in
-`docs/project-status-paused.md`. Continue avoiding committed proprietary or
-uncertain-redistribution payloads.
+the documented no-op reconstruction procedure. Continue avoiding committed
+proprietary or uncertain-redistribution payloads.
