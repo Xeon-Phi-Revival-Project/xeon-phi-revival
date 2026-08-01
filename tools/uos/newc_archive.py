@@ -45,11 +45,18 @@ def gzip_info(data):
 
 
 def gunzip(data):
-    inflater = zlib.decompressobj(16 + zlib.MAX_WBITS)
-    plain = inflater.decompress(data) + inflater.flush()
-    if not inflater.eof:
-        raise ValueError("truncated gzip stream")
-    return plain, inflater.unused_data
+    """Return all concatenated gzip members and bytes after the final member."""
+    remaining = data
+    parts = []
+    member_count = 0
+    while remaining:
+        inflater = zlib.decompressobj(16 + zlib.MAX_WBITS)
+        parts.append(inflater.decompress(remaining) + inflater.flush())
+        member_count += 1
+        remaining = inflater.unused_data
+        if not remaining or remaining[:2] != b"\x1f\x8b":
+            break
+    return b"".join(parts), remaining, member_count
 
 
 def parse_newc(data):
@@ -101,20 +108,21 @@ def serialize(entries, trailing):
     return b"".join(parts)
 
 
-def entry_fingerprint(entry):
+def entry_metadata_fingerprint(entry):
     return (
-        entry["header"], entry["name_blob"], entry["name_padding"],
-        entry["payload"], entry["data_padding"],
+        entry["header"], entry["name_blob"], entry["name_padding"], entry["data_padding"],
     )
 
 
-def write_report(path, source_path, source_compressed, source_plain, source_tail, source_entries, source_trailer_end,
-                 output_path, output_compressed, output_plain, output_tail, output_entries, output_trailer_end):
+def write_report(path, source_path, source_compressed, source_plain, source_tail, source_gzip_members, source_entries, source_trailer_end,
+                 output_path, output_compressed, output_plain, output_tail, output_gzip_members, output_entries, output_trailer_end):
     source_gzip = gzip_info(source_compressed)
     output_gzip = gzip_info(output_compressed)
     source_names = [entry["name"].decode("utf-8", "replace") for entry in source_entries]
     output_names = [entry["name"].decode("utf-8", "replace") for entry in output_entries]
-    metadata_match = [entry_fingerprint(entry) for entry in source_entries] == [entry_fingerprint(entry) for entry in output_entries]
+    metadata_match = [entry_metadata_fingerprint(entry) for entry in source_entries] == [entry_metadata_fingerprint(entry) for entry in output_entries]
+    changed_payloads = [source_names[index] for index, entry in enumerate(source_entries)
+                        if entry["payload"] != output_entries[index]["payload"]]
     lines = [
         "format=SVR4-newc",
         "source={0}".format(source_path),
@@ -122,6 +130,7 @@ def write_report(path, source_path, source_compressed, source_plain, source_tail
         "source_compressed_sha256={0}".format(sha256(source_compressed)),
         "source_decompressed_bytes={0}".format(len(source_plain)),
         "source_decompressed_sha256={0}".format(sha256(source_plain)),
+        "source_gzip_members={0}".format(source_gzip_members),
         "source_member_count={0}".format(len(source_entries)),
         "source_trailer_offset={0}".format(source_trailer_end),
         "source_trailing_bytes={0}".format(len(source_tail)),
@@ -131,12 +140,14 @@ def write_report(path, source_path, source_compressed, source_plain, source_tail
         "output_compressed_sha256={0}".format(sha256(output_compressed)),
         "output_decompressed_bytes={0}".format(len(output_plain)),
         "output_decompressed_sha256={0}".format(sha256(output_plain)),
+        "output_gzip_members={0}".format(output_gzip_members),
         "output_member_count={0}".format(len(output_entries)),
         "output_trailer_offset={0}".format(output_trailer_end),
         "output_trailing_bytes={0}".format(len(output_tail)),
         "output_gzip_header={0}".format(",".join("{0}={1}".format(key, output_gzip[key]) for key in sorted(output_gzip))),
         "member_order_match={0}".format(source_names == output_names),
-        "entry_metadata_and_payload_match={0}".format(metadata_match),
+        "entry_metadata_match={0}".format(metadata_match),
+        "payload_changes={0}".format(",".join(changed_payloads)),
         "archive_bytes_match={0}".format(source_plain == output_plain),
         "gzip_bytes_match={0}".format(source_compressed == output_compressed),
     ]
@@ -149,18 +160,45 @@ def main():
     parser.add_argument("--source", required=True)
     parser.add_argument("--output", required=True)
     parser.add_argument("--report", required=True)
+    parser.add_argument("--replace-entry")
+    parser.add_argument("--replace-once")
+    parser.add_argument("--with", dest="replacement")
+    parser.add_argument("--xprinit-marker", action="store_true",
+                        help="replace one same-length stock /init module echo with XPRINIT")
     args = parser.parse_args()
 
     source_compressed = read_bytes(args.source)
-    source_plain, source_tail = gunzip(source_compressed)
+    source_plain, source_tail, source_gzip_members = gunzip(source_compressed)
     source_entries, source_trailer_end, source_trailing = parse_newc(source_plain)
     if source_tail:
         raise ValueError("unexpected bytes after gzip stream: {0}".format(len(source_tail)))
-    if source_tail != b"" or source_trailing is None:
+    if source_trailing is None:
         raise ValueError("invalid source archive state")
 
-    reconstructed = serialize(source_entries, source_trailing)
-    if reconstructed != source_plain:
+    output_source_entries = [dict(entry) for entry in source_entries]
+    if args.xprinit_marker:
+        if args.replace_entry or args.replace_once or args.replacement:
+            raise ValueError("--xprinit-marker cannot be combined with replacement arguments")
+        args.replace_entry = "init"
+        args.replace_once = "echo $module $args"
+        args.replacement = "echo XPRINIT $args"
+    if args.replace_entry or args.replace_once or args.replacement:
+        if not (args.replace_entry and args.replace_once is not None and args.replacement is not None):
+            raise ValueError("all replacement arguments are required together")
+        old = args.replace_once.encode("ascii")
+        new = args.replacement.encode("ascii")
+        if len(old) != len(new):
+            raise ValueError("replacement must preserve payload length")
+        matches = [entry for entry in output_source_entries if entry["name"] == args.replace_entry.encode("ascii")]
+        if len(matches) != 1:
+            raise ValueError("replacement entry not found exactly once")
+        entry = matches[0]
+        if entry["payload"].count(old) != 1:
+            raise ValueError("replacement text not found exactly once")
+        entry["payload"] = entry["payload"].replace(old, new, 1)
+
+    reconstructed = serialize(output_source_entries, source_trailing)
+    if not args.replace_entry and reconstructed != source_plain:
         raise ValueError("serializer did not preserve decompressed archive bytes")
 
     output_dir = os.path.dirname(os.path.abspath(args.output))
@@ -171,13 +209,13 @@ def main():
             gz.write(reconstructed)
 
     output_compressed = read_bytes(args.output)
-    output_plain, output_tail = gunzip(output_compressed)
+    output_plain, output_tail, output_gzip_members = gunzip(output_compressed)
     output_entries, output_trailer_end, output_trailing = parse_newc(output_plain)
     if output_tail:
         raise ValueError("unexpected bytes after output gzip stream: {0}".format(len(output_tail)))
-    write_report(args.report, args.source, source_compressed, source_plain, source_tail, source_entries, source_trailer_end,
-                 args.output, output_compressed, output_plain, output_tail, output_entries, output_trailer_end)
-    if source_plain != output_plain:
+    write_report(args.report, args.source, source_compressed, source_plain, source_tail, source_gzip_members, source_entries, source_trailer_end,
+                 args.output, output_compressed, output_plain, output_tail, output_gzip_members, output_entries, output_trailer_end)
+    if not args.replace_entry and source_plain != output_plain:
         raise ValueError("reconstructed decompressed archive differs from source")
 
 

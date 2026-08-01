@@ -3,7 +3,7 @@ set -euo pipefail
 
 usage() {
   cat >&2 <<'USAGE'
-usage: run-stock-base-cpio-control.sh --image FILE --expected-conf-sha SHA [--mic mic0] [--boot-polls 18]
+usage: run-stock-base-cpio-control.sh --image FILE --expected-conf-sha SHA [--mic mic0] [--boot-polls 18] [--expect-console TEXT]
 
 Boot a byte-preserving stock Base CPIO reconstruction through an alternate MPSS
 configuration, capture bounded evidence, and restore the stock configuration.
@@ -14,6 +14,7 @@ image=""
 expected_conf_sha=""
 mic="mic0"
 boot_polls=18
+expect_console=""
 run_root="${HOME}/xeon-phi-revival-local/stock-cpio-control-runs"
 
 while [[ $# -gt 0 ]]; do
@@ -22,6 +23,7 @@ while [[ $# -gt 0 ]]; do
     --expected-conf-sha) expected_conf_sha="${2:-}"; shift 2 ;;
     --mic) mic="${2:-}"; shift 2 ;;
     --boot-polls) boot_polls="${2:-}"; shift 2 ;;
+    --expect-console) expect_console="${2:-}"; shift 2 ;;
     --run-root) run_root="${2:-}"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) usage; exit 2 ;;
@@ -110,6 +112,10 @@ for i in $(seq 1 "$boot_polls"); do
   fi
   sleep 5
 done
+marker_pass=1
+if [[ -n "$expect_console" ]] && ! grep -qF "$expect_console" "$console_log"; then
+  marker_pass=0
+fi
 kill "$console_pid" >/dev/null 2>&1 || true
 wait "$console_pid" >/dev/null 2>&1 || true
 {
@@ -122,9 +128,10 @@ rollback_pass=0
 grep -q 'stock_ssh_ok' "${run_dir}/rollback-verify.txt" && grep -q 'k1om' "${run_dir}/rollback-verify.txt" && rollback_pass=1
 {
   echo "boot_pass=${boot_pass}"
+  echo "marker_pass=${marker_pass}"
   echo "rollback_pass=${rollback_pass}"
   echo "run_dir=${run_dir}"
   echo "image_sha256=$(sha256sum "$private_image" | awk '{print $1}')"
   echo "boot_command=$(cat "${run_dir}/boot-command.txt")"
 } | tee "${run_dir}/summary.txt"
-[[ "$boot_pass" == 1 && "$rollback_pass" == 1 ]] || exit 20
+[[ "$boot_pass" == 1 && "$marker_pass" == 1 && "$rollback_pass" == 1 ]] || exit 20
