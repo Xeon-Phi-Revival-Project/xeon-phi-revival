@@ -39,10 +39,32 @@ micras (after both)        6a2901b43f0293795886117ae1ae304a1d3f1089ace321af22e62
 All three runs reported `boot_pass=1`, `ssh_file_pass=1`,
 `tcp_marker_pass=1`, and `rollback_pass=1`.
 
-## Current Minimal Candidate
+## Completed Boundary
 
-The next bundle prototype should include only `ringbuffer.ko`,
-`dma_module.ko`, `micscif.ko`, `mpssboot.ko`, `intel_micveth.ko`, and initially
-`michvc.ko` for console preservation. `michvc` and `pm_scif` have not yet
-been omitted, so neither is classified as unnecessary. The bundle builder must
-validate module version, K1OM architecture, hashes, and this dependency graph.
+`pm_scif` is not loaded by the project early init and is not a declared
+dependency of `micscif`; the existing project boot series therefore exercises
+the path without it. A separate bounded boot omitted `michvc` and passed with
+Base CPIO SHA-256:
+
+```text
+a46651029b884e7df7506d059612a55884a7efa70dbcf7fd59caf3736e579c53
+```
+
+That run reached online, project TCP status, project SSH, hello, pthread, and
+stock rollback. HVC console output was intentionally not required: project SSH
+and the TCP status service remain sufficient diagnostics for this headless
+release path.
+
+The verified required module bundle is now only:
+
+```text
+ringbuffer.ko
+dma_module.ko
+micscif.ko
+mpssboot.ko
+intel_micveth.ko
+```
+
+The bundle builder must validate module version, K1OM architecture, hashes,
+and this dependency graph. `mic_virtblk`, `ramoops`, `micras`, `michvc`, and
+`pm_scif` are excluded from the minimal project boot image.

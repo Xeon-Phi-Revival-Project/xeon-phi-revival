@@ -18,7 +18,8 @@ load_module() {
 mark XPR_CLEAN_ROOT_EARLY_INIT_ENTERED
 
 # These values are supplied by MPSS through the kernel command line.
-load_module michvc ${vcons_hdr_addr:+vcons_hdr_addr=$vcons_hdr_addr}
+# The HVC module only provides the optional card console. The project test
+# retains host TCP status and Dropbear SSH diagnostics without it.
 load_module intel_micveth ${vnet:+vnet=$vnet} ${vnet_addr:+vnet_addr=$vnet_addr} ${vnet_num_buffers:+vnet_num_buffers=$vnet_num_buffers}
 load_module micscif ${p2p:+p2p=$p2p} ${p2p_proxy:+p2p_proxy=$p2p_proxy} ${p2p_proxy_thresh:+p2p_proxy_thresh=$p2p_proxy_thresh} ${numa_node:+numa_node=$numa_node} ${scif_id:+scif_id=$scif_id} ${scif_addr:+scif_addr=$scif_addr} ${reg_cache:+reg_cache=$reg_cache} ${ulimit:+ulimit=$ulimit} ${huge_page:+huge_page=$huge_page} ${pm_qos_cpu_dma_lat:+pm_qos_cpu_dma_lat=$pm_qos_cpu_dma_lat}
 # The project root is unpacked from the ramfs and has no block-device mount.
