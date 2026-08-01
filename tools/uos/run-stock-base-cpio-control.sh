@@ -127,7 +127,7 @@ wait "$console_pid" >/dev/null 2>&1 || true
 } > "${run_dir}/experiment-verify.txt"
 ssh_marker_pass=1
 if [[ -n "$expect_ssh_path" ]]; then
-  if ! ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=6 "$mic" "test -f '$expect_ssh_path' && grep -qx XPR '$expect_ssh_path'"; then
+  if ! ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=6 "$mic" "test -f '$expect_ssh_path' && test \"\$(cat '$expect_ssh_path')\" = XPR"; then
     ssh_marker_pass=0
   fi
 fi
