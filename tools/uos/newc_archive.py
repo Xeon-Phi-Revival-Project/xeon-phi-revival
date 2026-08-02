@@ -293,7 +293,7 @@ def main():
         append_entry(output_source_entries, name, stat.S_IFREG | source_mode, read_bytes(path))
 
     reconstructed = serialize(output_source_entries, source_trailing)
-    has_changes = bool(args.replace_entry or args.replace_entry_file or args.add_directory or args.add_entry_from)
+    has_changes = bool(args.replace_entry or args.replace_entry_file or args.add_directory or args.add_entry_from or args.set_mode)
     if not has_changes and reconstructed != source_plain:
         raise ValueError("serializer did not preserve decompressed archive bytes")
 
