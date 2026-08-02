@@ -41,3 +41,8 @@ Linux GPLv2 text, but the public GitHub copy is not evidence of Intel's
 corresponding-source offer or its exact provenance. Treat it as a research
 reference and build input obtained separately, not as code to import or
 redistribute from this project.
+
+The five required MPSS 3.4.10 module sources now build unpatched against the
+candidate and have complete static symbol closure. The current decision remains
+`INSUFFICIENT_EVIDENCE`, because host MPSS 3.4.10 to candidate-kernel 3.5.1
+boot-protocol compatibility has not been established. No candidate boot was run.
