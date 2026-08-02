@@ -261,7 +261,7 @@ def main():
         replace_payload(matches[0], read_bytes(path))
 
     for name in args.add_directory:
-        append_entry(output_source_entries, name.rstrip("/"), stat.S_IFDIR | 0755, b"")
+        append_entry(output_source_entries, name.rstrip("/"), stat.S_IFDIR | 0o755, b"")
     for spec in args.add_entry_from:
         if "=" not in spec:
             raise ValueError("--add-entry-from must be NAME=FILE")

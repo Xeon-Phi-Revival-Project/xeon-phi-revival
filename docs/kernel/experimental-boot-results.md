@@ -22,6 +22,7 @@ therefore after MPSS accepts the image and before the card-side readiness
 handshake completes. No firmware, ROM, flash, persistent card storage, stock
 kernel, or stock active MPSS configuration was modified.
 
-The next step is read-only analysis of the private candidate boot log and
-candidate-versus-stock early kernel/MPSS handoff differences. Do not repeat the
-boot automatically.
+Read-only analysis identified a release-directory mismatch: the candidate and
+rebuilt modules report `2.6.38.8+mpss3.5.1`, but the tested CPIO placed them
+under `2.6.38.8+mpss3.4.10`. The only next live experiment corrects candidate
+module discovery and adds its minimal dependency index.
