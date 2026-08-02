@@ -62,6 +62,7 @@ ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/n
 sha256sum "$base" "$kernel" "$map" "$stock_conf" > "$run/input.sha256"
 if [[ -n "$payload" ]]; then
   payload_sha=$(sha256sum "$payload" | awk '{print $1}')
+  payload_bytes=$(wc -c < "$payload")
   sha256sum "$payload" >> "$run/input.sha256"
 fi
 cp -a /etc/mpss/. "$run/conf/"
@@ -105,6 +106,8 @@ if [[ -n "$payload" && "$project_ssh" == 1 ]]; then
   # not necessarily provide the remote scp server command required by OpenSSH.
   ssh -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=12 \
     "$mic" 'cat > /tmp/xpr-rootfs.cpio.gz' < "$payload"
+  ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=12 \
+    "$mic" "actual_bytes=\$(/bin/busybox wc -c < /tmp/xpr-rootfs.cpio.gz); actual_sha=\$(sha256sum /tmp/xpr-rootfs.cpio.gz | awk '{print \$1}'); test \"\$actual_bytes\" = \"$payload_bytes\" && test \"\$actual_sha\" = \"$payload_sha\""
   ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=12 \
     "$mic" "/opt/xeon-phi-revival/bin/xpr-stage-root /tmp/xpr-rootfs.cpio.gz $payload_sha"
   for _ in {1..24}; do

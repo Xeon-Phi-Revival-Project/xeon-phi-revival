@@ -55,7 +55,8 @@ fi
 while :; do
     if test -f /run/xpr-switch-root-request; then
         newroot=$(sed -n '1p' /run/xpr-switch-root-request 2>/dev/null || true)
-        if test "$newroot" = /run/xpr-newroot && test -x "$newroot/sbin/init"; then
+        requested_sha=$(sed -n '2p' /run/xpr-switch-root-request 2>/dev/null || true)
+        if test "$newroot" = /run/xpr-newroot && test "${#requested_sha}" = 64 && test -x "$newroot/sbin/init"; then
             printf '%s\n' XPR_SWITCH_ROOT_BEGIN >> /run/xpr-stage-root.log
             mount --move /proc "$newroot/proc" 2>/dev/null || true
             mount --move /sys "$newroot/sys" 2>/dev/null || true
