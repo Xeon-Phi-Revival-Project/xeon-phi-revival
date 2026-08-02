@@ -20,10 +20,20 @@ The first missing stage is card-side module loading followed by the virtual
 network/readiness handshake. This is a module-discovery integration failure
 hypothesis, not proof of a kernel execution failure.
 
-## Next Bounded Test
+## Corrected Bounded Test
 
-The next image changes only module discovery: rebuilt modules are added under
-the candidate release directory and supplied with a minimal `modules.dep`.
-The old 3.4.10 tree remains inherited but inactive for the candidate release.
-The test remains RAM-only, uses an alternate MPSS configuration, and restores
-stock MPSS regardless of outcome.
+The corrected image used Base CPIO
+`7ce52df3fd115984f3ec191abb4a1fb2b336f477797103806b79064c011afe0e`.
+It added the five rebuilt modules below `lib/modules/2.6.38.8+mpss3.5.1/`
+and supplied a matching minimal `modules.dep`. The old 3.4.10 tree remained
+inherited but inactive for the candidate release.
+
+MPSS booted the candidate image and reached `online` on the fourth five-second
+poll. Host dmesg recorded `MIC 0 Network link is up` followed by
+`mic0: Transition from state booting to online`. Stock rollback then restored
+the baseline configuration and SSH service.
+
+This proves candidate kernel handoff through module discovery, virtual
+networking, and the host readiness transition. It does not prove project SSH,
+project PID 1, or application smoke tests, because the test intentionally
+rolled back immediately after `online`.

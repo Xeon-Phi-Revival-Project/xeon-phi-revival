@@ -24,5 +24,28 @@ kernel, or stock active MPSS configuration was modified.
 
 Read-only analysis identified a release-directory mismatch: the candidate and
 rebuilt modules report `2.6.38.8+mpss3.5.1`, but the tested CPIO placed them
-under `2.6.38.8+mpss3.4.10`. The only next live experiment corrects candidate
-module discovery and adds its minimal dependency index.
+under `2.6.38.8+mpss3.4.10`.
+
+## Corrected Module-Discovery Test
+
+One further bounded RAM-only boot changed only candidate module discovery:
+the same candidate kernel used a Base CPIO that adds the rebuilt five-module
+set and a minimal `modules.dep` under the candidate's actual
+`2.6.38.8+mpss3.5.1` release directory.
+
+| Item | Result |
+| --- | --- |
+| Candidate kernel | `d529aecf0de11e0b4a9a036eb0329d1bb9c907fd6a911ce08a10548c9380d4d8` |
+| Corrected Base CPIO | `7ce52df3fd115984f3ec191abb4a1fb2b336f477797103806b79064c011afe0e` |
+| MPSS image acceptance | passed |
+| Candidate `online` | passed on poll 4 (about 17 seconds) |
+| Host evidence | `MIC 0 Network link is up`; then `booting` to `online` |
+| Candidate SSH/PID 1 | not tested before rollback |
+| Stock rollback | passed |
+| Stock SSH after rollback | passed: `k1om`, PID 1 `init` |
+| Stock config SHA-256 | `9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51` |
+
+The initial failure was therefore consistent with the release-directory and
+dependency-index mismatch. The next technical step is a single candidate boot
+that verifies the already-proven project SSH/PID-1 markers before rollback;
+it should not alter the kernel, rootfs, or module set.

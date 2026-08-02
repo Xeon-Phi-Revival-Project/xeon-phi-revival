@@ -21,10 +21,14 @@ difference was observed.
 
 ## Decision
 
-`INSUFFICIENT_EVIDENCE`
+`PARTIALLY_VALIDATED`
 
-The static module ABI closes, but the candidate is MPSS 3.5.1 while the host
-driver and micctrl are 3.4.10. No exact 3.4.10 host-side boot-protocol source
-or cross-version protocol proof is available. Do not load this candidate until
-that boundary is reviewed or a separately approved RAM-only experiment is
-prepared with the existing recovery framework.
+The candidate is MPSS 3.5.1 while the host driver and micctrl are 3.4.10, so
+it is not an exact-source reproduction. A bounded RAM-only experiment did,
+however, validate this candidate kernel with rebuilt 3.5.1 modules through the
+MPSS 3.4.10 host's `online` transition. The required correction was to place
+modules and their dependency index under the candidate release directory.
+
+Project PID 1, project SSH, and workload smoke tests have not yet been
+revalidated on the compatible candidate kernel. The interface remains an
+independent compatibility reconstruction, not an MPSS 3.4.10 rebuild.
