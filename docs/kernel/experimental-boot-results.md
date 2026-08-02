@@ -294,3 +294,25 @@ against `/proc/mounts`, but the bootstrap BusyBox applet list still lacks the
 Rollback restored stock `mic0` online, stock SSH with `k1om` and PID 1
 `systemd`, and configuration hash
 `9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51`.
+
+## Grep-Enabled Split-Root Result
+
+The bootstrap Base CPIO with both required applets was
+`8d91da09faa76587637f60b24adbb84356c0fd85c1a76629cd9c092cdd95ea0a`.
+Static inspection confirmed `bin/chmod -> busybox` and `bin/grep -> busybox`;
+the corrected payload remained
+`16132314df70f3fda5febca9dcfff8a5c61e044426d66998f7e55bdb2073a697`.
+
+The bounded test reached candidate `online`, bootstrap SSH, payload transfer,
+remote byte/SHA verification, extraction, and
+`XPR_SWITCH_REQUEST_WRITTEN`. No later durable handoff marker was retrieved;
+the marker poll observed no `XPR_SWITCH_REQUEST_SEEN`,
+`XPR_NEWROOT_REVALIDATED`, or pre-switch marker. RC SSH and RC smoke tests
+returned no evidence. The narrow classification is
+`SWITCH_REQUEST_NOT_SEEN` from the available host evidence, with the important
+limitation that an immediate post-request root transition could have hidden the
+old `/run` marker before RC SSH became available. No claim of successful
+`switch_root` or RC PID 1 is made.
+
+Rollback passed: stock `mic0` returned online, stock SSH reported `k1om` and
+PID 1 `systemd`, and the baseline configuration hash was restored.

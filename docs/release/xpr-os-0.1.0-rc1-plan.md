@@ -61,3 +61,9 @@ rejected the request before new-root revalidation because its mount check uses
 `grep`, which is the next missing bootstrap BusyBox applet. The exact next
 change is therefore to add only `grep` to the bootstrap applet list and repeat
 one bounded test with the unchanged payload.
+
+The grep-enabled test passed request creation and candidate bootstrap checks,
+but produced no durable marker after `XPR_SWITCH_REQUEST_WRITTEN` and no RC
+SSH evidence. The next session must improve persistence of the handoff marker
+across the root transition before making another functional change; no further
+applet, payload, kernel, module, or transport change is justified by this run.
