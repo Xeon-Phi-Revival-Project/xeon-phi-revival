@@ -6,7 +6,11 @@ The first image reached `booting` but not `online`; the release/module-path
 correction then reached `online`, project PID 1, project Dropbear SSH, and the
 project hello/pthread smoke path. See
 [experimental-boot-results.md](experimental-boot-results.md) and
-[first-candidate-boot-analysis.md](first-candidate-boot-analysis.md). The
-next candidate test, if authorized, should be a repeatability run of this
-unchanged image. Any test must preserve the same firmware, flash, ROM,
-persistent-storage, and active-stock-config boundaries.
+[first-candidate-boot-analysis.md](first-candidate-boot-analysis.md). That
+unchanged small image has since passed three bounded boots; see
+[candidate-repeatability.md](candidate-repeatability.md). The first full
+release-candidate root archive did not reach userspace. The next candidate test
+must isolate its MPSS size/placement boundary or use a separately supported
+payload lane, rather than retrying the same large Base CPIO. Any test must
+preserve the same firmware, flash, ROM, persistent-storage, and
+active-stock-config boundaries.

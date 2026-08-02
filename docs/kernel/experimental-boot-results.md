@@ -73,3 +73,44 @@ networking/readiness, project Dropbear SSH, and the project hello/pthread
 smoke path. The alternate configuration was removed afterward; stock `mic0`
 returned to `online`, stock SSH returned `k1om` and PID 1 `init`, and the stock
 configuration hash again matched the baseline.
+
+## Three-Boot Repeatability Gate
+
+The unchanged candidate kernel and corrected minimal Base CPIO completed three
+valid project-root boots: the project-root verification above and two dedicated
+repeat runs at `20260802-044250` and `20260802-044956`. Each run reached
+`online`, authenticated to project Dropbear, reported project `/sbin/init` as
+PID 1, passed the hello and pthread markers, and then restored stock MPSS.
+Every rollback returned stock SSH with `uname -m` `k1om` and the baseline stock
+configuration hash. The final stock check reported its normal stock PID 1 as
+`systemd`.
+
+The common minimal Base CPIO was `7ce52df3fd115984f3ec191abb4a1fb2b336f477797103806b79064c011afe0e`.
+Its compressed size was 29,313,792 bytes; its unpacked newc size was 68,657,588
+bytes. The detailed per-boot evidence is recorded in
+[candidate-repeatability.md](candidate-repeatability.md).
+
+## Release-Candidate Root Smoke Integration
+
+The first full release-candidate root integration used the same candidate
+kernel and module set, but embedded the 0.1 RC root archive and its
+project-owned RC `/sbin/init`. The generated Base CPIO was
+`8362f1eb93c5c537b3cc640f6d38330dc549fd501affae58a2b3284a8cdc7b31`
+(61,978,777 bytes compressed; 101,601,908 bytes unpacked). Static archive
+inspection confirmed the outer early init, project root archive, candidate
+module directory, and the embedded RC `/sbin/init`, Dropbear, hello, pthread,
+APT, and Python files.
+
+MPSS generated its final ramfs image
+`7605e1051cfc51aec9c3d8280cf1b6e1582f48021cf0ba518831cd04ac295259`, but
+the card remained `booting` through the bounded 24-poll wait. Host logs showed
+the virtual network link, but no `booting` to `online` transition. Therefore
+the RC `/sbin/init`, SSH, and release smoke suite did not execute and are not
+claimed as passing on the candidate kernel. Automatic rollback restored stock
+MPSS, stock SSH, and the exact baseline configuration hash.
+
+The only current explanation is an evidence-based correlation, not a proven
+root cause: the failure appeared when the Base CPIO grew from 29.3 MB / 68.7 MB
+to 62.0 MB / 101.6 MB. The next experiment must isolate the MPSS image-size or
+placement boundary, or deliver the RC root through a separate supported
+payload path; it must not retry the same large archive unchanged.

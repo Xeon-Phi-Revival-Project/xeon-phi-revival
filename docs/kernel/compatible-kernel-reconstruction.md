@@ -43,6 +43,12 @@ reference and build input obtained separately, not as code to import or
 redistribute from this project.
 
 The five required MPSS 3.4.10 module sources now build unpatched against the
-candidate and have complete static symbol closure. The current decision remains
-`INSUFFICIENT_EVIDENCE`, because host MPSS 3.4.10 to candidate-kernel 3.5.1
-boot-protocol compatibility has not been established. No candidate boot was run.
+candidate and have complete static symbol closure. The current decision is
+`PARTIALLY_VALIDATED`: a candidate kernel with rebuilt 3.5.1 modules reached
+project `/sbin/init` PID 1, MPSS readiness, virtual networking, project
+Dropbear SSH, and hello/pthread smoke tests through the MPSS 3.4.10 host.
+The same small image passed three consecutive bounded boots with verified stock
+rollback. This establishes a compatibility result, not source equivalence or a
+complete MPSS 3.4.10 rebuild. The large RC-root integration is currently
+blocked before userspace; see
+[experimental-boot-results.md](experimental-boot-results.md).

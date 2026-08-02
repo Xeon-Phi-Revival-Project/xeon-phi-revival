@@ -34,5 +34,9 @@ project-built Dropbear SSH, the MPSS-ready handshake, project hello, and
 project pthread smoke tests. Stock rollback and stock SSH also passed.
 
 The interface remains an independent compatibility reconstruction, not an
-MPSS 3.4.10 rebuild. It has not yet been repeatability-tested or used for the
-broader Python/APT release smoke.
+MPSS 3.4.10 rebuild. The minimal project-root path has now passed three
+consecutive bounded boots with SSH, PID 1, readiness, hello, pthread, and
+stock rollback evidence. The broader Python/APT release smoke has not run on
+this candidate: the first full RC-root Base CPIO remained `booting` before
+userspace after it grew to 101,601,908 unpacked bytes. See
+[experimental-boot-results.md](experimental-boot-results.md).
