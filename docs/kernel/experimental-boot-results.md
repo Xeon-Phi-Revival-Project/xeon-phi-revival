@@ -177,3 +177,33 @@ No root transition was attempted. Automatic rollback restored stock online,
 stock SSH, and the exact baseline configuration hash. The transport fix is to
 stream the payload through the already-proven SSH shell into BusyBox `cat`,
 which requires no additional card-side binary.
+
+## SSH-Stream Split-Root Validation
+
+One bounded candidate boot validated the corrected SSH-stream transport. The
+bootstrap Base CPIO was
+`2ace3585f45a74c5d2acdc586f42dbfab04a8061f581ef5de733680412fbe45a`.
+The full root payload was
+`daee16a969824cf9a06568c9a9eca9fe7951c224b805bf1cce07c94dd3330d04`
+(39,661,537 bytes compressed; 129,369,364 bytes unpacked; 3,107 members).
+MPSS generated final ramfs
+`253a5634d40aceaa8de623c065a0618616d60beef070b5819747345415b123ef`.
+
+Candidate `mic0` reached `online`; bootstrap project SSH authenticated and
+reported project PID 1, `k1om`, the hello/pthread markers, and MPSS readiness.
+The binary-clean SSH transfer passed its exact byte-count and SHA-256 gate.
+The staging command then decompressed and extracted the payload successfully
+(`252675 blocks`). The subsequent bounded post-switch SSH polling produced no
+output, so no project-root PID 1, RC SSH, or RC smoke result is claimed.
+
+This isolates the current blocker to the transition after successful staging:
+the existing evidence cannot distinguish a missing switch request, failed
+`switch_root`, or failed/unreachable RC init. It is not a bootstrap boot,
+networking, SSH transport, payload-integrity, or payload-extraction failure.
+The next single change is durable handoff instrumentation in the bootstrap PID
+1 path, emitting request-seen, pre-`switch_root`, exec-failure, and
+project-root-init-entered markers to an early output path before another boot.
+
+Automatic rollback completed: stock `mic0` returned `online`, stock SSH
+reported `k1om` and PID 1 `init`, and the stock MPSS configuration hash matched
+`9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51`.

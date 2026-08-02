@@ -37,7 +37,14 @@ an optional payload, streams it through the proven SSH shell into BusyBox
 rollback trap.
 
 Static validation confirms payload gzip/newc integrity and required paths. The
-first bounded hardware test reached bootstrap online and SSH but found that the
-minimal card root has no remote `scp` command. The exact next validation is a
-single SSH-stream payload transfer, followed by checksum, staging, PID 1
-`switch_root`, RC SSH, smoke tests, and rollback.
+first bounded hardware test found that the minimal card root has no remote
+`scp` command; the subsequent binary-clean SSH-stream test corrected that
+transport and passed its byte-count, SHA-256, and extraction gates. Bootstrap
+online, project SSH, and readiness also passed in that run.
+
+The switch to the staged root did not yield post-switch SSH evidence. RC1 is
+therefore blocked on a precisely instrumented handoff observation, not payload
+delivery. Before the next bounded test, add durable markers for request
+acceptance, pre-`switch_root`, failed exec, and RC `/sbin/init` entry. Do not
+change the payload, networking, or bootstrap transport until that evidence
+identifies the earliest failed handoff stage.
