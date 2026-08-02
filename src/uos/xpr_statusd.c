@@ -8,6 +8,10 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#ifndef XPR_STATUS_PORT
+#define XPR_STATUS_PORT 31337
+#endif
+
 int main(void) {
     const char reply[] = "XPR_CLEAN_ROOT_READY\nXPR_MPSS_READY_NOTIFIED\n";
     struct sockaddr_in address;
@@ -20,7 +24,7 @@ int main(void) {
     memset(&address, 0, sizeof(address));
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = htonl(INADDR_ANY);
-    address.sin_port = htons(31337);
+    address.sin_port = htons(XPR_STATUS_PORT);
     if (bind(listener, (struct sockaddr *)&address, sizeof(address)) != 0 ||
         listen(listener, 4) != 0) {
         close(listener);

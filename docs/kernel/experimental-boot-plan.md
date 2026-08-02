@@ -16,3 +16,9 @@ candidate test should replace only the known-good clean root's `/sbin/init`
 with the RC init script, retaining its static shell and project SSH path. It
 must not retry the full RC root unchanged. Any test must preserve the same
 firmware, flash, ROM, persistent-storage, and active-stock-config boundaries.
+
+That RC-init control now passes after its missing random-device nodes were
+restored. The full root is still blocked before userspace, despite a passing
+same-unpacked-size clean-root control. The next test must replace only the
+full-root dynamic BusyBox shell with the known-good static BusyBox and add the
+static status endpoint for early evidence.

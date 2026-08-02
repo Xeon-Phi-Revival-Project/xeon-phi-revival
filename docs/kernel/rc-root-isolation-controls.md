@@ -66,3 +66,39 @@ its `/sbin/init` with the project RC init script, retaining the clean root's
 known-good static shell, Dropbear, and smoke binaries. That isolates the RC
 init script from the broader RC root contents. Do not retry the full RC root
 unchanged.
+
+## RC Init And SSH Control
+
+The clean-root control with only the RC `/sbin/init` replacement initially
+reached `online` and the project status endpoint but refused SSH. A preserved
+post-connection log identified the exact cause:
+
+```text
+Early exit: Failure reading random device /dev/urandom
+```
+
+The RC init had created `/dev/console` and `/dev/null` but not `/dev/zero`,
+`/dev/random`, or `/dev/urandom`. Adding the three standard character nodes
+made the RC init control pass candidate online, status TCP, project SSH, RC
+PID 1, hello, pthread, Dropbear public-key authentication, readiness, and
+stock rollback. This is the first real-hardware execution of the project RC
+init on the candidate kernel.
+
+A static project port-22 probe also passed from the host. This separated
+Dropbear's initial random-device failure from MPSS virtual networking or port
+22 filtering.
+
+## Full Root And Unpack Workload
+
+The corrected full RC root still remained `booting` before userspace evidence.
+Its nested root archive is 38,748,569 compressed bytes and expands to
+127,552,616 bytes. A clean-root control padded with inert zero data to exactly
+that unpacked nested-root size passed candidate online and project SSH.
+
+Therefore the remaining full-RC boundary is not Base CPIO size, nested archive
+compressed size, nested archive unpacked size, early unpack memory pressure,
+or the project RC init itself. The full root uses a dynamically linked
+`/bin/busybox` as `/bin/sh`; the passing clean root uses a static BusyBox.
+The next isolated test should replace only full-root `/bin/busybox` with the
+known-good static BusyBox and add the already-proven static status endpoint.
+Do not retry the unchanged full root.

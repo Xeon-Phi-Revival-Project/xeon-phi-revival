@@ -116,3 +116,10 @@ data inside the known-good clean root and reached project SSH. See
 [rc-root-isolation-controls.md](rc-root-isolation-controls.md). The remaining
 failure boundary is after the RC root becomes active and before its readiness
 notification. Do not retry the full RC root unchanged.
+
+Later controls proved the RC init itself and its SSH path after restoring the
+missing random-device nodes. A full RC root still failed before userspace,
+while a clean-root archive at the same 127,552,616-byte unpacked workload
+passed project SSH. The remaining boundary is full-root early userspace,
+currently narrowed to its dynamic BusyBox shell/runtime. See
+[rc-root-isolation-controls.md](rc-root-isolation-controls.md).
