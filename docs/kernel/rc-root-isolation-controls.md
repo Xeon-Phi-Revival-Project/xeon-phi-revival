@@ -116,3 +116,16 @@ SSH, and the baseline configuration hash.
 
 Replacing dynamic BusyBox alone therefore did not resolve the full-RC boot
 boundary. No additional hardware test was started after this control.
+
+## Synthetic Size Control
+
+A 102 MiB unpacked, 67.5 MB compressed deterministic hash-padding control
+based on the passing Base CPIO reached candidate `online` on poll 6. This
+exceeded the failing RC Base CPIO in both unpacked and compressed size while
+preserving the working root, modules, and bootstrap. Its one-shot SSH check
+did not wait for Dropbear startup and is not counted as a project-SSH pass.
+Rollback restored stock online, SSH, and the baseline configuration hash.
+
+Size, transport capacity, and outer member count are therefore not sufficient
+to explain the RC failure. The next control must isolate nested-root content.
+See [rc-root-size-analysis.md](rc-root-size-analysis.md).

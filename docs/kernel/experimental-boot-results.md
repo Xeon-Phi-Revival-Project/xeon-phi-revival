@@ -137,3 +137,16 @@ the smoke suite did not execute. Automatic rollback verified stock `mic0`
 online, stock SSH (`k1om`, PID 1 `init`), and the exact baseline MPSS
 configuration hash. Replacing dynamic BusyBox alone did not resolve the
 full-RC boot boundary.
+
+## Synthetic Size Boundary Control
+
+The first post-static-BusyBox control added deterministic incompressible
+padding to the passing Base CPIO until it was 106,954,752 unpacked bytes and
+67,514,239 compressed bytes, both larger than the failing RC Base CPIO. MPSS
+generated the image and candidate `mic0` reached `online` on poll 6. The
+single SSH attempt occurred before Dropbear was proven ready, so no project
+SSH claim is made. Automatic rollback restored stock online, stock SSH, and
+the exact configuration hash.
+
+The full RC failure is therefore content- or nested-root-layout-specific, not
+a simple compressed or unpacked Base CPIO ceiling.
