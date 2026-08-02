@@ -1,5 +1,53 @@
 # Project Status
 
+## Current Status - Temporarily Paused
+
+Pause date: August 2, 2026
+
+The project is temporarily paused to conserve development resources. It is not
+abandoned; the repository remains available for research and continuation.
+
+Current pause state:
+
+- HEAD: `b3f71ed029d8f79bc466248476ecde7372c93d01`
+- Candidate compatibility kernel:
+  `d529aecf0de11e0b4a9a036eb0329d1bb9c907fd6a911ce08a10548c9380d4d8`
+- Latest bootstrap Base CPIO:
+  `8d91da09faa76587637f60b24adbb84356c0fd85c1a76629cd9c092cdd95ea0a`
+- Corrected full-root payload:
+  `16132314df70f3fda5febca9dcfff8a5c61e044426d66998f7e55bdb2073a697`
+- Stock configuration baseline:
+  `9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51`
+
+The proven minimal path includes the independent KNC-compatible kernel and
+five rebuilt modules, project early init, project PID 1, readiness, micveth,
+Dropbear SSH, hello/pthread tests, three repeatable minimal boots, rollback,
+and split-root payload transfer with remote byte and SHA-256 validation.
+
+The unresolved RC boundary is after `XPR_SWITCH_REQUEST_WRITTEN`. No durable
+post-request marker or RC SSH evidence was recovered. An immediate root
+transition may have hidden the old `/run` markers before the new root became
+reachable, so request handling and `switch_root` remain unproven.
+
+Next step: make handoff markers durable across the root transition, then run
+one bounded alternate-configuration test. Do not treat RC1 as complete or
+released.
+
+Resume checklist:
+
+1. Verify repository, host, stock online state, SSH, and configuration hash.
+2. Preserve the proven kernel, modules, payload, and rollback path.
+3. Add markers that remain visible across `switch_root`.
+4. Run one bounded alternate-configuration test.
+5. Record the last successful and first missing marker.
+6. Verify stock online, SSH, and exact configuration-hash restoration.
+7. Continue toward RC1 only after RC PID 1, SSH, hello, and pthread pass.
+8. Complete source, licensing, reproducibility, and redistribution review before publishing.
+
+Safety remains unchanged: no firmware, ROM, flash, or persistent card-storage
+modification; alternate MPSS configuration only; automatic rollback; no public
+Intel binaries, firmware, private keys, private logs, or unreviewed payloads.
+
 ## Current Verified State
 
 - Intel Xeon Phi 5110P works under CentOS 7.4 and MPSS 3.4.10.

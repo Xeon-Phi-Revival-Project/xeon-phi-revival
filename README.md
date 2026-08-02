@@ -16,6 +16,15 @@ experiments, scripts, and repository maintenance are being developed in
 collaboration with OpenAI Codex/ChatGPT, with hardware results validated on the
 actual Xeon Phi system before being treated as project facts.
 
+> [!IMPORTANT]
+> **Project temporarily paused - August 2, 2026**
+>
+> Active development is temporarily paused to conserve development resources
+> and preserve the current work cleanly. The project is not abandoned. This
+> repository remains available for research, review, and future continuation.
+> No active RC1 release should be assumed. Development should resume with
+> durable PID 1 handoff markers across the split-root `switch_root` transition.
+
 ## Start Here
 
 - New to the hardware: [From Card To Code](docs/getting-started-card-to-code.md)
@@ -102,10 +111,9 @@ Ubuntu-style package experiments:
   updates from the local Noble-style `file:` repository, resolves dependencies,
   and drove real dpkg through a complete isolated 36-package install. This is a
   compatibility bridge; it is not Noble APT or an upstream Ubuntu port.
-- The first `xpr-uos` 0.1 release-candidate flow now builds a coherent private
-  K1OM rootfs and boots it through the reversible MPSS/MicDir path. The live RC
-  smoke passed shell/filesystem, dpkg/APT, Python 3.12, ctypes, pthread, zlib,
-  ncurses, network/SSH, and stock rollback checks on `mic0`.
+- The first `xpr-uos` 0.1 release-candidate root and split-root payload flow
+  are built privately. The small bootstrap path and payload transfer pass, but
+  the full RC PID 1 handoff has not been proven on hardware.
 
 See `docs/status.md` and `docs/ubuntu-port/` for the latest public-safe
 reports.
@@ -272,13 +280,11 @@ license, and redistribution decision. See the
 Phase 1 is complete: a real Xeon Phi 5110P moved from PCIe enumeration and MPSS
 bring-up to repeatable native K1OM program execution.
 
-The private release-candidate userspace has passed the documented second-stage
-package, Python, libc, networking, SSH, and rollback tests. The Base CPIO
-archive-generation path, project early `/init`, and project `/sbin/init`
-handoff are now proven on live hardware. The next boundary is a clean
-project-owned rootfs that retains MPSS networking and SSH without stock
-card-side userspace after the handoff. See
-[the Base CPIO control report](docs/uos/base-cpio-reconstruction-control.md).
+The private package/runtime profile has passed its documented Python, libc,
+networking, SSH, and rollback tests. The minimal project bootstrap, project
+PID 1, and split-root payload transfer are proven. The current RC boundary is
+the handoff after `XPR_SWITCH_REQUEST_WRITTEN`; no full RC PID 1 or RC SSH
+result is claimed. See [the latest experimental boot results](docs/kernel/experimental-boot-results.md).
 
 The earlier non-eglibc package set demonstrated OpenSSL-backed Python modules,
 SQLite, curses, terminfo, libffi, and `_ctypes`; the later eglibc-backed RC gate

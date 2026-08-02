@@ -1,7 +1,11 @@
 # XPR-OS Project Status
 
 Status: Temporarily paused  
-Date: 2026-07-30
+Date: 2026-08-02
+
+This document's earlier resume point is historical. The current resume point
+is the durable split-root handoff marker work recorded in
+`docs/kernel/experimental-boot-results.md`.
 
 ## Reason for pause
 
@@ -32,7 +36,7 @@ The intended deployment model is:
 - A coherent private XPR uOS release-candidate rootfs has passed live smoke testing.
 - Standalone and minimal-init initramfs build and experiment tooling exists.
 
-## Current blocker
+## Historical blocker
 
 A fully project-controlled early Base CPIO/initramfs has not yet reached project /init on live hardware. Modified images remain in the mic0 "booting" state without producing expected project-init markers.
 
