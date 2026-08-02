@@ -37,3 +37,13 @@ This proves candidate kernel handoff through module discovery, virtual
 networking, and the host readiness transition. It does not prove project SSH,
 project PID 1, or application smoke tests, because the test intentionally
 rolled back immediately after `online`.
+
+## Project-Root Follow-up
+
+A subsequent bounded boot kept the kernel, rootfs, and module set unchanged
+and verified the project root over project-built Dropbear. The remote
+`/run/xpr-os-init` log identified project `/sbin/init` as PID 1 and recorded
+passing hello, pthread, Dropbear, and MPSS-ready markers. This closes the
+candidate-kernel compatibility gate through the existing project-root
+workflow. It does not establish a reproducible, exact MPSS 3.4.10 kernel
+source reconstruction.

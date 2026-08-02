@@ -29,6 +29,10 @@ however, validate this candidate kernel with rebuilt 3.5.1 modules through the
 MPSS 3.4.10 host's `online` transition. The required correction was to place
 modules and their dependency index under the candidate release directory.
 
-Project PID 1, project SSH, and workload smoke tests have not yet been
-revalidated on the compatible candidate kernel. The interface remains an
-independent compatibility reconstruction, not an MPSS 3.4.10 rebuild.
+One follow-up bounded boot revalidated project `/sbin/init` as PID 1,
+project-built Dropbear SSH, the MPSS-ready handshake, project hello, and
+project pthread smoke tests. Stock rollback and stock SSH also passed.
+
+The interface remains an independent compatibility reconstruction, not an
+MPSS 3.4.10 rebuild. It has not yet been repeatability-tested or used for the
+broader Python/APT release smoke.

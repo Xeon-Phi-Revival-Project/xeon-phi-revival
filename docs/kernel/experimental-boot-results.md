@@ -49,3 +49,27 @@ The initial failure was therefore consistent with the release-directory and
 dependency-index mismatch. The next technical step is a single candidate boot
 that verifies the already-proven project SSH/PID-1 markers before rollback;
 it should not alter the kernel, rootfs, or module set.
+
+## Candidate Project-Root Verification
+
+That bounded verification boot used the same candidate kernel and corrected
+Base CPIO, reached `online` on poll 4, and then authenticated to project-built
+Dropbear before stock rollback. Its project log reported:
+
+```text
+project_ssh_ok
+XPR_CLEAN_ROOT_SBIN_INIT_PID1
+pid=1
+k1om
+XPR_HELLO_OK
+XPR_PTHREAD_OK
+XPR_DROPBEAR_RUNNING
+XPR_MPSS_READY_NOTIFIED
+```
+
+The SSH server recorded successful public-key authentication from the host.
+The candidate therefore reached project `/sbin/init` as PID 1, project
+networking/readiness, project Dropbear SSH, and the project hello/pthread
+smoke path. The alternate configuration was removed afterward; stock `mic0`
+returned to `online`, stock SSH returned `k1om` and PID 1 `init`, and the stock
+configuration hash again matched the baseline.
