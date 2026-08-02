@@ -81,9 +81,15 @@ for _ in {1..24}; do
   sleep 5
 done
 project_ssh=0
-if [[ "$online" == 1 ]] && ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=8 \
-  "$mic" 'echo project_ssh_ok; cat /proc/1/comm; cat /run/xpr-os-init' > "$run/project-ssh.txt" 2>&1; then
-  project_ssh=1
+if [[ "$online" == 1 ]]; then
+  for _ in {1..12}; do
+    if ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=8 \
+      "$mic" 'echo project_ssh_ok; cat /proc/1/comm; cat /run/xpr-os-init' > "$run/project-ssh.txt" 2>&1; then
+      project_ssh=1
+      break
+    fi
+    sleep 4
+  done
 fi
 printf 'online=%s\nproject_ssh=%s\n' "$online" "$project_ssh" | tee "$run/summary.txt"
 [[ "$online" == 1 && "$project_ssh" == 1 ]]

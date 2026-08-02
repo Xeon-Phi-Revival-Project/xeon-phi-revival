@@ -38,3 +38,27 @@ failure does not follow a simple Base CPIO compressed-size, unpacked-size, or
 member-count limit. The next and final permitted isolation control masks the
 Python runtime group inside the nested RC root while retaining the rest of the
 RC content and the proven outer boot path.
+
+## Python Content Control
+
+The final permitted content control retained the full RC nested-root archive
+layout, paths, metadata, member count, and uncompressed member sizes. It
+replaced 2,764 Python-runtime members (104,783,333 bytes) under
+`opt/xeon-phi-revival/bin/python*` and `opt/xeon-phi-revival/lib/python*`
+with deterministic data. The RC init does not execute Python.
+
+| Input | SHA-256 | Compressed | Candidate result |
+| --- | --- | ---: | --- |
+| Masked nested root | `516128ff6243f1a0005942918ed1dd6e0c5a30ae8c9e7bade117cc046cf9634a` | 99,623,341 | embedded in control |
+| Masked outer Base CPIO | `b540ae3c06ade50264bd91884ccc1a2ff2a99d7b2024decb36762a4cedde3bdc` | 122,956,868 | `booting` through all 24 polls |
+| Final MPSS ramfs | `4094fc804a6260d101a073068eb4b52cc928dc15f978d4d7dc1faa5f24d6e700` | 123,101,097 | no project evidence |
+
+Automatic rollback again restored stock `mic0` online, stock SSH (`k1om`, PID
+1 `systemd`), and the exact stock configuration hash.
+
+The failure is therefore not a simple outer-image size ceiling and not caused
+solely by Python runtime content. With the two-test limit reached, the RC1
+release architecture is `SPLIT_PAYLOAD_REQUIRED`: boot the proven small root,
+then deliver the full root as a verified post-boot payload. The remaining
+direct-initramfs blocker is the non-Python RC root content or its nested archive
+handoff, not a demonstrated kernel or MPSS defect.

@@ -129,3 +129,12 @@ Rollback restored stock online, SSH, and the baseline configuration hash.
 Size, transport capacity, and outer member count are therefore not sufficient
 to explain the RC failure. The next control must isolate nested-root content.
 See [rc-root-size-analysis.md](rc-root-size-analysis.md).
+
+## Python Runtime Content Control
+
+Masking all 2,764 Python runtime members in the full nested RC root preserved
+their member paths, metadata, and uncompressed sizes, but produced an even
+larger 122,956,868-byte outer Base CPIO. It still remained `booting` through
+24 polls, with no project userspace evidence. Stock rollback passed. Python is
+not the sole RC content blocker; the release should keep the proven bootstrap
+small and receive the broader root after boot.

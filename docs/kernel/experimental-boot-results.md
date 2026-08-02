@@ -150,3 +150,15 @@ the exact configuration hash.
 
 The full RC failure is therefore content- or nested-root-layout-specific, not
 a simple compressed or unpacked Base CPIO ceiling.
+
+## Python Runtime Content Control
+
+The final bounded control masked 2,764 Python-runtime members inside the full
+RC nested root without changing their paths, metadata, member count, or
+unpacked sizes. The resulting 122,956,868-byte outer Base CPIO still remained
+`booting` through all 24 polls. No project PID 1 or SSH evidence appeared.
+Rollback restored stock online, stock SSH, and the baseline configuration hash.
+
+The direct full-RC path is now classified as a non-Python nested-root content
+or handoff blocker. RC1 should use the proven small bootstrap plus a verified
+post-boot full-root payload instead of a single large Base CPIO.
