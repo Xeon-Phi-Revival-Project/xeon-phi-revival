@@ -12,9 +12,10 @@ The live minimal project boot requires `ringbuffer.ko`, `dma_module.ko`,
 
 The local modules are part of the installed MPSS card-side module tree. Their
 metadata reports GPL licenses and the dependency graph documented in
-`docs/uos/mpss-module-boundary.md`. No corresponding module source tree,
-Kbuild files, patch series, or source RPM for this exact release is available
-in the repository or locally supplied inputs.
+`docs/uos/mpss-module-boundary.md`. A local GPLv2 MPSS 3.4.10 source RPM was
+found with relevant sources and Kbuild files; see
+`docs/kernel/source-package-provenance.md`. It remains unvalidated until built
+against the exact KNC kernel source and compared with the working modules.
 
 ## Publication Decision
 
