@@ -108,8 +108,17 @@ if [[ -n "$payload" && "$project_ssh" == 1 ]]; then
     "$mic" 'cat > /tmp/xpr-rootfs.cpio.gz' < "$payload"
   ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=12 \
     "$mic" "actual_bytes=\$(/bin/busybox wc -c < /tmp/xpr-rootfs.cpio.gz); actual_sha=\$(sha256sum /tmp/xpr-rootfs.cpio.gz | awk '{print \$1}'); test \"\$actual_bytes\" = \"$payload_bytes\" && test \"\$actual_sha\" = \"$payload_sha\""
+  (
+    for _ in {1..24}; do
+      ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=4 \
+        "$mic" 'cat /run/xpr-stage-root.log /xpr-handoff.log 2>/dev/null || true' >> "$run/handoff-markers.txt" 2>&1 || true
+      sleep 2
+    done
+  ) &
+  marker_poll=$!
   ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=12 \
-    "$mic" "/opt/xeon-phi-revival/bin/xpr-stage-root /tmp/xpr-rootfs.cpio.gz $payload_sha"
+    "$mic" "/opt/xeon-phi-revival/bin/xpr-stage-root /tmp/xpr-rootfs.cpio.gz $payload_sha" > "$run/stage.txt" 2>&1
+  wait "$marker_poll" || true
   for _ in {1..24}; do
     if ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=8 \
       "$mic" 'cat /proc/1/comm; cat /run/xpr-os-init; /usr/bin/xpr-hello; /usr/bin/xpr-pthread-smoke' > "$run/post-switch.txt" 2>&1 \

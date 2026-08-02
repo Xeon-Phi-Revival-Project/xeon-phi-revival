@@ -56,12 +56,23 @@ while :; do
     if test -f /run/xpr-switch-root-request; then
         newroot=$(sed -n '1p' /run/xpr-switch-root-request 2>/dev/null || true)
         requested_sha=$(sed -n '2p' /run/xpr-switch-root-request 2>/dev/null || true)
-        if test "$newroot" = /run/xpr-newroot && test "${#requested_sha}" = 64 && test -x "$newroot/sbin/init"; then
-            printf '%s\n' XPR_SWITCH_ROOT_BEGIN >> /run/xpr-stage-root.log
-            mount --move /proc "$newroot/proc" 2>/dev/null || true
-            mount --move /sys "$newroot/sys" 2>/dev/null || true
-            mount --move /dev "$newroot/dev" 2>/dev/null || true
+        handoff() {
+            printf '%s\n' "$1" >> /run/xpr-stage-root.log
+            test -d "$newroot/run" && printf '%s\n' "$1" >> "$newroot/run/xpr-stage-root.log"
+            printf '%s\n' "$1" > /dev/kmsg 2>/dev/null || true
+        }
+        handoff XPR_SWITCH_REQUEST_SEEN
+        if test "$newroot" = /xpr-newroot && test "${#requested_sha}" = 64 && test -x "$newroot/sbin/init" \
+            && grep -q " $newroot " /proc/mounts; then
+            handoff XPR_NEWROOT_REVALIDATED
+            handoff XPR_PRE_SWITCH_ROOT
+            mount --move /proc "$newroot/proc" && handoff XPR_MOVE_PROC_OK || handoff XPR_MOVE_PROC_FAIL
+            mount --move /sys "$newroot/sys" && handoff XPR_MOVE_SYS_OK || handoff XPR_MOVE_SYS_FAIL
+            mount --move /dev "$newroot/dev" && handoff XPR_MOVE_DEV_OK || handoff XPR_MOVE_DEV_FAIL
+            mount --move /run "$newroot/run" && handoff XPR_MOVE_RUN_OK || handoff XPR_MOVE_RUN_FAIL
+            handoff XPR_SWITCH_ROOT_EXEC
             exec switch_root "$newroot" /sbin/init
+            handoff "XPR_SWITCH_ROOT_FAILED:$?"
         fi
         printf '%s\n' XPR_SWITCH_ROOT_REQUEST_REJECTED >> /run/xpr-stage-root.log
         rm -f /run/xpr-switch-root-request
