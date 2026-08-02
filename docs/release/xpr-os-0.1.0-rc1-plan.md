@@ -54,3 +54,10 @@ minimal bootstrap root does not provide the `chmod` BusyBox applet required by
 that bootstrap applet, rebuild the bootstrap Base CPIO, and retain the same
 corrected payload. No kernel, module, transport, or RC-service change is
 currently justified.
+
+That test added `chmod` successfully and reached
+`XPR_SWITCH_REQUEST_WRITTEN` and `XPR_SWITCH_REQUEST_SEEN`. PID 1 then
+rejected the request before new-root revalidation because its mount check uses
+`grep`, which is the next missing bootstrap BusyBox applet. The exact next
+change is therefore to add only `grep` to the bootstrap applet list and repeat
+one bounded test with the unchanged payload.

@@ -266,3 +266,31 @@ the bootstrap rootfs builder, rebuild only the bootstrap Base CPIO, and repeat
 one bounded test with the same corrected payload. Rollback again restored
 stock online, stock SSH (`k1om`, PID 1 `systemd`), and the baseline MPSS
 configuration hash.
+
+## Chmod-Enabled Split-Root Result
+
+The bootstrap Base CPIO with the requested applet was
+`79b882aeab1ceff540d74d15f1b887339c7624a7d285d3c6336b6523acb49eba`.
+Static inspection confirmed `bin/chmod -> busybox`; the corrected payload
+remained unchanged at
+`16132314df70f3fda5febca9dcfff8a5c61e044426d66998f7e55bdb2073a697`.
+
+The bounded test reached candidate `online`, bootstrap SSH, payload transfer,
+remote byte/SHA verification, extraction, and
+`XPR_SWITCH_REQUEST_WRITTEN`. Bootstrap PID 1 then saw the request, but the
+marker sequence ended with:
+
+```text
+XPR_SWITCH_REQUEST_SEEN
+XPR_SWITCH_ROOT_REQUEST_REJECTED
+```
+
+The first missing marker is `XPR_NEWROOT_REVALIDATED`; `switch_root`, RC PID 1,
+RC SSH, hello, and pthread were not reached. The exact remaining blocker is
+bootstrap PID 1's mount validation: `xpr_clean_root_init.sh` invokes `grep`
+against `/proc/mounts`, but the bootstrap BusyBox applet list still lacks the
+`grep` symlink. Classification: `NEWROOT_VALIDATION_FAILED`.
+
+Rollback restored stock `mic0` online, stock SSH with `k1om` and PID 1
+`systemd`, and configuration hash
+`9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51`.
