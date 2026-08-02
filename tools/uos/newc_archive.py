@@ -203,6 +203,7 @@ def main():
     parser.add_argument("--replace-once")
     parser.add_argument("--with", dest="replacement")
     parser.add_argument("--replace-entry-from", metavar="FILE")
+    parser.add_argument("--replace-entry-file", action="append", default=[], metavar="NAME=FILE")
     parser.add_argument("--add-directory", action="append", default=[], metavar="NAME")
     parser.add_argument("--add-entry-from", action="append", default=[], metavar="NAME=FILE")
     parser.add_argument("--xprinit-marker", action="store_true",
@@ -221,7 +222,7 @@ def main():
 
     output_source_entries = [dict(entry) for entry in source_entries]
     if args.xprinit_marker or args.xprinit_file_marker:
-        if args.replace_entry or args.replace_once or args.replacement or args.replace_entry_from:
+        if args.replace_entry or args.replace_once or args.replacement or args.replace_entry_from or args.replace_entry_file:
             raise ValueError("marker modes cannot be combined with replacement arguments")
         if args.xprinit_marker and args.xprinit_file_marker:
             raise ValueError("select only one marker mode")
@@ -250,6 +251,15 @@ def main():
                 raise ValueError("replacement text not found exactly once")
             entry["payload"] = entry["payload"].replace(old, new, 1)
 
+    for spec in args.replace_entry_file:
+        if "=" not in spec:
+            raise ValueError("--replace-entry-file must be NAME=FILE")
+        name, path = spec.split("=", 1)
+        matches = [entry for entry in output_source_entries if entry["name"] == name.encode("ascii")]
+        if len(matches) != 1:
+            raise ValueError("replacement entry not found exactly once: {0}".format(name))
+        replace_payload(matches[0], read_bytes(path))
+
     for name in args.add_directory:
         append_entry(output_source_entries, name.rstrip("/"), stat.S_IFDIR | 0755, b"")
     for spec in args.add_entry_from:
@@ -260,7 +270,7 @@ def main():
         append_entry(output_source_entries, name, stat.S_IFREG | source_mode, read_bytes(path))
 
     reconstructed = serialize(output_source_entries, source_trailing)
-    has_changes = bool(args.replace_entry or args.add_directory or args.add_entry_from)
+    has_changes = bool(args.replace_entry or args.replace_entry_file or args.add_directory or args.add_entry_from)
     if not has_changes and reconstructed != source_plain:
         raise ValueError("serializer did not preserve decompressed archive bytes")
 
