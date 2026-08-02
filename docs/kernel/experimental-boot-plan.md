@@ -10,7 +10,9 @@ project hello/pthread smoke path. See
 unchanged small image has since passed three bounded boots; see
 [candidate-repeatability.md](candidate-repeatability.md). The first full
 release-candidate root archive did not reach userspace. The next candidate test
-must isolate its MPSS size/placement boundary or use a separately supported
-payload lane, rather than retrying the same large Base CPIO. Any test must
-preserve the same firmware, flash, ROM, persistent-storage, and
-active-stock-config boundaries.
+first isolated the image-size and root-unpack boundary. Both controls passed;
+see [rc-root-isolation-controls.md](rc-root-isolation-controls.md). The next
+candidate test should replace only the known-good clean root's `/sbin/init`
+with the RC init script, retaining its static shell and project SSH path. It
+must not retry the full RC root unchanged. Any test must preserve the same
+firmware, flash, ROM, persistent-storage, and active-stock-config boundaries.

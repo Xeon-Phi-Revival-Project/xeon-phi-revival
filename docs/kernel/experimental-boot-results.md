@@ -109,8 +109,10 @@ the RC `/sbin/init`, SSH, and release smoke suite did not execute and are not
 claimed as passing on the candidate kernel. Automatic rollback restored stock
 MPSS, stock SSH, and the exact baseline configuration hash.
 
-The only current explanation is an evidence-based correlation, not a proven
-root cause: the failure appeared when the Base CPIO grew from 29.3 MB / 68.7 MB
-to 62.0 MB / 101.6 MB. The next experiment must isolate the MPSS image-size or
-placement boundary, or deliver the RC root through a separate supported
-payload path; it must not retry the same large archive unchanged.
+Two follow-up controls eliminated that size correlation as the primary cause:
+one matched the large outer Base CPIO size with an inert outer member and
+reached `online`; the other matched the nested RC root archive size with inert
+data inside the known-good clean root and reached project SSH. See
+[rc-root-isolation-controls.md](rc-root-isolation-controls.md). The remaining
+failure boundary is after the RC root becomes active and before its readiness
+notification. Do not retry the full RC root unchanged.
