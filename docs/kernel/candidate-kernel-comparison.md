@@ -1,13 +1,13 @@
 # Candidate KNC Kernel Comparison
 
-| Property | Working MPSS kernel | Local 3.8.6 archive | Reconstruction requirement |
+| Property | Working MPSS kernel | Public 3.5.1 candidate | Reconstruction requirement |
 | --- | --- | --- | --- |
-| Release | `2.6.38.8+mpss3.4.10` | not source available | source tree must expose K1OM |
-| Architecture | K1OM | binary payload only | `ARCH=k1om` build |
-| Initramfs | ramfs root | unknown | required |
-| SCIF/vnet | required | unknown | required |
-| Five module ABI | exact 3.4.10 vermagic | no source | rebuild and compare |
+| Release | `2.6.38.8+mpss3.4.10` | `2.6.38.8+mpss3.5.1` | reconcile only from evidence |
+| Architecture | K1OM | K1OM ELF `vmlinux` built | `ARCH=k1om` build |
+| Initramfs | ramfs root | `CONFIG_BLK_DEV_INITRD=y` | required |
+| SCIF/vnet | required | kernel source present; not live-tested | required |
+| Five module ABI | exact 3.4.10 vermagic | not yet rebuilt | rebuild and compare |
 
-No candidate currently qualifies for a build. The next source-search target is
-a complete KNC/K1OM kernel tree from MPSS 3.4.x, 3.2, or 3.8, not a binary
-archive or generic upstream Linux 2.6.38.
+The 3.5.1 candidate is buildable but is not yet a boot candidate. Its release
+differs from the installed 3.4.10 kernel, so the five external modules must be
+rebuilt and their ABI checked before any bounded RAM-only `micctrl` test.
