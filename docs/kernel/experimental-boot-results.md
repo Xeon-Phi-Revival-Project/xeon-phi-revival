@@ -207,3 +207,34 @@ project-root-init-entered markers to an early output path before another boot.
 Automatic rollback completed: stock `mic0` returned `online`, stock SSH
 reported `k1om` and PID 1 `init`, and the stock MPSS configuration hash matched
 `9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51`.
+
+## Instrumented Split-Root Handoff Result
+
+The one instrumented boot used candidate Base CPIO
+`d96d944381bfcc660ae7c9f3fb452f3cce6e2321032696dba342e28396fe67ec` and
+generated MPSS ramfs
+`f96bf5d782e799f195480d37cc59a478436e22d49d1a11149775b0fe561278f0`.
+The unchanged payload SHA-256 was
+`daee16a969824cf9a06568c9a9eca9fe7951c224b805bf1cce07c94dd3330d04`.
+
+Candidate online and bootstrap SSH passed. The transfer integrity gate passed,
+then the staging log recorded:
+
+```text
+XPR_PAYLOAD_HASH_OK
+XPR_PAYLOAD_EXTRACT_OK
+XPR_NEWROOT_INIT_NOT_EXECUTABLE
+```
+
+The last durable marker is `XPR_NEWROOT_INIT_NOT_EXECUTABLE`; the first missing
+marker is `XPR_SWITCH_REQUEST_WRITTEN`. No request reached bootstrap PID 1, so
+`switch_root`, RC init, RC networking, RC Dropbear, RC SSH, hello, and pthread
+were not attempted in the staged root. The mounted-new-root and BusyBox move
+instrumentation did not execute.
+
+The exact blocker is payload CPIO metadata: its extracted `/sbin/init` lacks
+the executable mode required by `xpr-stage-root`. The next change is to rebuild
+only the payload archive with `/sbin/init` mode `0755`, add a build-time CPIO
+mode assertion for that path, update its hash, and repeat one bounded test.
+Automatic rollback passed: stock mic0 was online, stock SSH reported `k1om`
+and PID 1 `systemd`, and the baseline configuration hash was restored.

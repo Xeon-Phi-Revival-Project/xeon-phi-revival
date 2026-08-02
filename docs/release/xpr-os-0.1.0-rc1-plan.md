@@ -42,9 +42,11 @@ first bounded hardware test found that the minimal card root has no remote
 transport and passed its byte-count, SHA-256, and extraction gates. Bootstrap
 online, project SSH, and readiness also passed in that run.
 
-The switch to the staged root did not yield post-switch SSH evidence. RC1 is
-therefore blocked on a precisely instrumented handoff observation, not payload
-delivery. Before the next bounded test, add durable markers for request
-acceptance, pre-`switch_root`, failed exec, and RC `/sbin/init` entry. Do not
-change the payload, networking, or bootstrap transport until that evidence
-identifies the earliest failed handoff stage.
+The instrumented handoff test identified the earliest failed stage: after a
+valid transfer and extraction, `xpr-stage-root` rejected the unpacked root
+because `/sbin/init` was not executable. It therefore never wrote the switch
+request; PID 1, `switch_root`, and RC services were not involved.
+
+The next bounded test must use a payload rebuilt with `/sbin/init` archived as
+mode `0755`, with a build-time archive-mode assertion. No bootstrap, kernel,
+module, transport, networking, or RC-service change is currently justified.
