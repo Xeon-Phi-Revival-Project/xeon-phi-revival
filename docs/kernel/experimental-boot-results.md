@@ -162,3 +162,18 @@ Rollback restored stock online, stock SSH, and the baseline configuration hash.
 The direct full-RC path is now classified as a non-Python nested-root content
 or handoff blocker. RC1 should use the proven small bootstrap plus a verified
 post-boot full-root payload instead of a single large Base CPIO.
+
+## Split-Root Bootstrap Test
+
+The first split-root test booted the new small bootstrap to candidate `online`
+and project SSH, then failed before payload staging because the bootstrap did
+not contain the remote `scp` command expected by host OpenSSH SCP:
+
+```text
+sh: scp: not found
+```
+
+No root transition was attempted. Automatic rollback restored stock online,
+stock SSH, and the exact baseline configuration hash. The transport fix is to
+stream the payload through the already-proven SSH shell into BusyBox `cat`,
+which requires no additional card-side binary.
