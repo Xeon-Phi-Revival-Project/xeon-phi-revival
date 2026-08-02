@@ -102,3 +102,17 @@ or the project RC init itself. The full root uses a dynamically linked
 The next isolated test should replace only full-root `/bin/busybox` with the
 known-good static BusyBox and add the already-proven static status endpoint.
 Do not retry the unchanged full root.
+
+## Static BusyBox Full-Root Control
+
+After reclaiming stale generated host artifacts, a second full-RC control
+replaced the dynamic RC BusyBox with the known-good static BusyBox. The
+candidate input image SHA-256 was
+`b28da0f987acb1c36346df3f144e97a784afd7f6e1f7ebb348edce43484f9bb6`.
+MPSS generated the final ramfs successfully, but `mic0` remained `booting`
+through all 24 bounded polls. No project SSH, PID 1, or release-smoke
+evidence was produced. Automatic rollback restored stock `mic0` online, stock
+SSH, and the baseline configuration hash.
+
+Replacing dynamic BusyBox alone therefore did not resolve the full-RC boot
+boundary. No additional hardware test was started after this control.

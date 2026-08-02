@@ -123,3 +123,17 @@ while a clean-root archive at the same 127,552,616-byte unpacked workload
 passed project SSH. The remaining boundary is full-root early userspace,
 currently narrowed to its dynamic BusyBox shell/runtime. See
 [rc-root-isolation-controls.md](rc-root-isolation-controls.md).
+
+## Static BusyBox Retry
+
+After stale generated experiment output was removed, the retry used a full RC
+image with only the RC BusyBox replaced by the previously proven static
+BusyBox. The project input image SHA-256 was
+`b28da0f987acb1c36346df3f144e97a784afd7f6e1f7ebb348edce43484f9bb6`.
+
+MPSS generated the final ramfs successfully, but the candidate remained
+`booting` through the complete bounded 24-poll window. Project init, SSH, and
+the smoke suite did not execute. Automatic rollback verified stock `mic0`
+online, stock SSH (`k1om`, PID 1 `init`), and the exact baseline MPSS
+configuration hash. Replacing dynamic BusyBox alone did not resolve the
+full-RC boot boundary.
