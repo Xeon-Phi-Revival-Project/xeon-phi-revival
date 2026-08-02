@@ -53,5 +53,17 @@ else
 fi
 
 while :; do
+    if test -f /run/xpr-switch-root-request; then
+        newroot=$(sed -n '1p' /run/xpr-switch-root-request 2>/dev/null || true)
+        if test "$newroot" = /run/xpr-newroot && test -x "$newroot/sbin/init"; then
+            printf '%s\n' XPR_SWITCH_ROOT_BEGIN >> /run/xpr-stage-root.log
+            mount --move /proc "$newroot/proc" 2>/dev/null || true
+            mount --move /sys "$newroot/sys" 2>/dev/null || true
+            mount --move /dev "$newroot/dev" 2>/dev/null || true
+            exec switch_root "$newroot" /sbin/init
+        fi
+        printf '%s\n' XPR_SWITCH_ROOT_REQUEST_REJECTED >> /run/xpr-stage-root.log
+        rm -f /run/xpr-switch-root-request
+    fi
     sleep 30
 done

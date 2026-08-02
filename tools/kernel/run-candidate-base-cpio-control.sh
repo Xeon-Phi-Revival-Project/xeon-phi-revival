@@ -2,10 +2,10 @@
 set -euo pipefail
 
 usage() {
-  echo "usage: $0 --base FILE --kernel FILE --map FILE --expected-stock-sha SHA256 [--mic mic0] [--out-root DIR]" >&2
+  echo "usage: $0 --base FILE --kernel FILE --map FILE --expected-stock-sha SHA256 [--payload FILE] [--mic mic0] [--out-root DIR]" >&2
 }
 
-base=""; kernel=""; map=""; expected_stock_sha=""; mic="mic0"
+base=""; kernel=""; map=""; expected_stock_sha=""; payload=""; mic="mic0"
 out_root="${HOME}/xpr-candidate-kernel-test"
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -13,12 +13,14 @@ while [[ $# -gt 0 ]]; do
     --kernel) kernel="$2"; shift 2 ;;
     --map) map="$2"; shift 2 ;;
     --expected-stock-sha) expected_stock_sha="$2"; shift 2 ;;
+    --payload) payload="$2"; shift 2 ;;
     --mic) mic="$2"; shift 2 ;;
     --out-root) out_root="$2"; shift 2 ;;
     *) usage; exit 2 ;;
   esac
 done
 [[ -f "$base" && -f "$kernel" && -f "$map" && "$expected_stock_sha" =~ ^[0-9a-f]{64}$ ]] || { usage; exit 2; }
+[[ -z "$payload" || -f "$payload" ]] || { usage; exit 2; }
 
 stock_conf="/etc/mpss/${mic}.conf"
 stamp="$(date -u +%Y%m%d-%H%M%S)"
@@ -58,6 +60,10 @@ micctrl --status | grep -q "$mic: online"
 ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=8 \
   "$mic" 'uname -m' | grep -qx k1om
 sha256sum "$base" "$kernel" "$map" "$stock_conf" > "$run/input.sha256"
+if [[ -n "$payload" ]]; then
+  payload_sha=$(sha256sum "$payload" | awk '{print $1}')
+  sha256sum "$payload" >> "$run/input.sha256"
+fi
 cp -a /etc/mpss/. "$run/conf/"
 sed -i "s|^Base CPIO .*|Base CPIO $base|" "$run/conf/$mic.conf"
 sed -i "s|^OSimage .*|OSimage $kernel $map|" "$run/conf/$mic.conf"
@@ -91,5 +97,28 @@ if [[ "$online" == 1 ]]; then
     sleep 4
   done
 fi
-printf 'online=%s\nproject_ssh=%s\n' "$online" "$project_ssh" | tee "$run/summary.txt"
-[[ "$online" == 1 && "$project_ssh" == 1 ]]
+
+switched=0
+smoke=0
+if [[ -n "$payload" && "$project_ssh" == 1 ]]; then
+  scp -q -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+    -o ConnectTimeout=12 "$payload" "$mic:/tmp/xpr-rootfs.cpio.gz"
+  ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=12 \
+    "$mic" "/opt/xeon-phi-revival/bin/xpr-stage-root /tmp/xpr-rootfs.cpio.gz $payload_sha"
+  for _ in {1..24}; do
+    if ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=8 \
+      "$mic" 'cat /proc/1/comm; cat /run/xpr-os-init; /usr/bin/xpr-hello; /usr/bin/xpr-pthread-smoke' > "$run/post-switch.txt" 2>&1 \
+      && grep -qx init "$run/post-switch.txt" && grep -q XPR_RC_ROOT_SBIN_INIT_PID1 "$run/post-switch.txt"; then
+      switched=1
+      smoke=1
+      break
+    fi
+    sleep 4
+  done
+fi
+printf 'online=%s\nproject_ssh=%s\nswitched=%s\nsmoke=%s\n' "$online" "$project_ssh" "$switched" "$smoke" | tee "$run/summary.txt"
+if [[ -n "$payload" ]]; then
+  [[ "$online" == 1 && "$project_ssh" == 1 && "$switched" == 1 && "$smoke" == 1 ]]
+else
+  [[ "$online" == 1 && "$project_ssh" == 1 ]]
+fi
