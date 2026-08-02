@@ -47,6 +47,10 @@ valid transfer and extraction, `xpr-stage-root` rejected the unpacked root
 because `/sbin/init` was not executable. It therefore never wrote the switch
 request; PID 1, `switch_root`, and RC services were not involved.
 
-The next bounded test must use a payload rebuilt with `/sbin/init` archived as
-mode `0755`, with a build-time archive-mode assertion. No bootstrap, kernel,
-module, transport, networking, or RC-service change is currently justified.
+The corrected payload test passed its archive-mode assertion and extracted
+`/sbin/init` validation. It then stopped before request creation because the
+minimal bootstrap root does not provide the `chmod` BusyBox applet required by
+`xpr-stage-root` to prepare the new root. The next bounded test must add only
+that bootstrap applet, rebuild the bootstrap Base CPIO, and retain the same
+corrected payload. No kernel, module, transport, or RC-service change is
+currently justified.

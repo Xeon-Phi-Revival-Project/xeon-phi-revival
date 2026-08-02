@@ -238,3 +238,31 @@ only the payload archive with `/sbin/init` mode `0755`, add a build-time CPIO
 mode assertion for that path, update its hash, and repeat one bounded test.
 Automatic rollback passed: stock mic0 was online, stock SSH reported `k1om`
 and PID 1 `systemd`, and the baseline configuration hash was restored.
+
+## Corrected Payload-Mode Split-Root Result
+
+The corrected payload was
+`16132314df70f3fda5febca9dcfff8a5c61e044426d66998f7e55bdb2073a697`
+(39,661,535 bytes). Archive assertions and a local extraction confirmed
+`sbin/init` mode `0755`; BusyBox, Dropbear, hello, and pthread executable
+modes also passed. The candidate used the unchanged instrumented bootstrap
+`d96d944381bfcc660ae7c9f3fb452f3cce6e2321032696dba342e28396fe67ec` and
+generated ramfs `eaee8bf7780fd885a024b602f8128e716fc21af1d845c9f43a457a1939e1be4b`.
+
+Candidate online, bootstrap SSH, payload transfer, remote byte/SHA checks,
+payload hash, extraction, and init executable validation passed. The last
+durable marker was `XPR_PAYLOAD_EXTRACT_OK`; the first missing marker was
+`XPR_SWITCH_REQUEST_WRITTEN`. The exact stage command failure was:
+
+```text
+/opt/xeon-phi-revival/bin/xpr-stage-root: line 38: chmod: not found
+```
+
+With `set -e`, that is exit status 127 before request creation. This is
+`NEWROOT_VALIDATION_FAILED`, specifically a missing bootstrap BusyBox `chmod`
+applet, not a payload-mode, switch-root, RC-init, network, SSH, hello, or
+pthread failure. The next exact fix is to add the `chmod` BusyBox symlink to
+the bootstrap rootfs builder, rebuild only the bootstrap Base CPIO, and repeat
+one bounded test with the same corrected payload. Rollback again restored
+stock online, stock SSH (`k1om`, PID 1 `systemd`), and the baseline MPSS
+configuration hash.
