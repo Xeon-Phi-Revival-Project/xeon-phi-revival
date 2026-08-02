@@ -14,12 +14,20 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 [[ -f "$source_file" && -n "$out_dir" ]] || { usage; exit 2; }
-for command in cpio gzip sha256sum wc; do command -v "$command" >/dev/null || exit 10; done
+for command in cpio gzip python sha256sum wc; do command -v "$command" >/dev/null || exit 10; done
 
 mkdir -p "$out_dir"
 payload="$out_dir/xpr-rootfs.cpio.gz"
 manifest="$out_dir/xpr-rootfs.manifest"
-cp "$source_file" "$payload"
+report="$out_dir/xpr-rootfs.archive-report"
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+python "$repo_root/tools/uos/newc_archive.py" --source "$source_file" --output "$payload" --report "$report" \
+  --set-mode sbin/init=0755 \
+  --assert-executable sbin/init \
+  --assert-executable bin/busybox \
+  --assert-executable usr/sbin/dropbear \
+  --assert-executable usr/bin/xpr-hello \
+  --assert-executable usr/bin/xpr-pthread-smoke
 gzip -t "$payload"
 members=$(gzip -dc "$payload" | cpio -it 2>/dev/null | tee "$out_dir/.members" | wc -l)
 for path in sbin/init bin/busybox usr/sbin/dropbear usr/bin/xpr-hello usr/bin/xpr-pthread-smoke etc; do
@@ -31,6 +39,7 @@ rm -f "$out_dir/.members"
   printf 'compressed_bytes=%s\n' "$(wc -c < "$payload")"
   printf 'unpacked_bytes=%s\n' "$(gzip -dc "$payload" | wc -c)"
   printf 'member_count=%s\n' "$members"
+  printf 'archive_report=%s\n' "$report"
   printf '%s\n' 'required_paths=sbin/init,bin/busybox,usr/sbin/dropbear,usr/bin/xpr-hello,usr/bin/xpr-pthread-smoke,etc'
 } > "$manifest"
 printf 'payload=%s\nmanifest=%s\n' "$payload" "$manifest"

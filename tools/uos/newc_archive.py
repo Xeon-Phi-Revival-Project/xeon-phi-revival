@@ -119,6 +119,14 @@ def replace_payload(entry, payload):
     entry["data_padding"] = b"\0" * (align4(len(payload)) - len(payload))
 
 
+def set_permissions(entry, permissions):
+    mode = (entry["fields"][1] & ~0o7777) | permissions
+    header = entry["header"]
+    mode_start = 6 + 8
+    entry["header"] = header[:mode_start] + ("%08X" % mode).encode("ascii") + header[mode_start + 8:]
+    entry["fields"][1] = mode
+
+
 def new_entry(name, mode, payload):
     """Create a deterministic newc entry for a project-supplied payload."""
     name_blob = name.encode("ascii") + b"\0"
@@ -204,6 +212,8 @@ def main():
     parser.add_argument("--with", dest="replacement")
     parser.add_argument("--replace-entry-from", metavar="FILE")
     parser.add_argument("--replace-entry-file", action="append", default=[], metavar="NAME=FILE")
+    parser.add_argument("--set-mode", action="append", default=[], metavar="NAME=OCTAL")
+    parser.add_argument("--assert-executable", action="append", default=[], metavar="NAME")
     parser.add_argument("--add-directory", action="append", default=[], metavar="NAME")
     parser.add_argument("--add-entry-from", action="append", default=[], metavar="NAME=FILE")
     parser.add_argument("--xprinit-marker", action="store_true",
@@ -260,6 +270,19 @@ def main():
             raise ValueError("replacement entry not found exactly once: {0}".format(name))
         replace_payload(matches[0], read_bytes(path))
 
+    for spec in args.set_mode:
+        if "=" not in spec:
+            raise ValueError("--set-mode must be NAME=OCTAL")
+        name, mode_text = spec.split("=", 1)
+        try:
+            permissions = int(mode_text, 8)
+        except ValueError:
+            raise ValueError("invalid octal mode: {0}".format(mode_text))
+        matches = [entry for entry in output_source_entries if entry["name"] == name.encode("ascii")]
+        if len(matches) != 1:
+            raise ValueError("mode entry not found exactly once: {0}".format(name))
+        set_permissions(matches[0], permissions)
+
     for name in args.add_directory:
         append_entry(output_source_entries, name.rstrip("/"), stat.S_IFDIR | 0o755, b"")
     for spec in args.add_entry_from:
@@ -288,6 +311,14 @@ def main():
         raise ValueError("unexpected bytes after output gzip stream: {0}".format(len(output_tail)))
     write_report(args.report, args.source, source_compressed, source_plain, source_tail, source_gzip_members, source_entries, source_trailer_end,
                  args.output, output_compressed, output_plain, output_tail, output_gzip_members, output_entries, output_trailer_end)
+    for name in args.assert_executable:
+        matches = [entry for entry in output_entries if entry["name"] == name.encode("ascii")]
+        if len(matches) != 1:
+            raise ValueError("executable assertion entry not found exactly once: {0}".format(name))
+        mode = matches[0]["fields"][1]
+        if stat.S_IFMT(mode) != stat.S_IFREG or not (mode & 0o111):
+            raise ValueError("executable assertion failed: {0} mode {1:04o}".format(name, mode & 0o7777))
+        print("XPR_PAYLOAD_MODE_OK {0} {1:04o}".format(name, mode & 0o7777))
     if not has_changes and source_plain != output_plain:
         raise ValueError("reconstructed decompressed archive differs from source")
 
