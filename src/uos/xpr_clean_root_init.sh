@@ -66,10 +66,10 @@ while :; do
             && grep -q " $newroot " /proc/mounts; then
             handoff XPR_NEWROOT_REVALIDATED
             handoff XPR_PRE_SWITCH_ROOT
-            mount --move /proc "$newroot/proc" && handoff XPR_MOVE_PROC_OK || handoff XPR_MOVE_PROC_FAIL
-            mount --move /sys "$newroot/sys" && handoff XPR_MOVE_SYS_OK || handoff XPR_MOVE_SYS_FAIL
-            mount --move /dev "$newroot/dev" && handoff XPR_MOVE_DEV_OK || handoff XPR_MOVE_DEV_FAIL
-            mount --move /run "$newroot/run" && handoff XPR_MOVE_RUN_OK || handoff XPR_MOVE_RUN_FAIL
+            mount -o move /proc "$newroot/proc" && handoff XPR_MOVE_PROC_OK || handoff XPR_MOVE_PROC_FAIL
+            mount -o move /sys "$newroot/sys" && handoff XPR_MOVE_SYS_OK || handoff XPR_MOVE_SYS_FAIL
+            mount -o move /dev "$newroot/dev" && handoff XPR_MOVE_DEV_OK || handoff XPR_MOVE_DEV_FAIL
+            mount -o move /run "$newroot/run" && handoff XPR_MOVE_RUN_OK || handoff XPR_MOVE_RUN_FAIL
             handoff XPR_SWITCH_ROOT_EXEC
             exec switch_root "$newroot" /sbin/init
             handoff "XPR_SWITCH_ROOT_FAILED:$?"
