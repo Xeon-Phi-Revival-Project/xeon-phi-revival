@@ -66,7 +66,7 @@ cp -a "$dropbear" "$rootfs/usr/sbin/dropbear"
 cp "$authorized_keys" "$rootfs/root/.ssh/authorized_keys"
 chmod 0700 "$rootfs/root/.ssh"
 chmod 0600 "$rootfs/root/.ssh/authorized_keys"
-for applet in sh cat cp mv rm mkdir mknod mount uname ps env sleep hostname ifconfig modprobe switch_root gzip cpio sha256sum awk sed chmod; do
+for applet in sh cat cp mv rm mkdir mknod mount uname ps env sleep hostname ifconfig modprobe switch_root gzip cpio sha256sum awk sed chmod grep; do
   ln -s busybox "$rootfs/bin/$applet"
 done
 cp "$repo_root/src/uos/xpr_clean_root_init.sh" "$rootfs/sbin/init"
