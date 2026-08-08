@@ -27,10 +27,23 @@ stamp="$(date -u +%Y%m%d-%H%M%S)"
 run="$out_root/base-cpio-control-$stamp"
 mkdir -p "$run/conf"
 exec > >(tee "$run/run.log") 2>&1
+console_log="$run/ttyMIC0-console.log"
+console_pid=""
+
+capture_host_evidence() {
+  dmesg | grep -iE 'mic|mpss|knc|k1om|xeon phi|ramoops' | tail -200 > "$run/dmesg-mic-tail.txt" || true
+  cat "/proc/mic_ramoops/$mic" > "$run/ramoops-current.txt" 2>/dev/null || true
+  cat "/proc/mic_ramoops/${mic}_prev" > "$run/ramoops-prev.txt" 2>/dev/null || true
+}
 
 restore_stock() {
   set +e
   echo "XPR_CONTROL_ROLLBACK_BEGIN"
+  if [[ -n "$console_pid" ]]; then
+    kill "$console_pid" >/dev/null 2>&1 || true
+    wait "$console_pid" >/dev/null 2>&1 || true
+  fi
+  capture_host_evidence
   timeout 45 systemctl stop mpss || true
   sleep 4
   micctrl --shutdown "$mic" || true
@@ -77,9 +90,16 @@ for _ in {1..24}; do
   micctrl --status 2>/dev/null | grep -q "$mic: ready" && break
   sleep 5
 done
-micctrl --configdir="$run/conf" --updateramfs "$mic"
-sha256sum "$run/$mic.image.gz" > "$run/final-ramfs.sha256"
-micctrl --configdir="$run/conf" --boot "$mic"
+  micctrl --configdir="$run/conf" --updateramfs "$mic"
+  sha256sum "$run/$mic.image.gz" > "$run/final-ramfs.sha256"
+  : > "$console_log"
+  if [[ -e "/dev/ttyMIC${mic#mic}" ]]; then
+    timeout 240 cat "/dev/ttyMIC${mic#mic}" > "$console_log" 2>&1 &
+    console_pid=$!
+  else
+    printf 'XPR_TTYMIC_CONSOLE_MISSING %s\n' "/dev/ttyMIC${mic#mic}" > "$console_log"
+  fi
+  micctrl --configdir="$run/conf" --boot "$mic"
 
 online=0
 for _ in {1..24}; do

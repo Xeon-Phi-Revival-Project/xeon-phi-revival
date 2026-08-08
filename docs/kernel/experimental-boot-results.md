@@ -356,7 +356,8 @@ with `/usr/share/mpss/boot/bzImage-knightscorner`, the configuration hash was
 SSH to the card address succeeded with stock PID 1 `systemd`. No firmware,
 flash, persistent card storage, or active stock configuration was modified.
 
-The minimal next experiment is not another functional handoff change. Extend
-the existing bounded runner to capture a reset-surviving early-output source
-such as the MIC virtual console or available crash log during this same image
-run, then repeat once with unchanged kernel, modules, bootstrap, and payload.
+The minimal next experiment is not another functional handoff change. The
+bounded runner now captures `/dev/ttyMIC0`, a MIC-focused host `dmesg` tail,
+and available ramoops files before rollback. Repeat once with unchanged kernel,
+modules, bootstrap, and payload; use those artifacts only to identify the
+earliest reset-visible stage.
