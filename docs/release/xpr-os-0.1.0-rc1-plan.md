@@ -69,3 +69,8 @@ SSH evidence. Active development is resuming with a root-level
 evidence survives the `/run` move and RC `/run` remount. No further applet,
 payload, kernel, module, or transport change is justified before one bounded
 test of that instrumentation.
+
+For that test, rebuild the payload with
+`tools/release/prepare-xpr-rootfs-payload.sh --rc-init src/uos/xpr_rc_root_init.sh`.
+This replaces only `sbin/init`, preserves the checked source archive contents,
+sets its mode to `0755`, and records the selected init in the payload manifest.
