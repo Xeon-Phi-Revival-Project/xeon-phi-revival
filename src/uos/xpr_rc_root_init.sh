@@ -9,11 +9,13 @@ umask 0022
 handoff_log=/xpr-handoff.log
 printf '%s\n' XPR_RC_INIT_ENTERED >> "$handoff_log"
 printf 'pid=%s\n' "$$" >> "$handoff_log"
+printf '%s\n' XPR_RC_INIT_ENTERED > /dev/console 2>/dev/null || true
 printf '%s\n' XPR_RC_INIT_ENTERED > /dev/kmsg 2>/dev/null || true
 
 mark() {
     printf '%s\n' "$1" >> /run/xpr-os-init
     printf '%s\n' "$1" >> "$handoff_log"
+    printf 'XPR_RC %s\n' "$1" > /dev/console 2>/dev/null || true
     printf '%s\n' "$1" > /dev/kmsg 2>/dev/null || true
 }
 

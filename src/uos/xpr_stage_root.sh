@@ -14,6 +14,7 @@ mark() {
     printf '%s\n' "$1" >> "$log"
     test -d "$newroot/run" && printf '%s\n' "$1" >> "$newroot/run/xpr-stage-root.log"
     test -d "$newroot" && printf '%s\n' "$1" >> "$newroot/xpr-handoff.log"
+    printf 'XPR_STAGE %s\n' "$1" > /dev/console 2>/dev/null || true
     printf '%s\n' "$1" > /dev/kmsg 2>/dev/null || true
 }
 

@@ -60,6 +60,7 @@ while :; do
             printf '%s\n' "$1" >> /run/xpr-stage-root.log
             test -d "$newroot/run" && printf '%s\n' "$1" >> "$newroot/run/xpr-stage-root.log"
             test "$newroot" = /xpr-newroot && test -d "$newroot" && printf '%s\n' "$1" >> "$newroot/xpr-handoff.log"
+            printf 'XPR_HANDOFF %s\n' "$1" > /dev/console 2>/dev/null || true
             printf '%s\n' "$1" > /dev/kmsg 2>/dev/null || true
         }
         handoff XPR_SWITCH_REQUEST_SEEN
