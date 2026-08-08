@@ -121,7 +121,7 @@ if [[ -n "$payload" && "$project_ssh" == 1 ]]; then
   wait "$marker_poll" || true
   for _ in {1..24}; do
     if ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=8 \
-      "$mic" 'cat /proc/1/comm; cat /run/xpr-os-init; /usr/bin/xpr-hello; /usr/bin/xpr-pthread-smoke' > "$run/post-switch.txt" 2>&1 \
+      "$mic" 'cat /proc/1/comm; cat /xpr-handoff.log /run/xpr-os-init 2>/dev/null; /usr/bin/xpr-hello; /usr/bin/xpr-pthread-smoke' > "$run/post-switch.txt" 2>&1 \
       && grep -qx init "$run/post-switch.txt" && grep -q XPR_RC_ROOT_SBIN_INIT_PID1 "$run/post-switch.txt"; then
       switched=1
       smoke=1

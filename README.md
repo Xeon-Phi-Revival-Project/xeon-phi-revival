@@ -16,14 +16,13 @@ experiments, scripts, and repository maintenance are being developed in
 collaboration with OpenAI Codex/ChatGPT, with hardware results validated on the
 actual Xeon Phi system before being treated as project facts.
 
-> [!IMPORTANT]
-> **Project temporarily paused - August 2, 2026**
+> [!NOTE]
+> **Active development resumed - August 8, 2026**
 >
-> Active development is temporarily paused to conserve development resources
-> and preserve the current work cleanly. The project is not abandoned. This
-> repository remains available for research, review, and future continuation.
-> No active RC1 release should be assumed. Development should resume with
-> durable PID 1 handoff markers across the split-root `switch_root` transition.
+> Current work is focused on durable evidence across the split-root
+> `switch_root` transition. RC1 remains unreleased until the final project root,
+> networking, SSH, smoke tests, reproducibility, and rollback gates pass on
+> hardware.
 
 ## Start Here
 

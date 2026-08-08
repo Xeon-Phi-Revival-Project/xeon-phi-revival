@@ -1,15 +1,15 @@
-# XPR-OS Project Status
+# XPR-OS Historical Pause Record
 
-Status: Temporarily paused  
-Date: 2026-08-02
+Status: Historical record; development resumed August 8, 2026
+Pause recorded: 2026-08-02
 
-This document's earlier resume point is historical. The current resume point
-is the durable split-root handoff marker work recorded in
-`docs/kernel/experimental-boot-results.md`.
+This document preserves the prior pause decision only. Active project status,
+current evidence, and the execution checklist are in [Project Status](status.md).
 
-## Reason for pause
+## Reason for the historical pause
 
-Active development is temporarily paused because the available Codex usage quota is nearly exhausted. The pause is logistical. The project is not abandoned and has not been judged infeasible.
+The August 2 pause was logistical: the available Codex usage quota was nearly
+exhausted. The project was not abandoned and was not judged infeasible.
 
 ## Project goal
 

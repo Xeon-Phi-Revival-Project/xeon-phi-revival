@@ -1,13 +1,13 @@
 # Project Status
 
-## Current Status - Temporarily Paused
+## Current Status - Active Development
 
-Pause date: August 2, 2026
+Resumed: August 8, 2026
 
-The project is temporarily paused to conserve development resources. It is not
-abandoned; the repository remains available for research and continuation.
+Development is active. The current task is to prove the final project-root
+handoff with evidence that survives the `switch_root` transition.
 
-Current pause state:
+Current active state:
 
 - HEAD: `b3f71ed029d8f79bc466248476ecde7372c93d01`
 - Candidate compatibility kernel:
@@ -33,7 +33,7 @@ Next step: make handoff markers durable across the root transition, then run
 one bounded alternate-configuration test. Do not treat RC1 as complete or
 released.
 
-Resume checklist:
+Current execution checklist:
 
 1. Verify repository, host, stock online state, SSH, and configuration hash.
 2. Preserve the proven kernel, modules, payload, and rollback path.
@@ -87,12 +87,14 @@ Intel binaries, firmware, private keys, private logs, or unreviewed payloads.
 
 ## Current Blocker
 
-The first native execution, second-stage userspace, Base CPIO reconstruction,
-project early `/init`, and project `/sbin/init` handoff milestones are proven.
-The current blocker is a clean project-owned rootfs with a project resident
-init, shell/filesystem tools, pthread smoke, MPSS virtual networking, and SSH.
-It must boot three consecutive times through the reversible Base CPIO path
-before RAM-only loader work begins.
+The minimal project-owned root, project `/sbin/init`, micveth, Dropbear SSH,
+hello/pthread smoke tests, three repeatable boots, and rollback are proven.
+The remaining RC blocker is the split-root transition after
+`XPR_SWITCH_REQUEST_WRITTEN`. The next bounded test uses a root-level
+`/xpr-handoff.log` written before and after `switch_root`, allowing the host to
+distinguish request handling, `switch_root` execution, and RC PID 1 entry.
+No final RC PID 1, RC SSH, or final-root smoke result is claimed until that
+test passes.
 
 The no-op reconstruction control and project early-init evidence are recorded
 in `docs/uos/base-cpio-reconstruction-control.md`.

@@ -6,8 +6,14 @@ PATH=/opt/xeon-phi-revival/bin:/bin:/usr/bin:/usr/sbin
 export PATH
 umask 0022
 
+handoff_log=/xpr-handoff.log
+printf '%s\n' XPR_RC_INIT_ENTERED >> "$handoff_log"
+printf 'pid=%s\n' "$$" >> "$handoff_log"
+printf '%s\n' XPR_RC_INIT_ENTERED > /dev/kmsg 2>/dev/null || true
+
 mark() {
     printf '%s\n' "$1" >> /run/xpr-os-init
+    printf '%s\n' "$1" >> "$handoff_log"
     printf '%s\n' "$1" > /dev/kmsg 2>/dev/null || true
 }
 
@@ -24,7 +30,7 @@ mount -t tmpfs -o mode=0755 tmpfs /run 2>/dev/null || true
 mount -t tmpfs -o mode=1777 tmpfs /tmp 2>/dev/null || chmod 1777 /tmp
 hostname xpr-uos
 
-printf '%s\n' XPR_RC_ROOT_SBIN_INIT_PID1 > /run/xpr-os-init
+mark XPR_RC_ROOT_SBIN_INIT_PID1
 printf 'pid=%s\n' "$$" >> /run/xpr-os-init
 uname -m >> /run/xpr-os-init 2>&1 || true
 mark XPR_RC_INIT_MOUNTS_READY

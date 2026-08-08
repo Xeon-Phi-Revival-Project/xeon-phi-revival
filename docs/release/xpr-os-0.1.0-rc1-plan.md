@@ -64,6 +64,8 @@ one bounded test with the unchanged payload.
 
 The grep-enabled test passed request creation and candidate bootstrap checks,
 but produced no durable marker after `XPR_SWITCH_REQUEST_WRITTEN` and no RC
-SSH evidence. The next session must improve persistence of the handoff marker
-across the root transition before making another functional change; no further
-applet, payload, kernel, module, or transport change is justified by this run.
+SSH evidence. Active development is resuming with a root-level
+`/xpr-handoff.log` written by staging, bootstrap PID 1, and RC PID 1 so the
+evidence survives the `/run` move and RC `/run` remount. No further applet,
+payload, kernel, module, or transport change is justified before one bounded
+test of that instrumentation.

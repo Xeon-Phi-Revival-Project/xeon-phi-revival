@@ -59,6 +59,7 @@ while :; do
         handoff() {
             printf '%s\n' "$1" >> /run/xpr-stage-root.log
             test -d "$newroot/run" && printf '%s\n' "$1" >> "$newroot/run/xpr-stage-root.log"
+            test "$newroot" = /xpr-newroot && test -d "$newroot" && printf '%s\n' "$1" >> "$newroot/xpr-handoff.log"
             printf '%s\n' "$1" > /dev/kmsg 2>/dev/null || true
         }
         handoff XPR_SWITCH_REQUEST_SEEN
@@ -74,7 +75,7 @@ while :; do
             exec switch_root "$newroot" /sbin/init
             handoff "XPR_SWITCH_ROOT_FAILED:$?"
         fi
-        printf '%s\n' XPR_SWITCH_ROOT_REQUEST_REJECTED >> /run/xpr-stage-root.log
+        handoff XPR_SWITCH_ROOT_REQUEST_REJECTED
         rm -f /run/xpr-switch-root-request
     fi
     sleep 30
