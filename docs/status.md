@@ -9,13 +9,14 @@ handoff with evidence that survives the `switch_root` transition.
 
 Current active state:
 
-- HEAD: `b3f71ed029d8f79bc466248476ecde7372c93d01`
+- Source baseline for the durable-handoff run:
+  `2a6e42ca202f12f0a6eb29454e49e07e53c771da`
 - Candidate compatibility kernel:
   `d529aecf0de11e0b4a9a036eb0329d1bb9c907fd6a911ce08a10548c9380d4d8`
-- Latest bootstrap Base CPIO:
-  `8d91da09faa76587637f60b24adbb84356c0fd85c1a76629cd9c092cdd95ea0a`
-- Corrected full-root payload:
-  `16132314df70f3fda5febca9dcfff8a5c61e044426d66998f7e55bdb2073a697`
+- Latest durable bootstrap Base CPIO:
+  `9f38d90a27227657d61c8325416707696a7ee1a644a6d4f13d588e9eba9ae0f9`
+- Latest durable full-root payload:
+  `97734a5ec3135a2d7bcda038a0dba0904390ce927479186c9cedf2e718fe5e20`
 - Stock configuration baseline:
   `9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51`
 
@@ -24,14 +25,22 @@ five rebuilt modules, project early init, project PID 1, readiness, micveth,
 Dropbear SSH, hello/pthread tests, three repeatable minimal boots, rollback,
 and split-root payload transfer with remote byte and SHA-256 validation.
 
-The unresolved RC boundary is after `XPR_SWITCH_REQUEST_WRITTEN`. No durable
-post-request marker or RC SSH evidence was recovered. An immediate root
-transition may have hidden the old `/run` markers before the new root became
-reachable, so request handling and `switch_root` remain unproven.
+The unresolved RC boundary is after successful payload extraction. No
+extraction-complete, switch-request, `switch_root`, or RC SSH evidence was
+recovered before the card reset, so request handling and `switch_root` remain
+unproven.
 
-Next step: make handoff markers durable across the root transition, then run
-one bounded alternate-configuration test. Do not treat RC1 as complete or
-released.
+The resumed durable-handoff test rebuilt both bootstrap and payload with a
+root-level `/xpr-handoff.log`. Candidate online, bootstrap SSH, payload
+transfer, and payload extraction passed, but the card reset before the host
+recovered `XPR_SWITCH_ROOT_EXEC`, RC-init, or RC-PID-1 evidence. Stock online,
+card SSH, and the baseline configuration hash were restored. The next step is
+to capture a reset-surviving early-output source with the same image, not to
+change the handoff logic.
+
+Next step: add reset-surviving early-output capture to the existing bounded
+runner, then run one unchanged-image alternate-configuration test. Do not
+treat RC1 as complete or released.
 
 Current execution checklist:
 

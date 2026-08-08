@@ -316,3 +316,47 @@ old `/run` marker before RC SSH became available. No claim of successful
 
 Rollback passed: stock `mic0` returned online, stock SSH reported `k1om` and
 PID 1 `systemd`, and the baseline configuration hash was restored.
+
+## Durable-Handoff Split-Root Result
+
+Date: 2026-08-08
+
+This bounded alternate-configuration test used the current durable-handoff
+instrumentation. The rebuilt bootstrap and payload were constructed from the
+previously proven private inputs with the current project bootstrap init,
+staging script, and RC init. Static preflight verified that the bootstrap and
+staging scripts reference `/xpr-handoff.log`, the payload RC init emits
+`XPR_RC_INIT_ENTERED`, and the stock configuration matched its baseline before
+boot.
+
+| Item | Result |
+| --- | --- |
+| Candidate kernel | `0450c4370fb9c023c5229274d9a7a5cc02b8a37838c3220a0c714fc602cb2505` |
+| Candidate map | `631674771d32602354e780209b86f2193ab24f8135056d654b1729f4967834a6` |
+| Durable bootstrap Base CPIO | `9f38d90a27227657d61c8325416707696a7ee1a644a6d4f13d588e9eba9ae0f9` (29,316,692 bytes) |
+| Durable final-root payload | `97734a5ec3135a2d7bcda038a0dba0904390ce927479186c9cedf2e718fe5e20` (39,661,571 bytes) |
+| Generated MPSS ramfs | `ca41782948e9883f9266fd9f4ffc3d28b2df7f263858c6938fa8ac29be34c98a` |
+| Candidate online | passed |
+| Bootstrap SSH and payload SHA-256 gate | passed |
+| Staging command | archive extraction printed `252675 blocks` |
+| Last recovered durable marker | `XPR_PAYLOAD_HASH_OK` |
+| `XPR_SWITCH_ROOT_EXEC` | not recovered |
+| `XPR_RC_INIT_ENTERED` | not recovered |
+| `XPR_RC_ROOT_SBIN_INIT_PID1` | not recovered |
+
+After extraction completed, the card lost SSH and entered a reset transition
+before the host recovered an extraction-complete, switch-request, or
+post-switch marker. The evidence therefore does **not** prove that PID 1 saw
+the request, that `switch_root` executed, or that the RC init started. The
+first unrecovered stage is the pre-switch path after archive extraction.
+
+The runner exited and stock recovery was then verified: `mic0` was `online`
+with `/usr/share/mpss/boot/bzImage-knightscorner`, the configuration hash was
+`9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51`, and
+SSH to the card address succeeded with stock PID 1 `systemd`. No firmware,
+flash, persistent card storage, or active stock configuration was modified.
+
+The minimal next experiment is not another functional handoff change. Extend
+the existing bounded runner to capture a reset-surviving early-output source
+such as the MIC virtual console or available crash log during this same image
+run, then repeat once with unchanged kernel, modules, bootstrap, and payload.
