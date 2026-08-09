@@ -70,6 +70,9 @@ while :; do
             handoff XPR_NEWROOT_REVALIDATED
             handoff XPR_PRE_SWITCH_ROOT
             sleep 8
+            kill "$dropbear_pid" "$statusd_pid" 2>/dev/null || true
+            wait "$dropbear_pid" "$statusd_pid" 2>/dev/null || true
+            handoff XPR_BOOTSTRAP_LISTENERS_STOPPED
             mount -o move /proc "$newroot/proc" && handoff XPR_MOVE_PROC_OK || handoff XPR_MOVE_PROC_FAIL
             mount -o move /sys "$newroot/sys" && handoff XPR_MOVE_SYS_OK || handoff XPR_MOVE_SYS_FAIL
             mount -o move /dev "$newroot/dev" && handoff XPR_MOVE_DEV_OK || handoff XPR_MOVE_DEV_FAIL

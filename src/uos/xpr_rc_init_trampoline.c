@@ -6,6 +6,8 @@
 #include <string.h>
 #include <unistd.h>
 
+extern char **environ;
+
 static void write_marker(const char *marker)
 {
     static const char *paths[] = {
@@ -51,16 +53,13 @@ int main(void)
         (char *)"/sbin/xpr-rc-init.sh",
         NULL,
     };
-    char *const envp[] = {
-        (char *)"HOME=/root",
-        (char *)"PATH=/opt/xeon-phi-revival/bin:/bin:/usr/bin:/usr/sbin",
-        NULL,
-    };
     char failure[96];
     int notify;
 
     write_marker("XPR_RC_TRAMPOLINE_ENTERED");
-    execve("/bin/busybox", argv, envp);
+    (void)setenv("HOME", "/root", 1);
+    (void)setenv("PATH", "/opt/xeon-phi-revival/bin:/bin:/usr/bin:/usr/sbin", 1);
+    execve("/bin/busybox", argv, environ);
 
     snprintf(failure, sizeof(failure),
              "XPR_RC_TRAMPOLINE_EXEC_FAILED errno=%d", errno);
