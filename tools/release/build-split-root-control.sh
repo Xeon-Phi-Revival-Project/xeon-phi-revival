@@ -49,12 +49,16 @@ fi
 [[ -x "$cc" ]] || { echo "missing K1OM compiler: $cc_name" >&2; exit 10; }
 "$cc" -Os -static -s -Wall -Wextra \
   -o "$out_dir/xpr-rc-init" "$repo_root/src/uos/xpr_rc_init_trampoline.c"
-readelf -h "$out_dir/xpr-rc-init" | grep -q 'Machine:.*Intel K1OM' || {
-  echo "RC init trampoline is not K1OM" >&2; exit 11;
-}
-if readelf -l "$out_dir/xpr-rc-init" | grep -q 'Requesting program interpreter'; then
-  echo "RC init trampoline is not static" >&2; exit 11
-fi
+"$cc" -Os -static -s -Wall -Wextra \
+  -o "$out_dir/xpr-switch-root" "$repo_root/src/uos/xpr_switch_root.c"
+for binary in "$out_dir/xpr-rc-init" "$out_dir/xpr-switch-root"; do
+  readelf -h "$binary" | grep -q 'Machine:.*Intel K1OM' || {
+    echo "project init helper is not K1OM: $binary" >&2; exit 11;
+  }
+  if readelf -l "$binary" | grep -q 'Requesting program interpreter'; then
+    echo "project init helper is not static: $binary" >&2; exit 11
+  fi
+done
 
 "$repo_root/tools/release/prepare-xpr-rootfs-payload.sh" \
   --source "$payload_source" \
@@ -68,10 +72,12 @@ python "$repo_root/tools/uos/newc_archive.py" \
   --report "$out_dir/xpr-bootstrap-root.report" \
   --replace-entry-file "sbin/init=$repo_root/src/uos/xpr_clean_root_init.sh" \
   --replace-entry-file "opt/xeon-phi-revival/bin/xpr-stage-root=$repo_root/src/uos/xpr_stage_root.sh" \
+  --add-entry-from "bin/xpr-switch-root=$out_dir/xpr-switch-root" \
   --set-mode sbin/init=0755 \
   --set-mode opt/xeon-phi-revival/bin/xpr-stage-root=0755 \
   --assert-executable sbin/init \
-  --assert-executable opt/xeon-phi-revival/bin/xpr-stage-root
+  --assert-executable opt/xeon-phi-revival/bin/xpr-stage-root \
+  --assert-executable bin/xpr-switch-root
 
 python "$repo_root/tools/uos/newc_archive.py" \
   --source "$(dirname "$bootstrap_source")/xpr-bootstrap-base.cpio.gz" \
@@ -83,6 +89,7 @@ grep -q XPR_HANDOFF "$repo_root/src/uos/xpr_clean_root_init.sh"
 grep -q XPR_STAGE "$repo_root/src/uos/xpr_stage_root.sh"
 grep -q 'XPR_RC_INIT_ENTERED > /dev/console' "$repo_root/src/uos/xpr_rc_root_init.sh"
 grep -q XPR_RC_TRAMPOLINE_ENTERED "$repo_root/src/uos/xpr_rc_init_trampoline.c"
+grep -q XPR_SWITCH_HELPER_ENTERED "$repo_root/src/uos/xpr_switch_root.c"
 gzip -t "$out_dir/xpr-bootstrap-base.cpio.gz"
 gzip -t "$out_dir/payload/xpr-rootfs.cpio.gz"
 sha256sum "$out_dir/xpr-bootstrap-root.cpio.gz" "$out_dir/xpr-bootstrap-base.cpio.gz" \

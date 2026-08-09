@@ -76,7 +76,7 @@ while :; do
             mount -o move /run "$newroot/run" && handoff XPR_MOVE_RUN_OK || handoff XPR_MOVE_RUN_FAIL
             handoff XPR_SWITCH_ROOT_EXEC
             sleep 8
-            exec switch_root "$newroot" /sbin/init
+            exec /bin/xpr-switch-root "$newroot" /sbin/init
             handoff "XPR_SWITCH_ROOT_FAILED:$?"
         fi
         handoff XPR_SWITCH_ROOT_REQUEST_REJECTED
