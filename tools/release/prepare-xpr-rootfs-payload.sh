@@ -35,6 +35,8 @@ archive_args=(
   --assert-executable usr/sbin/dropbear
   --assert-executable usr/bin/xpr-hello
   --assert-executable usr/bin/xpr-pthread-smoke
+  --ensure-symlink bin/basename=busybox
+  --ensure-symlink bin/tr=busybox
 )
 if [[ -n "$rc_init" ]]; then
   archive_args+=(--replace-entry-file "sbin/init=$rc_init")

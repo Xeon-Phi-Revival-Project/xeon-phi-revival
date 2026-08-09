@@ -617,7 +617,7 @@ mkdir -p "$busybox_compat_data/opt/xeon-phi-revival/bin"
 for applet in \
   awk basename cat chmod chown cp cut date df dirname dmesg du echo env \
   false find grep head hostname id kill ln ls mkdir mount mv printf ps pwd \
-  readlink rm sed sh sleep sort stat tail tar test touch true uname wc; do
+  readlink rm sed sh sleep sort stat tail tar test touch tr true uname wc; do
   ln -s /bin/busybox "$busybox_compat_data/opt/xeon-phi-revival/bin/$applet"
 done
 

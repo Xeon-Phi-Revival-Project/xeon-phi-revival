@@ -216,6 +216,7 @@ def main():
     parser.add_argument("--assert-executable", action="append", default=[], metavar="NAME")
     parser.add_argument("--add-directory", action="append", default=[], metavar="NAME")
     parser.add_argument("--add-entry-from", action="append", default=[], metavar="NAME=FILE")
+    parser.add_argument("--ensure-symlink", action="append", default=[], metavar="NAME=TARGET")
     parser.add_argument("--xprinit-marker", action="store_true",
                         help="replace one same-length stock /init module echo with XPRINIT")
     parser.add_argument("--xprinit-file-marker", action="store_true",
@@ -283,6 +284,20 @@ def main():
             raise ValueError("mode entry not found exactly once: {0}".format(name))
         set_permissions(matches[0], permissions)
 
+    for spec in args.ensure_symlink:
+        if "=" not in spec:
+            raise ValueError("--ensure-symlink must be NAME=TARGET")
+        name, target = spec.split("=", 1)
+        matches = [entry for entry in output_source_entries if entry["name"] == name.encode("ascii")]
+        if len(matches) > 1:
+            raise ValueError("symlink entry found more than once: {0}".format(name))
+        if matches:
+            mode = matches[0]["fields"][1]
+            if stat.S_IFMT(mode) != stat.S_IFLNK or matches[0]["payload"] != target.encode("ascii"):
+                raise ValueError("existing entry is not expected symlink: {0}".format(name))
+        else:
+            append_entry(output_source_entries, name, stat.S_IFLNK | 0o777, target.encode("ascii"))
+
     for name in args.add_directory:
         append_entry(output_source_entries, name.rstrip("/"), stat.S_IFDIR | 0o755, b"")
     for spec in args.add_entry_from:
@@ -293,7 +308,7 @@ def main():
         append_entry(output_source_entries, name, stat.S_IFREG | source_mode, read_bytes(path))
 
     reconstructed = serialize(output_source_entries, source_trailing)
-    has_changes = bool(args.replace_entry or args.replace_entry_file or args.add_directory or args.add_entry_from or args.set_mode)
+    has_changes = bool(args.replace_entry or args.replace_entry_file or args.add_directory or args.add_entry_from or args.ensure_symlink or args.set_mode)
     if not has_changes and reconstructed != source_plain:
         raise ValueError("serializer did not preserve decompressed archive bytes")
 
