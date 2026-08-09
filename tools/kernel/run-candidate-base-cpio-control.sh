@@ -71,7 +71,9 @@ trap restore_stock EXIT
 test "$(sha256sum "$stock_conf" | awk '{print $1}')" = "$expected_stock_sha"
 micctrl --status | grep -q "$mic: online"
 ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=8 \
-  "$mic" 'uname -m' | grep -qx k1om
+  "$mic" 'uname -m; cat /proc/1/comm' > "$run/stock-preflight.txt"
+grep -Eq '^(k1om|x86_64)$' "$run/stock-preflight.txt"
+grep -Eq '^(init|systemd)$' "$run/stock-preflight.txt"
 sha256sum "$base" "$kernel" "$map" "$stock_conf" > "$run/input.sha256"
 if [[ -n "$payload" ]]; then
   payload_sha=$(sha256sum "$payload" | awk '{print $1}')
@@ -141,8 +143,9 @@ if [[ -n "$payload" && "$project_ssh" == 1 ]]; then
   wait "$marker_poll" || true
   for _ in {1..24}; do
     if ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=8 \
-      "$mic" 'cat /proc/1/comm; cat /xpr-handoff.log /run/xpr-os-init 2>/dev/null; /usr/bin/xpr-hello; /usr/bin/xpr-pthread-smoke' > "$run/post-switch.txt" 2>&1 \
-      && grep -qx init "$run/post-switch.txt" && grep -q XPR_RC_ROOT_SBIN_INIT_PID1 "$run/post-switch.txt"; then
+      "$mic" 'cat /proc/1/comm; uname -m; cat /xpr-handoff.log /run/xpr-os-init 2>/dev/null; /usr/bin/xpr-hello; /usr/bin/xpr-pthread-smoke' > "$run/post-switch.txt" 2>&1 \
+      && grep -qx init "$run/post-switch.txt" && grep -qx k1om "$run/post-switch.txt" \
+      && grep -q XPR_RC_ROOT_SBIN_INIT_PID1 "$run/post-switch.txt"; then
       switched=1
       smoke=1
       break
