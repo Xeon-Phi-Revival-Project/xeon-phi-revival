@@ -143,9 +143,17 @@ if [[ -n "$payload" && "$project_ssh" == 1 ]]; then
   wait "$marker_poll" || true
   for _ in {1..24}; do
     if ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=8 \
-      "$mic" 'cat /proc/1/comm; uname -m; cat /xpr-handoff.log /xpr-switch-helper.log /run/xpr-os-init 2>/dev/null; /usr/bin/xpr-hello; /usr/bin/xpr-pthread-smoke' > "$run/post-switch.txt" 2>&1 \
-      && grep -qx init "$run/post-switch.txt" && grep -qx k1om "$run/post-switch.txt" \
-      && grep -q XPR_RC_ROOT_SBIN_INIT_PID1 "$run/post-switch.txt"; then
+      "$mic" 'cat /proc/1/comm; tr "\000" " " < /proc/1/cmdline; echo; uname -m; cat /etc/os-release; grep " /proc " /proc/mounts; grep " /sys " /proc/mounts; test -c /dev/null && echo XPR_DEV_OK; test -w /run && echo XPR_RUN_WRITABLE; test -w /tmp && echo XPR_TMP_WRITABLE; cat /xpr-handoff.log /xpr-switch-helper.log /run/xpr-os-init 2>/dev/null; /usr/bin/xpr-hello; /usr/bin/xpr-pthread-smoke' > "$run/post-switch.txt" 2>&1 \
+      && grep -Eq '^(init|busybox)$' "$run/post-switch.txt" \
+      && grep -q '^busybox sh /sbin/xpr-rc-init.sh ' "$run/post-switch.txt" \
+      && grep -qx k1om "$run/post-switch.txt" \
+      && grep -q '^ID=xpr-uos$' "$run/post-switch.txt" \
+      && grep -q XPR_DEV_OK "$run/post-switch.txt" \
+      && grep -q XPR_RUN_WRITABLE "$run/post-switch.txt" \
+      && grep -q XPR_TMP_WRITABLE "$run/post-switch.txt" \
+      && grep -q XPR_RC_ROOT_SBIN_INIT_PID1 "$run/post-switch.txt" \
+      && grep -q XPR_HELLO_OK "$run/post-switch.txt" \
+      && grep -q XPR_PTHREAD_OK "$run/post-switch.txt"; then
       switched=1
       smoke=1
       break
