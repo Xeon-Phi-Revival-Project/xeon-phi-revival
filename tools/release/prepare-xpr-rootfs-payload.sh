@@ -18,7 +18,7 @@ done
 [[ -f "$source_file" && -n "$out_dir" ]] || { usage; exit 2; }
 [[ -z "$rc_init" || -f "$rc_init" ]] || { echo "missing RC init: $rc_init" >&2; exit 2; }
 [[ -z "$rc_init_script" || -f "$rc_init_script" ]] || { echo "missing RC init script: $rc_init_script" >&2; exit 2; }
-for command in cpio gzip python sha256sum wc; do command -v "$command" >/dev/null || exit 10; done
+for command in chmod cp cpio gzip python sha256sum wc; do command -v "$command" >/dev/null || exit 10; done
 
 mkdir -p "$out_dir"
 payload="$out_dir/xpr-rootfs.cpio.gz"
@@ -38,9 +38,13 @@ if [[ -n "$rc_init" ]]; then
   archive_args+=(--replace-entry-file "sbin/init=$rc_init")
 fi
 if [[ -n "$rc_init_script" ]]; then
-  archive_args+=(--add-entry-from "sbin/xpr-rc-init.sh=$rc_init_script" --set-mode sbin/xpr-rc-init.sh=0755 --assert-executable sbin/xpr-rc-init.sh)
+  staged_rc_init="$out_dir/.xpr-rc-init.sh"
+  cp "$rc_init_script" "$staged_rc_init"
+  chmod 0755 "$staged_rc_init"
+  archive_args+=(--add-entry-from "sbin/xpr-rc-init.sh=$staged_rc_init" --assert-executable sbin/xpr-rc-init.sh)
 fi
 python "$repo_root/tools/uos/newc_archive.py" "${archive_args[@]}"
+[[ -z "${staged_rc_init:-}" ]] || rm -f "$staged_rc_init"
 gzip -t "$payload"
 members=$(gzip -dc "$payload" | cpio -it 2>/dev/null | tee "$out_dir/.members" | wc -l)
 for path in sbin/init bin/busybox usr/sbin/dropbear usr/bin/xpr-hello usr/bin/xpr-pthread-smoke etc; do

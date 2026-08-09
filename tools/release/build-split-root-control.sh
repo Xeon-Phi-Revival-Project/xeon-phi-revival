@@ -34,8 +34,19 @@ done
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 mkdir -p "$out_dir"
 
-cc="${cross_compile}gcc"
-command -v "$cc" >/dev/null || { echo "missing K1OM compiler: $cc" >&2; exit 10; }
+cc_name="${cross_compile}gcc"
+cc="$(command -v "$cc_name" 2>/dev/null || true)"
+if [[ -z "$cc" ]] \
+    && [[ "$cross_compile" == "k1om-mpss-linux-" ]] \
+    && [[ -f /opt/mpss/3.4.10/environment-setup-k1om-mpss-linux ]]; then
+  host_path="$PATH"
+  # shellcheck disable=SC1091
+  source /opt/mpss/3.4.10/environment-setup-k1om-mpss-linux
+  cc="$(command -v "$cc_name" 2>/dev/null || true)"
+  PATH="$host_path"
+  export PATH
+fi
+[[ -x "$cc" ]] || { echo "missing K1OM compiler: $cc_name" >&2; exit 10; }
 "$cc" -Os -static -s -Wall -Wextra \
   -o "$out_dir/xpr-rc-init" "$repo_root/src/uos/xpr_rc_init_trampoline.c"
 readelf -h "$out_dir/xpr-rc-init" | grep -q 'Machine:.*Intel K1OM' || {
