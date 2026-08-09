@@ -6,15 +6,22 @@
 #include <sys/mount.h>
 #include <unistd.h>
 
-static int log_fd = -1;
+static int old_root_log_fd = -1;
+static int new_root_log_fd = -1;
+
+static void write_one(int fd, const char *text)
+{
+    if (fd < 0)
+        return;
+    (void)write(fd, text, strlen(text));
+    (void)write(fd, "\n", 1);
+    (void)fsync(fd);
+}
 
 static void mark(const char *text)
 {
-    if (log_fd < 0)
-        return;
-    (void)write(log_fd, text, strlen(text));
-    (void)write(log_fd, "\n", 1);
-    (void)fsync(log_fd);
+    write_one(old_root_log_fd, text);
+    write_one(new_root_log_fd, text);
 }
 
 static void fail(const char *stage)
@@ -44,7 +51,9 @@ int main(int argc, char **argv)
         >= (int)sizeof(log_path))
         return 2;
 
-    log_fd = open(log_path, O_WRONLY | O_CREAT | O_APPEND, 0644);
+    old_root_log_fd = open("/xpr-switch-helper.log",
+                           O_WRONLY | O_CREAT | O_APPEND, 0644);
+    new_root_log_fd = open(log_path, O_WRONLY | O_CREAT | O_APPEND, 0644);
     mark("XPR_SWITCH_HELPER_ENTERED");
 
     if (chdir(argv[1]) != 0)
