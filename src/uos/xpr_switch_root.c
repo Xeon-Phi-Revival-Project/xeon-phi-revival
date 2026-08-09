@@ -38,10 +38,12 @@ static void fail(const char *stage)
 int main(int argc, char **argv)
 {
     char log_path[512];
+    char handoff_env[64];
     char *const init_argv[] = { (char *)"/sbin/init", NULL };
-    char *const init_env[] = {
+    char *init_env[] = {
         (char *)"HOME=/root",
         (char *)"PATH=/opt/xeon-phi-revival/bin:/bin:/usr/bin:/usr/sbin",
+        handoff_env,
         NULL,
     };
 
@@ -54,6 +56,8 @@ int main(int argc, char **argv)
     old_root_log_fd = open("/xpr-switch-helper.log",
                            O_WRONLY | O_CREAT | O_APPEND, 0644);
     new_root_log_fd = open(log_path, O_WRONLY | O_CREAT | O_APPEND, 0644);
+    snprintf(handoff_env, sizeof(handoff_env), "XPR_HANDOFF_FD=%d",
+             old_root_log_fd);
     mark("XPR_SWITCH_HELPER_ENTERED");
 
     if (chdir(argv[1]) != 0)

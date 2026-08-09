@@ -11,6 +11,10 @@ printf '%s\n' XPR_RC_INIT_ENTERED >> "$handoff_log"
 printf 'pid=%s\n' "$$" >> "$handoff_log"
 printf '%s\n' XPR_RC_INIT_ENTERED > /dev/console 2>/dev/null || true
 printf '%s\n' XPR_RC_INIT_ENTERED > /dev/kmsg 2>/dev/null || true
+case "${XPR_HANDOFF_FD:-}" in
+    ''|*[!0-9]*) ;;
+    *) eval "printf '%s\\n' XPR_RC_SCRIPT_ENTERED >&$XPR_HANDOFF_FD" ;;
+esac
 
 mark() {
     printf '%s\n' "$1" >> /run/xpr-os-init

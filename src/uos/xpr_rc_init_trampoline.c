@@ -2,6 +2,7 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -13,6 +14,7 @@ static void write_marker(const char *marker)
         "/dev/kmsg",
     };
     size_t i;
+    const char *handoff_fd_text;
 
     for (i = 0; i < sizeof(paths) / sizeof(paths[0]); ++i) {
         int flags = O_WRONLY | O_APPEND;
@@ -26,6 +28,18 @@ static void write_marker(const char *marker)
         (void)write(fd, marker, strlen(marker));
         (void)write(fd, "\n", 1);
         close(fd);
+    }
+
+    handoff_fd_text = getenv("XPR_HANDOFF_FD");
+    if (handoff_fd_text != NULL) {
+        char *end = NULL;
+        long handoff_fd = strtol(handoff_fd_text, &end, 10);
+
+        if (end != handoff_fd_text && *end == '\0' && handoff_fd >= 0) {
+            (void)write((int)handoff_fd, marker, strlen(marker));
+            (void)write((int)handoff_fd, "\n", 1);
+            (void)fsync((int)handoff_fd);
+        }
     }
 }
 
