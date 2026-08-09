@@ -154,11 +154,17 @@ if [[ -n "$payload" && "$project_ssh" == 1 ]]; then
       && grep -q XPR_HELLO_OK "$run/post-switch.txt" \
       && grep -q XPR_PTHREAD_OK "$run/post-switch.txt"; then
       switched=1
-      smoke=1
       break
     fi
     sleep 4
   done
+fi
+if [[ "$switched" == 1 ]]; then
+  release_smoke="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/ubuntu-port/run-k1om-uos-rc-smoke.sh"
+  if [[ -x "$release_smoke" ]] \
+      && "$release_smoke" --mic "$mic" --out-dir "$run/release-smoke"; then
+    smoke=1
+  fi
 fi
 printf 'online=%s\nproject_ssh=%s\nswitched=%s\nsmoke=%s\n' "$online" "$project_ssh" "$switched" "$smoke" | tee "$run/summary.txt"
 if [[ -n "$payload" ]]; then
