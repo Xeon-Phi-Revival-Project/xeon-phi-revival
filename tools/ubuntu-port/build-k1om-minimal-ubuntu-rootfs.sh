@@ -4,7 +4,7 @@ set -euo pipefail
 usage() {
   cat >&2 <<'USAGE'
 usage:
-  build-k1om-minimal-ubuntu-rootfs.sh --package-rootfs DIR --out-dir DIR [--stock-rootfs DIR] [--suite noble] [--version 24.04]
+  build-k1om-minimal-ubuntu-rootfs.sh --package-rootfs DIR --out-dir DIR [--package-repo DIR] [--stock-rootfs DIR] [--suite noble] [--version 24.04]
 
 Build a private, Ubuntu-shaped K1OM root filesystem from an already simulated
 Xeon Phi Revival package install. This does not download Ubuntu packages and
@@ -13,6 +13,7 @@ USAGE
 }
 
 package_rootfs=""
+package_repo=""
 stock_rootfs=""
 out_dir=""
 suite="noble"
@@ -22,6 +23,7 @@ source_date_epoch="${SOURCE_DATE_EPOCH:-1704067200}"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --package-rootfs) package_rootfs="${2:-}"; shift 2 ;;
+    --package-repo) package_repo="${2:-}"; shift 2 ;;
     --stock-rootfs) stock_rootfs="${2:-}"; shift 2 ;;
     --out-dir) out_dir="${2:-}"; shift 2 ;;
     --suite) suite="${2:-}"; shift 2 ;;
@@ -35,6 +37,10 @@ done
 [[ -n "$out_dir" ]] || { usage; exit 2; }
 if [[ -n "$stock_rootfs" && ! -d "$stock_rootfs" ]]; then
   echo "stock rootfs is not a directory: $stock_rootfs" >&2
+  exit 2
+fi
+if [[ -n "$package_repo" && ! -d "$package_repo" ]]; then
+  echo "package repo is not a directory: $package_repo" >&2
   exit 2
 fi
 
@@ -61,6 +67,9 @@ copy_if_present() {
 }
 
 copy_tree "$package_rootfs" "$rootfs"
+if [[ -n "$package_repo" ]]; then
+  copy_tree "$package_repo" "$rootfs/opt/xeon-phi-revival/repo"
+fi
 
 mkdir -p \
   "$rootfs/bin" "$rootfs/sbin" "$rootfs/lib64" "$rootfs/usr/bin" \
@@ -204,6 +213,7 @@ cat > "$summary" <<EOF
 status=prepared
 rootfs=$rootfs
 source_package_rootfs=$package_rootfs
+source_package_repo=${package_repo:-none}
 source_stock_rootfs=${stock_rootfs:-none}
 suite=$suite
 version=$version

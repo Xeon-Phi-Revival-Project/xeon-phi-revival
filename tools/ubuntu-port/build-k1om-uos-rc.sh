@@ -103,6 +103,7 @@ bash "$script_dir/simulate-k1om-package-install.sh" "$run_dir/packages/repo" "$r
 
 bash "$script_dir/build-k1om-minimal-ubuntu-rootfs.sh" \
   --package-rootfs "$run_dir/simulated-install/rootfs" \
+  --package-repo "$run_dir/packages/repo" \
   --stock-rootfs "$stock_rootfs" \
   --out-dir "$run_dir/rootfs"
 bash "$script_dir/validate-k1om-minimal-ubuntu-rootfs.sh" "$run_dir/rootfs/rootfs"

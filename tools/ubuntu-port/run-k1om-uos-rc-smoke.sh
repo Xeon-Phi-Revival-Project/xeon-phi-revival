@@ -107,7 +107,7 @@ for mod in mods:
 PYOPT
 
 echo "== network =="
-if ip addr show 2>/dev/null || ifconfig -a 2>/dev/null; then
+if ip addr show 2>/dev/null || ifconfig -a 2>/dev/null || /bin/busybox ifconfig -a 2>/dev/null; then
   pass network_visibility
 else
   echo "FAIL:network_visibility"

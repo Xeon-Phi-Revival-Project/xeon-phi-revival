@@ -4,6 +4,7 @@ set -euo pipefail
 usage() {
   cat >&2 <<'USAGE'
 usage: build-split-root-control.sh --bootstrap-source FILE --payload-source FILE --out-dir DIR
+                                   [--package-repo DIR]
                                    [--cross-compile PREFIX]
 
 Build private split-root control artifacts from explicitly supplied private
@@ -16,12 +17,14 @@ USAGE
 bootstrap_source=""
 payload_source=""
 out_dir=""
+package_repo=""
 cross_compile="${CROSS_COMPILE:-k1om-mpss-linux-}"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --bootstrap-source) bootstrap_source="${2:-}"; shift 2 ;;
     --payload-source) payload_source="${2:-}"; shift 2 ;;
     --out-dir) out_dir="${2:-}"; shift 2 ;;
+    --package-repo) package_repo="${2:-}"; shift 2 ;;
     --cross-compile) cross_compile="${2:-}"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) usage; exit 2 ;;
@@ -29,6 +32,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 [[ -f "$bootstrap_source" && -f "$payload_source" && -n "$out_dir" ]] || { usage; exit 2; }
+[[ -z "$package_repo" || -d "$package_repo" ]] || { echo "package repo not found: $package_repo" >&2; exit 2; }
 [[ ! -e "$out_dir" ]] || { echo "output already exists: $out_dir" >&2; exit 3; }
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -60,11 +64,14 @@ for binary in "$out_dir/xpr-rc-init" "$out_dir/xpr-switch-root"; do
   fi
 done
 
-"$repo_root/tools/release/prepare-xpr-rootfs-payload.sh" \
-  --source "$payload_source" \
-  --rc-init "$out_dir/xpr-rc-init" \
-  --rc-init-script "$repo_root/src/uos/xpr_rc_root_init.sh" \
+payload_args=(
+  --source "$payload_source"
+  --rc-init "$out_dir/xpr-rc-init"
+  --rc-init-script "$repo_root/src/uos/xpr_rc_root_init.sh"
   --out-dir "$out_dir/payload"
+)
+[[ -z "$package_repo" ]] || payload_args+=(--package-repo "$package_repo")
+"$repo_root/tools/release/prepare-xpr-rootfs-payload.sh" "${payload_args[@]}"
 
 python "$repo_root/tools/uos/newc_archive.py" \
   --source "$bootstrap_source" \
@@ -96,5 +103,6 @@ sha256sum "$out_dir/xpr-bootstrap-root.cpio.gz" "$out_dir/xpr-bootstrap-base.cpi
   "$out_dir/payload/xpr-rootfs.cpio.gz" > "$out_dir/SHA256SUMS"
 wc -c "$out_dir/xpr-bootstrap-root.cpio.gz" "$out_dir/xpr-bootstrap-base.cpio.gz" \
   "$out_dir/payload/xpr-rootfs.cpio.gz" > "$out_dir/SIZES"
-printf 'bootstrap_source=%s\npayload_source=%s\n' "$bootstrap_source" "$payload_source" > "$out_dir/inputs.txt"
+printf 'bootstrap_source=%s\npayload_source=%s\npackage_repo=%s\n' \
+  "$bootstrap_source" "$payload_source" "${package_repo:-none}" > "$out_dir/inputs.txt"
 printf 'out_dir=%s\n' "$out_dir"
