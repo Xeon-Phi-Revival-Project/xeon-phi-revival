@@ -1,5 +1,10 @@
 # XPR-OS 0.1.0 RC1 Plan
 
+> [!IMPORTANT]
+> RC1 is superseded by the source-compliance-corrected
+> [RC2](https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc2).
+> This file remains the historical RC1 architecture record.
+
 ## Decision
 
 Status: `SOURCE_BYO_MPSS_RC_PUBLISHED`

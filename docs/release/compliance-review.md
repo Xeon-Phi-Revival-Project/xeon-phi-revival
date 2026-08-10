@@ -13,9 +13,8 @@ does not contain MPSS packages, firmware, kernel images, modules, rootfs images,
 
 The audit found one source-release defect: six tracked eglibc overlay files are
 LGPL-2.1-or-later, but RC1 did not include the LGPL text. Main now includes the
-license text and explicit SPDX markers. The corrected source archive must be
-published as a new prerelease; the existing RC1 archive and hash must not be
-silently replaced.
+license text and explicit SPDX markers. The corrected source archive is
+published as RC2; the existing RC1 archive and hash were not silently replaced.
 
 Canonical's policy also makes the `Ubuntu` trademark inappropriate in the
 product title of an unapproved modified distribution. Generated identity now
@@ -94,10 +93,9 @@ A prebuilt RC cannot be published until it contains or links beside it:
 
 ## Current Verdict
 
-- Corrected source/BYO-MPSS prerelease: `PASS` after repackaging.
+- Corrected source/BYO-MPSS prerelease RC2: `PASS` and published.
 - Existing RC1 source archive: `SUPERSEDED_FOR_LICENSE_TEXT`.
 - Current private prebuilt image: `DO_NOT_PUBLISH`.
 - Highest-value binary-release action: build a clean profile that removes
   Python 3.5, Readline, OpenSSL, copied BusyBox, and unidentified SDK runtimes,
   then rebuild every remaining component from pinned public source.
-

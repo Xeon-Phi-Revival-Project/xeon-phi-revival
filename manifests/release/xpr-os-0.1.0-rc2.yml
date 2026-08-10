@@ -1,11 +1,13 @@
 id: xpr-os-0.1.0-rc2
-status: source-byo-mpss-prerelease-prepared
+status: source-byo-mpss-prerelease-published
 date: "2026-08-10"
 supersedes: xpr-os-0.1.0-rc1
 reason: source-license-and-trademark-compliance-correction
 architecture: k1om
 hardware_evidence_changed: false
 source_release:
+  url: https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc2
+  source_archive_sha256: 25dc3e67c954bb0c48ebea24594da4dac0369607b44097240d7e54b59b89de48
   binary_images_included: false
   intel_mpss_files_included: false
   private_payloads_included: false
