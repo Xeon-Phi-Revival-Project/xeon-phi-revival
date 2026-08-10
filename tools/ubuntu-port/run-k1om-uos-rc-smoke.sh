@@ -39,6 +39,8 @@ uname -a
 cat /etc/os-release
 check uname_machine_k1om test "$(uname -m)" = "k1om"
 check os_id_xpr grep -q '^ID=xpr-uos$' /etc/os-release
+check motd_xpr_os grep -q 'Xeon Phi Revival K1OM uOS' /etc/motd
+check splash_boot_marker grep -q 'XPR_SPLASH_DISPLAYED' /run/xpr-os-init
 check os_like_ubuntu grep -q '^ID_LIKE=ubuntu$' /etc/os-release
 check os_arch_k1om grep -q '^ARCHITECTURE="k1om"$' /etc/os-release
 check pid1_visible test -n "$(cat /proc/1/comm 2>/dev/null)"

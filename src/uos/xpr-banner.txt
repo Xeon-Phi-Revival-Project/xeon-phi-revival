@@ -1,0 +1,10 @@
+ __  ______  ____        ___  ____
+ \ \/ /  _ \|  _ \      / _ \/ ___|
+  \  /| |_) | |_) |____| | | \___ \
+  /  \|  __/|  _ <_____| |_| |___) |
+ /_/\_\_|   |_| \_\     \___/|____/
+
+ Xeon Phi Revival K1OM uOS 0.1
+ Experimental Knights Corner software environment
+ https://github.com/Xeon-Phi-Revival-Project
+

@@ -19,6 +19,7 @@ out_dir=""
 suite="noble"
 version="24.04"
 source_date_epoch="${SOURCE_DATE_EPOCH:-1704067200}"
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -174,6 +175,11 @@ export LD_LIBRARY_PATH=$XPR_ROOT/lib64:${LD_LIBRARY_PATH:-}
 export PYTHONHOME=$XPR_ROOT
 export PYTHONPATH=$XPR_ROOT/lib/python3.12
 EOF
+
+# Keep the release identity deterministic even when an older package root is
+# supplied. Dropbear displays /etc/motd for interactive logins.
+cp "$repo_root/src/uos/xpr-banner.txt" "$rootfs/etc/motd"
+cp "$repo_root/src/uos/xpr-banner.txt" "$rootfs/etc/issue"
 
 cat > "$rootfs/etc/apt/sources.list" <<'EOF'
 deb [trusted=yes arch=k1om] file:/opt/xeon-phi-revival/repo noble main

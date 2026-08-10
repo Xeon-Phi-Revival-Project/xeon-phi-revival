@@ -38,6 +38,8 @@ ARCHITECTURE="k1om"
 ```
 
 - Working `/bin/sh`.
+- XPR-OS ASCII identity banner appears on the boot console and interactive SSH
+  login without contaminating non-interactive SSH output.
 - Basic commands available and tested: `ls`, `cat`, `cp`, `mv`, `rm`, `mkdir`,
   `mount`, `uname`, `ps`, and `env`.
 - Usable `/dev`, `/proc`, `/sys`, `/run`, and writable `/tmp`.

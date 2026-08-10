@@ -1,6 +1,5 @@
 #!/bin/sh
-# Project-owned PID 1 for the full xpr-uOS release-candidate root.
-# Prepared for integration; not yet executed on the candidate-kernel path.
+# Project-owned PID 1 for the full XPR-OS release-candidate root.
 
 PATH=/opt/xeon-phi-revival/bin:/bin:/usr/bin:/usr/sbin
 export PATH
@@ -44,6 +43,14 @@ mark XPR_RC_ROOT_SBIN_INIT_PID1
 printf 'pid=%s\n' "$$" >> /run/xpr-os-init
 uname -m >> /run/xpr-os-init 2>&1 || true
 mark XPR_RC_INIT_MOUNTS_READY
+
+if test -r /etc/motd; then
+    cat /etc/motd > /dev/console 2>/dev/null || true
+    cat /etc/motd >> /run/xpr-os-init 2>/dev/null || true
+    mark XPR_SPLASH_DISPLAYED
+else
+    mark XPR_SPLASH_MISSING
+fi
 
 /usr/bin/xpr-hello >> /run/xpr-os-init 2>&1 || printf '%s\n' XPR_HELLO_FAIL >> /run/xpr-os-init
 /usr/bin/xpr-pthread-smoke >> /run/xpr-os-init 2>&1 || printf '%s\n' XPR_PTHREAD_FAIL >> /run/xpr-os-init

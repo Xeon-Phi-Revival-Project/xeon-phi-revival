@@ -59,6 +59,7 @@ libffi_root="${K1OM_LIBFFI_ROOT:-}"
 version="0.1.0"
 arch="k1om"
 source_date_epoch="${SOURCE_DATE_EPOCH:-1704067200}"
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -339,13 +340,8 @@ EOF
 cat > "$base_data/etc/debian_version" <<'EOF'
 xpr-uos 0.1 noble-derived
 EOF
-cat > "$base_data/etc/issue" <<'EOF'
-Xeon Phi Revival K1OM uOS 0.1 \n \l
-EOF
-cat > "$base_data/etc/motd" <<'EOF'
-Xeon Phi Revival Project
-Unofficial Ubuntu-derived K1OM uOS release candidate for Knights Corner.
-EOF
+cp "$repo_root/src/uos/xpr-banner.txt" "$base_data/etc/issue"
+cp "$repo_root/src/uos/xpr-banner.txt" "$base_data/etc/motd"
 cat > "$base_data/usr/bin/lsb_release" <<'LSBRELEASE'
 #!/bin/sh
 short=0

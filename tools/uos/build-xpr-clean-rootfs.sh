@@ -82,6 +82,8 @@ ID_LIKE=ubuntu
 VERSION_ID="0.1"
 ARCHITECTURE="k1om"
 EOF
+cp "$repo_root/src/uos/xpr-banner.txt" "$rootfs/etc/motd"
+cp "$repo_root/src/uos/xpr-banner.txt" "$rootfs/etc/issue"
 cat > "$rootfs/etc/passwd" <<'EOF'
 root:x:0:0:root:/root:/bin/sh
 EOF
