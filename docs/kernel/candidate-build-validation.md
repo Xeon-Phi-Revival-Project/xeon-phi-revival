@@ -130,3 +130,22 @@ modules, networking, and `CONFIG_HVC_MIC`. This closes the missing-config
 record but does not by itself prove a clean rebuild reproduces `d529...`.
 That comparison and a complete source bundle remain required before binary
 publication.
+
+## 2026-08-10 Tested-Config Rebuild
+
+An isolated build used the retained Solros tree, the retained tested `.config`,
+the local MPSS 3.4.10 K1OM GCC 4.7.0 prefix, and `KBUILD_BUILD_VERSION=1`.
+It completed as a K1OM kernel but did **not** reproduce the hardware-tested
+image:
+
+| Artifact | Tested SHA-256 | Clean rebuild SHA-256 |
+| --- | --- | --- |
+| `bzImage` | `d529aecf0de11e0b4a9a036eb0329d1bb9c907fd6a911ce08a10548c9380d4d8` | `ba6c1a99c88f52264f785ac03ddfa0fae075b4041bbd07be3da047518854f654` |
+| `vmlinux` | `b96b976f2eac4da888edef36fea8234efc97b00160a72da595d5ed048021991e` | `3da0839fd64c0137175aa38ab6c9ac760a7a8c466d3f68a8317016b2fcd392b3` |
+| `System.map` | `631674771d32602354e780209b86f2193ab24f8135056d654b1729f4967834a6` | `a3e1e68f78d697593edd96ad2abca0b3ba8b7f4970236f37be4f9aa1631739d7` |
+
+`oldconfig` normalized the retained input from `20f240...` to
+`57bbada012a7320e655550fe3b93c238ddf9a6f97d35d3b8338f6227e14ac893`.
+The exact historical build environment or pre-`oldconfig` generated state is
+therefore still missing. This confirms the binary release hold: do not publish
+`d529...` as corresponding to the current reproducible source recipe.

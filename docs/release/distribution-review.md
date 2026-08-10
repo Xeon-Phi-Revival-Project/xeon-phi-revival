@@ -40,7 +40,10 @@ The hardware-tested kernel and modules must not be uploaded as a public binary
 release yet. The precise remaining questions are:
 
 1. Can the retained Solros source/config/toolchain reproduce the tested
-   `d529...` kernel, rather than only a related public-source build?
+   `d529...` kernel, rather than only a related public-source build? The
+   2026-08-10 test completed but produced `ba6c1a...`; `oldconfig` changed the
+   retained configuration, so the historical generated/build environment still
+   needs reconstruction.
 2. Does the complete `mpss-modules-3.4.10` source archive contain clear,
    redistributable license/copyright notices for every source file linked into
    each of the five shipped modules, and can that complete corresponding source
