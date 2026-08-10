@@ -408,3 +408,41 @@ restored stock online state, stock SSH, stock init, and configuration hash
 The boot blocker is closed. The remaining barrier to a public prebuilt image is
 component provenance and redistribution review; RC1 is therefore released as a
 source/metadata/BYO-MPSS prerelease rather than a binary rootfs.
+
+## Public-Stack Bootstrap Control: 2026-08-10
+
+This is a new, separate public-stack control and does not change the accepted
+private split-root result above.
+
+The source-built public kernel and a new Base CPIO containing the project
+bootstrap plus only the five source-built K1OM modules were tested through the
+bounded alternate-configuration runner. The final public-root payload was not
+reached.
+
+| Item | Value |
+| --- | --- |
+| Public kernel | `d529aecf0de11e0b4a9a036eb0329d1bb9c907fd6a911ce08a10548c9380d4d8` |
+| System.map | `631674771d32602354e780209b86f2193ab24f8135056d654b1729f4967834a6` |
+| Five-module Base CPIO | `52ed58c3b5980b5ed7cc46cd7c3543331f4881437fa6023984444300056f5620` (8,212,335 bytes) |
+| Public final payload | `9e2904357eae2b522bfe37aea2e79595e95ae9f6571a4a3ba27470e34843b4fc` (6,079,908 bytes) |
+| Generated MPSS ramfs | `8c85d7121344ddf93f434d0833eba81c3183ffd0bc640135dd1759a2bc3160e6` |
+| Candidate state | remained `booting` for 24 bounded polls |
+| Project early-init marker | not observed |
+| Final-root marker | not observed |
+| Rollback | passed |
+
+The console proves the candidate kernel began executing but contains no
+`XPR_CLEAN_ROOT_EARLY_INIT_ENTERED` marker. It reached the MPSS/Poky init
+path instead and then remained unavailable to the host. This classifies the
+first failure as `BOOTSTRAP`: the newly constructed minimal Base CPIO is not
+yet an MPSS-compatible replacement for the accepted Base CPIO layout. It is
+not evidence against the public final root, eglibc, libgcc, Dropbear, or the
+hello/pthread/dlopen probes, because none of those components ran.
+
+The runner restored stock `mic0` to `online`; stock SSH returned `k1om` and
+PID 1 `init`; and `/etc/mpss/mic0.conf` again hashed to
+`9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51`.
+
+The next bounded diagnostic is to compare the accepted 29,578,142-byte Base
+CPIO against this five-module Base CPIO and identify the minimum missing
+early-boot layout or module dependency before another public-stack boot.
