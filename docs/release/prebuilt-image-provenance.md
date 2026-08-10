@@ -19,6 +19,16 @@ OpenSSL 1.0.x are also present and excluded by the public-clean policy. The
 remaining errors are intentionally fail-closed until each executable and
 library has complete source, license, build, and redistribution evidence.
 
+## Clean Replacement Root
+
+The separate public-clean root assembler has been exercised with only
+project-owned files, the pinned source-built BusyBox, and pinned source-built
+Dropbear. It produced 35 files, passed `audit-prebuilt-image.py --stage
+candidate` with zero findings, and generated valid SPDX JSON. This is a
+technical candidate gate, not publication approval and not a bootable image:
+the kernel, modules, eglibc runtime, and `libgcc_s` are intentionally absent
+until their corresponding-source records are complete.
+
 ## Components With Exact Cached Source Evidence
 
 The source ledger records exact hashes for these locally cached upstream

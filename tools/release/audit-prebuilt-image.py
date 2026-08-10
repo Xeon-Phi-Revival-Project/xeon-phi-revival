@@ -102,6 +102,8 @@ def main():
     parser.add_argument("--ledger", required=True)
     parser.add_argument("--output", required=True)
     parser.add_argument("--sbom", help="SPDX JSON emitted by generate-spdx-sbom.py")
+    parser.add_argument("--stage", choices=("publication", "candidate"), default="publication",
+                        help="candidate accepts only explicitly candidate-approved components; publication is stricter")
     parser.add_argument("--allow-optional", action="store_true",
                         help="permit explicitly approved optional legacy components")
     args = parser.parse_args()
@@ -119,7 +121,7 @@ def main():
                   "kind": entry["kind"]}
         component = match_component(path, components)
         is_exec = bool(entry["mode"] & stat.S_IXUSR)
-        binary_or_script = is_elf(payload) or payload.startswith(b"#!") or is_exec
+        binary_or_script = entry["kind"] != "symlink" and (is_elf(payload) or payload.startswith(b"#!") or is_exec)
         if is_elf(payload):
             record.update(elf_details(payload))
             binary_or_script = True
@@ -131,7 +133,8 @@ def main():
                 for field in REQUIRED:
                     if not component.get(field):
                         errors.append("%s lacks %s for %s" % (component.get("id"), field, path))
-                if component.get("redistribution") != "publish":
+                permitted = ("publish",) if args.stage == "publication" else ("publish", "candidate")
+                if component.get("redistribution") not in permitted:
                     errors.append("%s is not approved for publication: %s" % (component.get("id"), path))
                 if args.sbom and component.get("spdx_id") not in sbom_ids:
                     errors.append("%s has no SPDX package entry" % component.get("id"))
