@@ -79,7 +79,7 @@ micctrl --status | grep -q "$mic: online"
 ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=8 \
   "$mic" 'uname -m; cat /proc/1/comm' > "$run/stock-preflight.txt"
 grep -Eq '^(k1om|x86_64)$' "$run/stock-preflight.txt"
-grep -Eq '^(init|systemd)$' "$run/stock-preflight.txt"
+grep -Eq '^(init|systemd|busybox)$' "$run/stock-preflight.txt"
 sha256sum "$base" "$kernel" "$map" "$stock_conf" > "$run/input.sha256"
 if [[ -n "$payload" ]]; then
   payload_sha=$(sha256sum "$payload" | awk '{print $1}')
