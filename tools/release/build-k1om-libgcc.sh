@@ -5,7 +5,7 @@ set -euo pipefail
 usage() {
     cat <<'EOF'
 Usage: build-k1om-libgcc.sh --gcc ARCHIVE --gmp ARCHIVE --mpfr ARCHIVE --mpc ARCHIVE \
-       --crt-dir DIR --sysroot DIR --target-tools DIR --out DIR [--jobs N]
+       --crt-dir DIR --sysroot DIR --linux-headers DIR --target-tools DIR --out DIR [--jobs N]
 
 All inputs are explicit. CRT objects must come from the source-built eglibc
 stage; the script never copies a runtime object from MPSS into its output.
@@ -13,7 +13,7 @@ EOF
 }
 
 gcc_archive= gmp_archive= mpfr_archive= mpc_archive=
-crt_dir= sysroot= target_tools= out= jobs=2
+crt_dir= sysroot= linux_headers= target_tools= out= jobs=2
 while [ "$#" -gt 0 ]; do
     case "$1" in
         --gcc) gcc_archive=$2; shift 2 ;;
@@ -22,6 +22,7 @@ while [ "$#" -gt 0 ]; do
         --mpc) mpc_archive=$2; shift 2 ;;
         --crt-dir) crt_dir=$2; shift 2 ;;
         --sysroot) sysroot=$2; shift 2 ;;
+        --linux-headers) linux_headers=$2; shift 2 ;;
         --target-tools) target_tools=$2; shift 2 ;;
         --out) out=$2; shift 2 ;;
         --jobs) jobs=$2; shift 2 ;;
@@ -30,7 +31,7 @@ while [ "$#" -gt 0 ]; do
     esac
 done
 
-for required in "$gcc_archive" "$gmp_archive" "$mpfr_archive" "$mpc_archive" "$crt_dir" "$sysroot" "$target_tools" "$out"; do
+for required in "$gcc_archive" "$gmp_archive" "$mpfr_archive" "$mpc_archive" "$crt_dir" "$sysroot" "$linux_headers" "$target_tools" "$out"; do
     [ -n "$required" ] || { usage >&2; exit 2; }
 done
 for archive in "$gcc_archive" "$gmp_archive" "$mpfr_archive" "$mpc_archive"; do
@@ -43,13 +44,16 @@ done
 case "$sysroot" in
     /opt/mpss/*) echo "MPSS sysroots are forbidden: use the source-built eglibc stage" >&2; exit 1 ;;
 esac
+[ -f "$linux_headers/linux/errno.h" ] || { echo "missing public Linux UAPI headers" >&2; exit 1; }
 [ -x "$target_tools/k1om-mpss-linux-nm" ] || { echo "missing target nm: $target_tools/k1om-mpss-linux-nm" >&2; exit 1; }
 [ -x "$target_tools/k1om-mpss-linux-as" ] || { echo "missing target assembler" >&2; exit 1; }
 [ -x "$target_tools/k1om-mpss-linux-ld" ] || { echo "missing target linker" >&2; exit 1; }
 [ ! -e "$out" ] || { echo "output already exists: $out" >&2; exit 1; }
 
-mkdir -p "$out/work" "$out/build" "$out/install/k1om-mpss-linux/lib"
+mkdir -p "$out/work" "$out/build" "$out/install/k1om-mpss-linux/lib" "$out/sysroot"
 trap 'rm -rf "$out/work"' EXIT
+cp -a "$sysroot"/. "$out/sysroot"/
+cp -a "$linux_headers"/. "$out/sysroot/usr/include"/
 tar -C "$out/work" -xf "$gcc_archive"
 tar -C "$out/work" -xf "$gmp_archive"
 tar -C "$out/work" -xf "$mpfr_archive"
@@ -79,6 +83,7 @@ printf 'mpfr_sha256=%s\n' "$(sha256sum "$mpfr_archive" | awk '{print $1}')" >> "
 printf 'mpc_sha256=%s\n' "$(sha256sum "$mpc_archive" | awk '{print $1}')" >> "$out/build-provenance.txt"
 printf 'crt_dir=%s\n' "$crt_dir" >> "$out/build-provenance.txt"
 printf 'sysroot=%s\n' "$sysroot" >> "$out/build-provenance.txt"
+printf 'linux_headers=%s\n' "$linux_headers" >> "$out/build-provenance.txt"
 
 # Configure must see target binutils. Without this, GCC 5.1.1 emits an nm
 # wrapper with an empty ORIGINAL_NM_FOR_TARGET and then executes `-p`.
@@ -90,7 +95,7 @@ pushd "$out/build" >/dev/null
     --disable-multilib --disable-bootstrap --disable-libssp --disable-libgomp \
     --disable-libmudflap --disable-libitm --disable-libsanitizer --disable-nls \
     --with-system-zlib --with-as="$target_tools/k1om-mpss-linux-as" \
-    --with-ld="$target_tools/k1om-mpss-linux-ld" --with-sysroot="$sysroot" \
+    --with-ld="$target_tools/k1om-mpss-linux-ld" --with-sysroot="$out/sysroot" \
     > "$out/configure.log" 2>&1
 make -j"$jobs" all-gcc all-target-libgcc > "$out/build.log" 2>&1
 grep -F 'ORIGINAL_NM_FOR_TARGET="' gcc/nm | grep -F 'k1om-mpss-linux-nm"' > /dev/null || {

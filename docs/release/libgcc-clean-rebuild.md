@@ -28,6 +28,7 @@ tools/release/build-k1om-libgcc.sh \
   --mpc mpc-0.8.1.tar.gz \
   --crt-dir /private/eglibc-stage/usr/lib \
   --sysroot /private/eglibc-stage \
+  --linux-headers /private/solros-kernel-headers/usr/include \
   --target-tools /opt/mpss/3.4.10/sysroots/x86_64-mpsssdk-linux/usr/bin/k1om-mpss-linux \
   --out /private/libgcc-k1om
 ```
