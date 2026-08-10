@@ -20,11 +20,12 @@ actual Xeon Phi system before being treated as project facts.
 > [!NOTE]
 > **XPR-OS 0.1.0-rc1 hardware gates passed - August 10, 2026**
 >
-> The project-controlled split-root path now reaches the final root with project
-> PID 1, micveth, Dropbear SSH, native package management, Python 3.12, and the
-> full release smoke suite. Reproducible private builds and stock rollback also
-> passed. Public distribution is currently limited to source, metadata, and a
-> bring-your-own-MPSS builder while binary redistribution review continues.
+> The source-accounted public-clean split-root stack now reaches the final root
+> with project PID 1, micveth, Dropbear SSH, `/dev`, and native
+> hello/pthread/dlopen smokes across three identical rollback-protected boots.
+> Public distribution remains limited to source, metadata, and a
+> bring-your-own-MPSS builder while kernel/module corresponding-source and final
+> binary redistribution review continue.
 
 ## Start Here
 

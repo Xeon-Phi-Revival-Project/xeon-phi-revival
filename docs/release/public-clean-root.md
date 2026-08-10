@@ -43,6 +43,7 @@ python tools/release/audit-prebuilt-image.py \
 ```
 
 `--stage candidate` permits only components explicitly marked as technical
-candidates; the default `publication` stage still rejects them. Do not use this
-root for a hardware boot yet: it lacks the independently reconstructed kernel,
-modules, and libc/runtime stack.
+candidates; the default `publication` stage still rejects them. This root has
+completed the three-boot hardware validation gate with the independently
+rebuilt runtime, kernel, and module test artifacts. It is still not publishable
+until the kernel/module corresponding-source and human-review gates pass.

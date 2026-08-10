@@ -2,10 +2,11 @@
 
 ## Current Status - Active Development
 
-Development is active. The XPR-OS 0.1 private image passed its final-root
-hardware gate on August 10, 2026. The corrected public source/BYO-MPSS release
-is RC2. The remaining prebuilt-image work is source provenance, reproducible
-binary rebuilding, and redistribution compliance, not boot-path debugging.
+Development is active. On August 10, 2026, the source-accounted public-clean
+XPR-OS stack passed three identical final-root hardware boots with SSH, native
+smokes, and verified rollback. The corrected public source/BYO-MPSS release is
+RC2. The remaining prebuilt-image work is corresponding-source provenance and
+redistribution compliance, not boot-path debugging.
 
 The corrected source/metadata/BYO-MPSS prerelease is published at
 <https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc2>.
@@ -25,6 +26,14 @@ Current active state:
   `8a410d8577971068888f46cee66b7b6020f675144f9d0cafc6a79efce53b7520`
 - Stock configuration baseline:
   `9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51`
+
+## Latest Public-Clean Stack Validation
+
+The current clean payload completed three rollback-protected boots with the
+same kernel, Base CPIO, and payload hashes. Final project PID 1, micveth,
+final-root Dropbear SSH, `/dev`, hello, pthread, and `dlopen` all passed. The
+exact evidence and publication boundary are in
+[Public-Clean Stack Hardware Validation](release/public-clean-stack-validation.md).
 
 The accepted split-root path includes the independent KNC-compatible kernel and
 five rebuilt modules, project early init, payload transfer with byte and
@@ -79,8 +88,9 @@ Current execution checklist:
 2. Preserve exact private artifact hashes and sanitized hardware evidence.
 3. Complete per-file provenance and copyleft source-offer material before any
    prebuilt binary release.
-4. Rebuild and rerun the full suite with the banner, PTY, and Python-site fixes.
-5. Repeat the exact publishable artifact on additional compatible KNC hardware
+4. Complete corresponding-source/provenance bundles for the kernel and modules
+   before any binary publication.
+5. Repeat the eventual publishable artifact on additional compatible KNC hardware
    when available.
 
 Safety remains unchanged: no firmware, ROM, flash, or persistent card-storage

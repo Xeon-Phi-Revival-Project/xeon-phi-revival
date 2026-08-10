@@ -20,6 +20,7 @@ later.
 
 ## Release Evidence
 
+- [Public-clean stack three-boot validation](release/public-clean-stack-validation.md)
 - [XPR-OS 0.1 RC live report](ubuntu-port/xpr-uos-0.1-rc-live-report.md)
 - [RC acceptance checklist](ubuntu-port/uos-rc-acceptance-checklist.md)
 - [RC2 release notes](release/xpr-os-0.1.0-rc2-release-notes.md)

@@ -95,7 +95,11 @@ A prebuilt RC cannot be published until it contains or links beside it:
 
 - Corrected source/BYO-MPSS prerelease RC2: `PASS` and published.
 - Existing RC1 source archive: `SUPERSEDED_FOR_LICENSE_TEXT`.
-- Current private prebuilt image: `DO_NOT_PUBLISH`.
+- Current private prebuilt image: `TECHNICALLY_VALIDATED_DO_NOT_PUBLISH`.
+- The source-accounted clean stack passed three identical hardware boots with
+  final PID 1, SSH, native hello/pthread/dlopen, and stock rollback. This does
+  not clear binary redistribution; the kernel and module corresponding-source
+  blockers below still apply.
 - The August private-payload audit has 2,916 files and 2,448 fail-closed
   findings. Its public-clean profile excludes Python 3.5, Readline, and
   OpenSSL 1.0.x. BusyBox is now technically reproducible byte-for-byte.

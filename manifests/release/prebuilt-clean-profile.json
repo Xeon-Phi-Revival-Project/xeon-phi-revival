@@ -1,7 +1,7 @@
 {
   "schema": "xpr-prebuilt-profile-v1",
   "profile": "xpr-k1om-uos-public-clean",
-  "status": "evidence-incomplete-not-publishable",
+  "status": "hardware-validated-provenance-incomplete-not-publishable",
   "policy": {
     "exclude": ["Python 3.5", "GNU Readline", "OpenSSL 1.0.x", "Intel MPSS binaries", "Intel firmware", "MPSS sysroots", "private keys"],
     "require_reproducible_source": true,
