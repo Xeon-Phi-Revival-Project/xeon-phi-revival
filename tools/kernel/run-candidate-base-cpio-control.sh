@@ -2,10 +2,10 @@
 set -euo pipefail
 
 usage() {
-  echo "usage: $0 --base FILE --kernel FILE --map FILE --expected-stock-sha SHA256 [--payload FILE] [--mic mic0] [--out-root DIR]" >&2
+  echo "usage: $0 --base FILE --kernel FILE --map FILE --expected-stock-sha SHA256 [--payload FILE] [--mic mic0] [--out-root DIR] [--leave-running]" >&2
 }
 
-base=""; kernel=""; map=""; expected_stock_sha=""; payload=""; mic="mic0"
+base=""; kernel=""; map=""; expected_stock_sha=""; payload=""; mic="mic0"; leave_running=0; completed_success=0
 out_root="${HOME}/xpr-candidate-kernel-test"
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -16,6 +16,7 @@ while [[ $# -gt 0 ]]; do
     --payload) payload="$2"; shift 2 ;;
     --mic) mic="$2"; shift 2 ;;
     --out-root) out_root="$2"; shift 2 ;;
+    --leave-running) leave_running=1; shift ;;
     *) usage; exit 2 ;;
   esac
 done
@@ -38,6 +39,10 @@ capture_host_evidence() {
 
 restore_stock() {
   set +e
+  if [[ "$leave_running" == 1 && "$completed_success" == 1 ]]; then
+    echo "XPR_CONTROL_LEFT_RUNNING"
+    return
+  fi
   echo "XPR_CONTROL_ROLLBACK_BEGIN"
   if [[ -n "$console_pid" ]]; then
     kill "$console_pid" >/dev/null 2>&1 || true
@@ -172,3 +177,4 @@ if [[ -n "$payload" ]]; then
 else
   [[ "$online" == 1 && "$project_ssh" == 1 ]]
 fi
+completed_success=1
