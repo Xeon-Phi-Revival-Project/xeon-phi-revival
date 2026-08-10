@@ -57,9 +57,11 @@ SSE, conditional-move, xgetbv, or TSX behavior.
 
 The builder now explicitly selects `nptl,ports`; default add-on detection also
 enabled the obsolete `libpthread` add-on, which is incompatible with the NPTL
-callback ABI. The NPTL-only build reaches the final `libc.so` link. Its first
-unresolved symbol was `__strncasecmp`, addressed by the tracked generic K1OM
-fallback. The next clean build is the validation point for that final-link fix.
+callback ABI. The NPTL-only build links `libc.so` successfully after selecting
+the correctly named generic `strncase.c` target for the `__strncasecmp` alias.
+It continues into later iconv and math objects. The next failure is
+`fraiseexcpt.c`, where the inherited x86-64 code uses scalar SSE `divss`; it
+requires a K1OM x87-specific fallback.
 
 This is a source-level K1OM overlay issue. No binary from the private runtime
 was copied into the public profile, and no hardware test is warranted yet.
