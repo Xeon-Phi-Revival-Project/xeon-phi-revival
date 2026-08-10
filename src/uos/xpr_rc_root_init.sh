@@ -36,19 +36,31 @@ auth_stat() {
     auth_diag "$1=$(/bin/busybox stat -c '%a:%u:%g' "$2" 2>/dev/null || printf MISSING)"
 }
 
+ensure_char_device() {
+    path=$1
+    mode=$2
+    major=$3
+    minor=$4
+    test -c "$path" && return 0
+    test -e "$path" && /bin/busybox rm -f "$path"
+    /bin/busybox mknod -m "$mode" "$path" c "$major" "$minor" 2>/dev/null || true
+    test -c "$path"
+}
+
 mkdir -p /proc /sys /dev /run /tmp /etc /var/log/xeon-phi-revival
 mount -t proc proc /proc 2>/dev/null || true
 mount -t sysfs sysfs /sys 2>/dev/null || true
 mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
 mkdir -p /dev/pts
 mount -t devpts devpts /dev/pts 2>/dev/null || true
-test -c /dev/console || /bin/busybox mknod -m 600 /dev/console c 5 1
-test -c /dev/null || /bin/busybox mknod -m 666 /dev/null c 1 3
-test -c /dev/zero || /bin/busybox mknod -m 666 /dev/zero c 1 5
-test -c /dev/random || /bin/busybox mknod -m 666 /dev/random c 1 8
-test -c /dev/urandom || /bin/busybox mknod -m 666 /dev/urandom c 1 9
+ensure_char_device /dev/console 600 5 1 || true
+ensure_char_device /dev/null 666 1 3 || true
+ensure_char_device /dev/zero 666 1 5 || true
+ensure_char_device /dev/random 666 1 8 || true
+ensure_char_device /dev/urandom 666 1 9 || true
 # KNC's devtmpfs does not supply ptmx; Dropbear needs the legacy Unix98 node.
-test -c /dev/ptmx || /bin/busybox mknod -m 666 /dev/ptmx c 5 2
+ensure_char_device /dev/ptmx 666 5 2 || true
+test -c /dev/null && mark XPR_DEV_NULL_READY || mark XPR_DEV_NULL_MISSING
 mount -t tmpfs -o mode=0755 tmpfs /run 2>/dev/null || true
 mount -t tmpfs -o mode=1777 tmpfs /tmp 2>/dev/null || chmod 1777 /tmp
 hostname xpr-uos
@@ -95,9 +107,9 @@ mark XPR_DROPBEAR_AUTH_DIAG_BEGIN
 grep -q '^root:[^:]*:0:0:[^:]*:/root:/bin/sh$' /etc/passwd 2>/dev/null \
     && mark XPR_ROOT_ACCOUNT_OK || mark XPR_ROOT_ACCOUNT_BAD
 test -x /bin/sh && mark XPR_ROOT_SHELL_OK || mark XPR_ROOT_SHELL_BAD
-grep -qx '/bin/sh' /etc/shells 2>/dev/null && mark XPR_ROOT_SHELL_LISTED || mark XPR_ROOT_SHELL_UNLISTED
+grep -q '^/bin/sh$' /etc/shells 2>/dev/null && mark XPR_ROOT_SHELL_LISTED || mark XPR_ROOT_SHELL_UNLISTED
 test -e /lib64/libnss_files.so.2 && mark XPR_NSS_FILES_PRESENT || mark XPR_NSS_FILES_MISSING
-grep -qx 'passwd: files' /etc/nsswitch.conf 2>/dev/null && mark XPR_NSS_PASSWD_FILES || mark XPR_NSS_PASSWD_UNCONFIGURED
+grep -q '^passwd: files$' /etc/nsswitch.conf 2>/dev/null && mark XPR_NSS_PASSWD_FILES || mark XPR_NSS_PASSWD_UNCONFIGURED
 test -e /etc/shadow && mark XPR_ROOT_SHADOW_PRESENT || mark XPR_ROOT_SHADOW_ABSENT
 test -f /root/.ssh/authorized_keys && mark XPR_AUTHORIZED_KEYS_FOUND || mark XPR_AUTHORIZED_KEYS_MISSING
 auth_stat XPR_ROOT_MODE /root
