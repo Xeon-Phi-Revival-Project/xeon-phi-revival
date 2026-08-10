@@ -149,3 +149,22 @@ image:
 The exact historical build environment or pre-`oldconfig` generated state is
 therefore still missing. This confirms the binary release hold: do not publish
 `d529...` as corresponding to the current reproducible source recipe.
+
+## Binary Differential Result
+
+The retained and normalized `.config` files differ only in the generated
+timestamp comment. The kernel difference is consequently not explained by that
+timestamp or by `bzImage` compression metadata. A section-level comparison of
+the two `vmlinux` files found different executable and semantic-data sections:
+
+| Section | Tested | Clean rebuild | Result |
+| --- | --- | --- | --- |
+| `.text` | 3,526,555 bytes | 3,526,555 bytes | same size, different SHA-256 |
+| `.rodata` | 1,183,906 bytes | 1,215,154 bytes | size and content differ |
+| `__modver` | 2,736 bytes | 4,256 bytes | size and content differ |
+| `.init.text`, `.init.data`, `.data` | same sizes | same sizes | different SHA-256 values |
+
+The clean build did use the same K1OM GCC major version, but these differences
+show that an unrecorded source-tree, generated-header, or build-environment
+input affected code generation or linked content. The exact `d529...` kernel
+is therefore not yet reproducibly attributable to the current source recipe.

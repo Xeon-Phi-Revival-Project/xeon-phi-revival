@@ -42,8 +42,9 @@ release yet. The precise remaining questions are:
 1. Can the retained Solros source/config/toolchain reproduce the tested
    `d529...` kernel, rather than only a related public-source build? The
    2026-08-10 test completed but produced `ba6c1a...`; `oldconfig` changed the
-   retained configuration, so the historical generated/build environment still
-   needs reconstruction.
+   retained configuration's timestamp only. Its `.text`, `.rodata`, and
+   `__modver` sections also differ, so the historical generated/source/build
+   environment still needs reconstruction.
 2. Does the complete `mpss-modules-3.4.10` source archive contain clear,
    redistributable license/copyright notices for every source file linked into
    each of the five shipped modules, and can that complete corresponding source
