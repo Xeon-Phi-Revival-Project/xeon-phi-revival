@@ -361,3 +361,50 @@ bounded runner now captures `/dev/ttyMIC0`, a MIC-focused host `dmesg` tail,
 and available ramoops files before rollback. Repeat once with unchanged kernel,
 modules, bootstrap, and payload; use those artifacts only to identify the
 earliest reset-visible stage.
+
+## Final Split-Root Acceptance Result
+
+Date: 2026-08-10
+
+This section supersedes the active blocker described above while preserving the
+earlier experiment record. The failure was resolved with a static project
+switch-root helper, a static final-init trampoline, inherited durable logging,
+final-root Dropbear takeover, and the missing BusyBox package-manager applets.
+
+Accepted private artifacts:
+
+| Item | Result |
+| --- | --- |
+| Candidate kernel | `0450c4370fb9c023c5229274d9a7a5cc02b8a37838c3220a0c714fc602cb2505` |
+| Bootstrap root | `46fde82d0f5a0afe91719d1266c6e1151ec2b945fb78f96a3af669b1d38ff4f3` (6,071,745 bytes) |
+| Base CPIO | `42b7560f8dcc277f1d976e40db57668caedb749125e66171281ea8ba755e3bef` (29,578,142 bytes) |
+| Final-root payload | `8a410d8577971068888f46cee66b7b6020f675144f9d0cafc6a79efce53b7520` (77,582,489 bytes) |
+| Candidate online | passed |
+| Final project PID 1 | passed |
+| Final-root micveth and SSH | passed |
+| Full release smoke | passed |
+| Local package reinstall | passed |
+| Stock rollback | passed |
+
+The exact marker chain included:
+
+```text
+XPR_SWITCH_HELPER_ENTERED
+XPR_SWITCH_HELPER_CHDIR_OK
+XPR_SWITCH_HELPER_MOVE_ROOT_OK
+XPR_SWITCH_HELPER_CHROOT_OK
+XPR_RC_TRAMPOLINE_ENTERED
+XPR_RC_INIT_ENTERED
+XPR_RC_ROOT_SBIN_INIT_PID1
+```
+
+The final smoke verified K1OM identity, `xpr-uos`, filesystems, final-root SSH,
+native hello and pthread, Python 3.12.13, `ctypes`, zlib, ncurses, dpkg query
+operations, local APT update, and a clean reinstall of `xpr-pci-tools`. Two
+clean builds reproduced the generated artifact hashes exactly. Rollback
+restored stock online state, stock SSH, stock init, and configuration hash
+`9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51`.
+
+The boot blocker is closed. The remaining barrier to a public prebuilt image is
+component provenance and redistribution review; RC1 is therefore released as a
+source/metadata/BYO-MPSS prerelease rather than a binary rootfs.

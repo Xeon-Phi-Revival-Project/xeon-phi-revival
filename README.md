@@ -17,12 +17,13 @@ collaboration with OpenAI Codex/ChatGPT, with hardware results validated on the
 actual Xeon Phi system before being treated as project facts.
 
 > [!NOTE]
-> **Active development resumed - August 8, 2026**
+> **XPR-OS 0.1.0-rc1 hardware gates passed - August 10, 2026**
 >
-> Current work is focused on durable evidence across the split-root
-> `switch_root` transition. RC1 remains unreleased until the final project root,
-> networking, SSH, smoke tests, reproducibility, and rollback gates pass on
-> hardware.
+> The project-controlled split-root path now reaches the final root with project
+> PID 1, micveth, Dropbear SSH, native package management, Python 3.12, and the
+> full release smoke suite. Reproducible private builds and stock rollback also
+> passed. Public distribution is currently limited to source, metadata, and a
+> bring-your-own-MPSS builder while binary redistribution review continues.
 
 ## Start Here
 
@@ -110,9 +111,16 @@ Ubuntu-style package experiments:
   updates from the local Noble-style `file:` repository, resolves dependencies,
   and drove real dpkg through a complete isolated 36-package install. This is a
   compatibility bridge; it is not Noble APT or an upstream Ubuntu port.
-- The first `xpr-uos` 0.1 release-candidate root and split-root payload flow
-  are built privately. The small bootstrap path and payload transfer pass, but
-  the full RC PID 1 handoff has not been proven on hardware.
+- The `xpr-uos` 0.1.0-rc1 split-root path is proven on a Xeon Phi 5110P. A
+  project-built compatibility kernel boots a small bootstrap, transfers and
+  verifies the final payload, performs the project-owned root transition, and
+  starts the final BusyBox-based project init as PID 1.
+- The final root passed micveth networking, project Dropbear SSH, native hello
+  and pthread tests, Python 3.12.13 with `ctypes`, local APT metadata refresh,
+  and a clean `apt-get install --reinstall xpr-pci-tools` transaction.
+- Two clean builds produced identical bootstrap, Base CPIO, and payload hashes.
+  Automatic rollback restored stock MPSS, stock SSH, and the exact baseline
+  configuration hash.
 
 See `docs/status.md` and `docs/ubuntu-port/` for the latest public-safe
 reports.
@@ -140,16 +148,16 @@ minimum pieces are reproducible and tested:
   Intel MPSS payloads, extracted sysroots, firmware, private rootfs images, or
   uncertain-redistribution binaries.
 
-The previous narrow blocker, `libpthread`, has now passed in the side-by-side
+The previous narrow blocker, `libpthread`, passed in the side-by-side
 Ubuntu-source eglibc 2.19 probe: K1OM `ld-linux-k1om.so.2`, `libc.so.6`, and
 `libpthread.so.0` ran a dynamic hello and pthread smoke on real uOS. The package
 builder can also produce deterministic eglibc-backed libc packages, and the
 36-package live gate now passes after rebuilding the core payloads against that
 runtime. The final gate verified Ubuntu/K1OM identity, APT/dpkg paths,
 `python3`/`python` as Python 3.12.13, `_ctypes`, zlib/ncurses/runtime-library
-smokes, filesystem/OS smokes, and stock rollback. The next blocker is packaging
-the remaining Python 3.12 optional extension dependencies and broadening the
-minimal rootfs service/filesystem surface.
+smokes, filesystem/OS smokes, and stock rollback. The current release boundary
+is legal and provenance review for a downloadable binary image; optional Python
+extensions remain documented non-blockers for the source/BYO-MPSS RC.
 
 ## What You Can Do Today
 
@@ -279,11 +287,13 @@ license, and redistribution decision. See the
 Phase 1 is complete: a real Xeon Phi 5110P moved from PCIe enumeration and MPSS
 bring-up to repeatable native K1OM program execution.
 
-The private package/runtime profile has passed its documented Python, libc,
-networking, SSH, and rollback tests. The minimal project bootstrap, project
-PID 1, and split-root payload transfer are proven. The current RC boundary is
-the handoff after `XPR_SWITCH_REQUEST_WRITTEN`; no full RC PID 1 or RC SSH
-result is claimed. See [the latest experimental boot results](docs/kernel/experimental-boot-results.md).
+The private package/runtime profile passed its documented Python, libc,
+networking, SSH, package-manager, and rollback tests. The split-root transition
+and final project PID 1 are proven. The current public-release boundary is
+redistribution: source, metadata, and BYO-MPSS tooling may be released now, but
+the private kernel, modules, bootstrap, package repository, and rootfs are not
+public artifacts. See [the RC1 plan](docs/release/xpr-os-0.1.0-rc1-plan.md) and
+[latest experimental boot results](docs/kernel/experimental-boot-results.md).
 
 The earlier non-eglibc package set demonstrated OpenSSL-backed Python modules,
 SQLite, curses, terminfo, libffi, and `_ctypes`; the later eglibc-backed RC gate

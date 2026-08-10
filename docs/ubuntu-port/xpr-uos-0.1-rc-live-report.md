@@ -1,22 +1,63 @@
 # Xeon Phi Revival uOS 0.1 RC Live Report
 
-Date: 2026-07-30
+Date: 2026-08-10
 
 ## Result
 
-Status: passed live on `mic0`.
+Status: split-root final-root gate passed live on `mic0`.
 
-The first release-candidate pipeline produced a coherent private K1OM rootfs,
-booted the project profile through the supported MPSS/MicDir lane, ran the RC
-smoke test over SSH, and rolled back to stock MPSS.
+The release-candidate pipeline produced a coherent private K1OM rootfs, booted
+the project compatibility kernel and bootstrap through MPSS, transferred the
+checksummed final-root payload, entered that root with project PID 1, ran the
+full RC smoke test over final-root SSH, and rolled back to stock MPSS.
 
 This is a minimal Ubuntu-derived K1OM uOS release candidate. It is not an
 official Ubuntu, Canonical, or Intel release, and it does not replace the stock
-kernel, firmware, host MPSS driver, or the stock-init networking handoff.
+firmware or host MPSS driver. The accepted path does not hand off to stock card
+init or stock card-side SSH.
 
-## Reviewed Baseline
+## Accepted Split-Root Artifacts
 
-Latest repository commit reviewed before this work:
+```text
+candidate_kernel_sha256=0450c4370fb9c023c5229274d9a7a5cc02b8a37838c3220a0c714fc602cb2505
+bootstrap_root_sha256=46fde82d0f5a0afe91719d1266c6e1151ec2b945fb78f96a3af669b1d38ff4f3
+base_cpio_sha256=42b7560f8dcc277f1d976e40db57668caedb749125e66171281ea8ba755e3bef
+final_payload_sha256=8a410d8577971068888f46cee66b7b6020f675144f9d0cafc6a79efce53b7520
+bootstrap_root_bytes=6071745
+base_cpio_bytes=29578142
+final_payload_bytes=77582489
+```
+
+Two clean builds produced identical generated hashes. The accepted hardware
+run directory was
+`/root/xpr-candidate-kernel-test/base-cpio-control-20260810-002900` and its
+summary was:
+
+```text
+online=1
+project_ssh=1
+switched=1
+smoke=1
+```
+
+The handoff markers proved the transition through the project helper and final
+init trampoline:
+
+```text
+XPR_SWITCH_HELPER_ENTERED
+XPR_SWITCH_HELPER_CHDIR_OK
+XPR_SWITCH_HELPER_MOVE_ROOT_OK
+XPR_SWITCH_HELPER_CHROOT_OK
+XPR_RC_TRAMPOLINE_ENTERED
+XPR_RC_INIT_ENTERED
+XPR_RC_ROOT_SBIN_INIT_PID1
+```
+
+Final PID 1 was BusyBox executing `/sbin/xpr-rc-init.sh`, as designed.
+
+## Earlier MicDir Baseline
+
+The earlier July 30 MicDir profile result began from:
 
 ```text
 1b6d76e Document passing eglibc K1OM package gate
@@ -28,7 +69,7 @@ Active MPSS config hash checked before live modification:
 9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51
 ```
 
-## Private Build Artifacts
+## Earlier Private Build Artifacts
 
 Private RC build run:
 
@@ -64,24 +105,13 @@ The generated rootfs and `.deb` repository are private artifacts. They are not
 committed because they can contain locally supplied MPSS/K1OM material and
 generated binaries that require redistribution review.
 
-## Live Run
+## Final Smoke Evidence
 
-Private live run:
+The final-root card presented K1OM and the project identity. The comprehensive
+smoke suite retained all checks below and additionally proved the project
+switch-root marker chain and final-root PID 1.
 
-```text
-/root/xeon-phi-revival-local/uos-rc-live-runs/xpr-uos-rc-live-20260730-053936
-```
-
-Live summary:
-
-```text
-status=passed
-ssh=passed
-package_install=passed
-rollback=passed
-```
-
-The card presented:
+The kernel presented:
 
 ```text
 Linux unknownf48e38c1a578-mic0.home 2.6.38.8+mpss3.4.10 #1 SMP Thu Jan 12 16:38:30 EST 2017 k1om GNU/Linux
@@ -99,8 +129,6 @@ VERSION="0.1 release candidate"
 VERSION_CODENAME=noble
 ARCHITECTURE="k1om"
 ```
-
-## Smoke Evidence
 
 The RC smoke test passed these checks:
 
@@ -189,7 +217,8 @@ These were explicitly treated as non-blocking for RC 0.1. `_ssl` and
 
 ## Rollback
 
-Rollback verified stock MPSS recovery:
+Rollback verified stock MPSS recovery, stock SSH, stock PID 1, and exact
+configuration-hash restoration:
 
 ```text
 stock_ssh_ok
@@ -201,9 +230,8 @@ apt_get_absent
 init
 ```
 
-As seen in earlier MPSS runs, `micctrl --boot` printed `Boot failed - card
-state online` during rollback, but immediate status and SSH checks showed
-`mic0` online and stock rollback complete.
+The accepted final run restored configuration hash
+`9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51`.
 
 ## Remaining Blockers To A Public Downloadable uOS
 

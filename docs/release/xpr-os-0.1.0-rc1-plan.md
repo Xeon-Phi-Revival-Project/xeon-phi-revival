@@ -1,76 +1,93 @@
 # XPR-OS 0.1.0 RC1 Plan
 
-## Release Architecture
+## Decision
 
-`SPLIT_PAYLOAD_REQUIRED` for RC1.
+Status: `SOURCE_BYO_MPSS_RC_READY`
 
-The reproducible boot artifact remains the proven small candidate Base CPIO
-and project root. The full Ubuntu-derived root is a separately checksummed
-payload supplied only after project networking and SSH are available.
+The first public prerelease is a source, metadata, and bring-your-own-MPSS
+builder release. The bootable private image passed the hardware gates, but its
+kernel, modules, package repository, bootstrap, and rootfs remain unpublished
+until every binary has a completed provenance and redistribution decision.
+
+This is an experimental Ubuntu-derived K1OM environment. It is not an official
+Ubuntu, Canonical, or Intel release.
+
+## Proven Architecture
 
 ```text
-boot/xpr-bootstrap.cpio.gz -> candidate online -> project SSH
-payload/xpr-rootfs.cpio.gz -> host transfer -> hash verification -> switch_root
+MPSS host + local inputs
+  -> project compatibility kernel and five rebuilt modules
+  -> small project bootstrap/Base CPIO
+  -> micveth + bootstrap SSH
+  -> checksummed final-root payload transfer
+  -> project static switch helper
+  -> project final-init trampoline
+  -> final project root and PID 1
+  -> final-root networking, SSH, packages, and Python
 ```
 
-The release workflow will remain one host-side command: build the bootstrap,
-boot through the existing alternate MicDir configuration, wait for the project
-readiness marker, transfer the local payload, verify its SHA-256 on-card, and
-request the project root switch. It does not require firmware changes,
-persistent card storage, internet access, or embedding the full root in Base
-CPIO.
+The accepted private artifact set is:
 
-## Evidence Boundary
+| Artifact | Bytes | SHA-256 |
+| --- | ---: | --- |
+| Candidate kernel | private | `0450c4370fb9c023c5229274d9a7a5cc02b8a37838c3220a0c714fc602cb2505` |
+| Bootstrap root | 6,071,745 | `46fde82d0f5a0afe91719d1266c6e1151ec2b945fb78f96a3af669b1d38ff4f3` |
+| Base CPIO | 29,578,142 | `42b7560f8dcc277f1d976e40db57668caedb749125e66171281ea8ba755e3bef` |
+| Final-root payload | 77,582,489 | `8a410d8577971068888f46cee66b7b6020f675144f9d0cafc6a79efce53b7520` |
 
-The small bootstrap path has three passing boots with project PID 1, MPSS
-readiness, networking, Dropbear SSH, hello, pthread, and rollback. The direct
-large-root path failed with both a static BusyBox and a Python-runtime-masked
-root, while a larger synthetic Base CPIO reached `online`. See
-[RC root size analysis](../kernel/rc-root-size-analysis.md).
+Two clean builds reproduced all three generated image hashes exactly.
 
-## Next Implementation
+## Passed Gates
 
-The implementation now consists of a gzip-newc payload preparer, a bootstrap
-`xpr-stage-root` command, and a PID 1 request handler. The host runner accepts
-an optional payload, streams it through the proven SSH shell into BusyBox
-`cat`, invokes staging, and waits for the RC PID 1 marker before its existing
-rollback trap.
+- Project final root is active.
+- Final project init runs as PID 1.
+- `/proc`, `/sys`, `/dev`, `/run`, and `/tmp` are usable.
+- `uname -m` reports `k1om` and `/etc/os-release` reports `xpr-uos`.
+- micveth works at `172.31.1.1`.
+- Project Dropbear accepts SSH in the final root.
+- Native K1OM hello and pthread tests pass.
+- Python 3.12.13 and `ctypes` call/callback tests pass.
+- `dpkg`, `dpkg-query`, `dpkg-deb`, `apt-get`, and `apt-cache` work.
+- The embedded local repository supports `apt-get update` and a clean
+  reinstall of `xpr-pci-tools`.
+- Automatic rollback restores stock MPSS, stock SSH, stock PID 1, and the exact
+  baseline configuration hash.
+- The same architecture completed three consecutive earlier boots; the exact
+  final package-complete payload has one clean full-suite hardware pass.
 
-Static validation confirms payload gzip/newc integrity and required paths. The
-first bounded hardware test found that the minimal card root has no remote
-`scp` command; the subsequent binary-clean SSH-stream test corrected that
-transport and passed its byte-count, SHA-256, and extraction gates. Bootstrap
-online, project SSH, and readiness also passed in that run.
+## Public RC Contents
 
-The instrumented handoff test identified the earliest failed stage: after a
-valid transfer and extraction, `xpr-stage-root` rejected the unpacked root
-because `/sbin/init` was not executable. It therefore never wrote the switch
-request; PID 1, `switch_root`, and RC services were not involved.
+The public `v0.1.0-rc1` archive may contain:
 
-The corrected payload test passed its archive-mode assertion and extracted
-`/sbin/init` validation. It then stopped before request creation because the
-minimal bootstrap root does not provide the `chmod` BusyBox applet required by
-`xpr-stage-root` to prepare the new root. The next bounded test must add only
-that bootstrap applet, rebuild the bootstrap Base CPIO, and retain the same
-corrected payload. No kernel, module, transport, or RC-service change is
-currently justified.
+- tracked project source, scripts, tests, documentation, and manifests;
+- sanitized hashes and hardware evidence;
+- local-input validation and reproducible build recipes;
+- the repository `LICENSE` and `NOTICE.md`.
 
-That test added `chmod` successfully and reached
-`XPR_SWITCH_REQUEST_WRITTEN` and `XPR_SWITCH_REQUEST_SEEN`. PID 1 then
-rejected the request before new-root revalidation because its mount check uses
-`grep`, which is the next missing bootstrap BusyBox applet. The exact next
-change is therefore to add only `grep` to the bootstrap applet list and repeat
-one bounded test with the unchanged payload.
+It must not contain:
 
-The grep-enabled test passed request creation and candidate bootstrap checks,
-but produced no durable marker after `XPR_SWITCH_REQUEST_WRITTEN` and no RC
-SSH evidence. Active development is resuming with a root-level
-`/xpr-handoff.log` written by staging, bootstrap PID 1, and RC PID 1 so the
-evidence survives the `/run` move and RC `/run` remount. No further applet,
-payload, kernel, module, or transport change is justified before one bounded
-test of that instrumentation.
+- Intel MPSS packages, firmware, stock uOS, stock kernel, or SDK/sysroot files;
+- private K1OM binaries, modules, Base CPIOs, rootfs payloads, or package files;
+- host keys, credentials, private logs, or generated local configuration.
 
-For that test, rebuild the payload with
-`tools/release/prepare-xpr-rootfs-payload.sh --rc-init src/uos/xpr_rc_root_init.sh`.
-This replaces only `sbin/init`, preserves the checked source archive contents,
-sets its mode to `0755`, and records the selected init in the payload manifest.
+## Remaining Binary-Release Work
+
+1. Classify every file in the private payload by source, license, build recipe,
+   and redistribution status.
+2. Rebuild or remove copied and lineage-uncertain components, including the
+   current BusyBox and `libgcc_s` inputs.
+3. Supply corresponding source, patches, notices, and license texts for GPL,
+   LGPL, Python, zlib, ncurses, and other shipped components.
+4. Prove the binary image contains no Intel/MPSS userspace or SDK payload.
+5. Generate and review an SPDX-style SBOM.
+6. Obtain human legal review before publishing prebuilt binaries.
+
+Optional Python modules such as `bz2`, `lzma`, `readline`, `sqlite3`, and
+`curses` do not block this source/BYO-MPSS prerelease.
+
+## Release Rule
+
+Tag and publish this milestone only as a prerelease. Do not label it stable and
+do not attach the private boot images. A future binary RC requires the
+redistribution gates above plus another clean hardware smoke and rollback run
+of the exact publishable artifact.

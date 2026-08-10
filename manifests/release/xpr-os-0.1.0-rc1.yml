@@ -1,0 +1,66 @@
+id: xpr-os-0.1.0-rc1
+status: source-byo-mpss-prerelease-ready
+date: "2026-08-10"
+architecture: k1om
+hardware_tested:
+  card: Intel Xeon Phi 5110P
+  host: Dell PowerEdge R730
+  host_os: CentOS 7.4.1708
+  mpss: "3.4.10"
+claim: >-
+  Experimental Ubuntu-derived K1OM uOS source and bring-your-own-MPSS build
+  procedure, with the private split-root image verified on real hardware.
+private_artifacts:
+  candidate_kernel:
+    sha256: 0450c4370fb9c023c5229274d9a7a5cc02b8a37838c3220a0c714fc602cb2505
+    redistribution: excluded
+  bootstrap_root:
+    bytes: 6071745
+    sha256: 46fde82d0f5a0afe91719d1266c6e1151ec2b945fb78f96a3af669b1d38ff4f3
+    redistribution: excluded
+  base_cpio:
+    bytes: 29578142
+    sha256: 42b7560f8dcc277f1d976e40db57668caedb749125e66171281ea8ba755e3bef
+    redistribution: excluded
+  final_root_payload:
+    bytes: 77582489
+    sha256: 8a410d8577971068888f46cee66b7b6020f675144f9d0cafc6a79efce53b7520
+    redistribution: excluded
+reproducibility:
+  clean_builds_compared: 2
+  generated_hashes_identical: true
+hardware_gates:
+  final_project_root: passed
+  final_project_pid1: passed
+  uname_k1om: passed
+  os_release_xpr_uos: passed
+  filesystems: passed
+  micveth: passed
+  final_root_ssh: passed
+  native_hello: passed
+  native_pthread: passed
+  python_3_12_13: passed
+  ctypes_call_callback: passed
+  dpkg_query: passed
+  apt_local_update: passed
+  apt_reinstall_xpr_pci_tools: passed
+  full_release_smoke: passed
+  stock_rollback: passed
+repeatability:
+  same_architecture_consecutive_boots: 3
+  exact_final_payload_full_suite_boots: 1
+public_release:
+  kind: source-metadata-byo-mpss
+  binary_images_included: false
+  intel_mpss_files_included: false
+  packager: tools/release/package-public-rc.sh
+  required_notices:
+    - LICENSE
+    - NOTICE.md
+known_limits:
+  - MPSS 3.4.10 host installation and local K1OM inputs are required
+  - prebuilt boot artifacts are not distributed
+  - only Xeon Phi 5110P has completed the full gate
+  - optional Python extensions remain absent from the accepted eglibc profile
+  - this is not an official Ubuntu, Canonical, or Intel release
+

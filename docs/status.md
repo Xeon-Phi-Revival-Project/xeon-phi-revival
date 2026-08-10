@@ -2,56 +2,57 @@
 
 ## Current Status - Active Development
 
-Resumed: August 8, 2026
-
-Development is active. The current task is to prove the final project-root
-handoff with evidence that survives the `switch_root` transition.
+Development is active. The XPR-OS 0.1.0-rc1 private image passed its final-root
+hardware gate on August 10, 2026. The remaining public-release work is source
+packaging and redistribution compliance, not boot-path debugging.
 
 Current active state:
 
-- Source baseline for the durable-handoff run:
-  `2a6e42ca202f12f0a6eb29454e49e07e53c771da`
+- Source baseline for the accepted run:
+  `8db0dec7d6575b807846fc381065c0ded374bcb4`
 - Candidate compatibility kernel:
-  `d529aecf0de11e0b4a9a036eb0329d1bb9c907fd6a911ce08a10548c9380d4d8`
-- Latest durable bootstrap Base CPIO:
-  `9f38d90a27227657d61c8325416707696a7ee1a644a6d4f13d588e9eba9ae0f9`
-- Latest durable full-root payload:
-  `97734a5ec3135a2d7bcda038a0dba0904390ce927479186c9cedf2e718fe5e20`
+  `0450c4370fb9c023c5229274d9a7a5cc02b8a37838c3220a0c714fc602cb2505`
+- Accepted bootstrap root:
+  `46fde82d0f5a0afe91719d1266c6e1151ec2b945fb78f96a3af669b1d38ff4f3`
+- Accepted Base CPIO:
+  `42b7560f8dcc277f1d976e40db57668caedb749125e66171281ea8ba755e3bef`
+- Accepted final-root payload:
+  `8a410d8577971068888f46cee66b7b6020f675144f9d0cafc6a79efce53b7520`
 - Stock configuration baseline:
   `9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51`
 
-The proven minimal path includes the independent KNC-compatible kernel and
-five rebuilt modules, project early init, project PID 1, readiness, micveth,
-Dropbear SSH, hello/pthread tests, three repeatable minimal boots, rollback,
-and split-root payload transfer with remote byte and SHA-256 validation.
+The accepted split-root path includes the independent KNC-compatible kernel and
+five rebuilt modules, project early init, payload transfer with byte and
+SHA-256 validation, a static project switch helper, a static final-init
+trampoline, project PID 1, readiness, micveth, final-root Dropbear SSH, native
+hello/pthread, Python 3.12.13, local dpkg/APT operation, and stock rollback.
 
-The unresolved RC boundary is after successful payload extraction. No
-extraction-complete, switch-request, `switch_root`, or RC SSH evidence was
-recovered before the card reset, so request handling and `switch_root` remain
-unproven.
+The durable marker chain proved the final transition:
 
-The resumed durable-handoff test rebuilt both bootstrap and payload with a
-root-level `/xpr-handoff.log`. Candidate online, bootstrap SSH, payload
-transfer, and payload extraction passed, but the card reset before the host
-recovered `XPR_SWITCH_ROOT_EXEC`, RC-init, or RC-PID-1 evidence. Stock online,
-card SSH, and the baseline configuration hash were restored. The next step is
-to capture a reset-surviving early-output source with the same image, not to
-change the handoff logic.
+```text
+XPR_SWITCH_HELPER_ENTERED
+XPR_SWITCH_HELPER_CHDIR_OK
+XPR_SWITCH_HELPER_MOVE_ROOT_OK
+XPR_SWITCH_HELPER_CHROOT_OK
+XPR_RC_TRAMPOLINE_ENTERED
+XPR_RC_INIT_ENTERED
+XPR_RC_ROOT_SBIN_INIT_PID1
+```
 
-Next step: add reset-surviving early-output capture to the existing bounded
-runner, then run one unchanged-image alternate-configuration test. Do not
-treat RC1 as complete or released.
+Two clean builds produced identical bootstrap-root, Base-CPIO, and final-root
+payload hashes. The accepted run passed the full release smoke suite, including
+`apt-get install --reinstall xpr-pci-tools`, then restored stock online state,
+stock SSH, stock PID 1, and the exact baseline MPSS configuration hash.
 
 Current execution checklist:
 
-1. Verify repository, host, stock online state, SSH, and configuration hash.
-2. Preserve the proven kernel, modules, payload, and rollback path.
-3. Add markers that remain visible across `switch_root`.
-4. Run one bounded alternate-configuration test.
-5. Record the last successful and first missing marker.
-6. Verify stock online, SSH, and exact configuration-hash restoration.
-7. Continue toward RC1 only after RC PID 1, SSH, hello, and pthread pass.
-8. Complete source, licensing, reproducibility, and redistribution review before publishing.
+1. Publish a source/metadata/BYO-MPSS `0.1.0-rc1` prerelease.
+2. Keep all Intel/MPSS payloads and private generated binaries out of it.
+3. Preserve exact private artifact hashes and sanitized hardware evidence.
+4. Complete per-file provenance and copyleft source-offer material before any
+   prebuilt binary release.
+5. Repeat the exact final artifact on additional compatible KNC hardware when
+   available.
 
 Safety remains unchanged: no firmware, ROM, flash, or persistent card-storage
 modification; alternate MPSS configuration only; automatic rollback; no public
@@ -96,14 +97,11 @@ Intel binaries, firmware, private keys, private logs, or unreviewed payloads.
 
 ## Current Blocker
 
-The minimal project-owned root, project `/sbin/init`, micveth, Dropbear SSH,
-hello/pthread smoke tests, three repeatable boots, and rollback are proven.
-The remaining RC blocker is the split-root transition after
-`XPR_SWITCH_REQUEST_WRITTEN`. The next bounded test uses a root-level
-`/xpr-handoff.log` written before and after `switch_root`, allowing the host to
-distinguish request handling, `switch_root` execution, and RC PID 1 entry.
-No final RC PID 1, RC SSH, or final-root smoke result is claimed until that
-test passes.
+There is no known boot blocker for the private 0.1.0-rc1 image on the tested
+Xeon Phi 5110P. The blocker to a public prebuilt image is redistribution and
+provenance review: the private build contains generated or locally supplied
+K1OM components that cannot yet be published responsibly. The immediately
+releasable form is source, metadata, and BYO-MPSS build tooling.
 
 The no-op reconstruction control and project early-init evidence are recorded
 in `docs/uos/base-cpio-reconstruction-control.md`.

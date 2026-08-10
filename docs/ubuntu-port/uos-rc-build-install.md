@@ -1,9 +1,27 @@
 # Building And Booting The K1OM uOS RC
 
-This document records the intended release-candidate flow. It assumes a
+This document records the release-candidate build lanes. It assumes a
 compatible Knights Corner card, a working MPSS 3.4.x host, and locally supplied
 K1OM SDK/runtime inputs. It does not download or redistribute proprietary Intel
 payloads.
+
+## Current Split-Root Lane
+
+The accepted 0.1.0-rc1 path is assembled with
+`tools/release/build-split-root-control.sh`, prepares the final payload with
+`tools/release/prepare-xpr-rootfs-payload.sh`, and uses the bounded candidate
+runner documented by the kernel experiment reports. It boots a project-built
+compatibility kernel and bootstrap, transfers the final payload over bootstrap
+SSH, verifies its size and SHA-256, and enters the final root through the
+project static switch helper and init trampoline.
+
+The exact local source, toolchain, module, key, and payload paths are private
+host inputs and are intentionally not hard-coded as portable defaults. Every
+live run must use an alternate MPSS configuration, bounded polling, an active
+rollback trap, and the expected stock configuration hash.
+
+The older MicDir profile flow below remains useful for rebuilding the package
+set, but it is no longer the authoritative final-root boot result.
 
 ## Supported Hardware
 
@@ -30,7 +48,7 @@ The scripts require paths to locally supplied or locally built inputs:
 These inputs are not committed because they may contain locally supplied MPSS
 material or binaries whose redistribution status has not been reviewed.
 
-## Build
+## Legacy MicDir Profile Build
 
 Run on the MPSS host:
 
@@ -49,7 +67,7 @@ indexes the local `binary-k1om` archive, audits packages, simulates install,
 assembles a coherent rootfs, validates it, creates a private rootfs archive,
 and emits checksums and manifests.
 
-## Reversible Boot And Smoke Test
+## Legacy MicDir Reversible Boot And Smoke Test
 
 Before live boot, set the expected hash for the active MPSS config:
 
@@ -103,5 +121,8 @@ patches with their original licenses. It must not contain Intel MPSS SDK files,
 stock uOS contents, firmware, private rootfs images, generated K1OM binaries,
 or archives whose redistribution rights have not been reviewed.
 
-Use `tools/ubuntu-port/package-k1om-uos-rc-release.sh` to prepare metadata for
-an eventual release. By default it excludes private payloads.
+Use `tools/release/package-public-rc.sh` to create the public source/metadata
+prerelease archive. It packages tracked Git content only and rejects common
+binary/private payload patterns. `tools/ubuntu-port/package-k1om-uos-rc-release.sh`
+remains available for private-build metadata; by default it also excludes the
+generated rootfs.

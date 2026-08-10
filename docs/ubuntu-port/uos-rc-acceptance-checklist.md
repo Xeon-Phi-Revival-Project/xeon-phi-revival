@@ -1,9 +1,9 @@
 # Xeon Phi Revival uOS Release-Candidate Acceptance Checklist
 
 This checklist defines the first usable and reproducible K1OM uOS release
-candidate for Intel Xeon Phi Knights Corner cards. It is intentionally practical:
-the first RC may boot through supported MPSS/MicDir mechanisms and hand off to
-stock init for MPSS networking and SSH.
+candidate for Intel Xeon Phi Knights Corner cards. It is intentionally
+practical: MPSS remains a host prerequisite, while the tested card-side root,
+PID 1, networking setup, and SSH service are project controlled.
 
 ## Claim Boundary
 
@@ -17,8 +17,9 @@ reproducible public build and installation procedures.
 ```
 
 It must not be described as an official Ubuntu, Canonical, or Intel release.
-It does not replace the stock kernel, firmware, host MPSS driver, or all stock
-boot components.
+It does not replace firmware or the installed MPSS host driver. The accepted
+private build uses a project-built compatibility kernel and rebuilt card-side
+modules, produced from source with locally supplied toolchain inputs.
 
 ## Required Pass Items
 
@@ -51,9 +52,9 @@ ARCHITECTURE="k1om"
 - Pthread-linked native smoke passes.
 - zlib smoke passes.
 - ncurses smoke passes.
-- Networking is visible after stock-init handoff.
+- Networking is visible from the final project root.
 - SSH works after boot.
-- PID 1 and second-stage status are visible.
+- Final project PID 1 and root identity are visible.
 - Reversible MicDir installation preserves and checksums the original MPSS
   configuration.
 - Failure path restores stock MPSS.
@@ -71,8 +72,8 @@ release candidate unless a core smoke requires them:
 - `_hashlib`
 - network package repositories over HTTPS
 - Noble APT 2.8
-- a new kernel
-- full init replacement
+- firmware replacement
+- host-driver replacement
 - systemd
 - GUI support
 - every Python extension module
