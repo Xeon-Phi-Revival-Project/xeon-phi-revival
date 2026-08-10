@@ -30,11 +30,15 @@ mkdir -p /proc /sys /dev /run /tmp /etc /var/log/xeon-phi-revival
 mount -t proc proc /proc 2>/dev/null || true
 mount -t sysfs sysfs /sys 2>/dev/null || true
 mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
+mkdir -p /dev/pts
+mount -t devpts devpts /dev/pts 2>/dev/null || true
 test -c /dev/console || /bin/busybox mknod -m 600 /dev/console c 5 1
 test -c /dev/null || /bin/busybox mknod -m 666 /dev/null c 1 3
 test -c /dev/zero || /bin/busybox mknod -m 666 /dev/zero c 1 5
 test -c /dev/random || /bin/busybox mknod -m 666 /dev/random c 1 8
 test -c /dev/urandom || /bin/busybox mknod -m 666 /dev/urandom c 1 9
+# KNC's devtmpfs does not supply ptmx; Dropbear needs the legacy Unix98 node.
+test -c /dev/ptmx || /bin/busybox mknod -m 666 /dev/ptmx c 5 2
 mount -t tmpfs -o mode=0755 tmpfs /run 2>/dev/null || true
 mount -t tmpfs -o mode=1777 tmpfs /tmp 2>/dev/null || chmod 1777 /tmp
 hostname xpr-uos
