@@ -66,11 +66,17 @@ long-double `powl` pattern. Its x87 fenv wrapper supplies the complete
 rounding-context aliases expected by the generic math sources without using
 x86-64 SSE state.
 
-The active full build has passed the former `s_scalbnl`, `fraiseexcpt`,
-`e_remainder`, `fmin`/`fmax` double and float, `e_powl`, and `e_scalbl`
-boundaries. Long-double `fminl`/`fmaxl` source selection is the current
-in-progress validation. This is not yet a complete runtime or a hardware-ready
-public root.
+The 2026-08-10 candidate completed a full build and `make install` into a
+private staging directory. It produced K1OM `ld-2.19.so`, `libc-2.19.so`,
+`libm-2.19.so`, `libpthread-2.19.so`, `libdl-2.19.so`, `librt-2.19.so`, and
+`libutil-2.19.so`; their installed SONAME links and static ELF metadata were
+verified. The source build has not been copied into the public root yet.
+
+The K1OM `powl` fallback now has a link-complete C implementation using the
+newly built long-double `logl` and `expl` paths. It requires numerical and
+on-card runtime characterization before it can be described as release-ready.
+The next technical gates are a second clean deterministic build, dependency
+closure against a source-built libgcc runtime, and K1OM execution testing.
 
 This is a source-level K1OM overlay issue. No binary from the private runtime
 was copied into the public profile, and no hardware test is warranted yet.
