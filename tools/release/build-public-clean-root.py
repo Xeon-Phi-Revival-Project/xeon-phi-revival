@@ -61,13 +61,16 @@ def main():
     parser.add_argument("--eglibc-libdir",
                         help="directory containing source-built eglibc SONAME files")
     parser.add_argument("--libgcc", help="source-built K1OM libgcc_s.so.1")
+    parser.add_argument("--xpr-bin-dir", help="directory containing source-built XPR helper binaries")
+    parser.add_argument("--authorized-keys", help="operator-supplied public keys for the test image")
     args = parser.parse_args()
 
     ledger = json.load(open(args.ledger))
     root = os.path.abspath(args.out_root)
     if os.path.exists(root):
         raise RuntimeError("refusing to overwrite existing output: " + root)
-    for value in (args.busybox, args.dropbear, args.python_root, args.eglibc_libdir, args.libgcc):
+    for value in (args.busybox, args.dropbear, args.python_root, args.eglibc_libdir, args.libgcc,
+                  args.xpr_bin_dir, args.authorized_keys):
         if value and ("/opt/mpss/" in os.path.abspath(value).replace("\\", "/") or "sysroot" in os.path.abspath(value).lower()):
             raise RuntimeError("Intel/MPSS sysroot inputs are forbidden in the public-clean builder")
 
@@ -123,6 +126,25 @@ def main():
         copy_file(args.libgcc, os.path.join(root, "lib64", "libgcc_s.so.1"))
         os.symlink("libgcc_s.so.1", os.path.join(root, "lib64", "libgcc_s.so"))
         selected.append(component["id"])
+    if args.xpr_bin_dir:
+        require_component(ledger, "xpr-owned")
+        helpers = ("xpr-hello", "xpr-pthread-smoke", "xpr-dlopen-smoke", "xpr-statusd")
+        if not os.path.isdir(args.xpr_bin_dir):
+            raise RuntimeError("XPR helper input is not a directory")
+        for name in helpers:
+            source = os.path.join(args.xpr_bin_dir, name)
+            if not os.path.isfile(source):
+                raise RuntimeError("missing XPR helper: " + source)
+            copy_file(source, os.path.join(root, "usr", "bin", name))
+            os.chmod(os.path.join(root, "usr", "bin", name), 0o755)
+    if args.authorized_keys:
+        if not os.path.isfile(args.authorized_keys):
+            raise RuntimeError("authorized_keys input is not a file")
+        ssh_dir = os.path.join(root, "root", ".ssh")
+        os.makedirs(ssh_dir)
+        os.chmod(ssh_dir, 0o700)
+        copy_file(args.authorized_keys, os.path.join(ssh_dir, "authorized_keys"))
+        os.chmod(os.path.join(ssh_dir, "authorized_keys"), 0o600)
     if args.python_root:
         component = require_component(ledger, "cpython")
         interpreter = os.path.join(args.python_root, "python")

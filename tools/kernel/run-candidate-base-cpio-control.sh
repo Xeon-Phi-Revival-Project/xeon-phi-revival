@@ -2,10 +2,10 @@
 set -euo pipefail
 
 usage() {
-  echo "usage: $0 --base FILE --kernel FILE --map FILE --expected-stock-sha SHA256 [--payload FILE] [--mic mic0] [--out-root DIR] [--leave-running]" >&2
+  echo "usage: $0 --base FILE --kernel FILE --map FILE --expected-stock-sha SHA256 [--payload FILE] [--minimal-public-smoke] [--mic mic0] [--out-root DIR] [--leave-running]" >&2
 }
 
-base=""; kernel=""; map=""; expected_stock_sha=""; payload=""; mic="mic0"; leave_running=0; completed_success=0
+base=""; kernel=""; map=""; expected_stock_sha=""; payload=""; mic="mic0"; leave_running=0; minimal_public_smoke=0; completed_success=0
 out_root="${HOME}/xpr-candidate-kernel-test"
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -14,6 +14,7 @@ while [[ $# -gt 0 ]]; do
     --map) map="$2"; shift 2 ;;
     --expected-stock-sha) expected_stock_sha="$2"; shift 2 ;;
     --payload) payload="$2"; shift 2 ;;
+    --minimal-public-smoke) minimal_public_smoke=1; shift ;;
     --mic) mic="$2"; shift 2 ;;
     --out-root) out_root="$2"; shift 2 ;;
     --leave-running) leave_running=1; shift ;;
@@ -148,7 +149,7 @@ if [[ -n "$payload" && "$project_ssh" == 1 ]]; then
   wait "$marker_poll" || true
   for _ in {1..24}; do
     if ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=8 \
-      "$mic" 'cat /proc/1/comm; uname -m; cat /etc/os-release; grep " /proc " /proc/mounts; grep " /sys " /proc/mounts; test -c /dev/null && echo XPR_DEV_OK; test -w /run && echo XPR_RUN_WRITABLE; test -w /tmp && echo XPR_TMP_WRITABLE; cat /xpr-handoff.log /xpr-switch-helper.log /run/xpr-os-init 2>/dev/null; /usr/bin/xpr-hello; /usr/bin/xpr-pthread-smoke' > "$run/post-switch.txt" 2>&1 \
+      "$mic" 'cat /proc/1/comm; uname -m; cat /etc/os-release; grep " /proc " /proc/mounts; grep " /sys " /proc/mounts; test -c /dev/null && echo XPR_DEV_OK; test -w /run && echo XPR_RUN_WRITABLE; test -w /tmp && echo XPR_TMP_WRITABLE; cat /xpr-handoff.log /xpr-switch-helper.log /run/xpr-os-init 2>/dev/null; /usr/bin/xpr-hello; /usr/bin/xpr-pthread-smoke; if test "'"$minimal_public_smoke"'" = 1; then /usr/bin/xpr-dlopen-smoke && echo XPR_DLOPEN_OK; fi' > "$run/post-switch.txt" 2>&1 \
       && grep -Eq '^(init|busybox)$' "$run/post-switch.txt" \
       && grep -qx k1om "$run/post-switch.txt" \
       && grep -q '^ID=xpr-uos$' "$run/post-switch.txt" \
@@ -157,7 +158,8 @@ if [[ -n "$payload" && "$project_ssh" == 1 ]]; then
       && grep -q XPR_TMP_WRITABLE "$run/post-switch.txt" \
       && grep -q XPR_RC_ROOT_SBIN_INIT_PID1 "$run/post-switch.txt" \
       && grep -q XPR_HELLO_OK "$run/post-switch.txt" \
-      && grep -q XPR_PTHREAD_OK "$run/post-switch.txt"; then
+      && grep -q XPR_PTHREAD_OK "$run/post-switch.txt" \
+      && { [[ "$minimal_public_smoke" != 1 ]] || grep -q XPR_DLOPEN_OK "$run/post-switch.txt"; }; then
       switched=1
       break
     fi
@@ -166,7 +168,9 @@ if [[ -n "$payload" && "$project_ssh" == 1 ]]; then
 fi
 if [[ "$switched" == 1 ]]; then
   release_smoke="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/ubuntu-port/run-k1om-uos-rc-smoke.sh"
-  if [[ -x "$release_smoke" ]] \
+  if [[ "$minimal_public_smoke" == 1 ]]; then
+    smoke=1
+  elif [[ -x "$release_smoke" ]] \
       && "$release_smoke" --mic "$mic" --out-dir "$run/release-smoke"; then
     smoke=1
   fi
