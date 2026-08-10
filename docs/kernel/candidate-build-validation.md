@@ -198,3 +198,17 @@ version; copying the retained header before relinking is overwritten by Kbuild.
 The next exact action is to pin the historical source-root path and control or
 patch the old `mkcompile_h`/build-version generation so both fields are
 recreated without regeneration. No source-code or module-CRC delta remains.
+
+## 2026-08-10 Metadata Preservation Check
+
+The retained historical output directory has since regenerated
+`include/generated/compile.h` to `UTS_VERSION "#2 SMP Mon Aug 10 17:57:13
+EDT 2026"`; it is not the original generated header. The expected validated
+`bzImage` was also no longer present at the previously recorded private
+reference path, so a controlled `mkcompile_h` relink was not started. The
+temporary source-script backup trap restored the source tree unchanged.
+
+The next reproduction attempt must first preserve or recover the actual
+hardware-tested `bzImage`, original `compile.h`, and `.version` state, then
+override old Kbuild metadata generation before a minimal relink. Without those
+inputs, byte-for-byte reproduction cannot be claimed.
