@@ -12,6 +12,14 @@ import sys
 
 MAGIC = b"070701"
 TRAILER = "TRAILER!!!"
+DEVICE_NODES = (
+    ("dev/console", 0o600, 5, 1),
+    ("dev/null", 0o666, 1, 3),
+    ("dev/zero", 0o666, 1, 5),
+    ("dev/random", 0o666, 1, 8),
+    ("dev/urandom", 0o666, 1, 9),
+    ("dev/ptmx", 0o666, 5, 2),
+)
 
 
 def align4(value):
@@ -26,9 +34,10 @@ def digest(path):
     return value.hexdigest()
 
 
-def cpio_entry(name, mode, payload, inode):
+def cpio_entry(name, mode, payload, inode, rdevmajor=0, rdevminor=0):
     encoded = name.encode("utf-8") + b"\0"
-    values = (inode, mode, 0, 0, 1, 0, len(payload), 0, 0, 0, 0, len(encoded), 0)
+    values = (inode, mode, 0, 0, 1, 0, len(payload), 0, 0,
+              rdevmajor, rdevminor, len(encoded), 0)
     header = MAGIC + b"".join(("%08X" % item).encode("ascii") for item in values)
     body = header + encoded
     body += b"\0" * (align4(len(body)) - len(body))
@@ -65,6 +74,7 @@ def main():
 
     records = []
     plain = []
+    inode = 0
     for inode, name in enumerate(members(root), 1):
         full = os.path.join(root, *name.split("/"))
         metadata = os.lstat(full)
@@ -86,7 +96,17 @@ def main():
         plain.append(cpio_entry(name, mode, payload, inode))
         records.append({"path": "/" + name, "kind": kind, "mode": oct(mode & 0o7777),
                         "size": len(payload), "sha256": hashlib.sha256(payload).hexdigest()})
-    plain.append(cpio_entry(TRAILER, stat.S_IFREG, b"", len(records) + 1))
+    known_members = set(members(root))
+    for name, permissions, major, minor in DEVICE_NODES:
+        if name in known_members:
+            raise RuntimeError("root must not provide generated device node: " + name)
+        inode += 1
+        mode = stat.S_IFCHR | permissions
+        plain.append(cpio_entry(name, mode, b"", inode, major, minor))
+        records.append({"path": "/" + name, "kind": "char_device", "mode": oct(permissions),
+                        "major": major, "minor": minor, "size": 0,
+                        "sha256": hashlib.sha256(b"").hexdigest()})
+    plain.append(cpio_entry(TRAILER, stat.S_IFREG, b"", inode + 1))
     data = b"".join(plain)
     with open(output, "wb") as handle:
         try:
