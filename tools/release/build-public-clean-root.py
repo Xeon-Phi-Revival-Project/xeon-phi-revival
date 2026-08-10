@@ -90,6 +90,12 @@ def main():
         handle.write('NAME="Xeon Phi Revival K1OM uOS"\nPRETTY_NAME="Xeon Phi Revival K1OM uOS"\nID=xpr-uos\nVERSION_ID="0.1"\nARCHITECTURE="k1om"\n')
     with open(os.path.join(root, "etc", "hostname"), "w") as handle:
         handle.write("xeon-phi-k1om\n")
+    # Dropbear resolves the root account through the libc passwd database even
+    # when the release image permits only operator-provided public-key login.
+    with open(os.path.join(root, "etc", "passwd"), "w") as handle:
+        handle.write("root:x:0:0:root:/root:/bin/sh\n")
+    with open(os.path.join(root, "etc", "group"), "w") as handle:
+        handle.write("root:x:0:\n")
 
     selected = ["xpr-owned"]
     if args.busybox:

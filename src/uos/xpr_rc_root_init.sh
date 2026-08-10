@@ -56,11 +56,16 @@ else
     mark XPR_SPLASH_MISSING
 fi
 
-/usr/bin/xpr-hello >> /run/xpr-os-init 2>&1 || printf '%s\n' XPR_HELLO_FAIL >> /run/xpr-os-init
-/usr/bin/xpr-pthread-smoke >> /run/xpr-os-init 2>&1 || printf '%s\n' XPR_PTHREAD_FAIL >> /run/xpr-os-init
+smoke_failed=0
+/usr/bin/xpr-hello >> /run/xpr-os-init 2>&1 || { printf '%s\n' XPR_HELLO_FAIL >> /run/xpr-os-init; smoke_failed=1; }
+/usr/bin/xpr-pthread-smoke >> /run/xpr-os-init 2>&1 || { printf '%s\n' XPR_PTHREAD_FAIL >> /run/xpr-os-init; smoke_failed=1; }
+/usr/bin/xpr-dlopen-smoke >> /run/xpr-os-init 2>&1 || { printf '%s\n' XPR_DLOPEN_FAIL >> /run/xpr-os-init; smoke_failed=1; }
+test "$smoke_failed" = 0 && mark XPR_SMOKE_PASS
 mark XPR_RC_SMOKES_COMPLETE
 
-/bin/busybox ifconfig mic0 172.31.1.1 netmask 255.255.255.0 mtu 64512 up >> /run/xpr-os-init 2>&1 || {
+/bin/busybox ifconfig mic0 172.31.1.1 netmask 255.255.255.0 mtu 64512 up >> /run/xpr-os-init 2>&1 && {
+    mark XPR_NETWORK_READY
+} || {
     printf '%s\n' XPR_NETWORK_CONFIG_FAIL >> /run/xpr-os-init
 }
 
@@ -109,6 +114,7 @@ for tcp_table in /proc/net/tcp /proc/net/tcp6; do
     done < "$tcp_table"
 done
 test "$port22_listening" = 1 || mark XPR_DROPBEAR_PORT22_NOT_LISTENING
+test "$port22_listening" = 1 && mark XPR_SSH_READY
 
 if test -e /sys/class/micnotify/notify/host_notified; then
     printf '%s\n' done > /sys/class/micnotify/notify/host_notified
@@ -117,8 +123,10 @@ else
     mark XPR_MPSS_READY_PATH_MISSING
 fi
 
-/etc/init.d/xeon-phi-revival-stage2 start >> /run/xpr-os-init 2>&1 &
-mark XPR_RC_STAGE2_STARTED
+if test -x /etc/init.d/xeon-phi-revival-stage2; then
+    /etc/init.d/xeon-phi-revival-stage2 start >> /run/xpr-os-init 2>&1 &
+    mark XPR_RC_STAGE2_STARTED
+fi
 
 while :; do
     sleep 30

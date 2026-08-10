@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """Create a deterministic gzip-compressed newc payload from a clean XPR root."""
 from __future__ import print_function
 
@@ -89,8 +89,21 @@ def main():
     plain.append(cpio_entry(TRAILER, stat.S_IFREG, b"", len(records) + 1))
     data = b"".join(plain)
     with open(output, "wb") as handle:
-        with gzip.GzipFile(filename="", mode="wb", fileobj=handle, mtime=0) as compressed:
+        try:
+            compressed = gzip.GzipFile(filename="", mode="wb", fileobj=handle, mtime=0)
+        except TypeError:
+            # CentOS 7's Python 2.7 lacks the mtime parameter.  Its gzip
+            # layout is otherwise sufficient here, so normalize MTIME below.
+            compressed = gzip.GzipFile(filename="", mode="wb", fileobj=handle)
+        try:
             compressed.write(data)
+        finally:
+            compressed.close()
+    # RFC 1952 stores MTIME at offsets 4..7.  Normalizing it makes the Python
+    # 2 fallback deterministic without depending on a newer host interpreter.
+    with open(output, "r+b") as handle:
+        handle.seek(4)
+        handle.write(b"\0\0\0\0")
     report = {"schema": "xpr-clean-root-payload-v1", "root": root,
               "members": records, "uncompressed_bytes": len(data),
               "uncompressed_sha256": hashlib.sha256(data).hexdigest(),
