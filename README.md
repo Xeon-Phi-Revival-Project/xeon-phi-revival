@@ -253,7 +253,9 @@ redistribution: source, metadata, and BYO-MPSS tooling are published as RC2,
 but the private kernel, modules, bootstrap, package repository, and rootfs are
 not public artifacts. See the [current status](docs/status.md),
 [source-build guide](docs/release/build-xpr-os-rc-from-source.md), and
-[compliance review](docs/release/compliance-review.md).
+[compliance review](docs/release/compliance-review.md). The evolving binary
+evidence is tracked separately in the [prebuilt-image provenance record](docs/release/prebuilt-image-provenance.md);
+it is not a publication approval.
 
 The earlier non-eglibc package set demonstrated OpenSSL-backed Python modules,
 SQLite, curses, terminfo, libffi, and `_ctypes`; the later eglibc-backed RC gate

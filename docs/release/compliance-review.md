@@ -31,9 +31,9 @@ stating that XPR-OS is independent and unendorsed.
 | Compatibility kernel | Linux GPL-2.0-only; candidate provenance remains incomplete | `HOLD` | Establish authoritative source provenance; publish exact corresponding source, config, patches, and build scripts beside the binary |
 | Five card-side modules | Observed MPSS source/RPM fields are GPLv2 | `HOLD` | Verify each file header and source grant; publish the exact source and build scripts corresponding to the modules |
 | Intel MPSS host software, firmware, stock uOS/kernel, SDK/sysroot | Mixed, including Intel MPSS EULA | `USER_SUPPLIED` | Never include; validate local user inputs by version/hash |
-| BusyBox | GPL-2.0-only | `REBUILD` | Do not ship the copied stock binary; build from identified source and publish exact corresponding source/config/scripts |
+| BusyBox | GPL-2.0-only | `REBUILD_PROVEN` | BusyBox 1.19.4 rebuild matches the private payload byte-for-byte; publish only with its source bundle, config, GPL text, notices, and human review |
 | eglibc runtime | LGPL-2.1-or-later plus file-specific notices | `REBUILD` | Publish exact source, overlays, config, build scripts, license notices, and relinking-compatible dynamic libraries |
-| Dropbear | Permissive MIT/BSD-style collection | `REBUILD` | Pin upstream version/hash; preserve its complete multi-component `LICENSE`; publish config and patches |
+| Dropbear | Permissive MIT/BSD-style collection | `REBUILD_PROVEN` | Dropbear 2022.83 source and current binary hash are pinned; retain the upstream multi-component `LICENSE`, build evidence, and human review gate |
 | libgcc_s | GPLv3 with GCC Runtime Library Exception expected | `HOLD` | Identify exact GCC source/version and verify the shipped file carries the exception; avoid copying an unidentified SDK binary |
 | CPython 3.12.13 | PSF-2.0 and incorporated licenses | `REBUILD` | Pin official source hash/SBOM; include complete Python license stack, patches, and build recipe |
 | CPython 3.5 payload | Unneeded legacy input with uncertain lineage | `REMOVE` | Exclude from the public binary profile and package dependencies |
@@ -96,6 +96,12 @@ A prebuilt RC cannot be published until it contains or links beside it:
 - Corrected source/BYO-MPSS prerelease RC2: `PASS` and published.
 - Existing RC1 source archive: `SUPERSEDED_FOR_LICENSE_TEXT`.
 - Current private prebuilt image: `DO_NOT_PUBLISH`.
-- Highest-value binary-release action: build a clean profile that removes
-  Python 3.5, Readline, OpenSSL, copied BusyBox, and unidentified SDK runtimes,
-  then rebuild every remaining component from pinned public source.
+- The August private-payload audit has 2,916 files and 2,448 fail-closed
+  findings. Its public-clean profile excludes Python 3.5, Readline, and
+  OpenSSL 1.0.x. BusyBox is now technically reproducible byte-for-byte.
+- Highest-value binary-release action: build a clean profile without excluded
+  legacy payloads, then pin/rebuild the kernel, modules, eglibc, libgcc, and
+  remaining userland before any hardware validation of a publishable image.
+
+See [Prebuilt Image Provenance Status](prebuilt-image-provenance.md) and the
+machine-readable `prebuilt-clean-profile.json` / `prebuilt-source-ledger.json`.

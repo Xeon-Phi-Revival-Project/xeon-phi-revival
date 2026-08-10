@@ -36,3 +36,6 @@ echo "PASS: LGPL overlay files=${#overlay_files[@]}"
 echo "PASS: no tracked private or binary payloads"
 echo "PASS: source release compliance boundary"
 
+# The source/BYO-MPSS lane intentionally remains distinct from a public binary
+# lane. A candidate prebuilt image must be checked with audit-prebuilt-image.py
+# and manifests/release/prebuilt-clean-profile.json; do not relax this audit.

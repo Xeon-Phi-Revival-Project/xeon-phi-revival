@@ -63,6 +63,15 @@ have been validated live, but a newly rebuilt image containing all post-gate
 usability fixes still needs one complete boot, smoke, and rollback run before
 it replaces the accepted artifact hashes above.
 
+The first prebuilt-image provenance pass has now audited the current private
+banner payload without publishing it: 2,916 files produced 2,448 fail-closed
+findings. Python 3.5, Readline, and OpenSSL 1.0.x are explicitly excluded from
+the public-clean profile. BusyBox 1.19.4 was rebuilt byte-for-byte from its
+pinned upstream source and captured K1OM configuration; Dropbear 2022.83 and
+CPython 3.12.13 source archives are also pinned. Kernel, module, eglibc, and
+`libgcc_s` corresponding-source provenance remains the publication blocker.
+See [prebuilt-image provenance](release/prebuilt-image-provenance.md).
+
 Current execution checklist:
 
 1. Keep the published RC2 source/BYO-MPSS release free of Intel/MPSS payloads
