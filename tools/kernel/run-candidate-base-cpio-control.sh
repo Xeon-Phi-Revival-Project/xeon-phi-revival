@@ -64,7 +64,7 @@ restore_stock() {
     sleep 5
   done
   for _ in {1..10}; do
-    ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=8 \
+    ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PubkeyAcceptedAlgorithms=+ssh-rsa -o ConnectTimeout=8 \
       "$mic" 'echo stock_ssh_ok; uname -m; cat /proc/1/comm' && break
     sleep 5
   done
@@ -76,7 +76,7 @@ trap restore_stock EXIT
 
 test "$(sha256sum "$stock_conf" | awk '{print $1}')" = "$expected_stock_sha"
 micctrl --status | grep -q "$mic: online"
-ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=8 \
+ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PubkeyAcceptedAlgorithms=+ssh-rsa -o ConnectTimeout=8 \
   "$mic" 'uname -m; cat /proc/1/comm' > "$run/stock-preflight.txt"
 grep -Eq '^(k1om|x86_64)$' "$run/stock-preflight.txt"
 grep -Eq '^(init|systemd|busybox)$' "$run/stock-preflight.txt"
@@ -118,7 +118,7 @@ done
 project_ssh=0
 if [[ "$online" == 1 ]]; then
   for _ in {1..12}; do
-    if ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=8 \
+    if ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PubkeyAcceptedAlgorithms=+ssh-rsa -o ConnectTimeout=8 \
       "$mic" 'echo project_ssh_ok; cat /proc/1/comm; cat /run/xpr-os-init' > "$run/project-ssh.txt" 2>&1; then
       project_ssh=1
       break
@@ -132,23 +132,23 @@ smoke=0
 if [[ -n "$payload" && "$project_ssh" == 1 ]]; then
   # BusyBox cat is already proven in the bootstrap; a Dropbear-only root does
   # not necessarily provide the remote scp server command required by OpenSSH.
-  ssh -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=12 \
+  ssh -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PubkeyAcceptedAlgorithms=+ssh-rsa -o ConnectTimeout=12 \
     "$mic" 'cat > /tmp/xpr-rootfs.cpio.gz' < "$payload"
-  ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=12 \
+  ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PubkeyAcceptedAlgorithms=+ssh-rsa -o ConnectTimeout=12 \
     "$mic" "actual_bytes=\$(/bin/busybox wc -c < /tmp/xpr-rootfs.cpio.gz); actual_sha=\$(sha256sum /tmp/xpr-rootfs.cpio.gz | awk '{print \$1}'); test \"\$actual_bytes\" = \"$payload_bytes\" && test \"\$actual_sha\" = \"$payload_sha\""
   (
     for _ in {1..24}; do
-      ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=4 \
+      ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PubkeyAcceptedAlgorithms=+ssh-rsa -o ConnectTimeout=4 \
         "$mic" 'cat /run/xpr-stage-root.log /xpr-handoff.log /xpr-switch-helper.log 2>/dev/null || true' >> "$run/handoff-markers.txt" 2>&1 || true
       sleep 2
     done
   ) &
   marker_poll=$!
-  ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=12 \
+  ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PubkeyAcceptedAlgorithms=+ssh-rsa -o ConnectTimeout=12 \
     "$mic" "/opt/xeon-phi-revival/bin/xpr-stage-root /tmp/xpr-rootfs.cpio.gz $payload_sha" > "$run/stage.txt" 2>&1
   wait "$marker_poll" || true
   for _ in {1..24}; do
-    if ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=8 \
+    if ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PubkeyAcceptedAlgorithms=+ssh-rsa -o ConnectTimeout=8 \
       "$mic" 'cat /proc/1/comm; uname -m; cat /etc/os-release; grep " /proc " /proc/mounts; grep " /sys " /proc/mounts; test -c /dev/null && echo XPR_DEV_OK; test -w /run && echo XPR_RUN_WRITABLE; test -w /tmp && echo XPR_TMP_WRITABLE; cat /xpr-handoff.log /xpr-switch-helper.log /run/xpr-os-init 2>/dev/null; /usr/bin/xpr-hello; /usr/bin/xpr-pthread-smoke; if test "'"$minimal_public_smoke"'" = 1; then /usr/bin/xpr-dlopen-smoke && echo XPR_DLOPEN_OK; fi' > "$run/post-switch.txt" 2>&1 \
       && grep -Eq '^(init|busybox)$' "$run/post-switch.txt" \
       && grep -qx k1om "$run/post-switch.txt" \
