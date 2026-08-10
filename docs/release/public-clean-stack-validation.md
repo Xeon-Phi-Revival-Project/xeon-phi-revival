@@ -30,8 +30,8 @@ Every run captured `XPR_SWITCH_ROOT_EXEC`, `XPR_RC_INIT_ENTERED`,
 `XPR_RC_ROOT_SBIN_INIT_PID1`, `XPR_DEV_NULL_READY`, `XPR_NETWORK_READY`,
 `XPR_SSH_READY`, and `XPR_SMOKE_PASS`. The final root authenticated the
 operator key, ran as PID 1, and passed dynamic hello, pthread, and `dlopen`
-smokes. Each rollback restored stock `mic0` online state, stock SSH, stock
-`init`, and the exact baseline configuration hash.
+smokes. Each rollback restored stock `mic0` online state, stock SSH, stock PID
+1, and the exact baseline configuration hash.
 
 ## Release Boundary
 
