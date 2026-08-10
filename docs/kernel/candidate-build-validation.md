@@ -229,9 +229,15 @@ tree `scripts/mkcompile_h` override. It produced `vmlinux`
 neither matched. The output header remained build `#2` with the Aug 10 time.
 The source script restoration hash matched its pre-test hash.
 
-This proves the out-of-tree build checked its generated `O=scripts` helper,
-not the source-tree helper that was overridden. The next smallest experiment
-is to control the generated helper or its explicit Kbuild command in the
-historical output directory before relinking. It must preserve the validated
-header, `.version`, source-root path, and compiler path; no further broad
-kernel rebuild is justified.
+The out-of-tree build has no separate `O=scripts/mkcompile_h`: it invokes the
+source-tree helper with the output header path as its first argument. The first
+override was ignored because the existing output header was up to date. A
+forced regeneration then proved the helper was invoked, but the temporary
+replacement wrote the recovered header to standard output rather than its
+required `$1` target; `init/version.o` correctly failed because the target
+header was absent. The pre-test output header and source helper were restored.
+
+The next smallest experiment is now exact: preserve `.version=1`, remove the
+output header, and stage a temporary source-tree helper that writes the
+recovered validated header to `"$1"`. It must preserve the validated source-root
+path and compiler path. No further broad kernel rebuild is justified.
