@@ -37,6 +37,7 @@ archive_args=(
   --assert-executable usr/bin/xpr-pthread-smoke
   --ensure-symlink bin/basename=busybox
   --ensure-symlink bin/dd=busybox
+  --ensure-symlink bin/tar=busybox
   --ensure-symlink bin/tr=busybox
 )
 if [[ -n "$rc_init" ]]; then
