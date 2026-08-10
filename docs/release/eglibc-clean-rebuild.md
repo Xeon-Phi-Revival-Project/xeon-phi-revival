@@ -42,10 +42,18 @@ The 2026-08-09 clean build accepted `k1om-mpss-linux`, configured successfully,
 and selected the K1OM plus x86-64 LP64 sysdeps chain. It currently stops in the
 math subdirectory because upstream's x86-64 long-double classification sources
 are not selected automatically for K1OM. Narrow tracked wrappers now supply
-`s_isinfl` and `s_isnanl`; the next missing routine is `s_finitel`. The K1OM
-compiler reports 80-bit extended-precision long double, while upstream's
-matching x86-64 implementation is assembly that must be reviewed for KNC
-instruction compatibility before it is reused.
+`s_isinfl` and `s_isnanl`. The K1OM-safe `s_finitel` implementation is now
+present and the next build advanced to `s_scalbnl`. The K1OM compiler reports
+80-bit extended-precision long double; the psABI also specifies x87 long-double
+state and the upstream `s_finitel` implementation uses only integer stack-word
+classification, not an x87 instruction.
+
+The next issue is systematic selection of x86-64 x87 helper sources such as
+`s_scalbnl.S`. A direct `x86_64/fpu` sysdeps implication selects those helpers
+but conflicts with the K1OM compiler's inherited x86 math-inline header. The
+unproven broad implication was intentionally not retained. The smallest next
+change is a K1OM-specific equivalent of the x86-64 private-math header that
+keeps its extraction macros while omitting the duplicate inline sqrt helpers.
 
 This is a source-level K1OM overlay issue. No binary from the private runtime
 was copied into the public profile, and no hardware test is warranted yet.
