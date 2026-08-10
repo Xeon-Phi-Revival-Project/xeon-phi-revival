@@ -39,21 +39,22 @@ for the required loader, libc, pthread, math, dl, rt, and util libraries.
 ## Current reconstruction result
 
 The 2026-08-09 clean build accepted `k1om-mpss-linux`, configured successfully,
-and selected the K1OM plus x86-64 LP64 sysdeps chain. It currently stops in the
-math subdirectory because upstream's x86-64 long-double classification sources
-are not selected automatically for K1OM. Narrow tracked wrappers now supply
-`s_isinfl` and `s_isnanl`. The K1OM-safe `s_finitel` implementation is now
-present and the next build advanced to `s_scalbnl`. The K1OM compiler reports
-80-bit extended-precision long double; the psABI also specifies x87 long-double
-state and the upstream `s_finitel` implementation uses only integer stack-word
-classification, not an x87 instruction.
+and selected the K1OM LP64 plus x86-64 FPU helper chain. The tracked K1OM
+overrides now deliberately separate those two concerns:
 
-The next issue is systematic selection of x86-64 x87 helper sources such as
-`s_scalbnl.S`. A direct `x86_64/fpu` sysdeps implication selects those helpers
-but conflicts with the K1OM compiler's inherited x86 math-inline header. The
-unproven broad implication was intentionally not retained. The smallest next
-change is a K1OM-specific equivalent of the x86-64 private-math header that
-keeps its extraction macros while omitting the duplicate inline sqrt helpers.
+- `bits/mathinline.h` prevents the inherited x86 inline math bodies from
+  colliding with x86-64 helper selection.
+- `math_private.h` retains the upstream x87 fenv support but uses eglibc's
+  generic union-based float/double bit accessors instead of x86-64 SSE `movq`
+  constraints.
+- `wordsize-64` supplies the required LP64 `strtoimax` and related selections.
+
+This advances past `s_scalbnl`, the long-double classification helpers, and the
+math subdirectory. The current first blocker is `sysdeps/x86_64/strcmp.S`:
+its SSE instructions (`movdqa`, `pcmpeqb`, and related forms) are rejected by
+the K1OM assembler. The next work is to override only such x86-64 SIMD-optimized
+routines with the existing generic eglibc C implementations; it is not a
+long-double ABI failure.
 
 This is a source-level K1OM overlay issue. No binary from the private runtime
 was copied into the public profile, and no hardware test is warranted yet.
