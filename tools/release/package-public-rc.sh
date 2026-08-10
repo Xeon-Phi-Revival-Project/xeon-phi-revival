@@ -79,10 +79,9 @@ redistribution_boundary=locally-built boot images and MPSS inputs are excluded
 EOF
 
 (cd "$out_dir" && sha256sum "$(basename "$archive")" "$(basename "$metadata")" > "$(basename "$checksums")")
-sha256sum -c "$checksums"
+(cd "$out_dir" && sha256sum -c "$(basename "$checksums")")
 
 echo "archive=$archive"
 echo "metadata=$metadata"
 echo "checksums=$checksums"
 echo "commit=$commit"
-
