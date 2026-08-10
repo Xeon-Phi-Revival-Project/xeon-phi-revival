@@ -41,8 +41,11 @@ for the required loader, libc, pthread, math, dl, rt, and util libraries.
 The 2026-08-09 clean build accepted `k1om-mpss-linux`, configured successfully,
 and selected the K1OM plus x86-64 LP64 sysdeps chain. It currently stops in the
 math subdirectory because upstream's x86-64 long-double classification sources
-are not selected automatically for K1OM. The first missing `s_isinfl` source
-was supplied through a narrow tracked wrapper; the next is `s_isnanl`.
+are not selected automatically for K1OM. Narrow tracked wrappers now supply
+`s_isinfl` and `s_isnanl`; the next missing routine is `s_finitel`. The K1OM
+compiler reports 80-bit extended-precision long double, while upstream's
+matching x86-64 implementation is assembly that must be reviewed for KNC
+instruction compatibility before it is reused.
 
 This is a source-level K1OM overlay issue. No binary from the private runtime
 was copied into the public profile, and no hardware test is warranted yet.
