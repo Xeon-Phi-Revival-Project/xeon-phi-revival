@@ -212,3 +212,26 @@ The next reproduction attempt must first preserve or recover the actual
 hardware-tested `bzImage`, original `compile.h`, and `.version` state, then
 override old Kbuild metadata generation before a minimal relink. Without those
 inputs, byte-for-byte reproduction cannot be claimed.
+
+## 2026-08-10 Controlled Metadata Relink
+
+The validated artifacts were subsequently recovered at
+`/root/xpr-kernel-candidate-solros-build-validated`: `bzImage` is exactly
+`d529aecf0de11e0b4a9a036eb0329d1bb9c907fd6a911ce08a10548c9380d4d8`,
+`vmlinux` is `b96b976f2eac4da888edef36fea8234efc97b00160a72da595d5ed048021991e`,
+and its generated header records build `#1`, `Sat Aug 1 22:34:49 EDT 2026`.
+
+One controlled relink used the retained historical source-root path, restored
+`.version` to `1`, and supplied that exact header through a temporary source
+tree `scripts/mkcompile_h` override. It produced `vmlinux`
+`694a0f6f19e94ddb34be8d81143d7aa59513fdf08cc6d3258a8d26fed40405fb` and
+`bzImage` `4a97ac90a87a7da207a7ebec2422645f44499483ee22697c4e104390e17646c1`:
+neither matched. The output header remained build `#2` with the Aug 10 time.
+The source script restoration hash matched its pre-test hash.
+
+This proves the out-of-tree build checked its generated `O=scripts` helper,
+not the source-tree helper that was overridden. The next smallest experiment
+is to control the generated helper or its explicit Kbuild command in the
+historical output directory before relinking. It must preserve the validated
+header, `.version`, source-root path, and compiler path; no further broad
+kernel rebuild is justified.
