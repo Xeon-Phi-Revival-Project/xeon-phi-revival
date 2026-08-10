@@ -168,3 +168,33 @@ The clean build did use the same K1OM GCC major version, but these differences
 show that an unrecorded source-tree, generated-header, or build-environment
 input affected code generation or linked content. The exact `d529...` kernel
 is therefore not yet reproducibly attributable to the current source recipe.
+
+## Historical-Tree Forensics
+
+The retained historical source path was then rebuilt out of tree. A targeted
+comparison found no content difference in compilable source, header, Kbuild,
+or Kconfig files against the archived Solros tree. Its source-root path is
+nevertheless build-relevant because old kernel code embeds `__FILE__` strings
+and their linked addresses.
+
+That historical-path rebuild produced the exact tested hashes for the semantic
+sections and link map:
+
+| Item | Tested | Historical-tree rebuild |
+| --- | --- | --- |
+| `.text` SHA-256 | `d3fcfb984c7fa466a48ecc1f3d30c9fd8dec97de606e727f3d7e1850e7f39104` | identical |
+| `__modver` SHA-256 | `d583ce16fb8fe716f022d2fb503cca88e944114f5375ac289dd12d7da61a51d8` | identical |
+| `System.map` SHA-256 | `631674771d32602354e780209b86f2193ab24f8135056d654b1729f4967834a6` | identical |
+
+`Module.symvers` was also byte-identical between the retained and clean
+builds, so module-version generation is not the unresolved input. The first
+clean-tree divergence is `linux_banner` in `.rodata`; its build timestamp
+shifts linked data and relocation immediates in `ident_complete`.
+
+The remaining whole-image blocker is historical Kbuild metadata. The retained
+artifact records a build-start banner timestamp and a later generated
+`compile.h` time. Rebuilding regenerates `compile.h` and increments the build
+version; copying the retained header before relinking is overwritten by Kbuild.
+The next exact action is to pin the historical source-root path and control or
+patch the old `mkcompile_h`/build-version generation so both fields are
+recreated without regeneration. No source-code or module-CRC delta remains.
