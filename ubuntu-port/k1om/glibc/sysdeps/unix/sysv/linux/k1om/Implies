@@ -1,0 +1,2 @@
+# Reuse Linux x86-64 syscall and ABI sysdeps after K1OM-specific overrides.
+unix/sysv/linux/x86_64

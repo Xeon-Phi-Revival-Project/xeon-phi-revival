@@ -1,0 +1,2 @@
+# Knights Corner uses the x86-64 LP64 ABI plus the K1OM ELF machine value.
+x86_64
