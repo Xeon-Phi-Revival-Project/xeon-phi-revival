@@ -2,9 +2,10 @@
 
 ## Current Status - Active Development
 
-Development is active. The XPR-OS 0.1.0-rc1 private image passed its final-root
-hardware gate on August 10, 2026. The remaining public-release work is source
-packaging and redistribution compliance, not boot-path debugging.
+Development is active. The XPR-OS 0.1 private image passed its final-root
+hardware gate on August 10, 2026. The corrected public source/BYO-MPSS release
+is RC2. The remaining prebuilt-image work is source provenance, reproducible
+binary rebuilding, and redistribution compliance, not boot-path debugging.
 
 The corrected source/metadata/BYO-MPSS prerelease is published at
 <https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc2>.
@@ -48,15 +49,30 @@ payload hashes. The accepted run passed the full release smoke suite, including
 `apt-get install --reinstall xpr-pci-tools`, then restored stock online state,
 stock SSH, stock PID 1, and the exact baseline MPSS configuration hash.
 
+Later hardware usability checks also proved:
+
+- the XPR-OS ASCII banner is emitted by final-root PID 1 and installed as the
+  login MOTD;
+- an interactive Dropbear session reaches the BusyBox `ash` prompt after
+  mounting `devpts` and creating the KNC kernel's legacy `/dev/ptmx` node;
+- Python 3.12's `exit()` and `quit()` helpers work after removing the private
+  payload wrapper's hardcoded `-S` startup flag.
+
+The corresponding source fixes and release-smoke checks are committed. They
+have been validated live, but a newly rebuilt image containing all post-gate
+usability fixes still needs one complete boot, smoke, and rollback run before
+it replaces the accepted artifact hashes above.
+
 Current execution checklist:
 
-1. Publish a source/metadata/BYO-MPSS `0.1.0-rc1` prerelease.
-2. Keep all Intel/MPSS payloads and private generated binaries out of it.
-3. Preserve exact private artifact hashes and sanitized hardware evidence.
-4. Complete per-file provenance and copyleft source-offer material before any
+1. Keep the published RC2 source/BYO-MPSS release free of Intel/MPSS payloads
+   and private generated binaries.
+2. Preserve exact private artifact hashes and sanitized hardware evidence.
+3. Complete per-file provenance and copyleft source-offer material before any
    prebuilt binary release.
-5. Repeat the exact final artifact on additional compatible KNC hardware when
-   available.
+4. Rebuild and rerun the full suite with the banner, PTY, and Python-site fixes.
+5. Repeat the exact publishable artifact on additional compatible KNC hardware
+   when available.
 
 Safety remains unchanged: no firmware, ROM, flash, or persistent card-storage
 modification; alternate MPSS configuration only; automatic rollback; no public
@@ -140,12 +156,15 @@ enough to open Level 3, and started Level 3:
   architecture metadata, dpkg metadata fragments, a local archive skeleton, and
   a source-package status matrix.
 
-The Ubuntu package-expansion lane remains on hold while the clean-root boot
-path is established. The early Base CPIO execution and project handoff
-milestones are proven; do not treat the remaining rootfs work as a Python,
-package-manager, or K1OM execution failure.
+The clean-root, final PID 1, networking, SSH, package-manager, and Python paths
+are now established. Further package expansion is optional RC follow-up work;
+the active release blocker is binary provenance and redistribution review.
 
 ## Project PID 1 uOS Boot Track
+
+This section is a chronological milestone log. Early failure descriptions are
+retained as evidence and are superseded by the current summary above and the
+[RC live report](ubuntu-port/xpr-uos-0.1-rc-live-report.md).
 
 - The exact stock MPSS boot inputs were mapped read-only.
 - Stock kernel, System.map, base initramfs, generated card ramfs, and MPSS
@@ -160,10 +179,11 @@ package-manager, or K1OM execution failure.
 - The rootfs validator confirmed checked ELF files are K1OM `e_machine=181`
   and required runtime libraries resolve inside the rootfs.
 - A private gzip/newc cpio image was packed and hashed.
-- The clean project root now performs the MPSS online notification through a
+- The clean project root performs the MPSS online notification through a
   project-owned readiness path. Three identical bounded boots reached `online`
-  and returned a project TCP marker; each recovered to stock SSH. The remaining
-  boot-lane task is project-owned SSH and shell verification.
+  and returned a project TCP marker; each recovered to stock SSH.
+- The later split-root RC proved project-owned final-root Dropbear SSH,
+  interactive shell allocation, package management, Python, and project PID 1.
 - Activation was attempted through direct `micctrl --configdir`, service
   environment selection, temporary `/etc/sysconfig/mpss.conf` selection,
   dynamic `Ramfs`, direct `StaticRamFS`, and foreground
@@ -413,80 +433,25 @@ package-manager, or K1OM execution failure.
   Python 3.12/ctypes/pthread/zlib/ncurses/network/SSH smoke checks, and rolled
   back to stock MPSS.
 
-## Current Public Artifacts
+## Current Public Entry Points
 
-- `README.md`
-- `docs/getting-started-card-to-code.md`
-- `docs/source-index.md`
-- `artifacts/public/uos-elf-inventory.csv`
-- `artifacts/public/uos-dependency-graph.json`
-- `docs/uos/stock-uos-elf-inventory.md`
-- `docs/uos/stock-uos-library-dependencies.md`
-- `docs/uos/ubuntu-24.04-uos-research.md`
-- `docs/uos/ubuntu-24.04-level1-gap-report.md`
-- `docs/uos/ubuntu-24.04-level1-filelist-report.md`
-- `docs/uos/ubuntu-24.04-level1-runtime-report.md`
-- `docs/uos/ubuntu-24.04-level2-zlib-report.md`
-- `docs/uos/ubuntu-24.04-level2-completion-report.md`
-- `docs/uos/ubuntu-24.04-level3-python-report.md`
-- `docs/uos/k1om-compat-demo-report.md`
-- `docs/uos/ubuntu-24.04-python-userland-report.md`
-- `docs/uos/python-3.12-k1om-probe-report.md`
-- `docs/uos/pid1-boot-path.md`
-- `docs/uos/stock-rollback-baseline.md`
-- `docs/uos/first-project-pid1-report.md`
-- `docs/uos/project-uos-profile-report.md`
-- `docs/uos/base-cpio-reconstruction-control.md`
-- `docs/project-status-paused.md`
-- `docs/ubuntu-port/k1om-architecture-port-start.md`
-- `docs/ubuntu-port/true-ubuntu-port-readiness.md`
-- `docs/ubuntu-port/k1om-bootstrap-package-report.md`
-- `docs/ubuntu-port/k1om-bootstrap-package-set-report.md`
-- `docs/ubuntu-port/k1om-apt-sandbox-report.md`
-- `docs/ubuntu-port/k1om-libffi-ctypes-report.md`
-- `docs/ubuntu-port/real-dpkg-k1om-report.md`
-- `docs/ubuntu-port/real-apt-k1om-bridge-report.md`
-- `docs/ubuntu-port/eglibc-2.19-k1om-pthread-runtime-report.md`
-- `docs/ubuntu-port/uos-rc-acceptance-checklist.md`
-- `docs/ubuntu-port/uos-rc-build-install.md`
-- `docs/ubuntu-port/xpr-uos-0.1-rc-live-report.md`
-- `docs/toolchain/minimum-k1om-runtime.md`
-- `docs/toolchain/k1om-package-requirements.md`
-- `docs/toolchain/mpss-sdk-k1om-3.4.10-preinstall-report.md`
-- `docs/toolchain/mpss-sdk-k1om-3.4.10-postinstall-report.md`
-- `docs/architecture/observed-k1om-elf-abi.md`
-- `docs/toolchain/open-k1om-toolchain-feasibility.md`
-- `docs/handbook/glossary.md`
-- `tools/uos/run-micdir-pid1-handoff-experiment.sh`
-- `tools/uos/run-micdir-second-stage-service-experiment.sh`
-- `tools/ubuntu-port/check-k1om-package-determinism.sh`
-- `tools/ubuntu-port/audit-k1om-package-set.sh`
-- `tools/ubuntu-port/simulate-k1om-package-install.sh`
-- `tools/ubuntu-port/build-libffi-k1om.sh`
-- `tools/ubuntu-port/build-dpkg-k1om.sh`
-- `tools/ubuntu-port/build-apt-k1om-bridge.sh`
-- `manifests/experiments/native-runs/20260727-212630-start-exit42.yml`
-- `manifests/experiments/native-runs/20260727-212700-hello-libc.yml`
-- `manifests/experiments/native-runs/20260727-212720-hello-libc.yml`
-- `manifests/experiments/native-runs/20260727-213155-hello-knc.yml`
-- `manifests/experiments/native-runs/20260727-213424-return-constant.yml`
-- `manifests/experiments/native-runs/20260727-213441-file-io-smoke-test.yml`
-- `manifests/experiments/native-runs/20260727-213454-math-smoke-test.yml`
-- `manifests/experiments/native-runs/20260727-213506-thread-smoke-test.yml`
-- `manifests/experiments/native-runs/20260727-214058-vector-smoke-test.yml`
-- `manifests/experiments/first-project-pid1.yml`
-- `manifests/experiments/second-stage-uos-profile.yml`
-- `manifests/experiments/k1om-profile-package-bootstrap.yml`
-- `manifests/experiments/k1om-bootstrap-package-set.yml`
-- `manifests/experiments/k1om-apt-sandbox.yml`
-- `manifests/experiments/python-3.12-k1om-probe.yml`
-- `manifests/experiments/python-3.12-k1om-expanded-runtime.yml`
-- `manifests/experiments/eglibc-2.19-k1om-pthread-runtime.yml`
-- `manifests/experiments/eglibc-2.19-k1om-package-gate.yml`
-- `manifests/experiments/xpr-uos-0.1-rc.yml`
+- [Documentation map](README.md)
+- [Card-to-code guide](getting-started-card-to-code.md)
+- [RC source-build guide](release/build-xpr-os-rc-from-source.md)
+- [RC live hardware report](ubuntu-port/xpr-uos-0.1-rc-live-report.md)
+- [RC acceptance checklist](ubuntu-port/uos-rc-acceptance-checklist.md)
+- [Source index](source-index.md)
+- [Compliance review](release/compliance-review.md)
+- [Release license review](release/xpr-uos-0.1-license-review.md)
 
-## Safest Next Technical Action
+The complete dated experiment and manifest inventory remains in `docs/`,
+`manifests/`, and `artifacts/public/`. Use the documentation map instead of
+treating every historical report as a current instruction page.
 
-Build and validate the smallest clean project-owned rootfs for the proven
-project early-init handoff path. Continue avoiding committed proprietary or
-uncertain-redistribution payloads.
+## Highest-Value Next Technical Action
+
+Complete the per-component provenance matrix, replace or rebuild
+lineage-uncertain binary inputs, and produce one clean private image containing
+the committed banner, PTY, and Python-site fixes. Then run the exact image
+through the complete hardware smoke and stock-rollback suite before considering
+a prebuilt binary prerelease.

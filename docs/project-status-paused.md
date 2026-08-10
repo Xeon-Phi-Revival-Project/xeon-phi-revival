@@ -6,6 +6,12 @@ Pause recorded: 2026-08-02
 This document preserves the prior pause decision only. Active project status,
 current evidence, and the execution checklist are in [Project Status](status.md).
 
+> [!NOTE]
+> Subsequent work solved the historical Base CPIO and final-root handoff
+> blockers. XPR-OS now reaches project PID 1, networking, SSH, packages, and
+> Python on the tested 5110P. The record below is intentionally unchanged
+> chronology, not the current project state.
+
 ## Reason for the historical pause
 
 The August 2 pause was logistical: the available Codex usage quota was nearly

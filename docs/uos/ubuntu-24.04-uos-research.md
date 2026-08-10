@@ -1,5 +1,11 @@
 # Ubuntu 24.04 uOS Research Track
 
+> [!NOTE]
+> This page defines the original research levels and preserves their historical
+> status. The project later reached a hardware-verified Ubuntu-derived XPR-OS
+> final root with project PID 1, networking, SSH, native packages, and Python
+> 3.12. See [Project Status](../status.md) for the current state.
+
 This track investigates whether a newer Ubuntu-inspired or Ubuntu-derived
 userland can run on Intel Xeon Phi Knights Corner under the stock MPSS boot
 model.

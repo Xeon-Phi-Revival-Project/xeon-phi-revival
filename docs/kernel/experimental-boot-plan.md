@@ -1,5 +1,11 @@
 # Experimental Compatibility Boot Plan
 
+> [!NOTE]
+> This is a historical test plan. The later split-root path solved the full-root
+> handoff and passed project PID 1, networking, SSH, native execution, package
+> management, Python, and rollback gates. See
+> [the RC live report](../ubuntu-port/xpr-uos-0.1-rc-live-report.md).
+
 One bounded compatibility boot was performed with an alternate MPSS config
 directory, rebuilt five-module Base CPIO, bounded polling, and stock recovery.
 The first image reached `booting` but not `online`; the release/module-path

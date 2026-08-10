@@ -239,14 +239,11 @@ The accepted final run restored configuration hash
 - Clear per-file classification for Ubuntu/GNU-derived binary outputs.
 - Removal or replacement of remaining private Intel/MPSS payload dependencies
   where redistribution is not allowed.
-- Optional Python extension packaging for `_bz2`, `_lzma`, `readline`,
-  `_sqlite3`, `_curses`, and `curses.panel`.
 - A downloadable release procedure that publishes only approved artifacts.
 
 ## Highest-Value Next Step
 
-Run the redistribution review path against the generated artifact manifest and
-split the RC output into:
+Complete the per-component provenance matrix and split the RC output into:
 
 - public metadata/source/package recipes;
 - redistributable generated outputs;
@@ -283,3 +280,21 @@ The run also passed final-root SSH, hello, pthread, native package management,
 Python 3.12, and filesystem checks. Its bounded recovery restored stock MPSS,
 stock SSH, K1OM `init` as PID 1, and configuration hash
 `9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51`.
+
+## Post-Gate Interactive Usability Checks
+
+An attended XPR-OS session exposed two usability gaps that non-interactive SSH
+smoke tests did not cover:
+
+1. Dropbear accepted commands but rejected PTY and shell requests because the
+   final init had not mounted `devpts` or created the legacy KNC `/dev/ptmx`
+   character device (`5:2`). After adding both, a forced interactive session
+   displayed the MOTD and reached the `~ #` prompt.
+2. The private Python launcher hardcoded `-S`, which disabled `site.py` and its
+   normal `exit()` and `quit()` helpers. Removing `-S` made `python3 -c exit`
+   return successfully. The public package recipe now enables site startup by
+   default, with an explicit opt-out for deliberately site-free tests.
+
+The source fixes and regression smoke checks are committed. These live checks
+prove the behavior on the running card, but they do not replace a complete
+clean-image rebuild, boot, smoke, and rollback run.

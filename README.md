@@ -2,14 +2,15 @@
 
 Practical preservation and software bring-up for Intel Xeon Phi Knights Corner
 coprocessors. The current lab target is a working 5110P that can boot MPSS,
-accept SSH, compile native K1OM programs, and run an experimental
-Ubuntu-shaped package/profile layer.
+compile native K1OM programs, and boot the experimental Ubuntu-derived XPR-OS
+split-root environment with project PID 1, networking, SSH, packages, and
+Python 3.12.
 
 The Xeon Phi Revival Project is a community preservation and engineering effort
 focused on restoring usable software-development support for Intel Xeon Phi
-Knights Corner coprocessors. The project has successfully compiled and executed
-native K1OM assembly, C, pthread, math, file-I/O, and 512-bit vector test
-programs on an Intel Xeon Phi 5110P running MPSS 3.4.10.
+Knights Corner coprocessors. The project now boots a project-controlled
+split-root XPR-OS environment with PID 1, networking, SSH, native package
+management, and Python 3.12 on an Intel Xeon Phi 5110P running MPSS 3.4.10.
 
 This project is AI-assisted and Codex-driven: planning, documentation,
 experiments, scripts, and repository maintenance are being developed in
@@ -30,7 +31,12 @@ actual Xeon Phi system before being treated as project facts.
 - Latest source/BYO-MPSS prerelease:
   [XPR-OS 0.1.0-rc2](https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc2)
 - New to the hardware: [From Card To Code](docs/getting-started-card-to-code.md)
+- Documentation map: [Documentation](docs/README.md)
 - Current verified status: [Project Status](docs/status.md)
+- Build the RC from public source and local inputs:
+  [Build XPR-OS RC From Source](docs/release/build-xpr-os-rc-from-source.md)
+- Hardware evidence: [XPR-OS 0.1 RC Live Report](docs/ubuntu-port/xpr-uos-0.1-rc-live-report.md)
+- Release boundary: [Compliance Review](docs/release/compliance-review.md)
 - Public-safe source/reference list: [Source Index](docs/source-index.md)
 - Ubuntu/K1OM package lane:
   [K1OM Ubuntu Port Lab](ubuntu-port/k1om/README.md)
@@ -79,58 +85,39 @@ Verified native runs:
 
 ## Current Port Progress
 
-The project has moved beyond initial native execution into reversible uOS and
-Ubuntu-style package experiments:
+The project has moved beyond native-program probes into a hardware-verified,
+reversible XPR-OS release-candidate path:
 
-- Project PID 1 handoff through MPSS MicDir was proven and rolled back.
-- A second-stage project service can run after stock init without replacing the
-  stock uOS.
-- A deterministic local `Architecture: k1om` package set now builds into a
-  Noble-style `binary-k1om` archive with `Packages`, `Packages.gz`, and
-  `Release` checksum metadata.
-- Host-side APT can parse the local archive when forced to
-  `APT::Architecture=k1om`.
-- The current thirty-six-package bootstrap set boots on `mic0`, runs
-  `hello-knc`, CPython core, zlib smoke, ncurses smoke through a separately
-  packaged `libtinfo5-k1om` runtime, basic filesystem/OS smoke, exposes
-  dpkg-style package status, provides project `dpkg`/`apt-get`/`apt-cache`
-  commands backed by the local K1OM archive, provides `python3`/`python`
-  command wrappers, exposes common BusyBox-backed command entrypoints, includes
-  a small `pcietool` sysfs helper, packages a project-owned libc runtime stack
-  and split zlib/ncurses/readline/OpenSSL-1.0 runtime libraries under
-  `/opt/xeon-phi-revival/lib64`, includes packaged CPython 3.12.13 and
-  `libffi8-k1om`, includes OpenSSL-backed `_ssl`/`_hashlib`, and provides
-  working Python `_ctypes` calls and callbacks.
-- CPython 3.12.13 now runs on `mic0` as local `Architecture: k1om` packages:
-  `python3.12-minimal-k1om`, `python3.12-stdlib-k1om`,
-  `python3.12-sysconfig-k1om`, and `python3.12-smoke-k1om`. The packaged
-  smoke covers zlib, hashes, XML, pickle, CSV, asyncio import, sysconfig,
-  threading, decimal, socket, `bz2`, `lzma`, `readline`, `sqlite3`, `curses`,
-  `curses.panel`, `_ctypes` foreign calls, `_ctypes` callbacks, and more.
-- Ubuntu Noble dpkg `1.22.6ubuntu6.6` now builds as native K1OM and completed
-  clean single-package and full 36-package transactions on `mic0`.
-- A real Ubuntu APT `1.0.1ubuntu2.24` compatibility build now runs natively,
-  updates from the local Noble-style `file:` repository, resolves dependencies,
-  and drove real dpkg through a complete isolated 36-package install. This is a
-  compatibility bridge; it is not Noble APT or an upstream Ubuntu port.
-- The `xpr-uos` 0.1.0-rc1 split-root path is proven on a Xeon Phi 5110P. A
-  project-built compatibility kernel boots a small bootstrap, transfers and
-  verifies the final payload, performs the project-owned root transition, and
-  starts the final BusyBox-based project init as PID 1.
-- The final root passed micveth networking, project Dropbear SSH, native hello
-  and pthread tests, Python 3.12.13 with `ctypes`, local APT metadata refresh,
-  and a clean `apt-get install --reinstall xpr-pci-tools` transaction.
-- Two clean builds produced identical bootstrap, Base CPIO, and payload hashes.
-  Automatic rollback restored stock MPSS, stock SSH, and the exact baseline
+- A project-built compatibility kernel boots a small bootstrap and a
+  checksummed final-root payload.
+- The project switch helper reaches the final project root and runs the
+  BusyBox-based project init as PID 1.
+- The final root provides micveth, Dropbear SSH, an XPR-OS boot/login banner,
+  interactive PTYs, native hello and pthread tests, and Python 3.12.13.
+- Native K1OM dpkg and an APT compatibility bridge operate against an embedded
+  local `Architecture: k1om` repository; package reinstallation passed on the
+  card.
+- Python `_ctypes` calls and callbacks and zlib passed in the accepted eglibc
+  profile. Optional modules are reported separately instead of being treated
+  as core RC failures.
+- Two clean private builds reproduced the bootstrap, Base CPIO, and payload
+  hashes. Bounded hardware runs restored stock MPSS, stock SSH, and the exact
   configuration hash.
+- Post-gate usability checks proved an interactive SSH shell, the XPR-OS
+  banner, and normal Python `exit()`/`quit()` helpers. Their source fixes must
+  be included in the next clean image and full smoke run before a new binary
+  artifact is called hardware-accepted.
 
 See `docs/status.md` and `docs/ubuntu-port/` for the latest public-safe
 reports.
 
-## Minimum True Ubuntu Port Line
+## Ubuntu-Derived Claim Boundary
 
-The project should only call the result a true Ubuntu K1OM port after these
-minimum pieces are reproducible and tested:
+The current RC satisfies most of the functional minimums below, but it is not
+an official Ubuntu architecture port and is not produced by Ubuntu's archive
+infrastructure. The accurate current description is an experimental,
+Ubuntu-derived K1OM XPR-OS environment. A stronger Ubuntu-port claim requires
+all of these pieces to be publicly reproducible and tested:
 
 - Ubuntu package metadata recognizes a real `k1om` architecture, including
   `dpkg-architecture` fragments and a `binary-k1om` archive path.
@@ -191,6 +178,7 @@ move should be collecting evidence, not guessing with firmware.
 
 ## Repository Structure
 
+- `src/`: project-owned init, switch, banner, and native helper source.
 - `docs/`: public-safe architecture, uOS, hardware, and toolchain notes.
 - `tests/`: original K1OM smoke-test source code.
 - `tools/`: original helper scripts for metadata collection and validation.
@@ -199,52 +187,17 @@ move should be collecting evidence, not guessing with firmware.
 - `experiments/`: native run harnesses.
 - `manifests/`: hardware and experiment manifests.
 - `artifacts/public/`: public-safe generated metadata only.
+- `tools/release/`: deterministic source packaging and split-root assembly.
 
-## Current Experimental Profile
+## Private Experimental Profile
 
-The latest local profile is a thirty-six-package `Architecture: k1om` set. It is
-not a full Ubuntu port yet, but it behaves more like a small Linux userland:
+The accepted private profile contains 36 local `Architecture: k1om` packages,
+including the project eglibc runtime, BusyBox command layer, native dpkg, the
+APT compatibility bridge, CPython 3.12, libffi, zlib, ncurses, package smokes,
+and project services. The package archive and binaries are not public release
+artifacts while provenance and redistribution review remains incomplete.
 
-```text
-apt-k1om
-base-files-k1om
-dpkg-k1om
-hello-knc-smoke
-libc6-k1om
-libc-stack-smoke-k1om
-libdl2-k1om
-libffi8-k1om
-libgcc1-k1om
-libm6-k1om
-libcrypto1.0.0-k1om
-libncurses5-k1om
-libpthread0-k1om
-libreadline6-k1om
-librt1-k1om
-libssl1.0.0-k1om
-libutil1-k1om
-libtinfo5-k1om
-ncurses-base-k1om
-ncurses-smoke-k1om
-python3.5-minimal-k1om
-python3.5-stdlib-k1om
-python3.5-lib-dynload-k1om
-python3.5-smoke-k1om
-python3.12-minimal-k1om
-python3.12-stdlib-k1om
-python3.12-sysconfig-k1om
-python3.12-smoke-k1om
-xpr-shell-compat
-xpr-busybox-compat
-xpr-runtime-libs-smoke
-zlib1g-k1om
-zlib-smoke-k1om
-xpr-pci-tools
-xpr-os-smoke
-xeon-phi-revival-stage2
-```
-
-Verified command conveniences inside the profile:
+Verified commands include:
 
 ```bash
 ls
@@ -255,6 +208,7 @@ awk
 find
 python3
 python
+busybox --list
 pcietool
 dpkg
 dpkg-query
@@ -263,6 +217,9 @@ apt-get
 apt-cache
 cat /var/lib/dpkg/status
 ```
+
+The shell is BusyBox `ash`, not Bash. Bash-only builtins such as `help` are not
+present; use `busybox --list` and `busybox COMMAND --help` to discover applets.
 
 ## Bring Your Own MPSS
 
@@ -292,10 +249,11 @@ bring-up to repeatable native K1OM program execution.
 The private package/runtime profile passed its documented Python, libc,
 networking, SSH, package-manager, and rollback tests. The split-root transition
 and final project PID 1 are proven. The current public-release boundary is
-redistribution: source, metadata, and BYO-MPSS tooling may be released now, but
-the private kernel, modules, bootstrap, package repository, and rootfs are not
-public artifacts. See [the RC1 plan](docs/release/xpr-os-0.1.0-rc1-plan.md) and
-[latest experimental boot results](docs/kernel/experimental-boot-results.md).
+redistribution: source, metadata, and BYO-MPSS tooling are published as RC2,
+but the private kernel, modules, bootstrap, package repository, and rootfs are
+not public artifacts. See the [current status](docs/status.md),
+[source-build guide](docs/release/build-xpr-os-rc-from-source.md), and
+[compliance review](docs/release/compliance-review.md).
 
 The earlier non-eglibc package set demonstrated OpenSSL-backed Python modules,
 SQLite, curses, terminfo, libffi, and `_ctypes`; the later eglibc-backed RC gate

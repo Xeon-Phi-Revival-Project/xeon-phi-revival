@@ -1,9 +1,10 @@
 # Building And Booting The K1OM uOS RC
 
-This document records the release-candidate build lanes. It assumes a
-compatible Knights Corner card, a working MPSS 3.4.x host, and locally supplied
-K1OM SDK/runtime inputs. It does not download or redistribute proprietary Intel
-payloads.
+This is the lab reference for the release-candidate build lanes. New builders
+should begin with [Build XPR-OS RC From Source](../release/build-xpr-os-rc-from-source.md),
+which separates the public source archive from the private BYO-MPSS image and
+lists the current reproducibility gap. This page retains the older MicDir
+commands and accepted split-root implementation details.
 
 ## Current Split-Root Lane
 
@@ -19,6 +20,11 @@ The exact local source, toolchain, module, key, and payload paths are private
 host inputs and are intentionally not hard-coded as portable defaults. Every
 live run must use an alternate MPSS configuration, bounded polling, an active
 rollback trap, and the expected stock configuration hash.
+
+The current split-root assembler command, input contract, preflight checks, and
+bounded hardware-runner command are documented step by step in the source-build
+guide. Do not substitute the MicDir commands below when claiming the accepted
+final-root architecture.
 
 The older MicDir profile flow below remains useful for rebuilding the package
 set, but it is no longer the authoritative final-root boot result.
@@ -91,7 +97,7 @@ The boot command uses the existing MicDir package installation path, leaves the
 RC profile active only long enough to run `run-k1om-uos-rc-smoke.sh`, then runs
 the generated rollback script and verifies stock MPSS recovery.
 
-## Recovery
+## MicDir Recovery
 
 Every live run creates a timestamped private run directory containing a
 `rollback-stock.sh` script generated from the backups taken before overlaying
@@ -122,7 +128,8 @@ stock uOS contents, firmware, private rootfs images, generated K1OM binaries,
 or archives whose redistribution rights have not been reviewed.
 
 Use `tools/release/package-public-rc.sh` to create the public source/metadata
-prerelease archive. It packages tracked Git content only and rejects common
+prerelease archive. It packages tracked Git content only, runs the source
+compliance audit, and rejects common
 binary/private payload patterns. `tools/ubuntu-port/package-k1om-uos-rc-release.sh`
 remains available for private-build metadata; by default it also excludes the
 generated rootfs.

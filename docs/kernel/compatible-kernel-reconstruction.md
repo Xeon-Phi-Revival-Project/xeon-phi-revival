@@ -49,6 +49,8 @@ project `/sbin/init` PID 1, MPSS readiness, virtual networking, project
 Dropbear SSH, and hello/pthread smoke tests through the MPSS 3.4.10 host.
 The same small image passed three consecutive bounded boots with verified stock
 rollback. This establishes a compatibility result, not source equivalence or a
-complete MPSS 3.4.10 rebuild. The large RC-root integration is currently
-blocked before userspace; see
-[experimental-boot-results.md](experimental-boot-results.md).
+complete MPSS 3.4.10 rebuild. The later split-root integration passed final
+project PID 1, networking, SSH, native execution, package management, Python,
+and rollback; see the
+[RC live report](../ubuntu-port/xpr-uos-0.1-rc-live-report.md). Kernel source
+provenance and redistribution remain unresolved for a public prebuilt image.

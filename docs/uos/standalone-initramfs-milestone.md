@@ -1,5 +1,12 @@
 # Standalone K1OM Initramfs Milestone
 
+> [!NOTE]
+> This is a historical narrow milestone. The project later adopted and proved
+> the split-root RC architecture with a project bootstrap and final project
+> root. Use [Project Status](../status.md) and the
+> [source-build guide](../release/build-xpr-os-rc-from-source.md) for current
+> instructions.
+
 This milestone is the first narrow step from the stock-init handoff RC toward a
 standalone Option B uOS. It intentionally excludes networking, SSH inside the
 experimental image, Dropbear, APT expansion, compiler modernization, and extra

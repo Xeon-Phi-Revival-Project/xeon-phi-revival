@@ -134,14 +134,18 @@ After hello works, run narrow tests before big ports:
 Do not jump straight to a large port until the small tests show which runtime
 pieces are present.
 
-## 7. Try The Experimental Ubuntu-Style Profile
+## 7. Build The Experimental XPR-OS Profile
 
-The current project lane builds local `Architecture: k1om` packages, indexes
-them into a Noble-style archive, simulates a dpkg install, installs them into
-MPSS MicDir staging, boots `mic0`, runs smoke checks, and rolls back.
+The accepted RC lane is a split-root boot: a small project bootstrap brings up
+the MPSS virtual link, receives a checksummed final-root payload, performs the
+project root transition, and starts the final project init as PID 1. The older
+MicDir profile remains useful for package experiments, but it is not the
+authoritative final-root result.
 
-The current private profile is intentionally not committed because it contains
-locally supplied K1OM payloads. The public tools are:
+Read [Build XPR-OS RC From Source](release/build-xpr-os-rc-from-source.md)
+before assembling private artifacts. The current private profile is not
+committed because it contains locally supplied or redistribution-unreviewed
+K1OM payloads. Key public tools include:
 
 ```text
 tools/ubuntu-port/build-k1om-bootstrap-packages.sh
@@ -149,19 +153,26 @@ tools/ubuntu-port/index-k1om-local-archive.sh
 tools/ubuntu-port/audit-k1om-package-set.sh
 tools/ubuntu-port/simulate-k1om-package-install.sh
 tools/ubuntu-port/run-k1om-bootstrap-package-set-experiment.sh
+tools/release/build-split-root-control.sh
+tools/kernel/run-candidate-base-cpio-control.sh
 ```
 
 Current verified conveniences inside the profile:
 
 ```bash
 ls
+busybox --list
 python3
 python
+dpkg --print-architecture
+apt-get update
 cat /var/lib/dpkg/status
 ```
 
-The Python wrappers currently default to no-site startup because normal
-`site.py` startup still needs `_sysconfigdata`.
+The shell is BusyBox `ash`, so Bash-only commands such as `help` are not
+expected. Use `busybox --list` or `busybox COMMAND --help`. Current source also
+enables Python's normal `site` startup so interactive `exit()` and `quit()` are
+available.
 
 ## 8. Keep Rollback Boring
 
@@ -172,6 +183,10 @@ Every live uOS or MicDir experiment should have:
 - A generated rollback script.
 - A post-rollback SSH check.
 - A check that project markers are absent from stock.
+
+The current bounded split-root runner performs these checks automatically and
+rolls back on exit. Its `--leave-running` option is only for attended sessions
+and is honored after the complete smoke suite passes.
 
 If the card gets stuck at `ready`, `booting`, or `resetting`, stop and collect
 state before changing firmware, boot images, or kernel modules.

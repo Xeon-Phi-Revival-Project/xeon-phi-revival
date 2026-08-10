@@ -43,12 +43,15 @@ ARCHITECTURE="k1om"
 - Basic commands available and tested: `ls`, `cat`, `cp`, `mv`, `rm`, `mkdir`,
   `mount`, `uname`, `ps`, and `env`.
 - Usable `/dev`, `/proc`, `/sys`, `/run`, and writable `/tmp`.
+- `devpts` is mounted, `/dev/ptmx` is usable, and an interactive SSH shell can
+  allocate a PTY.
 - Native K1OM package commands: `dpkg`, `dpkg-query`, `dpkg-deb`, `apt-get`,
   and `apt-cache`.
 - `dpkg --print-architecture` returns `k1om`.
 - `apt-get update` works against the local file repository.
 - Local package installation or reinstallation works.
 - Python 3.12 runs as `python3`; `python` should also select Python 3.12.
+- Python's normal interactive `exit()` and `quit()` helpers are available.
 - Python smoke passes core imports, zlib, `_ctypes` calls, and `_ctypes`
   callbacks.
 - Pthread-linked native smoke passes.
