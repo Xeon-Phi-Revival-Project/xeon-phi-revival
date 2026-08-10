@@ -59,9 +59,18 @@ The builder now explicitly selects `nptl,ports`; default add-on detection also
 enabled the obsolete `libpthread` add-on, which is incompatible with the NPTL
 callback ABI. The NPTL-only build links `libc.so` successfully after selecting
 the correctly named generic `strncase.c` target for the `__strncasecmp` alias.
-It continues into later iconv and math objects. The next failure is
-`fraiseexcpt.c`, where the inherited x86-64 code uses scalar SSE `divss`; it
-requires a K1OM x87-specific fallback.
+It continues through the x87 exception path and the generic double/float math
+objects. The K1OM overlay now also selects upstream non-SSE implementations
+for `fraiseexcpt`, all `fmin`/`fmax` precisions, `scalbl`, and the portable
+long-double `powl` pattern. Its x87 fenv wrapper supplies the complete
+rounding-context aliases expected by the generic math sources without using
+x86-64 SSE state.
+
+The active full build has passed the former `s_scalbnl`, `fraiseexcpt`,
+`e_remainder`, `fmin`/`fmax` double and float, `e_powl`, and `e_scalbl`
+boundaries. Long-double `fminl`/`fmaxl` source selection is the current
+in-progress validation. This is not yet a complete runtime or a hardware-ready
+public root.
 
 This is a source-level K1OM overlay issue. No binary from the private runtime
 was copied into the public profile, and no hardware test is warranted yet.
