@@ -6,6 +6,10 @@ Development is active. The XPR-OS 0.1.0-rc1 private image passed its final-root
 hardware gate on August 10, 2026. The remaining public-release work is source
 packaging and redistribution compliance, not boot-path debugging.
 
+The source/metadata/BYO-MPSS prerelease is published at
+<https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc1>.
+It intentionally contains no private boot binaries or Intel/MPSS payloads.
+
 Current active state:
 
 - Source baseline for the accepted run:

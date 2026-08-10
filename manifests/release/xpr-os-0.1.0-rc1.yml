@@ -1,5 +1,5 @@
 id: xpr-os-0.1.0-rc1
-status: source-byo-mpss-prerelease-ready
+status: source-byo-mpss-prerelease-published
 date: "2026-08-10"
 architecture: k1om
 hardware_tested:
@@ -51,6 +51,8 @@ repeatability:
   exact_final_payload_full_suite_boots: 1
 public_release:
   kind: source-metadata-byo-mpss
+  url: https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc1
+  source_archive_sha256: 4fda865e4f0a1be86a2e510a5a6866d145159db6d5cf87d9adee1c4933693c5f
   binary_images_included: false
   intel_mpss_files_included: false
   packager: tools/release/package-public-rc.sh
@@ -63,4 +65,3 @@ known_limits:
   - only Xeon Phi 5110P has completed the full gate
   - optional Python extensions remain absent from the accepted eglibc profile
   - this is not an official Ubuntu, Canonical, or Intel release
-

@@ -27,6 +27,8 @@ actual Xeon Phi system before being treated as project facts.
 
 ## Start Here
 
+- Latest source/BYO-MPSS prerelease:
+  [XPR-OS 0.1.0-rc1](https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc1)
 - New to the hardware: [From Card To Code](docs/getting-started-card-to-code.md)
 - Current verified status: [Project Status](docs/status.md)
 - Public-safe source/reference list: [Source Index](docs/source-index.md)

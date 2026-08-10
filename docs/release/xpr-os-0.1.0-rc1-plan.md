@@ -2,7 +2,7 @@
 
 ## Decision
 
-Status: `SOURCE_BYO_MPSS_RC_READY`
+Status: `SOURCE_BYO_MPSS_RC_PUBLISHED`
 
 The first public prerelease is a source, metadata, and bring-your-own-MPSS
 builder release. The bootable private image passed the hardware gates, but its
@@ -11,6 +11,9 @@ until every binary has a completed provenance and redistribution decision.
 
 This is an experimental Ubuntu-derived K1OM environment. It is not an official
 Ubuntu, Canonical, or Intel release.
+
+Published prerelease:
+<https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc1>
 
 ## Proven Architecture
 
