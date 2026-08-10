@@ -94,6 +94,7 @@ python3 --version
 python --version
 check python3_exec python3 -c 'print("python3-ok")'
 check python_default python -c 'import sys; print(sys.version.split()[0])'
+check python_exit_helper python3 -c 'import builtins; assert callable(builtins.exit) and callable(builtins.quit)'
 check python312_smoke python3.12 /opt/xeon-phi-revival/share/python312-smoke.py
 check ctypes_call python3 -c 'import ctypes; libc=ctypes.CDLL(None); f=libc.strlen; f.argtypes=[ctypes.c_char_p]; f.restype=ctypes.c_size_t; raise SystemExit(0 if f(b"phi")==3 else 1)'
 check ctypes_callback python3 -c 'import ctypes; C=ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_int, ctypes.c_int); cb=C(lambda a,b:a+b); raise SystemExit(0 if cb(19,23)==42 else 1)'
@@ -125,6 +126,7 @@ grep -q 'PASS:uname_machine_k1om' "$log"
 grep -q 'PASS:os_id_xpr' "$log"
 grep -q 'PASS:apt_update' "$log"
 grep -q 'PASS:apt_reinstall' "$log"
+grep -q 'PASS:python_exit_helper' "$log"
 grep -q 'PASS:python312_smoke' "$log"
 grep -q 'PASS:ctypes_call' "$log"
 grep -q 'PASS:ctypes_callback' "$log"

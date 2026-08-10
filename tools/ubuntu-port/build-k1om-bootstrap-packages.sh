@@ -437,7 +437,9 @@ export PYTHONHOME="$XPR_ROOT"
 export LD_LIBRARY_PATH="$XPR_ROOT/lib64:${LD_LIBRARY_PATH:-}"
 if [ -x "$XPR_ROOT/bin/python3.12" ]; then
   export PYTHONPATH="$XPR_ROOT/lib/python3.12"
-  if [ "${XPR_PYTHON_ENABLE_SITE:-0}" = "1" ]; then
+  # The interactive XPR-OS profile needs Python's normal site conveniences,
+  # including exit() and quit(). Set 0 only for a deliberately site-free run.
+  if [ "${XPR_PYTHON_ENABLE_SITE:-1}" = "1" ]; then
     exec "$XPR_ROOT/bin/python3.12" "$@"
   fi
   exec "$XPR_ROOT/bin/python3.12" -S "$@"
