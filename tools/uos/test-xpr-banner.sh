@@ -15,5 +15,6 @@ grep -q 'cat /etc/motd > /dev/console' "$repo_root/src/uos/xpr_rc_root_init.sh"
 grep -q 'XPR_SPLASH_DISPLAYED' "$repo_root/src/uos/xpr_rc_root_init.sh"
 grep -q 'xpr-banner.txt.*etc/motd' "$repo_root/tools/uos/build-xpr-clean-rootfs.sh"
 grep -q 'xpr-banner.txt.*etc/motd' "$repo_root/tools/ubuntu-port/build-k1om-minimal-ubuntu-rootfs.sh"
+grep -q 'replace-entry-file.*etc/motd' "$repo_root/tools/release/prepare-xpr-rootfs-payload.sh"
 
 echo "PASS: XPR-OS boot/login banner"

@@ -2,10 +2,10 @@
 set -euo pipefail
 
 usage() {
-  echo "usage: $0 --source FILE --out-dir DIR [--package-repo DIR] [--rc-init FILE] [--rc-init-script FILE]" >&2
+  echo "usage: $0 --source FILE --out-dir DIR [--package-repo DIR] [--rc-init FILE] [--rc-init-script FILE] [--banner FILE]" >&2
 }
 
-source_file=""; out_dir=""; package_repo=""; rc_init=""; rc_init_script=""
+source_file=""; out_dir=""; package_repo=""; rc_init=""; rc_init_script=""; banner=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --source) source_file="$2"; shift 2 ;;
@@ -13,6 +13,7 @@ while [[ $# -gt 0 ]]; do
     --package-repo) package_repo="$2"; shift 2 ;;
     --rc-init) rc_init="$2"; shift 2 ;;
     --rc-init-script) rc_init_script="$2"; shift 2 ;;
+    --banner) banner="$2"; shift 2 ;;
     *) usage; exit 2 ;;
   esac
 done
@@ -27,8 +28,12 @@ payload="$out_dir/xpr-rootfs.cpio.gz"
 manifest="$out_dir/xpr-rootfs.manifest"
 report="$out_dir/xpr-rootfs.archive-report"
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+[[ -n "$banner" ]] || banner="$repo_root/src/uos/xpr-banner.txt"
+[[ -f "$banner" ]] || { echo "missing XPR-OS banner: $banner" >&2; exit 2; }
 archive_args=(
   --source "$source_file" --output "$payload" --report "$report"
+  --replace-entry-file "etc/motd=$banner"
+  --replace-entry-file "etc/issue=$banner"
   --set-mode sbin/init=0755
   --assert-executable sbin/init
   --assert-executable bin/busybox
@@ -80,6 +85,7 @@ rm -f "$out_dir/.members"
   printf 'archive_report=%s\n' "$report"
   printf 'rc_init=%s\n' "${rc_init:-source-archive}"
   printf 'rc_init_script=%s\n' "${rc_init_script:-none}"
+  printf 'banner=%s\n' "$banner"
   printf 'package_repo=%s\n' "${package_repo:-none}"
   printf '%s\n' 'required_paths=sbin/init,bin/busybox,usr/sbin/dropbear,usr/bin/xpr-hello,usr/bin/xpr-pthread-smoke,etc'
 } > "$manifest"

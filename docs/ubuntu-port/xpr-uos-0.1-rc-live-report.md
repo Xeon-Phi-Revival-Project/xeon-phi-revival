@@ -258,3 +258,28 @@ publish the first usable release as a source/metadata/BYO-MPSS builder release,
 not as a prebuilt rootfs. A public binary rootfs should wait until copied or
 lineage-uncertain payloads are removed, rebuilt from documented public sources,
 or covered by a human legal review.
+
+## Boot And Login Banner Hardware Validation
+
+The canonical XPR-OS banner was tested on `mic0` using the accepted candidate
+kernel and split-root boot path on 2026-08-10. The final payload SHA-256 was
+`4d4e3169324afd5d3e360c542c09de7d70f3c013c5d43edbf7b3c63db5e57ac2`
+and its compressed size was 77,582,100 bytes.
+
+Observed final-root evidence included:
+
+```text
+XPR_RC_ROOT_SBIN_INIT_PID1
+XPR_RC_INIT_MOUNTS_READY
+Xeon Phi Revival K1OM uOS 0.1
+XPR_SPLASH_DISPLAYED
+XPR_DROPBEAR_RUNNING
+PASS:motd_xpr_os
+PASS:splash_boot_marker
+release_smoke=passed
+```
+
+The run also passed final-root SSH, hello, pthread, native package management,
+Python 3.12, and filesystem checks. Its bounded recovery restored stock MPSS,
+stock SSH, K1OM `init` as PID 1, and configuration hash
+`9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51`.
