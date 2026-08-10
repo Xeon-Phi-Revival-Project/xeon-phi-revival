@@ -1,5 +1,5 @@
 title: Xeon Phi Revival uOS 0.1 release license matrix
-status: engineering-review
+status: superseded-by-compliance-review
 not_legal_advice: true
 reviewed_private_build: /root/xeon-phi-revival-local/uos-rc-builds/xpr-uos-rc-20260730-053125
 reviewed_host:
@@ -9,6 +9,7 @@ release_recommendation:
   first_release_type: source-metadata-byo-mpss-builder
   do_not_publish_current_rootfs: true
   reason: current private rootfs contains copied or lineage-uncertain K1OM binaries and local MPSS/SDK-derived inputs that require redistribution review
+authoritative_review: docs/release/compliance-review.md
 mpss_license_rpm:
   filename: mpss-license-3.4.10-1.glibc2.12.x86_64.rpm
   installed: false
@@ -44,6 +45,14 @@ components:
     observed_license: various
     release_decision: bring-your-own-only
     action: use only as local input unless every copied file is replaced or separately approved
+  - name: compatibility-kernel
+    observed_license: GPL-2.0-only-tree-with-unresolved-source-provenance
+    release_decision: hold
+    action: publish only after exact corresponding source, provenance, config, patches, and build scripts are available
+  - name: five-card-side-modules
+    observed_license: GPLv2-fields-observed-verification-required-per-source-file
+    release_decision: hold
+    action: verify source grants and publish exact corresponding source and build scripts beside any module binaries
   - name: eglibc-runtime
     observed_license: LGPL-family
     release_decision: possible-after-compliance
@@ -52,6 +61,10 @@ components:
     observed_license: GPLv2
     release_decision: do-not-publish-current-copied-binary
     action: rebuild from source and provide corresponding source or keep local-only
+  - name: dropbear
+    observed_license: permissive-mit-bsd-style-multi-component
+    release_decision: possible-after-compliance
+    action: pin version and source hash, preserve complete upstream LICENSE, and record config and patches
   - name: cpython-3.12
     observed_license: PSF-2.0-plus-incorporated-licenses
     release_decision: possible-after-compliance
@@ -113,3 +126,7 @@ release_options:
       - include source and license bundles for GPL/LGPL/permissive components
       - prove no Intel MPSS payloads are included
       - human legal review
+current_verdict:
+  published_rc1_source_archive: supersede-because-lgpl-license-text-was-missing
+  corrected_source_byo_mpss_archive: publishable-after-audit
+  private_prebuilt_image: do-not-publish

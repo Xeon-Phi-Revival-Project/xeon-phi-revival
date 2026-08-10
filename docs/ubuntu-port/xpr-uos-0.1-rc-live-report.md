@@ -121,7 +121,7 @@ Project identity:
 
 ```text
 NAME="Xeon Phi Revival uOS"
-PRETTY_NAME="Xeon Phi Revival Ubuntu-derived K1OM uOS"
+PRETTY_NAME="Xeon Phi Revival K1OM uOS"
 ID=xpr-uos
 ID_LIKE=ubuntu
 VERSION_ID="0.1"

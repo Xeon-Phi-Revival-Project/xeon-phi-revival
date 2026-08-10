@@ -36,6 +36,7 @@ done
 
 repo_root="$(git rev-parse --show-toplevel)"
 cd "$repo_root"
+bash tools/release/audit-source-compliance.sh
 git cat-file -e "$revision^{commit}"
 commit="$(git rev-parse "$revision^{commit}")"
 

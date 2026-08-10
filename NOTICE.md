@@ -1,6 +1,8 @@
 # Notices
 
 Intel, Xeon, and Xeon Phi are trademarks of Intel Corporation.
+Ubuntu and Canonical are trademarks of Canonical Ltd. XPR-OS is not an official
+Ubuntu distribution and is not endorsed by Canonical.
 
 This is an AI-assisted, Codex-driven preservation and software-development
 project. OpenAI Codex/ChatGPT has been used to help plan, document, script,
@@ -23,4 +25,5 @@ components.
 
 Some source overlays under `ubuntu-port/k1om/glibc/` are derived from
 glibc/eglibc files and retain their upstream GNU Lesser General Public License
-headers. Those files remain under their original upstream license terms.
+headers. Those files remain under LGPL-2.1-or-later. The applicable license text
+is included at `LICENSES/LGPL-2.1-or-later.txt`.

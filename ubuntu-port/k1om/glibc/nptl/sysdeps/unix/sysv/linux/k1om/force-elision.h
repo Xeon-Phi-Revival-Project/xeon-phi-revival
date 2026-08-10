@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
 /* K1OM has no hardware lock elision.  */
 #ifndef _K1OM_FORCE_ELISION_H
 #define _K1OM_FORCE_ELISION_H 1

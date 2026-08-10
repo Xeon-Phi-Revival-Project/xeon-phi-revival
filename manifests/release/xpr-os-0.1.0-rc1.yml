@@ -1,5 +1,5 @@
 id: xpr-os-0.1.0-rc1
-status: source-byo-mpss-prerelease-published
+status: superseded-source-license-text-missing
 date: "2026-08-10"
 architecture: k1om
 hardware_tested:
@@ -53,6 +53,8 @@ public_release:
   kind: source-metadata-byo-mpss
   url: https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc1
   source_archive_sha256: 4fda865e4f0a1be86a2e510a5a6866d145159db6d5cf87d9adee1c4933693c5f
+  superseded_by: v0.1.0-rc2
+  supersession_reason: LGPL-2.1-or-later source files were present but the full LGPL license text was omitted
   binary_images_included: false
   intel_mpss_files_included: false
   packager: tools/release/package-public-rc.sh

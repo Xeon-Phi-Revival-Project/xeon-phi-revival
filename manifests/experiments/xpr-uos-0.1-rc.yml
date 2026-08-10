@@ -5,7 +5,7 @@ architecture: k1om
 identity:
   id: xpr-uos
   id_like: ubuntu
-  pretty_name: Xeon Phi Revival Ubuntu-derived K1OM uOS
+  pretty_name: Xeon Phi Revival K1OM uOS
 claim_boundary: Historical minimal Ubuntu-derived K1OM profile through MPSS/MicDir and stock-init networking handoff; superseded by manifests/release/xpr-os-0.1.0-rc1.yml.
 required_tools:
   - tools/ubuntu-port/build-k1om-uos-rc.sh

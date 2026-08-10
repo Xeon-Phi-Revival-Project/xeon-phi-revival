@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
 /* Machine-dependent ELF dynamic relocation inline functions.  x86-64 version.
    Copyright (C) 2001-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.

@@ -1,0 +1,37 @@
+id: xpr-os-0.1.0-rc2
+status: source-byo-mpss-prerelease-prepared
+date: "2026-08-10"
+supersedes: xpr-os-0.1.0-rc1
+reason: source-license-and-trademark-compliance-correction
+architecture: k1om
+hardware_evidence_changed: false
+source_release:
+  binary_images_included: false
+  intel_mpss_files_included: false
+  private_payloads_included: false
+  licenses:
+    project_original_work: MIT
+    eglibc_overlay: LGPL-2.1-or-later
+  required_files:
+    - LICENSE
+    - NOTICE.md
+    - LICENSES/LGPL-2.1-or-later.txt
+    - docs/release/compliance-review.md
+  audit: tools/release/audit-source-compliance.sh
+binary_release:
+  status: do-not-publish
+  provenance_template: manifests/release/binary-component-provenance.template.yml
+  blockers:
+    - compatibility kernel source provenance and corresponding source bundle
+    - exact module source grants and corresponding source bundle
+    - copied BusyBox replacement
+    - exact eglibc source and LGPL compliance bundle
+    - unidentified SDK libgcc replacement or provenance
+    - pinned source and notices for every remaining userland binary
+    - complete SBOM and human legal review
+identity:
+  name: Xeon Phi Revival uOS
+  pretty_name: Xeon Phi Revival K1OM uOS
+  id: xpr-uos
+  id_like: ubuntu
+  official_ubuntu_release: false

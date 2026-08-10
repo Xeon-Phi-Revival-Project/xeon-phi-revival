@@ -76,7 +76,7 @@ chmod 0755 "$rootfs/sbin/init"
 chmod 0755 "$rootfs/opt/xeon-phi-revival/bin/xpr-stage-root"
 cat > "$rootfs/etc/os-release" <<'EOF'
 NAME="Xeon Phi Revival uOS"
-PRETTY_NAME="Xeon Phi Revival Ubuntu-derived K1OM uOS"
+PRETTY_NAME="Xeon Phi Revival K1OM uOS"
 ID=xpr-uos
 ID_LIKE=ubuntu
 VERSION_ID="0.1"

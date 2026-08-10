@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
 /* K1OM low-level lock overrides for eglibc 2.19.  */
 #ifndef _K1OM_LOWLEVELLOCK_H
 #define _K1OM_LOWLEVELLOCK_H 1

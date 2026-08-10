@@ -1,5 +1,11 @@
 # XPR uOS 0.1 Release License Review
 
+> [!IMPORTANT]
+> This July private-image review is retained for history. The authoritative
+> current assessment is [XPR-OS Release Compliance Review](compliance-review.md),
+> which also covers the compatibility kernel, rebuilt modules, Dropbear,
+> corrected LGPL source packaging, and Canonical trademark boundary.
+
 This is an engineering release review, not legal advice. It records what was
 observed in the current lab build and gives conservative publication options
 for the first Xeon Phi Revival uOS release candidate.

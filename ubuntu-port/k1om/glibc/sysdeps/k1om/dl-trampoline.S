@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
 /* K1OM PLT trampolines for eglibc 2.19.
    Copyright (C) 2004-2014 Free Software Foundation, Inc.
 

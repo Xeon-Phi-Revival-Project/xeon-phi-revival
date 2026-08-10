@@ -105,7 +105,7 @@ fi
 
 cat > "$rootfs/etc/os-release" <<EOF
 NAME="Xeon Phi Revival uOS"
-PRETTY_NAME="Xeon Phi Revival Ubuntu-derived K1OM uOS"
+PRETTY_NAME="Xeon Phi Revival K1OM uOS"
 ID=xpr-uos
 ID_LIKE=ubuntu
 VERSION_ID="0.1"
@@ -124,7 +124,7 @@ cat > "$rootfs/etc/lsb-release" <<EOF
 DISTRIB_ID=Xeon Phi Revival uOS
 DISTRIB_RELEASE=0.1
 DISTRIB_CODENAME=${suite}
-DISTRIB_DESCRIPTION="Xeon Phi Revival Ubuntu-derived K1OM uOS"
+DISTRIB_DESCRIPTION="Xeon Phi Revival K1OM uOS"
 EOF
 
 cat > "$rootfs/etc/debian_version" <<'EOF'

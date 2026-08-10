@@ -316,7 +316,7 @@ PORT_STATUS="unofficial Ubuntu-derived release candidate"
 EOF
 cat > "$base_data/etc/os-release" <<'EOF'
 NAME="Xeon Phi Revival uOS"
-PRETTY_NAME="Xeon Phi Revival Ubuntu-derived K1OM uOS"
+PRETTY_NAME="Xeon Phi Revival K1OM uOS"
 ID=xpr-uos
 ID_LIKE=ubuntu
 VERSION_ID="0.1"
@@ -334,13 +334,13 @@ cat > "$base_data/etc/lsb-release" <<'EOF'
 DISTRIB_ID=Xeon Phi Revival uOS
 DISTRIB_RELEASE=0.1
 DISTRIB_CODENAME=noble
-DISTRIB_DESCRIPTION="Xeon Phi Revival Ubuntu-derived K1OM uOS"
+DISTRIB_DESCRIPTION="Xeon Phi Revival K1OM uOS"
 EOF
 cat > "$base_data/etc/debian_version" <<'EOF'
 xpr-uos 0.1 noble-derived
 EOF
 cat > "$base_data/etc/issue" <<'EOF'
-Xeon Phi Revival Ubuntu-derived K1OM uOS 0.1 \n \l
+Xeon Phi Revival K1OM uOS 0.1 \n \l
 EOF
 cat > "$base_data/etc/motd" <<'EOF'
 Xeon Phi Revival Project

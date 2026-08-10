@@ -317,3 +317,7 @@ Original project work is licensed under the MIT License. See `LICENSE`.
 The MIT License applies only to original project work in this repository. It
 does not grant rights to Intel software, firmware, documentation, extracted
 sysroots, or third-party components.
+
+The repository is mixed-license: K1OM eglibc overlay files under
+`ubuntu-port/k1om/glibc/` are marked `LGPL-2.1-or-later`. See `NOTICE.md`,
+`LICENSES/`, and the [release compliance review](docs/release/compliance-review.md).
