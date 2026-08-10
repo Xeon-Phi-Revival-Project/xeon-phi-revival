@@ -67,15 +67,38 @@ BUILD_CC=gcc CC="${cross_compile}gcc" AR="${cross_compile}ar" RANLIB="${cross_co
     --enable-add-ons=nptl,ports --disable-werror > "$out/configure.log" 2>&1
 make -j"$jobs" > "$out/build.log" 2>&1
 make install DESTDIR="$out/stage" > "$out/install.log" 2>&1
+# K1OM inherits LP64 headers, but it must not inherit the x86-64 stubs.h
+# selector for gnu/stubs-64.h. Generate the architecture-neutral installed
+# header from this completed source build's own stub list instead.
+make stubs > "$out/stubs.log" 2>&1
+{
+    sed '/^@/d' "$source_dir/include/stubs-prologue.h"
+    cat stubs
+} > "$out/stage/usr/include/gnu/stubs.h"
 popd >/dev/null
 
-libdir="$out/stage/usr/lib"
-[ -d "$libdir" ] || libdir="$out/stage/lib"
+libdir="$out/stage/lib"
+[ -d "$libdir" ] || libdir="$out/stage/usr/lib"
+runtime_source() {
+    local soname=$1 candidate
+    if [ -f "$libdir/$soname" ]; then
+        printf '%s\n' "$libdir/$soname"
+        return
+    fi
+    if [ "$soname" = ld-linux-k1om.so.2 ]; then
+        candidate=$(find "$libdir" -maxdepth 1 -type f -name 'ld-*.so' -print -quit)
+    else
+        candidate=$(find "$libdir" -maxdepth 1 -type f -name "${soname%%.so*}-*.so" -print -quit)
+    fi
+    [ -n "$candidate" ] || { echo "missing installed runtime library: $soname" >&2; return 1; }
+    printf '%s\n' "$candidate"
+}
 for library in ld-linux-k1om.so.2 libc.so.6 libpthread.so.0 libm.so.6 libdl.so.2 librt.so.1 libutil.so.1; do
-    [ -e "$libdir/$library" ] || { echo "missing installed runtime library: $library" >&2; exit 1; }
-    readelf -h "$libdir/$library" | grep -F 'Machine:                           Intel K1OM'
+    readelf -h "$(runtime_source "$library")" | grep -F 'Machine:                           Intel K1OM'
 done
-sha256sum "$libdir"/ld-linux-k1om.so.2 "$libdir"/libc.so.6 "$libdir"/libpthread.so.0 \
-    "$libdir"/libm.so.6 "$libdir"/libdl.so.2 "$libdir"/librt.so.1 "$libdir"/libutil.so.1 \
-    > "$out/runtime-sha256sums.txt"
+loader_source=$(runtime_source ld-linux-k1om.so.2)
+ln -sf "$(basename "$loader_source")" "$libdir/ld-linux-k1om.so.2"
+for library in ld-linux-k1om.so.2 libc.so.6 libpthread.so.0 libm.so.6 libdl.so.2 librt.so.1 libutil.so.1; do
+    printf '%s  %s\n' "$(sha256sum "$(runtime_source "$library")" | awk '{print $1}')" "$library"
+done > "$out/runtime-sha256sums.txt"
 printf 'runtime_libdir=%s\n' "$libdir" >> "$out/build-provenance.txt"

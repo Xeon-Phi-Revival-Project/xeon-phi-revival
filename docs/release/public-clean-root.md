@@ -5,9 +5,24 @@ and its Ubuntu/package builders. It never accepts a stock rootfs, MPSS sysroot,
 package archive, firmware path, or prior payload as an input.
 
 It starts from project-owned init/configuration and accepts only explicit,
-ledger-classified component files. The result is intentionally not bootable
-until the required kernel, modules, libc, and runtime components have complete
-corresponding-source evidence.
+ledger-classified component files. The result remains a candidate until the
+kernel/module boundary and final-root hardware gates are complete.
+
+The root accepts source-built runtime inputs only through explicit arguments:
+
+```bash
+python tools/release/build-public-clean-root.py \
+  --ledger manifests/release/prebuilt-clean-profile.json \
+  --busybox /private/build/busybox \
+  --dropbear /private/build/dropbear \
+  --eglibc-libdir /private/eglibc-stage/lib \
+  --libgcc /private/libgcc-install/k1om-mpss-linux/lib64/libgcc_s.so.1 \
+  --out-root /private/xpr-public-clean-root
+```
+
+The builder requires the loader, libc, pthread, math, dl, rt, util, and crypt
+SONAME files from a fresh eglibc stage. `libcrypt.so.1` is included because the
+dynamic Dropbear candidate requires it.
 
 Example private build workspace invocation:
 

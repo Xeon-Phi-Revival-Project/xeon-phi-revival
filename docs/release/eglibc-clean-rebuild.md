@@ -78,5 +78,11 @@ on-card runtime characterization before it can be described as release-ready.
 The next technical gates are a second clean deterministic build, dependency
 closure against a source-built libgcc runtime, and K1OM execution testing.
 
+The installed development headers now regenerate `gnu/stubs.h` from eglibc's
+own completed-build stub list. This avoids inheriting x86-64's
+`gnu/stubs-64.h` selector, which is not produced for K1OM. The generated K1OM
+stub list is empty for this source build, so the staged header contains only
+the upstream prologue and no `__stub_*` declarations.
+
 This is a source-level K1OM overlay issue. No binary from the private runtime
 was copied into the public profile, and no hardware test is warranted yet.

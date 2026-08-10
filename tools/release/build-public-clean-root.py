@@ -2,6 +2,7 @@
 """Assemble an allowlisted XPR K1OM root without consuming a historical rootfs."""
 from __future__ import print_function
 import argparse
+import glob
 import hashlib
 import json
 import os
@@ -13,6 +14,8 @@ import sys
 APPLET_NAMES = ("sh", "ls", "cat", "cp", "mv", "rm", "mkdir", "mount", "umount",
                 "uname", "ps", "env", "echo", "sleep", "test", "true", "false", "pwd",
                 "printf", "grep", "sed", "awk", "find", "head", "tail", "chmod", "ln")
+EGLIBC_RUNTIME = ("ld-linux-k1om.so.2", "libc.so.6", "libpthread.so.0", "libm.so.6",
+                  "libdl.so.2", "librt.so.1", "libutil.so.1", "libcrypt.so.1")
 
 
 def sha256(path):
@@ -30,6 +33,17 @@ def copy_file(source, destination):
     shutil.copy2(source, destination)
 
 
+def runtime_source(libdir, soname):
+    direct = os.path.join(libdir, soname)
+    if os.path.isfile(direct):
+        return direct
+    pattern = "ld-*.so" if soname == "ld-linux-k1om.so.2" else soname.split(".so", 1)[0] + "-*.so"
+    matches = sorted(path for path in glob.glob(os.path.join(libdir, pattern)) if os.path.isfile(path))
+    if len(matches) != 1:
+        raise RuntimeError("cannot resolve source-built runtime for %s in %s" % (soname, libdir))
+    return matches[0]
+
+
 def require_component(ledger, component_id):
     for component in ledger["components"]:
         if component["id"] == component_id:
@@ -44,13 +58,16 @@ def main():
     parser.add_argument("--busybox")
     parser.add_argument("--dropbear")
     parser.add_argument("--python-root")
+    parser.add_argument("--eglibc-libdir",
+                        help="directory containing source-built eglibc SONAME files")
+    parser.add_argument("--libgcc", help="source-built K1OM libgcc_s.so.1")
     args = parser.parse_args()
 
     ledger = json.load(open(args.ledger))
     root = os.path.abspath(args.out_root)
     if os.path.exists(root):
         raise RuntimeError("refusing to overwrite existing output: " + root)
-    for value in (args.busybox, args.dropbear, args.python_root):
+    for value in (args.busybox, args.dropbear, args.python_root, args.eglibc_libdir, args.libgcc):
         if value and ("/opt/mpss/" in os.path.abspath(value).replace("\\", "/") or "sysroot" in os.path.abspath(value).lower()):
             raise RuntimeError("Intel/MPSS sysroot inputs are forbidden in the public-clean builder")
 
@@ -88,6 +105,24 @@ def main():
         copy_file(args.dropbear, os.path.join(root, "usr", "sbin", "dropbear"))
         os.chmod(os.path.join(root, "usr", "sbin", "dropbear"), 0o755)
         selected.append(component["id"])
+    if args.eglibc_libdir:
+        component = require_component(ledger, "eglibc")
+        if not os.path.isdir(args.eglibc_libdir):
+            raise RuntimeError("eglibc runtime input is not a directory")
+        for name in EGLIBC_RUNTIME:
+            source = runtime_source(args.eglibc_libdir, name)
+            copy_file(source, os.path.join(root, "lib64", name))
+        # eglibc linker scripts refer to ld.so.1 while dynamic executables use
+        # the K1OM-specific interpreter name. Both names identify this loader.
+        os.symlink("ld-linux-k1om.so.2", os.path.join(root, "lib64", "ld.so.1"))
+        selected.append(component["id"])
+    if args.libgcc:
+        component = require_component(ledger, "libgcc")
+        if not os.path.isfile(args.libgcc):
+            raise RuntimeError("libgcc input is not a file")
+        copy_file(args.libgcc, os.path.join(root, "lib64", "libgcc_s.so.1"))
+        os.symlink("libgcc_s.so.1", os.path.join(root, "lib64", "libgcc_s.so"))
+        selected.append(component["id"])
     if args.python_root:
         component = require_component(ledger, "cpython")
         interpreter = os.path.join(args.python_root, "python")
@@ -107,7 +142,11 @@ def main():
         for name in files:
             path = os.path.join(base, name)
             rel = "/" + os.path.relpath(path, root).replace(os.sep, "/")
-            if rel == "/bin/busybox" or rel.startswith("/bin/"):
+            if rel.startswith("/lib64/libgcc_s.so"):
+                owner = "libgcc"
+            elif rel.startswith("/lib64/"):
+                owner = "eglibc"
+            elif rel == "/bin/busybox" or rel.startswith("/bin/"):
                 owner = "busybox"
             elif rel == "/usr/sbin/dropbear":
                 owner = "dropbear"
