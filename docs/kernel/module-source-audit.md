@@ -34,7 +34,9 @@ re-extracted into a private audit directory. Its SHA-256 is:
 ```
 
 The source `Kbuild` files identify the input objects below. All listed module
-entry sources declare `MODULE_LICENSE("GPL")`; this is source evidence, not a
+entry sources carry direct Intel copyright and GPLv2 grant notices. The archive
+`COPYING` is SHA-256 `8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643`.
+This is stronger evidence than `MODULE_LICENSE("GPL")`, but it is still not a
 final redistribution determination.
 
 | Output | Kbuild source objects | GPL declaration observed in |
@@ -69,3 +71,19 @@ report `2.6.38.8+mpss3.5.1 SMP mod_unload` and GPL metadata.
 No module or kernel from this clean reconstruction has been loaded or booted.
 The next technical gate is a clean runtime, then a bounded alternate-config
 hardware test with the rebuilt kernel and modules.
+
+## Corresponding-Source Boundary
+
+[`mpss-modules-3.4.10-source-map.json`](../../manifests/release/mpss-modules-3.4.10-source-map.json)
+maps each tested module hash to the Kbuild-selected implementation sources,
+the recovered source archive, the Solros kernel/config build dependency, and
+the reproducible module build script. All listed implementation sources carry
+Intel copyright notices and GPL version 2 grants. The source archive's
+`COPYING` supplies the complete GPLv2 text.
+
+The map deliberately does not claim that an implementation-source list alone
+is the full corresponding source. A publishable source bundle must include the
+complete hash-pinned archive (thereby retaining its headers and Kbuild inputs)
+and capture the generated compiler header-dependency files from the clean
+build. Until that mechanical bundle check and human review are complete, the
+module binaries remain `hold-human-review`.

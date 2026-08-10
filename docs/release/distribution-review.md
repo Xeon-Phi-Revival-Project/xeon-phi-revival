@@ -20,7 +20,7 @@ Do not substitute a later rebuild and describe it as hardware validated.
 | --- | --- | --- | --- |
 | XPR source, scripts, init, helpers | Tracked repository source under MIT | A | Publish source and notices |
 | Tested compatibility kernel | Solros `bda6ce066e514239c9b645fd1ed2a9ffe4f2db33`, source archive hash `0e876982d8e33ffda706e46c4bee731f84c76ad22601c7b8feb751a5bc6c1b59`, retained tested config `20f240d00b033c1a0e14ffc8d2023533552adc4040ac0deff3404c79f1f12479`, Linux `COPYING` | B | Bundle exact source/config/build metadata, then reproduce and compare the tested hash before publication |
-| Five K1OM modules | `mpss-modules-3.4.10.tar.bz2` hash `0bfbb007aaba7f041b51229c28f11a793ba1adc76f08afd8e83b3a0488936f54`; source RPM metadata says GPLv2; module entry sources declare `MODULE_LICENSE("GPL")` | D | Preserve complete source and inspect each contributing file's header/copyright before binary publication |
+| Five K1OM modules | Hash-pinned `mpss-modules-3.4.10.tar.bz2` with GPLv2 `COPYING`; every Kbuild-selected implementation source has an Intel copyright/GPLv2 notice; per-module map is tracked | B | Bundle the complete source archive, capture clean-build header dependencies, and retain human review before binary publication |
 | BusyBox 1.19.4 | Pinned upstream source/config/build recipe; source-built binary | B | Include source, config, GPL text, and notices in a future source bundle |
 | eglibc runtime | Pinned Ubuntu source baseline and XPR overlay recipe | B | Include orig source, Debian delta, overlays, LGPL text/notices, and relinking material |
 | libgcc runtime | Pinned GCC KNC source candidate and build recipe | B | Include exact source/prerequisites/patches and GCC Runtime Library Exception notice |
@@ -45,10 +45,10 @@ release yet. The precise remaining questions are:
    sections, module CRC table, and `System.map` match. Whole-image equality is
    still blocked by old Kbuild's regenerated timestamp and build-version
    metadata; the reproducible recipe must control those generated values.
-2. Does the complete `mpss-modules-3.4.10` source archive contain clear,
-   redistributable license/copyright notices for every source file linked into
-   each of the five shipped modules, and can that complete corresponding source
-   be bundled with the binary artifacts?
+2. Can the complete hash-pinned `mpss-modules-3.4.10` source archive, including
+   the headers selected by a clean build, be assembled as the corresponding
+   source bundle for the five modules? The Kbuild-selected implementation
+   sources and GPLv2 evidence are mapped, but that delivery check remains.
 3. Has a qualified human completed the final artifact review after those
    mechanical questions are closed?
 

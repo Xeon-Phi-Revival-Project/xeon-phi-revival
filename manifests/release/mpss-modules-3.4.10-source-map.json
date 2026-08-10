@@ -1,0 +1,66 @@
+{
+  "schema": "xpr-mpss-module-source-map-v1",
+  "status": "source-evidence-complete-human-review-required",
+  "source_archive": {
+    "filename": "mpss-modules-3.4.10.tar.bz2",
+    "sha256": "0bfbb007aaba7f041b51229c28f11a793ba1adc76f08afd8e83b3a0488936f54",
+    "license_file": "COPYING",
+    "license_file_sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643",
+    "license": "GPL-2.0-only",
+    "availability": "Locally supplied source input; do not commit the archive. A future source bundle must include this complete archive or an equivalently complete corresponding-source tree."
+  },
+  "kernel_build_dependency": {
+    "source": "cosmoss-jigu/solros bda6ce066e514239c9b645fd1ed2a9ffe4f2db33",
+    "config_sha256": "20f240d00b033c1a0e14ffc8d2023533552adc4040ac0deff3404c79f1f12479",
+    "build_script": "tools/kernel/build-candidate-mpss-modules.sh",
+    "cross_compile": "k1om-mpss-linux-"
+  },
+  "modules": [
+    {
+      "id": "dma-module",
+      "output": "dma/dma_module.ko",
+      "sha256": "af0a88a14bcd815bea07739b88a54d453eb68b7e5c1acc81de0fc8aac70af32a",
+      "vermagic": "2.6.38.8+mpss3.5.1 SMP mod_unload",
+      "license": "GPL-2.0-only",
+      "implementation_sources": ["dma/mic_dma_lib.c", "dma/mic_dma_md.c", "dma/mic_sbox_md.c"],
+      "license_evidence": "Each implementation source has an Intel copyright notice and GPL version 2 grant; archive COPYING is the GPLv2 text."
+    },
+    {
+      "id": "ringbuffer-module",
+      "output": "micscif/ringbuffer.ko",
+      "sha256": "e7339e86b9a00c047acc982e7f8a734f963b5ec945991f3cbd62bca1a6eba068",
+      "vermagic": "2.6.38.8+mpss3.5.1 SMP mod_unload",
+      "license": "GPL-2.0-only",
+      "implementation_sources": ["micscif/micscif_rb.c"],
+      "license_evidence": "The implementation source has an Intel copyright notice and GPL version 2 grant; archive COPYING is the GPLv2 text."
+    },
+    {
+      "id": "micscif-module",
+      "output": "micscif/micscif.ko",
+      "sha256": "0c5476258e5a4f200a1c38c1f434ae3ffccd29ec6f098b165d028c27655f64e2",
+      "vermagic": "2.6.38.8+mpss3.5.1 SMP mod_unload",
+      "license": "GPL-2.0-only",
+      "implementation_sources": ["micscif/micscif_main.c", "micscif/micscif_sysfs.c", "micscif/micscif_smpt.c", "micscif/micscif_intr.c", "micscif/micscif_api.c", "micscif/micscif_fd.c", "micscif/micscif_nodeqp.c", "micscif/micscif_va_node.c", "micscif/micscif_va_gen.c", "micscif/micscif_rma.c", "micscif/micscif_rma_list.c", "micscif/micscif_rma_dma.c", "micscif/micscif_debug.c", "micscif/micscif_ports.c", "micscif/micscif_select.c", "micscif/micscif_nm.c"],
+      "license_evidence": "Each implementation source has an Intel copyright notice and GPL version 2 grant; archive COPYING is the GPLv2 text."
+    },
+    {
+      "id": "mpssboot-module",
+      "output": "mpssboot/mpssboot.ko",
+      "sha256": "a5cc794ed1a6874a23830b39fc617fcea61f1de6a952b37029a099eb148d6894",
+      "vermagic": "2.6.38.8+mpss3.5.1 SMP mod_unload",
+      "license": "GPL-2.0-only",
+      "implementation_sources": ["mpssboot/mpssboot.c"],
+      "license_evidence": "The implementation source has an Intel copyright notice and GPL version 2 grant; archive COPYING is the GPLv2 text."
+    },
+    {
+      "id": "intel-micveth-module",
+      "output": "vnet/intel_micveth.ko",
+      "sha256": "0e8f2baee0551707ca05ac85d19855b24e346742f8ff08b91ba2e294252bea60",
+      "vermagic": "2.6.38.8+mpss3.5.1 SMP mod_unload",
+      "license": "GPL-2.0-only",
+      "implementation_sources": ["vnet/micveth.c", "vnet/micveth_param.c", "vnet/micveth_dma.c"],
+      "license_evidence": "Each implementation source has an Intel copyright notice and GPL version 2 grant; archive COPYING is the GPLv2 text."
+    }
+  ],
+  "remaining_review": "The complete source archive is required for corresponding-source delivery, including headers and build inputs. A future source-bundle build must capture compiler-generated header dependency files and verify they are covered by the included complete archive before binary publication."
+}
