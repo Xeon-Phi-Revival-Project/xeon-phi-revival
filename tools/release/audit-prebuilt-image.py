@@ -6,6 +6,7 @@ made distributable merely by naming its upstream project: every shipped binary
 must have a source hash, build recipe, notice decision, and source location.
 """
 import argparse
+import imp
 import fnmatch
 import gzip
 import hashlib
@@ -17,6 +18,12 @@ import stat
 import subprocess
 import sys
 import tempfile
+
+
+REPOSITORY_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+NEWC_ARCHIVE = imp.load_source(
+    "xpr_newc_archive", os.path.join(REPOSITORY_ROOT, "tools", "uos", "newc_archive.py")
+)
 
 
 REQUIRED = ("upstream", "version", "source_url", "source_sha256", "license",
@@ -35,18 +42,25 @@ def is_elf(data):
 
 
 def cpio_entries(path):
-    from tools.uos.newc_archive import gunzip, parse_newc
     raw = open(path, "rb").read()
-    plain, trailing, members = gunzip(raw) if path.endswith(".gz") else (raw, b"", 0)
-    entries, trailer_offset, archive_trailing = parse_newc(plain)
+    plain, trailing, members = NEWC_ARCHIVE.gunzip(raw) if path.endswith(".gz") else (raw, b"", 0)
+    entries, trailer_offset, archive_trailing = NEWC_ARCHIVE.parse_newc(plain)
     rows = []
     for item in entries:
         name = item["name"].decode("utf-8", "replace")
         if name == "TRAILER!!!":
             continue
         mode = item["fields"][1]
+        if stat.S_ISDIR(mode):
+            kind = "directory"
+        elif stat.S_ISLNK(mode):
+            kind = "symlink"
+        elif stat.S_ISREG(mode):
+            kind = "file"
+        else:
+            kind = "special"
         rows.append({"path": "/" + name.lstrip("./"), "mode": mode,
-                     "payload": item["payload"], "kind": "archive"})
+                     "payload": item["payload"], "kind": kind})
     return rows, {"sha256": digest(raw), "compressed_bytes": len(raw),
                   "uncompressed_bytes": len(plain), "gzip_members": members,
                   "trailing_bytes": len(trailing) + len(archive_trailing),
@@ -121,7 +135,7 @@ def main():
                   "kind": entry["kind"]}
         component = match_component(path, components)
         is_exec = bool(entry["mode"] & stat.S_IXUSR)
-        binary_or_script = entry["kind"] != "symlink" and (is_elf(payload) or payload.startswith(b"#!") or is_exec)
+        binary_or_script = entry["kind"] == "file" and (is_elf(payload) or payload.startswith(b"#!") or is_exec)
         if is_elf(payload):
             record.update(elf_details(payload))
             binary_or_script = True

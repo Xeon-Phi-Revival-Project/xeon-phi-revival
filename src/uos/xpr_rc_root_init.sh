@@ -26,6 +26,16 @@ mark() {
     old_mark "$1"
 }
 
+auth_diag() {
+    printf 'XPR_DROPBEAR_AUTH_DIAG %s\n' "$1" >> /run/xpr-os-init
+    printf 'XPR_DROPBEAR_AUTH_DIAG %s\n' "$1" >> "$handoff_log"
+    printf 'XPR_RC XPR_DROPBEAR_AUTH_DIAG %s\n' "$1" > /dev/console 2>/dev/null || true
+}
+
+auth_stat() {
+    auth_diag "$1=$(/bin/busybox stat -c '%a:%u:%g' "$2" 2>/dev/null || printf MISSING)"
+}
+
 mkdir -p /proc /sys /dev /run /tmp /etc /var/log/xeon-phi-revival
 mount -t proc proc /proc 2>/dev/null || true
 mount -t sysfs sysfs /sys 2>/dev/null || true
@@ -81,6 +91,22 @@ else
 fi
 
 mkdir -p /etc/dropbear
+mark XPR_DROPBEAR_AUTH_DIAG_BEGIN
+grep -q '^root:[^:]*:0:0:[^:]*:/root:/bin/sh$' /etc/passwd 2>/dev/null \
+    && mark XPR_ROOT_ACCOUNT_OK || mark XPR_ROOT_ACCOUNT_BAD
+test -x /bin/sh && mark XPR_ROOT_SHELL_OK || mark XPR_ROOT_SHELL_BAD
+grep -qx '/bin/sh' /etc/shells 2>/dev/null && mark XPR_ROOT_SHELL_LISTED || mark XPR_ROOT_SHELL_UNLISTED
+test -e /lib64/libnss_files.so.2 && mark XPR_NSS_FILES_PRESENT || mark XPR_NSS_FILES_MISSING
+grep -qx 'passwd: files' /etc/nsswitch.conf 2>/dev/null && mark XPR_NSS_PASSWD_FILES || mark XPR_NSS_PASSWD_UNCONFIGURED
+test -e /etc/shadow && mark XPR_ROOT_SHADOW_PRESENT || mark XPR_ROOT_SHADOW_ABSENT
+test -f /root/.ssh/authorized_keys && mark XPR_AUTHORIZED_KEYS_FOUND || mark XPR_AUTHORIZED_KEYS_MISSING
+auth_stat XPR_ROOT_MODE /root
+auth_stat XPR_SSH_DIR_MODE /root/.ssh
+auth_stat XPR_AUTHORIZED_KEYS_MODE /root/.ssh/authorized_keys
+if test -f /root/.ssh/authorized_keys; then
+    auth_diag "XPR_AUTHORIZED_KEYS_HASH=$(/bin/busybox sha256sum /root/.ssh/authorized_keys 2>/dev/null | /bin/busybox awk '{print $1}')"
+fi
+auth_diag "XPR_DROPBEAR_VERSION=$(/usr/sbin/dropbear -V 2>&1 | /bin/busybox head -n 1)"
 # A test-only static probe can replace Dropbear to distinguish port reachability
 # from daemon behavior. Normal release images do not include this binary.
 if test -x /usr/bin/xpr-port22-probe; then
@@ -91,7 +117,7 @@ if test -x /usr/bin/xpr-port22-probe; then
 else
     # Bind explicitly to the MPSS virtual IPv4 address. Legacy Dropbear defaults
     # are not sufficient evidence that port 22 is reachable from the host.
-    /usr/sbin/dropbear -R -F -p 172.31.1.1:22 >> /run/xpr-os-init 2>&1 &
+    /usr/sbin/dropbear -R -s -F -p 172.31.1.1:22 >> /run/xpr-os-init 2>&1 &
     dropbear_pid=$!
     printf 'dropbear_pid=%s\n' "$dropbear_pid" >> /run/xpr-os-init
     sleep 1

@@ -165,6 +165,17 @@ if [[ -n "$payload" && "$project_ssh" == 1 ]]; then
     fi
     sleep 4
   done
+  if [[ "$switched" == 0 && -r "$HOME/.ssh/id_rsa" ]]; then
+    # Keep only safe client-auth evidence: the offered public-key fingerprint
+    # and the server's acceptance/rejection state, never the private key.
+    set +e
+    ssh -vvv -n -i "$HOME/.ssh/id_rsa" -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PubkeyAcceptedKeyTypes=+ssh-rsa -o ConnectTimeout=8 \
+      "$mic" 'true' 2>&1 | grep -E 'Offering public key|Server accepts key|Authentications that can continue|No more authentication methods|Permission denied|sign_and_send_pubkey' \
+      > "$run/final-root-auth-client.txt"
+    ssh_status=${PIPESTATUS[0]}
+    set -e
+    printf 'ssh_exit=%s\n' "$ssh_status" >> "$run/final-root-auth-client.txt"
+  fi
 fi
 if [[ "$switched" == 1 ]]; then
   release_smoke="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/ubuntu-port/run-k1om-uos-rc-smoke.sh"

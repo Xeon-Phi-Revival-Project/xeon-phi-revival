@@ -20,9 +20,11 @@ python tools/release/build-public-clean-root.py \
   --out-root /private/xpr-public-clean-root
 ```
 
-The builder requires the loader, libc, pthread, math, dl, rt, util, and crypt
-SONAME files from a fresh eglibc stage. `libcrypt.so.1` is included because the
-dynamic Dropbear candidate requires it.
+The builder requires the loader, libc, pthread, math, dl, rt, util, crypt, and
+`libnss_files.so.2` SONAME files from a fresh eglibc stage. `libcrypt.so.1` is
+included because the dynamic Dropbear candidate requires it. The builder also
+creates a files-only NSS policy and `/etc/shells` so Dropbear can resolve the
+public-key-only root account before it reads `authorized_keys`.
 
 Example private build workspace invocation:
 

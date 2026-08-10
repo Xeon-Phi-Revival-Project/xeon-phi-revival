@@ -16,6 +16,7 @@ APPLET_NAMES = ("sh", "ls", "cat", "cp", "mv", "rm", "mkdir", "mount", "umount",
                 "printf", "grep", "sed", "awk", "find", "head", "tail", "chmod", "ln")
 EGLIBC_RUNTIME = ("ld-linux-k1om.so.2", "libc.so.6", "libpthread.so.0", "libm.so.6",
                   "libdl.so.2", "librt.so.1", "libutil.so.1", "libcrypt.so.1")
+EGLIBC_NSS_MODULES = ("libnss_files.so.2",)
 
 
 def sha256(path):
@@ -96,6 +97,12 @@ def main():
         handle.write("root:x:0:0:root:/root:/bin/sh\n")
     with open(os.path.join(root, "etc", "group"), "w") as handle:
         handle.write("root:x:0:\n")
+    # The dynamic Dropbear build calls getpwnam("root") before it examines
+    # /root/.ssh/authorized_keys.  Make that lookup deterministic and local.
+    with open(os.path.join(root, "etc", "nsswitch.conf"), "w") as handle:
+        handle.write("passwd: files\ngroup: files\nshadow: files\n")
+    with open(os.path.join(root, "etc", "shells"), "w") as handle:
+        handle.write("/bin/sh\n")
 
     selected = ["xpr-owned"]
     if args.busybox:
@@ -119,6 +126,9 @@ def main():
         if not os.path.isdir(args.eglibc_libdir):
             raise RuntimeError("eglibc runtime input is not a directory")
         for name in EGLIBC_RUNTIME:
+            source = runtime_source(args.eglibc_libdir, name)
+            copy_file(source, os.path.join(root, "lib64", name))
+        for name in EGLIBC_NSS_MODULES:
             source = runtime_source(args.eglibc_libdir, name)
             copy_file(source, os.path.join(root, "lib64", name))
         # eglibc linker scripts refer to ld.so.1 while dynamic executables use

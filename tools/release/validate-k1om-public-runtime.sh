@@ -41,9 +41,16 @@ done
 for path in "$root/lib64/ld-linux-k1om.so.2" "$root/lib64/libc.so.6" \
             "$root/lib64/libpthread.so.0" "$root/lib64/libdl.so.2" \
             "$root/lib64/libm.so.6" "$root/lib64/libgcc_s.so.1" \
+            "$root/lib64/libnss_files.so.2" "$root/etc/nsswitch.conf" \
+            "$root/etc/passwd" "$root/etc/shells" "$root/bin/sh" \
             "$crt_dir/crt1.o" "$crt_dir/crti.o" "$crt_dir/crtn.o"; do
     [ -e "$path" ] || { echo "required runtime input is missing: $path" >&2; exit 1; }
 done
+grep -qx 'passwd: files' "$root/etc/nsswitch.conf"
+grep -qx 'group: files' "$root/etc/nsswitch.conf"
+grep -qx 'shadow: files' "$root/etc/nsswitch.conf"
+grep -q '^root:[^:]*:0:0:[^:]*:/root:/bin/sh$' "$root/etc/passwd"
+grep -qx '/bin/sh' "$root/etc/shells"
 
 mkdir -p "$out"
 # The public root intentionally excludes development-only linker scripts and
@@ -76,7 +83,8 @@ done
     printf 'root=%s\n' "$root"
     sha256sum "$root/lib64/ld-linux-k1om.so.2" "$root/lib64/libc.so.6" \
         "$root/lib64/libpthread.so.0" "$root/lib64/libdl.so.2" \
-        "$root/lib64/libm.so.6" "$root/lib64/libgcc_s.so.1"
+        "$root/lib64/libm.so.6" "$root/lib64/libgcc_s.so.1" \
+        "$root/lib64/libnss_files.so.2"
     for binary in "$out/hello" "$out/pthread" "$out/dlopen"; do
         printf '\n[%s]\n' "$(basename "$binary")"
         "${cross_compile}readelf" -l "$binary" | grep 'Requesting program interpreter'
