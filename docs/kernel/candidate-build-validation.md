@@ -89,3 +89,29 @@ candidate tree contains Linux GPLv2 text, this project does not redistribute
 the source tree, generated image, or any external MPSS module. Users must
 obtain all such inputs independently until a source-provenance and
 redistribution review is complete.
+
+## 2026-08-09 Clean Source Reconstruction
+
+The same Solros revision was re-downloaded from the public repository and its
+archive hash matched the recorded value exactly:
+
+```text
+0e876982d8e33ffda706e46c4bee731f84c76ad22601c7b8feb751a5bc6c1b59
+```
+
+Unlike the earlier validation, this reconstruction used the public tree's
+`config/config-phi-kernel` (`fc406d6d95527a8b01f36c1acd861f28ce552be88df7324eabd60542525d78c7`),
+then `oldconfig` produced
+`2f6cee5cf43d6bf68649de1b05f1c784918b4eb5b874afa2c8850809b8cb267e`.
+The deterministic build script completed and emitted K1OM artifacts:
+
+| Artifact | SHA-256 |
+| --- | --- |
+| `bzImage` | `f59b6237fa204b62acd5e6930b4bc57bd7936a91be2d0c3fb126cc2508629583` |
+| `vmlinux` | `d25ed300e0bde27a3a09cde07dea5096ea4edee31c597978db257fdfc03a04c8` |
+| `System.map` | `2a2dabf5305f43b95fa40abe18e7ebdc801a48c5bf21ff05d927fe7b0f5b5673` |
+
+These hashes differ from the retained private hardware-validation reference.
+That difference is expected until the exact normalized historic configuration
+and reproducibility controls are reconciled. This public-source rebuild has
+not been booted and must not replace the known-good kernel.

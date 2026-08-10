@@ -46,7 +46,26 @@ final redistribution determination.
 | `intel_micveth.ko` | `micveth.o`, `micveth_param.o`, `micveth_dma.o` | `vnet/micveth.c`, `vnet/micveth_dma.c` |
 
 The matching candidate kernel source/build directory was no longer retained on
-the host, so this source audit does not claim a fresh module binary rebuild.
-The preserved candidate build log records the required precondition: recover
-the exact candidate source archive and normalized config, then build these
-objects against its `Module.symvers` before any public-image integration.
+the host when this audit began. The preserved candidate build log identified
+the necessary next action: recover the candidate source archive and a
+configuration, then build these objects against its `Module.symvers` before any
+public-image integration.
+
+## 2026-08-09 Public-Source Module Build
+
+That precondition has now been met for the recovered public Solros source and
+its public `config/config-phi-kernel` reconstruction. The five required modules
+built successfully as K1OM against the clean build's `Module.symvers`; all
+report `2.6.38.8+mpss3.5.1 SMP mod_unload` and GPL metadata.
+
+| Module | SHA-256 |
+| --- | --- |
+| `dma_module.ko` | `af0a88a14bcd815bea07739b88a54d453eb68b7e5c1acc81de0fc8aac70af32a` |
+| `ringbuffer.ko` | `e7339e86b9a00c047acc982e7f8a734f963b5ec945991f3cbd62bca1a6eba068` |
+| `micscif.ko` | `0c5476258e5a4f200a1c38c1f434ae3ffccd29ec6f098b165d028c27655f64e2` |
+| `mpssboot.ko` | `a5cc794ed1a6874a23830b39fc617fcea61f1de6a952b37029a099eb148d6894` |
+| `intel_micveth.ko` | `0e8f2baee0551707ca05ac85d19855b24e346742f8ff08b91ba2e294252bea60` |
+
+No module or kernel from this clean reconstruction has been loaded or booted.
+The next technical gate is a clean runtime, then a bounded alternate-config
+hardware test with the rebuilt kernel and modules.
