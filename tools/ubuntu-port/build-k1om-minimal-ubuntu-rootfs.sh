@@ -84,7 +84,7 @@ chmod 1777 "$rootfs/tmp" "$rootfs/var/tmp"
 chmod 0700 "$rootfs/root"
 
 copy_if_present bin/busybox
-for applet in sh ls cat grep sed awk basename tr find mkdir rm cp mv ln readlink touch chmod chown ps mount umount uname hostname env sort head tail wc date df du sleep true false test printf pwd; do
+for applet in sh ls cat grep sed awk basename dd tr find mkdir rm cp mv ln readlink touch chmod chown ps mount umount uname hostname env sort head tail wc date df du sleep true false test printf pwd; do
   if [[ ! -e "$rootfs/bin/$applet" && ! -L "$rootfs/bin/$applet" ]]; then
     ln -s busybox "$rootfs/bin/$applet"
   fi
