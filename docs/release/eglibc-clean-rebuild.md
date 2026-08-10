@@ -49,12 +49,17 @@ overrides now deliberately separate those two concerns:
   constraints.
 - `wordsize-64` supplies the required LP64 `strtoimax` and related selections.
 
-This advances past `s_scalbnl`, the long-double classification helpers, and the
-math subdirectory. The current first blocker is `sysdeps/x86_64/strcmp.S`:
-its SSE instructions (`movdqa`, `pcmpeqb`, and related forms) are rejected by
-the K1OM assembler. The next work is to override only such x86-64 SIMD-optimized
-routines with the existing generic eglibc C implementations; it is not a
-long-double ABI failure.
+This advances past `s_scalbnl`, the long-double classification helpers, math,
+the affected string and wide-character routines, and the NPTL mutex,
+condition-variable, and spinlock compile paths. K1OM selects generic upstream
+C implementations only where the inherited x86-64 routine requires unsupported
+SSE, conditional-move, xgetbv, or TSX behavior.
+
+The builder now explicitly selects `nptl,ports`; default add-on detection also
+enabled the obsolete `libpthread` add-on, which is incompatible with the NPTL
+callback ABI. The NPTL-only build reaches the final `libc.so` link. Its first
+unresolved symbol was `__strncasecmp`, addressed by the tracked generic K1OM
+fallback. The next clean build is the validation point for that final-link fix.
 
 This is a source-level K1OM overlay issue. No binary from the private runtime
 was copied into the public profile, and no hardware test is warranted yet.

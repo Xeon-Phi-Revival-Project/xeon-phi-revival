@@ -1,4 +1,5 @@
 # Knights Corner uses the x86-64 LP64 ABI plus the K1OM ELF machine value.
+# K1OM sysdeps overrides replace individual invalid x86-64 SIMD routines.
 x86_64
 wordsize-64
 x86_64/fpu

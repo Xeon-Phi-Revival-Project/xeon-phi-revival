@@ -64,7 +64,7 @@ pushd "$out/build" >/dev/null
 BUILD_CC=gcc CC="${cross_compile}gcc" AR="${cross_compile}ar" RANLIB="${cross_compile}ranlib" \
     "$source_dir/configure" --build=x86_64-pc-linux-gnu --host=k1om-mpss-linux \
     --prefix=/usr --with-headers="$sysroot/usr/include" --enable-kernel=2.6.38 \
-    --disable-werror > "$out/configure.log" 2>&1
+    --enable-add-ons=nptl,ports --disable-werror > "$out/configure.log" 2>&1
 make -j"$jobs" > "$out/build.log" 2>&1
 make install DESTDIR="$out/stage" > "$out/install.log" 2>&1
 popd >/dev/null
