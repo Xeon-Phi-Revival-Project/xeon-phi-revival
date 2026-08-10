@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
 /*
    K1OM fallback for the x86-64 SSE strcmp implementation.
 

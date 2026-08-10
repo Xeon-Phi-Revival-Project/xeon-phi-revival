@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
 /*
    K1OM has no TSX lock elision.  Select the generic NPTL mutex algorithm
    rather than the x86 wrapper, which unconditionally pulls in TSX helpers.

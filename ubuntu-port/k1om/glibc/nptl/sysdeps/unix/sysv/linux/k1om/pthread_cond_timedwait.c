@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
 /*
    K1OM cannot assemble the x86-64 optimized timed condition-variable path.
    Use eglibc's generic NPTL implementation instead.  The included upstream

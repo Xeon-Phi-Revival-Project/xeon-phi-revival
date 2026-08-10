@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
 /*
    K1OM lacks the later x87 fcomip instruction used by the x86-64 assembly
    implementation.  Select eglibc's generic C scalbl implementation, which

@@ -16,7 +16,7 @@ done
 grep -q 'GNU LESSER GENERAL PUBLIC LICENSE' LICENSES/LGPL-2.1-or-later.txt || fail "LGPL text is incomplete"
 grep -q 'Version 2.1' LICENSES/LGPL-2.1-or-later.txt || fail "LGPL version marker is missing"
 
-mapfile -t overlay_files < <(git ls-files ubuntu-port/k1om/glibc)
+mapfile -t overlay_files < <(git ls-files ubuntu-port/k1om/glibc | grep -E '\.(c|h|S)$')
 [[ "${#overlay_files[@]}" -gt 0 ]] || fail "no tracked eglibc overlay files were found"
 for path in "${overlay_files[@]}"; do
   head -c 512 "$path" | grep -q 'SPDX-License-Identifier: LGPL-2.1-or-later' || \

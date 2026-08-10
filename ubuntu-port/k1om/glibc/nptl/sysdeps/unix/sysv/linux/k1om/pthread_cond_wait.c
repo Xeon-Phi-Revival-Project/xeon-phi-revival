@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
 /*
    K1OM cannot assemble the x86-64 optimized condition-variable implementation
    because it uses conditional-move instructions.  Use eglibc's generic NPTL

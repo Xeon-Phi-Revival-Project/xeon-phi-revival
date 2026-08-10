@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
 /*
    K1OM uses out-of-line x86-64 fpu helper objects for eglibc's internal
    long-double operations.  Do not import the x86 inline bodies here: they

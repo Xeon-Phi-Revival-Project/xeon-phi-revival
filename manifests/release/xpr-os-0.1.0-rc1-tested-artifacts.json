@@ -1,0 +1,23 @@
+{
+  "schema": "xpr-tested-artifact-freeze-v1",
+  "status": "hardware-validated-not-for-publication",
+  "repository_commit": "803a522e83eb754e7ac6daf3f46748830189f517",
+  "hardware": {
+    "card": "Intel Xeon Phi 5110P",
+    "host": "Dell PowerEdge R730 / CentOS 7.4.1708 / MPSS 3.4.10",
+    "validated_boots": 3,
+    "stock_configuration_sha256": "9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51"
+  },
+  "artifacts": [
+    {"id": "kernel", "path": "kernel/bzImage", "sha256": "d529aecf0de11e0b4a9a036eb0329d1bb9c907fd6a911ce08a10548c9380d4d8", "source": "cosmoss-jigu/solros bda6ce066e514239c9b645fd1ed2a9ffe4f2db33; exact retained config", "redistribution": "hold-human-review"},
+    {"id": "system-map", "path": "kernel/System.map", "sha256": "631674771d32602354e780209b86f2193ab24f8135056d654b1729f4967834a6", "source": "kernel build", "redistribution": "hold-human-review"},
+    {"id": "kernel-config", "path": "configs/kernel/k1om-solros-tested.config", "sha256": "20f240d00b033c1a0e14ffc8d2023533552adc4040ac0deff3404c79f1f12479", "source": "retained hardware-tested kernel build", "redistribution": "source-metadata"},
+    {"id": "base-cpio", "path": "bootstrap/xpr-bootstrap.cpio.gz", "sha256": "bdb19076b7ba8dd6619b3bce4696bdb942b768fb9f11dc0a60c1533f7ff35779", "source": "project outer Base CPIO builder", "redistribution": "hold-human-review"},
+    {"id": "final-root-payload", "path": "payload/xpr-rootfs.cpio.gz", "sha256": "e5c25217a5b9a2c60f7caaefce3651dd086b6f0f0d51e88883aa3e9486c7fee7", "source": "public-clean-root packer", "redistribution": "hold-human-review"},
+    {"id": "dma-module", "path": "modules/dma_module.ko", "sha256": "af0a88a14bcd815bea07739b88a54d453eb68b7e5c1acc81de0fc8aac70af32a", "source": "mpss-modules-3.4.10.tar.bz2", "redistribution": "hold-human-review"},
+    {"id": "ringbuffer-module", "path": "modules/ringbuffer.ko", "sha256": "e7339e86b9a00c047acc982e7f8a734f963b5ec945991f3cbd62bca1a6eba068", "source": "mpss-modules-3.4.10.tar.bz2", "redistribution": "hold-human-review"},
+    {"id": "micscif-module", "path": "modules/micscif.ko", "sha256": "0c5476258e5a4f200a1c38c1f434ae3ffccd29ec6f098b165d028c27655f64e2", "source": "mpss-modules-3.4.10.tar.bz2", "redistribution": "hold-human-review"},
+    {"id": "mpssboot-module", "path": "modules/mpssboot.ko", "sha256": "a5cc794ed1a6874a23830b39fc617fcea61f1de6a952b37029a099eb148d6894", "source": "mpss-modules-3.4.10.tar.bz2", "redistribution": "hold-human-review"},
+    {"id": "intel-micveth-module", "path": "modules/intel_micveth.ko", "sha256": "0e8f2baee0551707ca05ac85d19855b24e346742f8ff08b91ba2e294252bea60", "source": "mpss-modules-3.4.10.tar.bz2", "redistribution": "hold-human-review"}
+  ]
+}

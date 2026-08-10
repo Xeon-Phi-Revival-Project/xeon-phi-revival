@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
 /*
    K1OM needs the x87 fenv implementation but cannot use the x86-64 FPU
    header's SSE register moves for scalar float and double bit access.

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
 /*
    K1OM has no scalar SSE minss/ucomiss instructions.  Use eglibc's generic
    C fminf implementation instead of the x86-64 SSE assembly selection.

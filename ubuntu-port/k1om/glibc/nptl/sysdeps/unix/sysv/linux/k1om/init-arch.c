@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
 /*
    K1OM uses the x86-64 cpu_features layout for NPTL ABI compatibility but
    has none of the SSE, AVX, xgetbv, or TSX paths that x86-64 probes here.

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
 /*
    K1OM lacks the later x87 compare/pop instructions used by the x86-64
    assembly implementation.  This C fallback preserves the K1OM 80-bit

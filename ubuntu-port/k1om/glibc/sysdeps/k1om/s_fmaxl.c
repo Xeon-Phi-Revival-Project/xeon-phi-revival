@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
 /*
    K1OM lacks the conditional x87 instructions used by x86-64 fmaxl assembly.
    Use eglibc's generic C long-double implementation instead.

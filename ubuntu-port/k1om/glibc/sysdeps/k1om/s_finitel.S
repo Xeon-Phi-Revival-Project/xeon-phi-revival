@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
 /*
    K1OM long double uses the x86-64 ABI's 80-bit extended representation
    stored in 16 bytes.  This is the eglibc 2.19 x86-64 implementation,

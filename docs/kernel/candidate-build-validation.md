@@ -115,3 +115,18 @@ These hashes differ from the retained private hardware-validation reference.
 That difference is expected until the exact normalized historic configuration
 and reproducibility controls are reconciled. This public-source rebuild has
 not been booted and must not replace the known-good kernel.
+
+## Retained Tested Configuration
+
+The host still retains the exact `.config` used to produce the hardware-tested
+kernel `d529aecf0de11e0b4a9a036eb0329d1bb9c907fd6a911ce08a10548c9380d4d8`.
+It is now tracked as
+[`configs/kernel/k1om-solros-tested.config`](../../configs/kernel/k1om-solros-tested.config)
+with SHA-256
+`20f240d00b033c1a0e14ffc8d2023533552adc4040ac0deff3404c79f1f12479`.
+
+The configuration enables `CONFIG_MK1OM`, `CONFIG_X86_MICPCI`, initramfs,
+modules, networking, and `CONFIG_HVC_MIC`. This closes the missing-config
+record but does not by itself prove a clean rebuild reproduces `d529...`.
+That comparison and a complete source bundle remain required before binary
+publication.
