@@ -42,6 +42,7 @@ def main():
         for error in errors:
             sys.stderr.write("RELEASE_VERSION_CONSISTENCY=FAIL %s\n" % error)
         return 1
+    print("ACTIVE_RELEASE_METADATA=PASS version=%s" % args.version)
     print("RELEASE_VERSION_CONSISTENCY=PASS version=%s validation=%s" %
           (args.version, args.expect_validation))
     return 0
