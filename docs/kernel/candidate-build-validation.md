@@ -270,3 +270,24 @@ encodes these constraints and fails unless the final tested hash matches. The
 temporary upstream-source changes are restored by a trap. Because the image is
 byte-identical to the three-boot-tested artifact, no new hardware boot was
 needed.
+
+## 2026-08-10 Clean-Archive Verification Gate
+
+The reproduction wrapper was then exercised from the RC4 source archive rather
+than a retained host source tree. Two archive-layout defects in the wrapper
+were fixed: its `tar | awk` source discovery was incompatible with `pipefail`,
+and moving only `phi-kernel` discarded required sibling Solros projects.
+
+The corrected clean-archive build completed normal Kbuild compilation with the
+expected generated `compile.h` and its controlled initramfs hash. Its linked
+artifacts did not reproduce the retained target, however: the rebuilt
+`vmlinux` was `4360e4652765bbe206d6e54268a26b43235f0d3b9b8a1fa4a6e10f0d5383c180`,
+and deterministic final packaging produced `bzImage`
+`8c95344fd083f3e104513db1441b04a354327e050828a88e84fe0ddda993b4f0`, not
+the trusted `d529...` image.
+
+The clean archive therefore does not yet reproduce the release kernel. The
+retained `d529...` image remains the only hardware-validated kernel reference;
+the clean rebuild is not booted or distributed as a validated replacement.
+The next kernel task is to isolate the remaining link/package state difference
+between the retained historical output and the clean archived build.
