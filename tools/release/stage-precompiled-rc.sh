@@ -14,7 +14,7 @@ usage: stage-precompiled-rc.sh \
   --eglibc-orig FILE --eglibc-debian FILE \
   --gcc-source FILE --gmp-source FILE --mpfr-source FILE --mpc-source FILE \
   [--repository-archive FILE] \
-  [--version 0.1.0-rc5] [--revision REV] [--validation-status pending|passed]
+  --version VERSION [--revision REV] [--validation-status pending|passed]
 
 Build deterministic private review archives from the exact hardware-tested
 XPR-OS artifacts and pinned corresponding-source inputs. This command stages
@@ -22,7 +22,7 @@ artifacts for human review; it does not publish or create a Git tag/release.
 USAGE
 }
 
-version="0.1.0-rc5"
+version=""
 revision="HEAD"
 source_date_epoch="${SOURCE_DATE_EPOCH:-1786320000}"
 kernel="" system_map="" modules_dir="" bootstrap="" bootstrap_inner="" payload=""
@@ -61,6 +61,7 @@ done
 [[ "$validation_status" == pending || "$validation_status" == passed ]] || {
   echo "--validation-status must be pending or passed" >&2; exit 2;
 }
+[[ -n "$version" ]] || { echo "--version is required" >&2; usage; exit 2; }
 
 for value in kernel system_map modules_dir bootstrap bootstrap_inner payload kernel_source module_source \
   busybox_source dropbear_source eglibc_orig eglibc_debian gcc_source \
@@ -199,7 +200,7 @@ SOURCE_DATE_EPOCH="$source_date_epoch" "$python_bin" tools/release/generate-spdx
   --output /tmp/xpr-prebuilt-audit.json
 
 out_dir="$(mkdir -p "$out_dir" && cd "$out_dir" && pwd)"
-work="$(mktemp -d "${TMPDIR:-/tmp}/xpr-rc5.XXXXXX")"
+work="$(mktemp -d "${TMPDIR:-/tmp}/xpr-release.XXXXXX")"
 trap 'rm -rf "$work" /tmp/xpr-prebuilt-audit.json /tmp/xpr-prebuilt.spdx.json' EXIT
 binary_root="$work/xpr-os-$version"
 source_root="$work/xpr-os-$version-sources"
@@ -275,10 +276,17 @@ else
   }
 fi
 tar -xf "$work/repository.tar" -C "$source_root"
+"$python_bin" tools/release/apply-public-source-policy.py \
+  --root "$source_root/repository" \
+  --policy manifests/release/public-source-archive-policy.json \
+  --version "$version"
 "$python_bin" tools/release/validate-release-source-integrity.py \
   --root "$source_root/repository" \
   --config configs/kernel/k1om-solros-tested.config=20f240d00b033c1a0e14ffc8d2023533552adc4040ac0deff3404c79f1f12479 \
   --config configs/busybox/k1om-1.19.4.config=15e366d935d4171070590039b1085e5818954e78fd8c00a39bffa9b88c6191df
+"$python_bin" tools/release/validate-public-source-hygiene.py \
+  --root "$source_root/repository" \
+  --policy manifests/release/public-source-archive-policy.json
 install -m 0644 manifests/release/k1om-tested-kernel-reproduction.json "$source_root/manifests/"
 install -m 0644 manifests/release/mpss-modules-3.4.10-source-map.json "$source_root/manifests/"
 install -m 0644 manifests/release/mpss-modules-3.4.10-clean-dependencies.json "$source_root/manifests/"

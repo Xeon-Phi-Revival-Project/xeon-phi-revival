@@ -44,11 +44,12 @@ This path needs only normal host tools and tracked Git content:
 
 ```bash
 bash tools/release/audit-source-compliance.sh
-mkdir -p /root/xpr-build/public
+export XPR_BUILD_ROOT="$PWD/xpr-build"
+mkdir -p "$XPR_BUILD_ROOT/public"
 bash tools/release/package-public-rc.sh \
-  --out-dir /root/xpr-build/public \
+  --out-dir "$XPR_BUILD_ROOT/public" \
   --version 0.1.0-local
-sha256sum -c /root/xpr-build/public/SHA256SUMS
+sha256sum -c "$XPR_BUILD_ROOT/public/SHA256SUMS"
 ```
 
 The output is a deterministic source archive, build metadata, and checksums.
@@ -93,7 +94,7 @@ Choose private paths for the source, config, and output:
 ```bash
 export XPR_KERNEL_SOURCE=/path/to/k1om-kernel-source
 export XPR_KERNEL_CONFIG=/path/to/candidate.config
-export XPR_KERNEL_BUILD=/root/xpr-build/kernel
+export XPR_KERNEL_BUILD="$XPR_BUILD_ROOT/kernel"
 
 bash tools/kernel/build-compatible-k1om-kernel.sh \
   --source "$XPR_KERNEL_SOURCE" \
@@ -145,15 +146,15 @@ bootstrap root, outer Base CPIO, and final root/payload:
 
 ```bash
 bash tools/release/build-rc5-containers.sh \
-  --busybox /root/xpr-build/busybox/busybox \
-  --dropbear /root/xpr-build/dropbear/dropbear \
-  --eglibc-libdir /root/xpr-build/eglibc/stage/lib \
-  --libgcc /root/xpr-build/libgcc/install/k1om-mpss-linux/lib64/libgcc_s.so.1 \
-  --helpers /root/xpr-build/helpers \
-  --module-root /root/xpr-build/modules \
+  --busybox "$XPR_BUILD_ROOT/busybox/busybox" \
+  --dropbear "$XPR_BUILD_ROOT/dropbear/dropbear" \
+  --eglibc-libdir "$XPR_BUILD_ROOT/eglibc/stage/lib" \
+  --libgcc "$XPR_BUILD_ROOT/libgcc/install/k1om-mpss-linux/lib64/libgcc_s.so.1" \
+  --helpers "$XPR_BUILD_ROOT/helpers" \
+  --module-root "$XPR_BUILD_ROOT/modules" \
   --cross-compile k1om-mpss-linux- \
   --kernel-release 2.6.38.8+mpss3.5.1 \
-  --out-dir /root/xpr-build/containers
+  --out-dir "$XPR_BUILD_ROOT/containers"
 ```
 
 The command writes `final-root/xpr-rootfs.cpio.gz`,
@@ -171,12 +172,12 @@ key for the post-`switch_root` Dropbear server.
 
 ```bash
 python tools/release/provision-xpr-authorized-key.py \
-  --generic-bootstrap /root/xpr-build/containers/xpr-bootstrap.cpio.gz \
-  --bootstrap-output /root/xpr-build/deploy/xpr-bootstrap.cpio.gz \
-  --generic-payload /root/xpr-build/containers/final-root/xpr-rootfs.cpio.gz \
+  --generic-bootstrap "$XPR_BUILD_ROOT/containers/xpr-bootstrap.cpio.gz" \
+  --bootstrap-output "$XPR_BUILD_ROOT/deploy/xpr-bootstrap.cpio.gz" \
+  --generic-payload "$XPR_BUILD_ROOT/containers/final-root/xpr-rootfs.cpio.gz" \
   --authorized-key ~/.ssh/id_rsa.pub \
-  --output /root/xpr-build/deploy/xpr-rootfs.cpio.gz \
-  --report /root/xpr-build/deploy/key-provisioning.json
+  --output "$XPR_BUILD_ROOT/deploy/xpr-rootfs.cpio.gz" \
+  --report "$XPR_BUILD_ROOT/deploy/key-provisioning.json"
 ```
 
 Only a single structurally valid `ssh-rsa` public-key record is accepted. The
@@ -191,9 +192,9 @@ Record and inspect:
 sha256sum \
   "$XPR_KERNEL_BUILD/arch/x86/boot/bzImage" \
   "$XPR_KERNEL_BUILD/System.map" \
-  "/root/xpr-build/containers/xpr-bootstrap.cpio.gz" \
-  "/root/xpr-build/containers/final-root/xpr-rootfs.cpio.gz"
-cat "/root/xpr-build/containers/SHA256SUMS"
+  "$XPR_BUILD_ROOT/containers/xpr-bootstrap.cpio.gz" \
+  "$XPR_BUILD_ROOT/containers/final-root/xpr-rootfs.cpio.gz"
+cat "$XPR_BUILD_ROOT/containers/SHA256SUMS"
 ```
 
 Also verify the active stock MPSS configuration hash and stock SSH before any
@@ -205,12 +206,12 @@ Use the existing runner with an alternate MPSS configuration:
 
 ```bash
 bash tools/kernel/run-candidate-base-cpio-control.sh \
-  --base /root/xpr-build/deploy/xpr-bootstrap.cpio.gz \
+  --base "$XPR_BUILD_ROOT/deploy/xpr-bootstrap.cpio.gz" \
   --kernel "$XPR_KERNEL_BUILD/arch/x86/boot/bzImage" \
   --map "$XPR_KERNEL_BUILD/System.map" \
-  --payload /root/xpr-build/deploy/xpr-rootfs.cpio.gz \
+  --payload "$XPR_BUILD_ROOT/deploy/xpr-rootfs.cpio.gz" \
   --expected-stock-sha YOUR_RECORDED_STOCK_CONFIG_SHA256 \
-  --out-root /root/xpr-build/hardware-runs
+  --out-root "$XPR_BUILD_ROOT/hardware-runs"
 ```
 
 By default the runner performs bounded polling, executes the release smoke
@@ -235,9 +236,9 @@ A build is not an RC merely because files were produced. Require:
 See the [RC Acceptance Checklist](../ubuntu-port/uos-rc-acceptance-checklist.md)
 for the complete gate.
 
-## RC5 Validation Status
+## RC6 Packaging Status
 
-RC5 container construction is source-accounted and rejects private historical
-CPIO inputs. It remains an unpublished candidate until its exact generated
-container hashes complete the bounded hardware, rollback, and independent
-review gates.
+The source-accounted container builder rejects private historical CPIO inputs.
+RC6 retains the RC5 hardware-validated runtime hashes and changes only public
+metadata and source-package membership. It remains unpublished pending the
+targeted RC6 audit and owner publication decision.

@@ -17,7 +17,8 @@ def main():
     args = parser.parse_args()
     root = os.path.abspath(args.root)
     candidates = ("VERSION", "README.md", "build-report.txt", "SOURCE-BUNDLE.txt",
-                  "manifests/tested-artifacts.json", "manifests/release.yml")
+                  "docs/distribution-review.md", "manifests/tested-artifacts.json",
+                  "manifests/release.yml")
     errors = []
     for relative in candidates:
         path = os.path.join(root, *relative.split("/"))

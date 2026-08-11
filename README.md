@@ -18,14 +18,11 @@ collaboration with OpenAI Codex/ChatGPT, with hardware results validated on the
 actual Xeon Phi system before being treated as project facts.
 
 > [!NOTE]
-> **XPR-OS 0.1.0-rc1 hardware gates passed - August 10, 2026**
+> **XPR-OS 0.1.0-rc6 package-cleanup candidate - August 11, 2026**
 >
-> The source-accounted public-clean split-root stack now reaches the final root
-> with project PID 1, micveth, Dropbear SSH, `/dev`, and native
-> hello/pthread/dlopen smokes across three identical rollback-protected boots.
-> Public distribution remains limited to source, metadata, and a
-> bring-your-own-MPSS builder while kernel/module corresponding-source and final
-> binary redistribution review continue.
+> RC6 preserves the hardware-validated runtime artifacts from RC5 byte for
+> byte. It updates release metadata and public-source packaging only, then
+> awaits a targeted independent audit and owner publication decision.
 
 ## Start Here
 
@@ -235,12 +232,12 @@ software.
 
 For public links and source notes, see [Source Index](docs/source-index.md).
 
-Release packaging is conservative by design. RC2 remains the public
-source/metadata/BYO-MPSS release. A private RC3 binary/source review bundle now
-has recorded source, licenses, reproducible archives, SPDX metadata, and the
-exact three-boot-tested K1OM artifacts, but it is not public until qualified
-human review approves the module grants and exact archives. See the
-[XPR uOS 0.1 license review](docs/release/xpr-uos-0.1-license-review.md) and
+Release packaging is conservative by design. RC2 remains the published
+source/metadata/BYO-MPSS release. RC6 is an unpublished package-cleanup
+candidate built around the exact RC5 runtime artifacts, which already passed
+three rollback-protected boots. It awaits a targeted independent audit and an
+owner publication decision. See the
+[current release review](docs/release/xpr-os-0.1.0-rc6-review-report.md) and
 [license matrix](manifests/release/xpr-uos-0.1-license-matrix.yml).
 
 ## Status
@@ -252,7 +249,7 @@ The private package/runtime profile passed its documented Python, libc,
 networking, SSH, package-manager, and rollback tests. The split-root transition
 and final project PID 1 are proven. The current public-release boundary is
 redistribution: source, metadata, and BYO-MPSS tooling are published as RC2,
-and the precompiled RC3 review bundle is staged but not published. See the
+while the precompiled RC6 candidate is frozen for targeted audit. See the
 [current status](docs/status.md),
 [source-build guide](docs/release/build-xpr-os-rc-from-source.md), and
 [compliance review](docs/release/compliance-review.md). The evolving binary

@@ -1,0 +1,25 @@
+id: xpr-os-0.1.0-rc6
+status: runtime-identical-to-rc5-awaiting-targeted-audit
+date: "2026-08-11"
+architecture: k1om
+release_kind: precompiled-public-source-candidate
+technical_validation:
+  inherited_runtime_validation: rc5-passed-three-identical-runs
+  runtime_artifact_identity: required-before-freeze
+  reproducible_staging_builds: required-before-freeze
+publication:
+  allowed: false
+  blocker: >-
+    RC6 is a documentation/package-cleanup candidate. It must pass a targeted
+    independent audit and owner publication decision before it may be tagged
+    or published.
+  github_tag_created: false
+  github_release_created: false
+external_prerequisite:
+  - Intel MPSS 3.4.10 host installation obtained separately by the user
+prohibited_content:
+  - Intel firmware
+  - Intel MPSS packages or card-side userspace
+  - private keys or credentials
+  - fixed authorized_keys files
+  - unknown-provenance binaries

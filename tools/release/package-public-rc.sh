@@ -3,7 +3,7 @@ set -euo pipefail
 
 usage() {
   cat >&2 <<'USAGE'
-usage: package-public-rc.sh --out-dir DIR [--revision REV] [--version VERSION]
+usage: package-public-rc.sh --out-dir DIR --version VERSION [--revision REV]
 
 Create a deterministic source/metadata XPR-OS prerelease archive from tracked
 Git content. This command never includes private boot images or untracked local
@@ -13,7 +13,7 @@ USAGE
 
 out_dir=""
 revision="HEAD"
-version="0.1.0-rc1"
+version=""
 source_date_epoch="${SOURCE_DATE_EPOCH:-1704067200}"
 
 while [[ $# -gt 0 ]]; do
@@ -27,6 +27,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 [[ -n "$out_dir" ]] || { usage; exit 2; }
+[[ -n "$version" ]] || { echo "--version is required" >&2; usage; exit 2; }
 for cmd in git tar gzip sha256sum awk grep mktemp; do
   command -v "$cmd" >/dev/null 2>&1 || {
     echo "required host tool missing: $cmd" >&2

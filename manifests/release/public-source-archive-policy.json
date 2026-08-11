@@ -1,0 +1,32 @@
+{
+  "schema": "xpr-public-source-archive-policy-v1",
+  "purpose": "Exclude machine-specific historical evidence from public source packages without removing build or corresponding-source material from the repository.",
+  "exclude_prefixes": [
+    "docs/ubuntu-port/",
+    "docs/uos/",
+    "manifests/experiments/"
+  ],
+  "exclude_paths": [
+    "docs/kernel/candidate-build-validation.md",
+    "docs/kernel/source-search-report.md",
+    "docs/publication-audit-20260727.md",
+    "docs/release/xpr-os-0.1.0-rc3-multiagent-audit.md",
+    "docs/release/xpr-uos-0.1-license-review.md"
+  ],
+  "required_paths": [
+    "LICENSE",
+    "NOTICE.md",
+    "README.md",
+    "configs/kernel/k1om-solros-tested.config",
+    "configs/busybox/k1om-1.19.4.config",
+    "tools/kernel/reproduce-tested-k1om-kernel.sh",
+    "tools/kernel/build-candidate-mpss-modules.sh",
+    "tools/release/build-rc5-containers.sh",
+    "tools/release/build-bootstrap-root.sh",
+    "tools/release/build-public-root.sh",
+    "tools/release/build-public-clean-root.py",
+    "tools/release/validate-public-source-hygiene.py",
+    "manifests/release/prebuilt-clean-profile.json",
+    "manifests/release/public-source-archive-policy.json"
+  ]
+}
