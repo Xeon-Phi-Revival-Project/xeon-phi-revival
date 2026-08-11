@@ -19,7 +19,7 @@ Do not substitute a later rebuild and describe it as hardware validated.
 | Component | Evidence | Classification | Release action |
 | --- | --- | --- | --- |
 | XPR source, scripts, init, helpers | Tracked repository source under MIT | A | Publish source and notices |
-| Tested compatibility kernel | Solros `bda6ce066e514239c9b645fd1ed2a9ffe4f2db33`, source archive hash `0e876982d8e33ffda706e46c4bee731f84c76ad22601c7b8feb751a5bc6c1b59`, retained tested config `20f240d00b033c1a0e14ffc8d2023533552adc4040ac0deff3404c79f1f12479`, Linux `COPYING` | B | Bundle exact source/config/build metadata, then reproduce and compare the tested hash before publication |
+| Tested compatibility kernel | Solros `bda6ce066e514239c9b645fd1ed2a9ffe4f2db33`, archive `0e8769...`, tested config `20f240...`, Linux GPLv2 `COPYING`, and deterministic wrapper now reproduce `d529...` byte-for-byte | B | Include complete kernel source, config, generated metadata inputs, wrapper, GPL text, and build information in the source bundle |
 | Five K1OM modules | Hash-pinned `mpss-modules-3.4.10.tar.bz2` with GPLv2 `COPYING`; every Kbuild-selected implementation source has an Intel copyright/GPLv2 notice; per-module map is tracked | B | Bundle the complete source archive, capture clean-build header dependencies, and retain human review before binary publication |
 | BusyBox 1.19.4 | Pinned upstream source/config/build recipe; source-built binary | B | Include source, config, GPL text, and notices in a future source bundle |
 | eglibc runtime | Pinned Ubuntu source baseline and XPR overlay recipe | B | Include orig source, Debian delta, overlays, LGPL text/notices, and relinking material |
@@ -39,17 +39,11 @@ and licensing review needed to make a binary distribution conclusion.
 The hardware-tested kernel and modules must not be uploaded as a public binary
 release yet. The precise remaining questions are:
 
-1. Can the retained Solros source/config/toolchain reproduce the tested
-   `d529...` kernel, rather than only a related public-source build? The
-   2026-08-10 historical-tree build proved the source/compiler semantic
-   sections, module CRC table, and `System.map` match. Whole-image equality is
-   still blocked by old Kbuild's regenerated timestamp and build-version
-   metadata; the reproducible recipe must control those generated values.
-2. Can the complete hash-pinned `mpss-modules-3.4.10` source archive, including
+1. Can the complete hash-pinned `mpss-modules-3.4.10` source archive, including
    the headers selected by a clean build, be assembled as the corresponding
    source bundle for the five modules? The Kbuild-selected implementation
    sources and GPLv2 evidence are mapped, but that delivery check remains.
-3. Has a qualified human completed the final artifact review after those
+2. Has a qualified human completed the final artifact review after those
    mechanical questions are closed?
 
 Until all three are answered, the permitted public release remains the existing

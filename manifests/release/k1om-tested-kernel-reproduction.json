@@ -1,0 +1,29 @@
+{
+  "schema": "xpr-k1om-tested-kernel-reproduction-v1",
+  "status": "byte-identical-reproduction-proven",
+  "source": {
+    "repository": "https://github.com/cosmoss-jigu/solros",
+    "revision": "bda6ce066e514239c9b645fd1ed2a9ffe4f2db33",
+    "archive_sha256": "0e876982d8e33ffda706e46c4bee731f84c76ad22601c7b8feb751a5bc6c1b59",
+    "required_path": "/root/xpr-kernel-candidate-solros/phi-kernel"
+  },
+  "build": {
+    "script": "tools/kernel/reproduce-tested-k1om-kernel.sh",
+    "required_output_path": "/root/xpr-kernel-candidate-solros-build-validated",
+    "config": "configs/kernel/k1om-solros-tested.config",
+    "config_sha256": "20f240d00b033c1a0e14ffc8d2023533552adc4040ac0deff3404c79f1f12479",
+    "compile_header": "configs/kernel/k1om-solros-tested.compile.h",
+    "compile_header_sha256": "4f2c4d56ce5708c039d0998e865701cac8f8b3b43b7eb8383fb638616b1ef9c5",
+    "build_version": 1,
+    "default_initramfs_mtime": 1785639585,
+    "gzip_version": "1.5",
+    "gzip_mtime": 1785639841,
+    "cross_toolchain": "MPSS 3.4.10 k1om-mpss-linux GCC 4.7.0/binutils"
+  },
+  "outputs": {
+    "vmlinux_sha256": "b96b976f2eac4da888edef36fea8234efc97b00160a72da595d5ed048021991e",
+    "system_map_sha256": "631674771d32602354e780209b86f2193ab24f8135056d654b1729f4967834a6",
+    "bzimage_sha256": "d529aecf0de11e0b4a9a036eb0329d1bb9c907fd6a911ce08a10548c9380d4d8"
+  },
+  "validation": "The reproduced bzImage is byte-identical to the kernel used in three successful hardware boots; no additional boot was required."
+}

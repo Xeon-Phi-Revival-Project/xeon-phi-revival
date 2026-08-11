@@ -241,3 +241,32 @@ The next smallest experiment is now exact: preserve `.version=1`, remove the
 output header, and stage a temporary source-tree helper that writes the
 recovered validated header to `"$1"`. It must preserve the validated source-root
 path and compiler path. No further broad kernel rebuild is justified.
+
+## Exact Reproduction Result
+
+The corrected experiment reproduced the tested kernel byte for byte. The
+remaining inputs, beyond source/config/toolchain, were all generated-state or
+path metadata:
+
+- source path `/root/xpr-kernel-candidate-solros/phi-kernel`;
+- output path `/root/xpr-kernel-candidate-solros-build-validated`, embedded in
+  DWARF and therefore in the GNU build ID;
+- the recovered build-1 `compile.h`;
+- default built-in initramfs timestamp `1785639585`;
+- gzip 1.5 header timestamp `1785639841`;
+- regeneration of `zoffset.h` and setup after normalizing the compressed
+  payload.
+
+The resulting hashes are:
+
+| Artifact | SHA-256 | Result |
+| --- | --- | --- |
+| `vmlinux` | `b96b976f2eac4da888edef36fea8234efc97b00160a72da595d5ed048021991e` | exact |
+| `System.map` | `631674771d32602354e780209b86f2193ab24f8135056d654b1729f4967834a6` | exact |
+| `bzImage` | `d529aecf0de11e0b4a9a036eb0329d1bb9c907fd6a911ce08a10548c9380d4d8` | exact |
+
+[`reproduce-tested-k1om-kernel.sh`](../../tools/kernel/reproduce-tested-k1om-kernel.sh)
+encodes these constraints and fails unless the final tested hash matches. The
+temporary upstream-source changes are restored by a trap. Because the image is
+byte-identical to the three-boot-tested artifact, no new hardware boot was
+needed.
