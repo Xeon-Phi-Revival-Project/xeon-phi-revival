@@ -30,7 +30,7 @@ REQUIRED = ("upstream", "version", "source_url", "source_sha256", "license",
             "build_recipe", "corresponding_source", "redistribution", "spdx_id")
 REJECT_NAMES = ("*python3.5*", "*python3.5/*", "*libreadline*", "*libssl.so.1.0*",
                 "*libcrypto.so.1.0*", "/opt/mpss/*", "/usr/share/mpss/*",
-                "/lib/firmware/*", "/usr/lib/firmware/*")
+                "/lib/firmware/*", "/usr/lib/firmware/*", "*/authorized_keys")
 
 
 def digest(data):

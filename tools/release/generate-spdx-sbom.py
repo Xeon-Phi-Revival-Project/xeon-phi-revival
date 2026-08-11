@@ -7,6 +7,21 @@ import json
 import os
 
 
+def component_license(component):
+    return component.get("spdx_license", component["license"])
+
+
+def component_download_location(component):
+    return component.get("spdx_download_location", component["source_url"])
+
+
+def component_source_info(component):
+    return "source_sha256={0}; corresponding_source={1}; build_recipe={2}".format(
+        component.get("source_sha256", "NOASSERTION"),
+        component.get("corresponding_source", "NOASSERTION"),
+        component.get("build_recipe", "NOASSERTION"))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--audit", required=True)
@@ -25,19 +40,27 @@ def main():
         if item.get("id") not in used:
             continue
         packages.append({"SPDXID": item["spdx_id"], "name": item["id"],
-                         "versionInfo": item["version"], "downloadLocation": item["source_url"],
-                         "licenseConcluded": item["license"], "licenseDeclared": item["license"],
-                         "copyrightText": "NOASSERTION", "supplier": "NOASSERTION"})
+                         "versionInfo": item["version"],
+                         "downloadLocation": component_download_location(item),
+                         "licenseConcluded": component_license(item),
+                         "licenseDeclared": component_license(item),
+                         "copyrightText": item.get("copyright", "NOASSERTION"),
+                         "supplier": "NOASSERTION", "filesAnalyzed": False,
+                         "sourceInfo": component_source_info(item)})
     files = []
     relationships = []
     component_spdx = dict((item.get("id"), item.get("spdx_id"))
                           for item in ledger.get("components", []))
+    components = dict((item.get("id"), item) for item in ledger.get("components", []))
     for row in audit.get("inventory", []):
         if row.get("component"):
+            component = components[row["component"]]
             file_id = "SPDXRef-File-" + row["sha256"][:16]
             files.append({"SPDXID": file_id, "fileName": "." + row["path"],
                           "checksums": [{"algorithm": "SHA256", "checksumValue": row["sha256"]}],
-                          "licenseConcluded": "NOASSERTION", "copyrightText": "NOASSERTION"})
+                          "licenseConcluded": component_license(component),
+                          "licenseInfoInFiles": ["NONE"],
+                          "copyrightText": component.get("copyright", "NOASSERTION")})
             relationships.append({"spdxElementId": component_spdx[row["component"]],
                                   "relationshipType": "CONTAINS", "relatedSpdxElement": file_id})
     for value in args.external_file:
@@ -49,18 +72,30 @@ def main():
         if component not in component_spdx or len(sha256) != 64:
             parser.error("invalid component or SHA256 in --external-file: " + value)
         file_id = "SPDXRef-File-" + sha256[:16]
+        component_record = components[component]
         files.append({"SPDXID": file_id, "fileName": path,
                       "checksums": [{"algorithm": "SHA256", "checksumValue": sha256}],
-                      "licenseConcluded": "NOASSERTION", "copyrightText": "NOASSERTION"})
+                      "licenseConcluded": component_license(component_record),
+                      "licenseInfoInFiles": ["NONE"],
+                      "copyrightText": component_record.get("copyright", "NOASSERTION")})
         relationships.append({"spdxElementId": component_spdx[component],
                               "relationshipType": "CONTAINS", "relatedSpdxElement": file_id})
     epoch = os.environ.get("SOURCE_DATE_EPOCH")
     created = (datetime.datetime.utcfromtimestamp(int(epoch)) if epoch else
                datetime.datetime.utcnow()).replace(microsecond=0).isoformat() + "Z"
+    extracted = []
+    for item in ledger.get("components", []):
+        if item.get("id") in used and item.get("spdx_extracted_license"):
+            extracted_license = item["spdx_extracted_license"]
+            extracted.append({"licenseId": extracted_license["id"],
+                              "name": extracted_license["name"],
+                              "extractedText": "See " + extracted_license["text_file"] +
+                                               " in the paired release archive."})
     doc = {"spdxVersion": "SPDX-2.3", "dataLicense": "CC0-1.0", "SPDXID": "SPDXRef-DOCUMENT",
            "name": "xpr-k1om-uos-prebuilt", "documentNamespace": "https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/spdx/" + audit.get("artifact", {}).get("sha256", "rootfs"),
            "creationInfo": {"created": created, "creators": ["Tool: xpr generate-spdx-sbom.py"]},
-           "packages": packages, "files": files, "relationships": relationships}
+           "packages": packages, "files": files, "relationships": relationships,
+           "hasExtractedLicensingInfos": extracted}
     with open(args.output, "w") as handle:
         json.dump(doc, handle, indent=2, sort_keys=True)
         handle.write("\n")

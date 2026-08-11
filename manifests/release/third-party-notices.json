@@ -1,0 +1,13 @@
+{
+  "schema": "xpr-third-party-notices-v1",
+  "release_policy": "The binary archive carries these notices. The paired source archive carries pinned corresponding source inputs.",
+  "components": [
+    {"component": "linux-k1om", "version": "solros-bda6ce066e514239c9b645fd1ed2a9ffe4f2db33", "license": "GPL-2.0-only", "license_file": "LICENSES/GPL-2.0-only.txt", "source_archive": "sources/solros-bda6ce.tar.gz"},
+    {"component": "mpss-compatible-modules", "version": "3.4.10", "license": "GPL-2.0-only", "license_file": "LICENSES/MPSS-modules-GPL-2.0-only.txt", "source_archive": "sources/mpss-modules-3.4.10.tar.bz2"},
+    {"component": "busybox", "version": "1.19.4", "license": "GPL-2.0-only", "license_file": "LICENSES/BusyBox-1.19.4-GPL-2.0-only.txt", "source_archive": "sources/busybox-1.19.4.tar.bz2"},
+    {"component": "eglibc", "version": "2.19-0ubuntu6.15", "license": "LGPL-2.1-or-later", "license_file": "LICENSES/LGPL-2.1-or-later.txt", "source_archive": "sources/eglibc_2.19.orig.tar.xz and sources/eglibc_2.19-0ubuntu6.15.debian.tar.xz"},
+    {"component": "libgcc", "version": "5.1.1-knc-af7cc04", "license": "GPL-3.0-only WITH GCC-exception-3.1", "license_file": "LICENSES/GPL-3.0-only.txt; LICENSES/GCC-Runtime-Library-Exception-3.1.txt", "source_archive": "sources/gcc-5.1.1-knc-af7cc04.tar.gz"},
+    {"component": "dropbear", "version": "2022.83", "license": "LicenseRef-Dropbear-2022-83", "license_file": "LICENSES/Dropbear-2022.83-LICENSE.txt", "source_archive": "sources/dropbear-2022.83.tar.bz2"},
+    {"component": "xpr-owned", "version": "git-pinned", "license": "MIT", "license_file": "LICENSE", "source_archive": "repository/"}
+  ]
+}

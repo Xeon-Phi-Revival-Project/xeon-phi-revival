@@ -5,33 +5,41 @@ set -euo pipefail
 usage() {
     cat <<'EOF'
 Usage: reproduce-tested-k1om-kernel.sh --source-archive FILE \
-       --cross-compile PREFIX [--jobs N]
+       --cross-compile PREFIX --work-root DIR [--jobs N]
 
-This historical build is path-sensitive and intentionally uses:
-  source: /root/xpr-kernel-candidate-solros/phi-kernel
-  output: /root/xpr-kernel-candidate-solros-build-validated
+The wrapper creates a synthetic, deterministic historical layout inside
+--work-root:
+  source: WORK_ROOT/xpr-kernel-candidate-solros/phi-kernel
+  output: WORK_ROOT/xpr-kernel-candidate-solros-build-validated
 
-The output path must not exist. The script does not install or boot the image.
+WORK_ROOT must exist and both generated paths must be absent. The script
+extracts the supplied Solros source archive; it does not install or boot the
+image and does not require Git metadata.
 EOF
 }
 
 source_archive=
 cross_compile=
+work_root=
 jobs=2
 while [ "$#" -gt 0 ]; do
     case "$1" in
         --source-archive) source_archive=$2; shift 2 ;;
         --cross-compile) cross_compile=$2; shift 2 ;;
+        --work-root) work_root=$2; shift 2 ;;
         --jobs) jobs=$2; shift 2 ;;
         -h|--help) usage; exit 0 ;;
         *) echo "unknown argument: $1" >&2; usage >&2; exit 2 ;;
     esac
 done
 
-[ -n "$source_archive" ] && [ -n "$cross_compile" ] || { usage >&2; exit 2; }
+[ -n "$source_archive" ] && [ -n "$cross_compile" ] && [ -n "$work_root" ] || {
+    usage >&2; exit 2;
+}
 
-readonly expected_source=/root/xpr-kernel-candidate-solros/phi-kernel
-readonly expected_output=/root/xpr-kernel-candidate-solros-build-validated
+work_root=$(cd "$work_root" && pwd)
+readonly expected_source="$work_root/xpr-kernel-candidate-solros/phi-kernel"
+readonly expected_output="$work_root/xpr-kernel-candidate-solros-build-validated"
 readonly source_archive_sha=0e876982d8e33ffda706e46c4bee731f84c76ad22601c7b8feb751a5bc6c1b59
 readonly config_sha=20f240d00b033c1a0e14ffc8d2023533552adc4040ac0deff3404c79f1f12479
 readonly compile_header_sha=4f2c4d56ce5708c039d0998e865701cac8f8b3b43b7eb8383fb638616b1ef9c5
@@ -44,7 +52,8 @@ readonly image_sha=d529aecf0de11e0b4a9a036eb0329d1bb9c907fd6a911ce08a10548c9380d
 readonly initramfs_mtime=1785639585
 readonly gzip_mtime_octal='\241\263\156\152'
 
-repo_root=$(git rev-parse --show-toplevel)
+script_dir=$(cd "$(dirname "$0")" && pwd)
+repo_root=$(cd "$script_dir/../.." && pwd)
 config_file=$repo_root/configs/kernel/k1om-solros-tested.config
 compile_header=$repo_root/configs/kernel/k1om-solros-tested.compile.h
 
@@ -57,7 +66,8 @@ check_sha() {
     }
 }
 
-[ -f "$expected_source/Makefile" ] || { echo "missing exact source path" >&2; exit 1; }
+[ -d "$work_root" ] || { echo "work root does not exist: $work_root" >&2; exit 1; }
+[ ! -e "$expected_source" ] || { echo "synthetic source path already exists: $expected_source" >&2; exit 1; }
 [ ! -e "$expected_output" ] || { echo "output path already exists" >&2; exit 1; }
 [ -x "${cross_compile}gcc" ] && [ -x "${cross_compile}ld" ] || {
     echo "missing K1OM cross tools" >&2; exit 1;
@@ -69,7 +79,17 @@ check_sha "$compile_header_sha" "$compile_header"
     echo "exact packaging requires gzip 1.5" >&2; exit 1;
 }
 
-work_dir=$(mktemp -d /tmp/xpr-kernel-reproduce.XXXXXX)
+extract_dir=$(mktemp -d "$work_root/.xpr-kernel-extract.XXXXXX")
+source_makefile=$(tar -tf "$source_archive" | awk '/\/phi-kernel\/Makefile$/ { print; exit }')
+[ -n "$source_makefile" ] || { echo "Solros archive does not contain phi-kernel/Makefile" >&2; exit 1; }
+tar -xf "$source_archive" -C "$extract_dir"
+source_tree="$extract_dir/${source_makefile%/Makefile}"
+[ -f "$source_tree/Makefile" ] || { echo "extracted kernel source is incomplete" >&2; exit 1; }
+mkdir -p "$(dirname "$expected_source")"
+mv "$source_tree" "$expected_source"
+rm -rf "$extract_dir"
+
+work_dir=$(mktemp -d "$work_root/.xpr-kernel-reproduce.XXXXXX")
 cp "$expected_source/scripts/mkcompile_h" "$work_dir/mkcompile_h"
 cp "$expected_source/usr/gen_init_cpio.c" "$work_dir/gen_init_cpio.c"
 restore_sources() {
@@ -82,12 +102,20 @@ mkdir -p "$expected_output"
 cp "$config_file" "$expected_output/.config"
 printf '1\n' > "$expected_output/.version"
 
-cat > "$expected_source/scripts/mkcompile_h" <<EOF
+write_compile_helper() {
+cat > "$1" <<EOF
 #!/bin/sh
 set -e
 cat '$compile_header' > "\$1"
 EOF
-chmod 0775 "$expected_source/scripts/mkcompile_h"
+chmod 0775 "$1"
+}
+write_compile_helper "$expected_source/scripts/mkcompile_h"
+# Old out-of-tree Kbuild copies this helper below O= and invokes that copy.
+# Stage the controlled copy before the first build so both possible helper
+# paths emit the recovered build #1 metadata.
+mkdir -p "$expected_output/scripts"
+write_compile_helper "$expected_output/scripts/mkcompile_h"
 sed -i "s/time(NULL)/((time_t)$initramfs_mtime)/g" \
     "$expected_source/usr/gen_init_cpio.c"
 

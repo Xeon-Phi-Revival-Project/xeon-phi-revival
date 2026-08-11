@@ -1,0 +1,24 @@
+id: xpr-os-0.1.0-rc4
+status: private-staging-human-legal-review-pending
+date: "2026-08-10"
+architecture: k1om
+release_kind: precompiled-public-source-candidate
+inherits_technical_validation_from: xpr-os-0.1.0-rc3
+revalidation_required:
+  - generic payload no longer embeds an authorized key
+  - provisioned deployment must complete the bounded hardware gate before publication
+publication:
+  allowed: false
+  blocker: >-
+    RC4 is a candidate only. It requires successful bounded hardware validation,
+    repeatability, archive review, and qualified human legal review.
+  github_tag_created: false
+  github_release_created: false
+external_prerequisite:
+  - Intel MPSS 3.4.10 host installation obtained separately by the user
+prohibited_content:
+  - Intel firmware
+  - Intel MPSS packages or card-side userspace
+  - private keys or credentials
+  - fixed authorized_keys files
+  - unknown-provenance binaries

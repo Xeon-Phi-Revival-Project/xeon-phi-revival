@@ -14,6 +14,8 @@
 *.txt text eol=lf
 *.fragment text eol=lf
 *.env text eol=lf
+configs/kernel/*.config text eol=lf
+configs/busybox/*.config text eol=lf
 *.gitignore text eol=lf
 .gitattributes text eol=lf
 Packages text eol=lf
