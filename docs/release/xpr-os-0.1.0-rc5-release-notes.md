@@ -12,5 +12,5 @@ payload. Do not describe this candidate as hardware validated until the bounded
 RC5 deployment and rollback evidence has been recorded against its exact hashes.
 
 The generic payload is key-free. A user supplies one validated RSA public key
-only when making a local deployment payload; no password or private key is
-included in the candidate archive.
+only when making local deployment Base CPIO and final-payload artifacts; no
+password, private key, or fixed public key is included in the candidate archive.

@@ -161,7 +161,29 @@ The command writes `final-root/xpr-rootfs.cpio.gz`,
 `private_cpio_inputs=0` in `SHA256SUMS`. It does not modify MPSS or boot the
 card.
 
-## 8. Review Before Hardware Use
+## 8. Create Deployment-Only SSH Artifacts
+
+The generic Base CPIO and final payload intentionally contain no SSH key. For a
+local deployment, provide one operator-owned RSA public key. This produces two
+keyed files outside the release archive: a Base CPIO whose nested bootstrap
+root can accept the initial SSH connection, and a final payload with the same
+key for the post-`switch_root` Dropbear server.
+
+```bash
+python tools/release/provision-xpr-authorized-key.py \
+  --generic-bootstrap /root/xpr-build/containers/xpr-bootstrap.cpio.gz \
+  --bootstrap-output /root/xpr-build/deploy/xpr-bootstrap.cpio.gz \
+  --generic-payload /root/xpr-build/containers/final-root/xpr-rootfs.cpio.gz \
+  --authorized-key ~/.ssh/id_rsa.pub \
+  --output /root/xpr-build/deploy/xpr-rootfs.cpio.gz \
+  --report /root/xpr-build/deploy/key-provisioning.json
+```
+
+Only a single structurally valid `ssh-rsa` public-key record is accepted. The
+tool rejects private-key files, malformed Base64, malformed SSH wire data,
+unsupported algorithms, and multi-line input.
+
+## 9. Review Before Hardware Use
 
 Record and inspect:
 
@@ -177,16 +199,16 @@ cat "/root/xpr-build/containers/SHA256SUMS"
 Also verify the active stock MPSS configuration hash and stock SSH before any
 boot. Do not continue if the expected stock hash is unknown.
 
-## 9. Run The Bounded Hardware Test
+## 10. Run The Bounded Hardware Test
 
 Use the existing runner with an alternate MPSS configuration:
 
 ```bash
 bash tools/kernel/run-candidate-base-cpio-control.sh \
-  --base /root/xpr-build/containers/xpr-bootstrap.cpio.gz \
+  --base /root/xpr-build/deploy/xpr-bootstrap.cpio.gz \
   --kernel "$XPR_KERNEL_BUILD/arch/x86/boot/bzImage" \
   --map "$XPR_KERNEL_BUILD/System.map" \
-  --payload /root/xpr-build/containers/final-root/xpr-rootfs.cpio.gz \
+  --payload /root/xpr-build/deploy/xpr-rootfs.cpio.gz \
   --expected-stock-sha YOUR_RECORDED_STOCK_CONFIG_SHA256 \
   --out-root /root/xpr-build/hardware-runs
 ```
@@ -196,7 +218,7 @@ suite, and restores stock MPSS through its exit trap. Use `--leave-running`
 only for an attended inspection session; it suppresses rollback only after all
 required checks pass.
 
-## 10. Required Success Evidence
+## 11. Required Success Evidence
 
 A build is not an RC merely because files were produced. Require:
 

@@ -141,39 +141,77 @@ def write_gzip(path, plain):
         handle.write(b"\0\0\0\0")
 
 
+def gzip_bytes(plain):
+    from io import BytesIO
+    output = BytesIO()
+    try:
+        stream = gzip.GzipFile(filename="", mode="wb", fileobj=output, mtime=0)
+    except TypeError:
+        stream = gzip.GzipFile(filename="", mode="wb", fileobj=output)
+    try:
+        stream.write(plain)
+    finally:
+        stream.close()
+    data = output.getvalue()
+    return data[:4] + b"\0\0\0\0" + data[8:]
+
+
+def provision_payload(compressed, key, label):
+    plain, trailing, members = NEWC.gunzip(compressed)
+    if trailing:
+        raise RuntimeError("%s has bytes after the gzip stream" % label)
+    entries, trailer_offset, archive_trailing = NEWC.parse_newc(plain)
+    if archive_trailing:
+        raise RuntimeError("%s has bytes after the newc trailer" % label)
+    names = set(entry["name"].decode("ascii") for entry in entries)
+    if "root/.ssh/authorized_keys" in names or "root/.ssh" in names:
+        raise RuntimeError("%s already contains root SSH authorization" % label)
+    if "root" not in names:
+        raise RuntimeError("%s lacks root directory" % label)
+    NEWC.append_entry(entries, "root/.ssh", 0o040700, b"")
+    NEWC.append_entry(entries, "root/.ssh/authorized_keys", 0o100600, key)
+    return gzip_bytes(NEWC.serialize(entries, b"")), members, trailer_offset
+
+
+def provision_bootstrap(compressed, key):
+    plain, trailing, members = NEWC.gunzip(compressed)
+    if trailing:
+        raise RuntimeError("generic bootstrap has bytes after the gzip stream")
+    entries, trailer_offset, archive_trailing = NEWC.parse_newc(plain)
+    if archive_trailing:
+        raise RuntimeError("generic bootstrap has bytes after the newc trailer")
+    matches = [entry for entry in entries if entry["name"] == b"xpr-rootfs.cpio.gz"]
+    if len(matches) != 1:
+        raise RuntimeError("generic bootstrap lacks exactly one nested xpr-rootfs.cpio.gz")
+    nested, nested_members, nested_trailer = provision_payload(matches[0]["payload"], key, "nested bootstrap root")
+    NEWC.replace_payload(matches[0], nested)
+    return gzip_bytes(NEWC.serialize(entries, b"")), members, trailer_offset, nested_members, nested_trailer
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--generic-payload", required=True)
     parser.add_argument("--authorized-key", required=True)
     parser.add_argument("--output", required=True)
     parser.add_argument("--report", required=True)
+    parser.add_argument("--generic-bootstrap", help="generic outer Base CPIO to provision for bootstrap SSH")
+    parser.add_argument("--bootstrap-output", help="deployment-only outer Base CPIO output")
     args = parser.parse_args()
     if os.path.exists(args.output) or os.path.exists(args.report):
         raise RuntimeError("refusing to overwrite deployment output or report")
+    if bool(args.generic_bootstrap) != bool(args.bootstrap_output):
+        raise RuntimeError("--generic-bootstrap and --bootstrap-output must be supplied together")
+    if args.bootstrap_output and os.path.exists(args.bootstrap_output):
+        raise RuntimeError("refusing to overwrite deployment bootstrap output")
     key, key_type = read_public_key(args.authorized_key)
     compressed = open(args.generic_payload, "rb").read()
-    plain, trailing, members = NEWC.gunzip(compressed)
-    if trailing:
-        raise RuntimeError("generic payload has bytes after the gzip stream")
-    entries, trailer_offset, archive_trailing = NEWC.parse_newc(plain)
-    if archive_trailing:
-        raise RuntimeError("generic payload has bytes after the newc trailer")
-    names = set(entry["name"].decode("ascii") for entry in entries)
-    if "root/.ssh/authorized_keys" in names:
-        raise RuntimeError("generic payload already contains authorized_keys")
-    if "root/.ssh" in names:
-        raise RuntimeError("generic payload already contains root/.ssh")
-    if "root" not in names:
-        raise RuntimeError("generic payload lacks root directory")
-    NEWC.append_entry(entries, "root/.ssh", 0o040700, b"")
-    NEWC.append_entry(entries, "root/.ssh/authorized_keys", 0o100600, key)
-    deployment_plain = NEWC.serialize(entries, b"")
-    write_gzip(args.output, deployment_plain)
+    deployment_payload, members, trailer_offset = provision_payload(compressed, key, "generic payload")
+    open(args.output, "wb").write(deployment_payload)
     report = {
         "schema": "xpr-deployment-key-provisioning-v1",
         "generic_payload_sha256": sha256(compressed),
         "generic_payload_bytes": len(compressed),
-        "deployment_payload_sha256": sha256(open(args.output, "rb").read()),
+        "deployment_payload_sha256": sha256(deployment_payload),
         "deployment_payload_bytes": os.path.getsize(args.output),
         "key_sha256": sha256(key),
         "key_type": key_type,
@@ -184,6 +222,19 @@ def main():
         "gzip_members": members,
         "source_trailer_offset": trailer_offset,
     }
+    if args.generic_bootstrap:
+        bootstrap = open(args.generic_bootstrap, "rb").read()
+        deployment_bootstrap, outer_members, outer_trailer, nested_members, nested_trailer = provision_bootstrap(bootstrap, key)
+        open(args.bootstrap_output, "wb").write(deployment_bootstrap)
+        report.update({
+            "generic_bootstrap_sha256": sha256(bootstrap),
+            "deployment_bootstrap_sha256": sha256(deployment_bootstrap),
+            "deployment_bootstrap_bytes": len(deployment_bootstrap),
+            "bootstrap_outer_gzip_members": outer_members,
+            "bootstrap_outer_trailer_offset": outer_trailer,
+            "bootstrap_nested_gzip_members": nested_members,
+            "bootstrap_nested_trailer_offset": nested_trailer,
+        })
     with open(args.report, "w") as handle:
         json.dump(report, handle, indent=2, sort_keys=True)
         handle.write("\n")
