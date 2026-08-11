@@ -7,21 +7,21 @@ artifacts. It is frozen for a targeted independent audit and is not a GitHub
 release, tag, or owner publication decision.
 
 - Starting repository commit: `452ee12940b90ffd3410d319f825e46556949f16`
-- RC6 packaging commit: `601f1dd309f11c293431c32cfd0d59a719c924db`
+- RC6 packaging commit: `e6071c51bb640ab639aedf5faf7af30ae79bad26`
 - Hardware retest required: `NO`
 
 ## Frozen Archives
 
 | Artifact | SHA-256 | Bytes | Build A/B |
 | --- | --- | ---: | --- |
-| `xpr-os-0.1.0-rc6.tar.gz` | `3d73d3696e639e7e0c9a2f0e23f2d1b4dcc1cb9463a3f666991522d7f76d8b02` | 20,807,076 | identical |
-| `xpr-os-0.1.0-rc6-sources.tar.gz` | `3234112e9f6a2a0670c1943c8080c2d0992e539f7866180dd6d07e9907860fb5` | 362,447,909 | identical |
+| `xpr-os-0.1.0-rc6.tar.gz` | `94867d9f58c12e7b04dcd0f2a8bfb176054d41b3c8e02f6c584c6efef4124d6c` | 20,807,128 | identical |
+| `xpr-os-0.1.0-rc6-sources.tar.gz` | `bb530e170e9871627903644f52d8271c1f9c3375d4d3bc1d62c0c4eaa60a6558` | 362,447,951 | identical |
 
 ## RC5 Blocker Closure
 
 | RC5 blocker | Status | Evidence |
 | --- | --- | --- |
-| Stale active release material | PASS | RC6 release notes, distribution review, manifest, and generated archive metadata identify `0.1.0-rc6`. `validate-release-consistency.py` now checks the shipped distribution review and reports `RELEASE_VERSION_CONSISTENCY=PASS`. Both package entry points require an explicit `--version`. |
+| Stale active release material | PASS | RC6 release notes, distribution review, manifest, and generated archive metadata identify `0.1.0-rc6`. `validate-release-consistency.py` now checks the shipped distribution review and reports `ACTIVE_RELEASE_METADATA=PASS` and `RELEASE_VERSION_CONSISTENCY=PASS`. Both package entry points require an explicit `--version`. |
 | Private absolute build-path leakage | PASS | The public-source policy excludes machine-specific historical reports and experiment material without deleting it from Git. The extracted RC6 source archive reports `PRIVATE_BUILD_PATH_LEAKS=0`. Required configs, kernel/module recipes, container constructors, source archives, and license material remain present. |
 
 ## Runtime Identity With RC5
