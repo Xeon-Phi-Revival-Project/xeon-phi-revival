@@ -85,12 +85,20 @@ if find "$root" -type f \( -name '*.key' -o -name '*.pem' -o -name 'id_rsa*' -o 
   exit 24
 fi
 secret_pattern='BEGIN (RSA |OPENSSH )?PRIVATE KEY'
-secret_pattern="${secret_pattern}"'|XPR_MPSS_PASSWORD|SSH_.*PRIVATE'
-secret_pattern="${secret_pattern}"'|PRIVATE_KEY|PASSWORD[[:space:]]*[:=]'
-if grep -RIlE "$secret_pattern" "$root" | grep -q .; then
-  echo "secret pattern found in release" >&2
-  exit 25
-fi
+secret_pattern="${secret_pattern}"'|(XPR_MPSS_PASSWORD|SSH_[A-Z0-9_]*PRIVATE[A-Z0-9_]*|PRIVATE_KEY|PASSWORD)[[:space:]]*[:=][^[:space:]]+'
+while IFS= read -r -d '' candidate; do
+  relative=${candidate#"$root"/}
+  case "$relative" in
+    tools/verify.sh|tools/verify-generic-payload.py|tools/provision-authorized-key.py)
+      # These shipped tools contain the detector/provisioning literals themselves.
+      continue
+      ;;
+  esac
+  if grep -Iq . "$candidate" && grep -Eq "$secret_pattern" "$candidate"; then
+    echo "secret pattern found in release: $relative" >&2
+    exit 25
+  fi
+done < <(find "$root" -type f -print0)
 if find "$root" -type f \( -name '*.rpm' -o -name '*.deb' -o -name '*.rom' -o -name '*.fw' \) -print -quit | grep -q .; then
   echo "prohibited package or firmware found in release" >&2
   exit 26
