@@ -80,7 +80,7 @@ check_sha "$compile_header_sha" "$compile_header"
 }
 
 extract_dir=$(mktemp -d "$work_root/.xpr-kernel-extract.XXXXXX")
-source_makefile=$(tar -tf "$source_archive" | awk '/\/phi-kernel\/Makefile$/ { print; exit }')
+source_makefile=$(tar -tf "$source_archive" | awk '/\/phi-kernel\/Makefile$/ && !found { print; found=1 } END { exit !found }')
 [ -n "$source_makefile" ] || { echo "Solros archive does not contain phi-kernel/Makefile" >&2; exit 1; }
 tar -xf "$source_archive" -C "$extract_dir"
 source_tree="$extract_dir/${source_makefile%/Makefile}"
