@@ -4,6 +4,7 @@ import argparse
 import datetime
 import io
 import json
+import os
 
 
 def main():
@@ -29,9 +30,12 @@ def main():
             files.append({"SPDXID": "SPDXRef-File-" + row["sha256"][:16], "fileName": "." + row["path"],
                           "checksums": [{"algorithm": "SHA256", "checksumValue": row["sha256"]}],
                           "licenseConcluded": "NOASSERTION", "copyrightText": "NOASSERTION"})
+    epoch = os.environ.get("SOURCE_DATE_EPOCH")
+    created = (datetime.datetime.utcfromtimestamp(int(epoch)) if epoch else
+               datetime.datetime.utcnow()).replace(microsecond=0).isoformat() + "Z"
     doc = {"spdxVersion": "SPDX-2.3", "dataLicense": "CC0-1.0", "SPDXID": "SPDXRef-DOCUMENT",
            "name": "xpr-k1om-uos-prebuilt", "documentNamespace": "https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/spdx/" + audit.get("artifact", {}).get("sha256", "rootfs"),
-           "creationInfo": {"created": datetime.datetime.utcnow().replace(microsecond=0).isoformat() + "Z", "creators": ["Tool: xpr generate-spdx-sbom.py"]},
+           "creationInfo": {"created": created, "creators": ["Tool: xpr generate-spdx-sbom.py"]},
            "packages": packages, "files": files, "relationships": []}
     with open(args.output, "w") as handle:
         json.dump(doc, handle, indent=2, sort_keys=True)

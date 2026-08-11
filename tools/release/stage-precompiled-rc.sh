@@ -123,10 +123,20 @@ bash tools/release/audit-source-compliance.sh
   --ledger manifests/release/prebuilt-clean-profile.json \
   --stage candidate \
   --output /tmp/xpr-prebuilt-audit.json
+SOURCE_DATE_EPOCH="$source_date_epoch" "$python_bin" tools/release/generate-spdx-sbom.py \
+  --audit /tmp/xpr-prebuilt-audit.json \
+  --ledger manifests/release/prebuilt-clean-profile.json \
+  --output /tmp/xpr-prebuilt.spdx.json
+"$python_bin" tools/release/audit-prebuilt-image.py \
+  --cpio "$payload" \
+  --ledger manifests/release/prebuilt-clean-profile.json \
+  --stage candidate \
+  --sbom /tmp/xpr-prebuilt.spdx.json \
+  --output /tmp/xpr-prebuilt-audit.json
 
 out_dir="$(mkdir -p "$out_dir" && cd "$out_dir" && pwd)"
 work="$(mktemp -d "${TMPDIR:-/tmp}/xpr-rc3.XXXXXX")"
-trap 'rm -rf "$work" /tmp/xpr-prebuilt-audit.json' EXIT
+trap 'rm -rf "$work" /tmp/xpr-prebuilt-audit.json /tmp/xpr-prebuilt.spdx.json' EXIT
 binary_root="$work/xpr-os-$version"
 source_root="$work/xpr-os-$version-sources"
 mkdir -p "$binary_root"/{kernel,modules,bootstrap,payload,tools,docs,manifests} \
@@ -146,6 +156,7 @@ install -m 0644 docs/release/public-clean-stack-validation.md "$binary_root/docs
 install -m 0644 docs/release/distribution-review.md "$binary_root/docs/"
 install -m 0644 manifests/release/xpr-os-0.1.0-rc1-tested-artifacts.json "$binary_root/manifests/tested-artifacts.json"
 install -m 0644 manifests/release/xpr-os-0.1.0-rc3.yml "$binary_root/manifests/release.yml"
+install -m 0644 /tmp/xpr-prebuilt.spdx.json "$binary_root/manifests/xpr-os.spdx.json"
 printf '%s\n' "$version" > "$binary_root/VERSION"
 printf 'git_commit=%s\nsource_date_epoch=%s\npublication_status=HUMAN_LEGAL_REVIEW_PENDING\n' \
   "$commit" "$source_date_epoch" > "$binary_root/build-report.txt"
@@ -166,6 +177,7 @@ tar -xf "$work/repository.tar" -C "$source_root"
 install -m 0644 manifests/release/k1om-tested-kernel-reproduction.json "$source_root/manifests/"
 install -m 0644 manifests/release/mpss-modules-3.4.10-source-map.json "$source_root/manifests/"
 install -m 0644 manifests/release/mpss-modules-3.4.10-clean-dependencies.json "$source_root/manifests/"
+install -m 0644 /tmp/xpr-prebuilt.spdx.json "$source_root/manifests/xpr-os.spdx.json"
 
 (cd "$binary_root" && find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)
 (cd "$source_root" && find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)

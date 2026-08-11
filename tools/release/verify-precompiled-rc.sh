@@ -34,11 +34,15 @@ required=(
   modules/mpssboot.ko modules/intel_micveth.ko
   bootstrap/xpr-bootstrap.cpio.gz payload/xpr-rootfs.cpio.gz
   tools/verify.sh manifests/tested-artifacts.json manifests/release.yml
+  manifests/xpr-os.spdx.json
 )
 for path in "${required[@]}"; do
   [[ -e "$root/$path" ]] || { echo "required release member missing: $path" >&2; exit 21; }
 done
 [[ "$(cat "$root/VERSION")" == "$version" ]] || { echo "VERSION mismatch" >&2; exit 22; }
+grep -q '"spdxVersion": "SPDX-2.3"' "$root/manifests/xpr-os.spdx.json" || {
+  echo "SPDX 2.3 document marker missing" >&2; exit 22;
+}
 (cd "$root" && sha256sum -c SHA256SUMS)
 
 declare -A expected=(
