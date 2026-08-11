@@ -30,12 +30,22 @@ def main():
     parser.add_argument("--include-component", action="append", default=[])
     parser.add_argument("--external-file", action="append", default=[],
                         help="COMPONENT:PATH=SHA256 for a release file outside the audited root")
+    parser.add_argument("--release-version", required=True,
+                        help="version of the top-level binary XPR-OS release package")
+    parser.add_argument("--release-file", action="append", default=[],
+                        help="PATH=SHA256 for a container shipped by the binary release")
     args = parser.parse_args()
     audit = json.load(io.open(args.audit, encoding="utf-8"))
     ledger = json.load(io.open(args.ledger, encoding="utf-8"))
     used = set(row.get("component") for row in audit.get("inventory", []) if row.get("component"))
     used.update(args.include_component)
-    packages = []
+    release_id = "SPDXRef-XPRRelease"
+    packages = [{"SPDXID": release_id, "name": "XPR-OS",
+                 "versionInfo": args.release_version, "downloadLocation": "NOASSERTION",
+                 "licenseConcluded": "NOASSERTION", "licenseDeclared": "NOASSERTION",
+                 "copyrightText": "NOASSERTION", "supplier": "NOASSERTION",
+                 "filesAnalyzed": False,
+                 "sourceInfo": "Source inputs are in the paired XPR-OS source archive."}]
     for item in ledger.get("components", []):
         if item.get("id") not in used:
             continue
@@ -80,6 +90,21 @@ def main():
                       "copyrightText": component_record.get("copyright", "NOASSERTION")})
         relationships.append({"spdxElementId": component_spdx[component],
                               "relationshipType": "CONTAINS", "relatedSpdxElement": file_id})
+    for value in args.release_file:
+        try:
+            path, sha256 = value.rsplit("=", 1)
+        except ValueError:
+            parser.error("invalid --release-file, expected PATH=SHA256")
+        if not path.startswith("./") or len(sha256) != 64:
+            parser.error("invalid path or SHA256 in --release-file: " + value)
+        file_id = "SPDXRef-ReleaseFile-" + sha256[:16]
+        files.append({"SPDXID": file_id, "fileName": path,
+                      "checksums": [{"algorithm": "SHA256", "checksumValue": sha256}],
+                      "licenseConcluded": "NOASSERTION", "licenseInfoInFiles": ["NONE"],
+                      "copyrightText": "NOASSERTION",
+                      "comment": "Shipped release container; see paired source package and release manifest."})
+        relationships.append({"spdxElementId": release_id, "relationshipType": "CONTAINS",
+                              "relatedSpdxElement": file_id})
     epoch = os.environ.get("SOURCE_DATE_EPOCH")
     created = (datetime.datetime.utcfromtimestamp(int(epoch)) if epoch else
                datetime.datetime.utcnow()).replace(microsecond=0).isoformat() + "Z"
@@ -96,6 +121,8 @@ def main():
            "creationInfo": {"created": created, "creators": ["Tool: xpr generate-spdx-sbom.py"]},
            "packages": packages, "files": files, "relationships": relationships,
            "hasExtractedLicensingInfos": extracted}
+    relationships.insert(0, {"spdxElementId": "SPDXRef-DOCUMENT", "relationshipType": "DESCRIBES",
+                             "relatedSpdxElement": release_id})
     with open(args.output, "w") as handle:
         json.dump(doc, handle, indent=2, sort_keys=True)
         handle.write("\n")

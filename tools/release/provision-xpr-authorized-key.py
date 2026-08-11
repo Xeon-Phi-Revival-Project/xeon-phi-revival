@@ -3,9 +3,9 @@
 from __future__ import print_function
 
 import argparse
+import base64
 import gzip
 import hashlib
-import imp
 import json
 import os
 import re
@@ -21,13 +21,81 @@ NEWC_CANDIDATES = (
 MODULE_PATH = next((os.path.abspath(path) for path in NEWC_CANDIDATES if os.path.isfile(path)), None)
 if MODULE_PATH is None:
     raise RuntimeError("newc_archive.py is not available beside this provisioner")
-NEWC = imp.load_source("xpr_newc_archive", MODULE_PATH)
-KEY_TYPES = set(("ssh-rsa", "ssh-ed25519"))
+try:
+    from importlib import util as importlib_util
+except ImportError:  # CentOS 7's system Python is 2.7.
+    import imp
+    NEWC = imp.load_source("xpr_newc_archive", MODULE_PATH)
+else:
+    spec = importlib_util.spec_from_file_location("xpr_newc_archive", MODULE_PATH)
+    NEWC = importlib_util.module_from_spec(spec)
+    spec.loader.exec_module(NEWC)
+# RC5 deliberately supports only the RSA form proven with the project Dropbear
+# build. Do not advertise an algorithm unless the release validation covers it.
+KEY_TYPES = set(("ssh-rsa",))
 PRIVATE_MARKERS = (b"BEGIN OPENSSH PRIVATE KEY", b"BEGIN RSA PRIVATE KEY", b"BEGIN PRIVATE KEY")
 
 
 def sha256(data):
     return hashlib.sha256(data).hexdigest()
+
+
+def _u32(data, offset):
+    if offset + 4 > len(data):
+        raise RuntimeError("truncated SSH wire-format length")
+    return ((ord(data[offset:offset + 1]) << 24) |
+            (ord(data[offset + 1:offset + 2]) << 16) |
+            (ord(data[offset + 2:offset + 3]) << 8) |
+            ord(data[offset + 3:offset + 4])), offset + 4
+
+
+def _string(data, offset, field):
+    length, offset = _u32(data, offset)
+    if length > len(data) - offset:
+        raise RuntimeError("truncated SSH wire-format %s" % field)
+    return data[offset:offset + length], offset + length
+
+
+def _positive_mpint(data, field, minimum_bytes=1, maximum_bytes=8192):
+    if len(data) < minimum_bytes or len(data) > maximum_bytes:
+        raise RuntimeError("invalid SSH RSA %s length" % field)
+    if data == b"\0" * len(data):
+        raise RuntimeError("SSH RSA %s must be non-zero" % field)
+    # RFC 4251 mpint: a leading zero is only valid when preserving positivity.
+    if len(data) > 1 and data[:1] == b"\0" and not (ord(data[1:2]) & 0x80):
+        raise RuntimeError("non-canonical SSH RSA %s" % field)
+    if data[:1] != b"\0" and (ord(data[:1]) & 0x80):
+        raise RuntimeError("negative SSH RSA %s" % field)
+
+
+def validate_public_key_blob(key_type, encoded):
+    try:
+        blob = base64.b64decode(encoded.encode("ascii"))
+    except (TypeError, ValueError):
+        raise RuntimeError("invalid OpenSSH public key base64")
+    if not blob or len(blob) > 16384:
+        raise RuntimeError("invalid OpenSSH public key blob size")
+    wire_type, offset = _string(blob, 0, "key type")
+    try:
+        wire_type = wire_type.decode("ascii")
+    except UnicodeDecodeError:
+        raise RuntimeError("non-ASCII SSH wire-format key type")
+    if wire_type != key_type:
+        raise RuntimeError("declared and wire-format SSH key types differ")
+    if key_type == "ssh-rsa":
+        exponent, offset = _string(blob, offset, "RSA exponent")
+        modulus, offset = _string(blob, offset, "RSA modulus")
+        _positive_mpint(exponent, "exponent", maximum_bytes=8)
+        _positive_mpint(modulus, "modulus", minimum_bytes=128)
+        value = 0
+        for octet in bytearray(exponent):
+            value = (value << 8) | octet
+        if value < 3 or value % 2 == 0:
+            raise RuntimeError("invalid SSH RSA exponent")
+    else:
+        raise RuntimeError("unsupported OpenSSH public key type")
+    if offset != len(blob):
+        raise RuntimeError("unexpected trailing SSH wire-format data")
 
 
 def read_public_key(path):
@@ -38,7 +106,7 @@ def read_public_key(path):
     data = open(path, "rb").read()
     if any(marker in data for marker in PRIVATE_MARKERS):
         raise RuntimeError("private key material is not accepted")
-    if b"\r" in data:
+    if b"\r" in data or not data.endswith(b"\n"):
         raise RuntimeError("authorized key must use a single LF-terminated line")
     lines = data.splitlines()
     if len(lines) != 1 or not lines[0]:
@@ -47,11 +115,14 @@ def read_public_key(path):
         text = lines[0].decode("ascii")
     except UnicodeDecodeError:
         raise RuntimeError("authorized key must be ASCII OpenSSH text")
-    fields = text.split()
+    fields = text.split(None, 2)
     if len(fields) not in (2, 3) or fields[0] not in KEY_TYPES:
         raise RuntimeError("unsupported OpenSSH public key format")
     if not re.match(r"^[A-Za-z0-9+/]+={0,2}$", fields[1]):
         raise RuntimeError("invalid OpenSSH public key encoding")
+    if len(fields) == 3 and any(ord(character) < 0x20 or ord(character) == 0x7f for character in fields[2]):
+        raise RuntimeError("invalid OpenSSH public key comment")
+    validate_public_key_blob(fields[0], fields[1])
     return lines[0] + b"\n", fields[0]
 
 

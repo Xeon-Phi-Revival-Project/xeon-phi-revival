@@ -88,7 +88,8 @@ def main():
         elif stat.S_ISREG(metadata.st_mode):
             with open(full, "rb") as handle:
                 payload = handle.read()
-            if b"BEGIN OPENSSH PRIVATE KEY" in payload or b"BEGIN RSA PRIVATE KEY" in payload:
+            if (b"BEGIN OPENSSH PRIVATE KEY" in payload or b"BEGIN RSA PRIVATE KEY" in payload or
+                    b"BEGIN PRIVATE KEY" in payload):
                 raise RuntimeError("private key material rejected: " + name)
             kind = "file"
         else:

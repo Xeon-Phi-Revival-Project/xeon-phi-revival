@@ -3,7 +3,6 @@
 from __future__ import print_function
 
 import argparse
-import imp
 import os
 import sys
 
@@ -17,7 +16,15 @@ NEWC_CANDIDATES = (
 NEWC_PATH = next((os.path.abspath(path) for path in NEWC_CANDIDATES if os.path.isfile(path)), None)
 if NEWC_PATH is None:
     raise RuntimeError("newc_archive.py is not available beside this verifier")
-NEWC = imp.load_source("xpr_newc_archive", NEWC_PATH)
+try:
+    from importlib import util as importlib_util
+except ImportError:  # CentOS 7's system Python is 2.7.
+    import imp
+    NEWC = imp.load_source("xpr_newc_archive", NEWC_PATH)
+else:
+    spec = importlib_util.spec_from_file_location("xpr_newc_archive", NEWC_PATH)
+    NEWC = importlib_util.module_from_spec(spec)
+    spec.loader.exec_module(NEWC)
 
 
 def main():
@@ -36,7 +43,9 @@ def main():
     if forbidden:
         raise RuntimeError("fixed authorized_keys rejected: " + ", ".join(forbidden))
     for entry in entries:
-        if b"BEGIN OPENSSH PRIVATE KEY" in entry["payload"] or b"BEGIN RSA PRIVATE KEY" in entry["payload"]:
+        if (b"BEGIN OPENSSH PRIVATE KEY" in entry["payload"] or
+                b"BEGIN RSA PRIVATE KEY" in entry["payload"] or
+                b"BEGIN PRIVATE KEY" in entry["payload"]):
             raise RuntimeError("private key material rejected: " + entry["name"].decode("utf-8", "replace"))
     print("NO_FIXED_AUTHORIZED_KEYS=PASS members=%d trailer_offset=%d" % (len(entries), trailer_offset))
 

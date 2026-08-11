@@ -13,7 +13,8 @@ import sys
 
 APPLET_NAMES = ("sh", "ls", "cat", "cp", "mv", "rm", "mkdir", "mount", "umount",
                 "uname", "ps", "env", "echo", "sleep", "test", "true", "false", "pwd",
-                "printf", "grep", "sed", "awk", "find", "head", "tail", "chmod", "ln")
+                "printf", "grep", "sed", "awk", "find", "head", "tail", "chmod", "ln",
+                "cpio", "gzip", "sha256sum", "ifconfig", "hostname", "mknod", "kill")
 EGLIBC_RUNTIME = ("ld-linux-k1om.so.2", "libc.so.6", "libpthread.so.0", "libm.so.6",
                   "libdl.so.2", "librt.so.1", "libutil.so.1", "libcrypt.so.1")
 EGLIBC_NSS_MODULES = ("libnss_files.so.2",)
@@ -63,6 +64,7 @@ def main():
                         help="directory containing source-built eglibc SONAME files")
     parser.add_argument("--libgcc", help="source-built K1OM libgcc_s.so.1")
     parser.add_argument("--xpr-bin-dir", help="directory containing source-built XPR helper binaries")
+    parser.add_argument("--init-source", help="project init script; defaults to the final-root init")
     args = parser.parse_args()
 
     ledger = json.load(open(args.ledger))
@@ -80,7 +82,10 @@ def main():
     os.chmod(os.path.join(root, "tmp"), 0o1777)
 
     repo = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-    init = os.path.join(repo, "src", "uos", "xpr_rc_root_init.sh")
+    init = os.path.abspath(args.init_source) if args.init_source else os.path.join(
+        repo, "src", "uos", "xpr_rc_root_init.sh")
+    if not os.path.isfile(init):
+        raise RuntimeError("project init source is not a regular file: " + init)
     banner = os.path.join(repo, "src", "uos", "xpr-banner.txt")
     copy_file(init, os.path.join(root, "sbin", "init"))
     os.chmod(os.path.join(root, "sbin", "init"), 0o755)

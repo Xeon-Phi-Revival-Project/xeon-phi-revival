@@ -34,7 +34,8 @@ required=(
   modules/mpssboot.ko modules/intel_micveth.ko
   bootstrap/xpr-bootstrap.cpio.gz payload/xpr-rootfs.cpio.gz
   tools/verify.sh tools/verify-generic-payload.py tools/provision-authorized-key.py
-  tools/validate-spdx-2.3.py tools/validate-license-bundle.py tools/uos/newc_archive.py
+  tools/validate-spdx-2.3.py tools/validate-license-bundle.py tools/verify-release-artifacts.py
+  tools/validate-release-consistency.py tools/uos/newc_archive.py
   manifests/tested-artifacts.json manifests/release.yml manifests/prebuilt-clean-profile.json
   manifests/third-party-notices.json manifests/xpr-os.spdx.json SOURCE-BUNDLE.txt
   LICENSES/GPL-2.0-only.txt LICENSES/LGPL-2.1-or-later.txt
@@ -48,15 +49,18 @@ done
 [[ "$(cat "$root/VERSION")" == "$version" ]] || { echo "VERSION mismatch" >&2; exit 22; }
 python_bin=""
 if command -v python3 >/dev/null 2>&1; then python_bin=python3; elif command -v python >/dev/null 2>&1; then python_bin=python; else echo "Python missing" >&2; exit 10; fi
-"$python_bin" "$root/tools/validate-spdx-2.3.py" --input "$root/manifests/xpr-os.spdx.json"
+"$python_bin" "$root/tools/validate-spdx-2.3.py" --input "$root/manifests/xpr-os.spdx.json" --require-release-coverage
 "$python_bin" "$root/tools/validate-license-bundle.py" --root "$root"
 "$python_bin" "$root/tools/verify-generic-payload.py" --payload "$root/payload/xpr-rootfs.cpio.gz"
+artifact_args=(--root "$root" --version "$version")
+[[ -z "$expected_commit" ]] || artifact_args+=(--expected-commit "$expected_commit")
+"$python_bin" "$root/tools/verify-release-artifacts.py" "${artifact_args[@]}"
+"$python_bin" "$root/tools/validate-release-consistency.py" --root "$root" --version "$version" --expect-validation pending
 (cd "$root" && sha256sum -c SHA256SUMS)
 
 declare -A expected=(
   [kernel/bzImage]=d529aecf0de11e0b4a9a036eb0329d1bb9c907fd6a911ce08a10548c9380d4d8
   [kernel/System.map]=631674771d32602354e780209b86f2193ab24f8135056d654b1729f4967834a6
-  [bootstrap/xpr-bootstrap.cpio.gz]=bdb19076b7ba8dd6619b3bce4696bdb942b768fb9f11dc0a60c1533f7ff35779
   [modules/dma_module.ko]=af0a88a14bcd815bea07739b88a54d453eb68b7e5c1acc81de0fc8aac70af32a
   [modules/ringbuffer.ko]=e7339e86b9a00c047acc982e7f8a734f963b5ec945991f3cbd62bca1a6eba068
   [modules/micscif.ko]=0c5476258e5a4f200a1c38c1f434ae3ffccd29ec6f098b165d028c27655f64e2

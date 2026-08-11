@@ -11,7 +11,7 @@ usage: stage-precompiled-rc.sh \
   --eglibc-orig FILE --eglibc-debian FILE \
   --gcc-source FILE --gmp-source FILE --mpfr-source FILE --mpc-source FILE \
   [--repository-archive FILE] \
-  [--version 0.1.0-rc4] [--revision REV]
+  [--version 0.1.0-rc5] [--revision REV]
 
 Build deterministic private review archives from the exact hardware-tested
 XPR-OS artifacts and pinned corresponding-source inputs. This command stages
@@ -19,7 +19,7 @@ artifacts for human review; it does not publish or create a Git tag/release.
 USAGE
 }
 
-version="0.1.0-rc4"
+version="0.1.0-rc5"
 revision="HEAD"
 source_date_epoch="${SOURCE_DATE_EPOCH:-1786320000}"
 kernel="" system_map="" modules_dir="" bootstrap="" payload=""
@@ -101,7 +101,6 @@ fi
 declare -A expected=(
   [kernel]=d529aecf0de11e0b4a9a036eb0329d1bb9c907fd6a911ce08a10548c9380d4d8
   [system_map]=631674771d32602354e780209b86f2193ab24f8135056d654b1729f4967834a6
-  [bootstrap]=bdb19076b7ba8dd6619b3bce4696bdb942b768fb9f11dc0a60c1533f7ff35779
   [kernel_source]=0e876982d8e33ffda706e46c4bee731f84c76ad22601c7b8feb751a5bc6c1b59
   [module_source]=0bfbb007aaba7f041b51229c28f11a793ba1adc76f08afd8e83b3a0488936f54
   [busybox_source]=9b853406da61ffb59eb488495fe99cbb7fb3dd29a31307fcfa9cf070543710ee
@@ -131,7 +130,6 @@ verify_hash() {
 
 verify_hash kernel "$kernel"
 verify_hash system_map "$system_map"
-verify_hash bootstrap "$bootstrap"
 verify_hash kernel_source "$kernel_source"
 verify_hash module_source "$module_source"
 verify_hash busybox_source "$busybox_source"
@@ -147,6 +145,7 @@ for module in dma_module ringbuffer micscif mpssboot intel_micveth; do
 done
 
 payload_hash="$(sha256sum "$payload" | awk '{print $1}')"
+bootstrap_hash="$(sha256sum "$bootstrap" | awk '{print $1}')"
 
 bash tools/release/audit-source-compliance.sh
 "$python_bin" tools/release/audit-prebuilt-image.py \
@@ -158,6 +157,7 @@ bash tools/release/audit-source-compliance.sh
 SOURCE_DATE_EPOCH="$source_date_epoch" "$python_bin" tools/release/generate-spdx-sbom.py \
   --audit /tmp/xpr-prebuilt-audit.json \
   --ledger manifests/release/prebuilt-clean-profile.json \
+  --release-version "$version" \
   --include-component linux-k1om \
   --include-component mpss-compatible-modules \
   --external-file "linux-k1om:./kernel/bzImage=${expected[kernel]}" \
@@ -167,8 +167,10 @@ SOURCE_DATE_EPOCH="$source_date_epoch" "$python_bin" tools/release/generate-spdx
   --external-file "mpss-compatible-modules:./modules/micscif.ko=${expected[micscif]}" \
   --external-file "mpss-compatible-modules:./modules/mpssboot.ko=${expected[mpssboot]}" \
   --external-file "mpss-compatible-modules:./modules/intel_micveth.ko=${expected[intel_micveth]}" \
+  --release-file "./bootstrap/xpr-bootstrap.cpio.gz=${bootstrap_hash}" \
+  --release-file "./payload/xpr-rootfs.cpio.gz=${payload_hash}" \
   --output /tmp/xpr-prebuilt.spdx.json
-"$python_bin" tools/release/validate-spdx-2.3.py --input /tmp/xpr-prebuilt.spdx.json
+"$python_bin" tools/release/validate-spdx-2.3.py --input /tmp/xpr-prebuilt.spdx.json --require-release-coverage
 "$python_bin" tools/release/audit-prebuilt-image.py \
   --cpio "$payload" \
   --ledger manifests/release/prebuilt-clean-profile.json \
@@ -177,7 +179,7 @@ SOURCE_DATE_EPOCH="$source_date_epoch" "$python_bin" tools/release/generate-spdx
   --output /tmp/xpr-prebuilt-audit.json
 
 out_dir="$(mkdir -p "$out_dir" && cd "$out_dir" && pwd)"
-work="$(mktemp -d "${TMPDIR:-/tmp}/xpr-rc4.XXXXXX")"
+work="$(mktemp -d "${TMPDIR:-/tmp}/xpr-rc5.XXXXXX")"
 trap 'rm -rf "$work" /tmp/xpr-prebuilt-audit.json /tmp/xpr-prebuilt.spdx.json' EXIT
 binary_root="$work/xpr-os-$version"
 source_root="$work/xpr-os-$version-sources"
@@ -194,14 +196,25 @@ install -m 0644 "$payload" "$binary_root/payload/xpr-rootfs.cpio.gz"
 install -m 0755 tools/release/verify-precompiled-rc.sh "$binary_root/tools/verify.sh"
 install -m 0755 tools/release/verify-generic-payload.py "$binary_root/tools/verify-generic-payload.py"
 install -m 0755 tools/release/provision-xpr-authorized-key.py "$binary_root/tools/provision-authorized-key.py"
+install -m 0755 tools/release/test-provision-xpr-authorized-key.py "$binary_root/tools/test-provision-authorized-key.py"
+install -m 0755 tools/release/generate-tested-artifacts.py "$binary_root/tools/generate-tested-artifacts.py"
 install -m 0755 tools/release/validate-spdx-2.3.py "$binary_root/tools/validate-spdx-2.3.py"
+install -m 0755 tools/release/verify-release-artifacts.py "$binary_root/tools/verify-release-artifacts.py"
+install -m 0755 tools/release/validate-release-consistency.py "$binary_root/tools/validate-release-consistency.py"
 install -m 0755 tools/release/validate-license-bundle.py "$binary_root/tools/validate-license-bundle.py"
 install -m 0644 tools/uos/newc_archive.py "$binary_root/tools/uos/newc_archive.py"
 install -m 0644 LICENSE NOTICE.md "$binary_root/"
 install -m 0644 "docs/release/xpr-os-$version-release-notes.md" "$binary_root/README.md"
-install -m 0644 docs/release/public-clean-stack-validation.md "$binary_root/docs/"
 install -m 0644 docs/release/distribution-review.md "$binary_root/docs/"
-install -m 0644 manifests/release/xpr-os-0.1.0-rc1-tested-artifacts.json "$binary_root/manifests/tested-artifacts.json"
+"$python_bin" tools/release/generate-tested-artifacts.py \
+  --version "$version" --commit "$commit" --kernel "$kernel" --system-map "$system_map" \
+  --bootstrap "$bootstrap" --payload "$payload" --validation-status pending \
+  --module "dma-module=$modules_dir/dma_module.ko" \
+  --module "ringbuffer-module=$modules_dir/ringbuffer.ko" \
+  --module "micscif-module=$modules_dir/micscif.ko" \
+  --module "mpssboot-module=$modules_dir/mpssboot.ko" \
+  --module "intel-micveth-module=$modules_dir/intel_micveth.ko" \
+  --output "$binary_root/manifests/tested-artifacts.json"
 install -m 0644 "manifests/release/xpr-os-$version.yml" "$binary_root/manifests/release.yml"
 install -m 0644 manifests/release/prebuilt-clean-profile.json "$binary_root/manifests/"
 install -m 0644 manifests/release/third-party-notices.json "$binary_root/manifests/"

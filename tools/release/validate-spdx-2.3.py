@@ -51,6 +51,7 @@ def valid_expression(value, extracted):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", required=True)
+    parser.add_argument("--require-release-coverage", action="store_true")
     args = parser.parse_args()
     document = json.load(io.open(args.input, encoding="utf-8"))
     errors = []
@@ -60,7 +61,7 @@ def main():
     for item in document.get("hasExtractedLicensingInfos", []):
         if not item.get("licenseId", "").startswith("LicenseRef-") or not item.get("extractedText"):
             errors.append("invalid extracted licensing information")
-    ids = set()
+    ids = set(("SPDXRef-DOCUMENT",))
     for package in document.get("packages", []):
         package_id = package.get("SPDXID")
         if not package_id or package_id in ids:
@@ -85,6 +86,23 @@ def main():
     for relation in document.get("relationships", []):
         if relation.get("spdxElementId") not in ids or relation.get("relatedSpdxElement") not in ids:
             errors.append("relationship references unknown SPDX ID")
+    if args.require_release_coverage:
+        release_id = "SPDXRef-XPRRelease"
+        release_files = set()
+        for relation in document.get("relationships", []):
+            if relation.get("spdxElementId") == "SPDXRef-DOCUMENT" and \
+               relation.get("relationshipType") == "DESCRIBES" and \
+               relation.get("relatedSpdxElement") == release_id:
+                release_files.add("document")
+            if relation.get("spdxElementId") == release_id and relation.get("relationshipType") == "CONTAINS":
+                release_files.add(relation.get("relatedSpdxElement"))
+        names = dict((item.get("SPDXID"), item.get("fileName")) for item in document.get("files", []))
+        covered = set(names.get(item) for item in release_files if item in names)
+        if release_id not in ids or "document" not in release_files:
+            errors.append("top-level XPR release package is not described by the SPDX document")
+        for required in ("./bootstrap/xpr-bootstrap.cpio.gz", "./payload/xpr-rootfs.cpio.gz"):
+            if required not in covered:
+                errors.append("release SPDX does not cover " + required)
     if errors:
         for error in sorted(set(errors)):
             sys.stderr.write("SPDX_2_3_VALIDATION=FAIL %s\n" % error)
