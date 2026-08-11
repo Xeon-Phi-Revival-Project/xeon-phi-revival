@@ -8,8 +8,15 @@ import os
 import sys
 
 
-ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-NEWC = imp.load_source("xpr_newc_archive", os.path.join(ROOT, "tools", "uos", "newc_archive.py"))
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+NEWC_CANDIDATES = (
+    os.path.join(SCRIPT_DIR, "..", "uos", "newc_archive.py"),
+    os.path.join(SCRIPT_DIR, "..", "..", "tools", "uos", "newc_archive.py"),
+)
+NEWC_PATH = next((os.path.abspath(path) for path in NEWC_CANDIDATES if os.path.isfile(path)), None)
+if NEWC_PATH is None:
+    raise RuntimeError("newc_archive.py is not available beside this verifier")
+NEWC = imp.load_source("xpr_newc_archive", NEWC_PATH)
 
 
 def main():

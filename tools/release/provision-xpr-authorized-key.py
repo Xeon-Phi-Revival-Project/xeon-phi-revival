@@ -12,8 +12,14 @@ import re
 import sys
 
 
-REPOSITORY_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-MODULE_PATH = os.path.join(REPOSITORY_ROOT, "tools", "uos", "newc_archive.py")
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+NEWC_CANDIDATES = (
+    os.path.join(SCRIPT_DIR, "..", "uos", "newc_archive.py"),
+    os.path.join(SCRIPT_DIR, "..", "..", "tools", "uos", "newc_archive.py"),
+)
+MODULE_PATH = next((os.path.abspath(path) for path in NEWC_CANDIDATES if os.path.isfile(path)), None)
+if MODULE_PATH is None:
+    raise RuntimeError("newc_archive.py is not available beside this provisioner")
 NEWC = imp.load_source("xpr_newc_archive", MODULE_PATH)
 KEY_TYPES = set(("ssh-rsa", "ssh-ed25519"))
 PRIVATE_MARKERS = (b"BEGIN OPENSSH PRIVATE KEY", b"BEGIN RSA PRIVATE KEY", b"BEGIN PRIVATE KEY")
