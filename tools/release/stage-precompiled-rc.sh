@@ -7,6 +7,9 @@ usage: stage-precompiled-rc.sh \
   --kernel FILE --system-map FILE --modules-dir DIR \
   --bootstrap FILE --payload FILE \
   --kernel-source FILE --module-source FILE --out-dir DIR \
+  --busybox-source FILE --dropbear-source FILE \
+  --eglibc-orig FILE --eglibc-debian FILE \
+  --gcc-source FILE --gmp-source FILE --mpfr-source FILE --mpc-source FILE \
   [--repository-archive FILE] \
   [--version 0.1.0-rc3] [--revision REV]
 
@@ -21,6 +24,8 @@ revision="HEAD"
 source_date_epoch="${SOURCE_DATE_EPOCH:-1786320000}"
 kernel="" system_map="" modules_dir="" bootstrap="" payload=""
 kernel_source="" module_source="" repository_archive="" out_dir=""
+busybox_source="" dropbear_source="" eglibc_orig="" eglibc_debian=""
+gcc_source="" gmp_source="" mpfr_source="" mpc_source=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -31,6 +36,14 @@ while [[ $# -gt 0 ]]; do
     --payload) payload="${2:-}"; shift 2 ;;
     --kernel-source) kernel_source="${2:-}"; shift 2 ;;
     --module-source) module_source="${2:-}"; shift 2 ;;
+    --busybox-source) busybox_source="${2:-}"; shift 2 ;;
+    --dropbear-source) dropbear_source="${2:-}"; shift 2 ;;
+    --eglibc-orig) eglibc_orig="${2:-}"; shift 2 ;;
+    --eglibc-debian) eglibc_debian="${2:-}"; shift 2 ;;
+    --gcc-source) gcc_source="${2:-}"; shift 2 ;;
+    --gmp-source) gmp_source="${2:-}"; shift 2 ;;
+    --mpfr-source) mpfr_source="${2:-}"; shift 2 ;;
+    --mpc-source) mpc_source="${2:-}"; shift 2 ;;
     --repository-archive) repository_archive="${2:-}"; shift 2 ;;
     --out-dir) out_dir="${2:-}"; shift 2 ;;
     --version) version="${2:-}"; shift 2 ;;
@@ -40,7 +53,9 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-for value in kernel system_map modules_dir bootstrap payload kernel_source module_source out_dir; do
+for value in kernel system_map modules_dir bootstrap payload kernel_source module_source \
+  busybox_source dropbear_source eglibc_orig eglibc_debian gcc_source \
+  gmp_source mpfr_source mpc_source out_dir; do
   [[ -n "${!value}" ]] || { echo "missing --${value//_/-}" >&2; usage; exit 2; }
 done
 for cmd in tar gzip sha256sum find sort xargs install cp awk grep sed mktemp; do
@@ -90,6 +105,14 @@ declare -A expected=(
   [payload]=e5c25217a5b9a2c60f7caaefce3651dd086b6f0f0d51e88883aa3e9486c7fee7
   [kernel_source]=0e876982d8e33ffda706e46c4bee731f84c76ad22601c7b8feb751a5bc6c1b59
   [module_source]=0bfbb007aaba7f041b51229c28f11a793ba1adc76f08afd8e83b3a0488936f54
+  [busybox_source]=9b853406da61ffb59eb488495fe99cbb7fb3dd29a31307fcfa9cf070543710ee
+  [dropbear_source]=bc5a121ffbc94b5171ad5ebe01be42746d50aa797c9549a4639894a16749443b
+  [eglibc_orig]=e5d30be72b702dffae527779af1be755f0dfbf13c171998a04f7265cd4da131f
+  [eglibc_debian]=2e0a1d4dfbc8bb666604d6804b9fbd9ce7a1f23b2a5bcb487f5a774d2c557e4c
+  [gcc_source]=6538edbd3c309eb7c37bb215c40ef9822c7c015928ff354267eac2178cf5f1e3
+  [gmp_source]=936162c0312886c21581002b79932829aa048cfaf9937c6265aeaa14f1cd1775
+  [mpfr_source]=c7e75a08a8d49d2082e4caee1591a05d11b9d5627514e678f02d66a124bcf2ba
+  [mpc_source]=e664603757251fd8a352848276497a4c79b7f8b21fd8aedd5cc0598a38fee3e4
   [dma_module]=af0a88a14bcd815bea07739b88a54d453eb68b7e5c1acc81de0fc8aac70af32a
   [ringbuffer]=e7339e86b9a00c047acc982e7f8a734f963b5ec945991f3cbd62bca1a6eba068
   [micscif]=0c5476258e5a4f200a1c38c1f434ae3ffccd29ec6f098b165d028c27655f64e2
@@ -113,6 +136,14 @@ verify_hash bootstrap "$bootstrap"
 verify_hash payload "$payload"
 verify_hash kernel_source "$kernel_source"
 verify_hash module_source "$module_source"
+verify_hash busybox_source "$busybox_source"
+verify_hash dropbear_source "$dropbear_source"
+verify_hash eglibc_orig "$eglibc_orig"
+verify_hash eglibc_debian "$eglibc_debian"
+verify_hash gcc_source "$gcc_source"
+verify_hash gmp_source "$gmp_source"
+verify_hash mpfr_source "$mpfr_source"
+verify_hash mpc_source "$mpc_source"
 for module in dma_module ringbuffer micscif mpssboot intel_micveth; do
   verify_hash "$module" "$modules_dir/$module.ko"
 done
@@ -126,6 +157,15 @@ bash tools/release/audit-source-compliance.sh
 SOURCE_DATE_EPOCH="$source_date_epoch" "$python_bin" tools/release/generate-spdx-sbom.py \
   --audit /tmp/xpr-prebuilt-audit.json \
   --ledger manifests/release/prebuilt-clean-profile.json \
+  --include-component linux-k1om \
+  --include-component mpss-compatible-modules \
+  --external-file "linux-k1om:./kernel/bzImage=${expected[kernel]}" \
+  --external-file "linux-k1om:./kernel/System.map=${expected[system_map]}" \
+  --external-file "mpss-compatible-modules:./modules/dma_module.ko=${expected[dma_module]}" \
+  --external-file "mpss-compatible-modules:./modules/ringbuffer.ko=${expected[ringbuffer]}" \
+  --external-file "mpss-compatible-modules:./modules/micscif.ko=${expected[micscif]}" \
+  --external-file "mpss-compatible-modules:./modules/mpssboot.ko=${expected[mpssboot]}" \
+  --external-file "mpss-compatible-modules:./modules/intel_micveth.ko=${expected[intel_micveth]}" \
   --output /tmp/xpr-prebuilt.spdx.json
 "$python_bin" tools/release/audit-prebuilt-image.py \
   --cpio "$payload" \
@@ -163,6 +203,14 @@ printf 'git_commit=%s\nsource_date_epoch=%s\npublication_status=HUMAN_LEGAL_REVI
 
 install -m 0644 "$kernel_source" "$source_root/sources/solros-bda6ce.tar.gz"
 install -m 0644 "$module_source" "$source_root/sources/mpss-modules-3.4.10.tar.bz2"
+install -m 0644 "$busybox_source" "$source_root/sources/busybox-1.19.4.tar.bz2"
+install -m 0644 "$dropbear_source" "$source_root/sources/dropbear-2022.83.tar.bz2"
+install -m 0644 "$eglibc_orig" "$source_root/sources/eglibc_2.19.orig.tar.xz"
+install -m 0644 "$eglibc_debian" "$source_root/sources/eglibc_2.19-0ubuntu6.15.debian.tar.xz"
+install -m 0644 "$gcc_source" "$source_root/sources/gcc-5.1.1-knc-af7cc04.tar.gz"
+install -m 0644 "$gmp_source" "$source_root/sources/gmp-4.3.2.tar.bz2"
+install -m 0644 "$mpfr_source" "$source_root/sources/mpfr-2.4.2.tar.bz2"
+install -m 0644 "$mpc_source" "$source_root/sources/mpc-0.8.1.tar.gz"
 if $have_git; then
   git archive --format=tar --prefix="repository/" -o "$work/repository.tar" "$commit"
 else
