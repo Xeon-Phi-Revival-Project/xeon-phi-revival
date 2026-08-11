@@ -5,12 +5,12 @@
     "repository": "https://github.com/cosmoss-jigu/solros",
     "revision": "bda6ce066e514239c9b645fd1ed2a9ffe4f2db33",
     "archive_sha256": "0e876982d8e33ffda706e46c4bee731f84c76ad22601c7b8feb751a5bc6c1b59",
-    "historical_namespace_mount": "/root/xpr-kernel-candidate-solros/phi-kernel",
+    "historical_namespace_mount_variable": "XPR_HISTORICAL_SOURCE_MOUNT",
     "host_path_dependency": false
   },
   "build": {
     "script": "tools/kernel/reproduce-tested-k1om-kernel.sh",
-    "historical_namespace_output_mount": "/root/xpr-kernel-candidate-solros-build-validated",
+    "historical_namespace_output_mount_variable": "XPR_HISTORICAL_OUTPUT_MOUNT",
     "host_path_dependency": false,
     "config": "configs/kernel/k1om-solros-tested.config",
     "config_sha256": "20f240d00b033c1a0e14ffc8d2023533552adc4040ac0deff3404c79f1f12479",
