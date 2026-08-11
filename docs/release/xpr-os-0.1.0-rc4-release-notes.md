@@ -21,8 +21,18 @@ archives.
 
 ## Status
 
-`HUMAN_LEGAL_REVIEW_PENDING`. RC4 must pass its bounded provisioned-payload
-hardware gate and repeatability gate before it can be considered for release.
+`AUTOMATED_CHECKS_PASS_HUMAN_LEGAL_REVIEW_PENDING`.
+
+The frozen RC4 artifact set completed two independent byte-identical staging
+builds and three rollback-protected hardware boots on the tested 5110P path.
+Each boot reached the provisioned final root, project PID 1, micveth,
+authenticated final-root Dropbear SSH, and the dynamic hello, pthread, and
+`dlopen` probes. Each rollback restored stock MPSS, stock SSH, and the exact
+stock configuration hash. See
+[RC4 Validation](xpr-os-0.1.0-rc4-validation.md).
+
+RC4 is still not a published release: qualified human legal review of the
+frozen binary/source archives and module provenance bundle remains required.
 
 ## Host prerequisite
 

@@ -5,9 +5,10 @@
 Development is active. On August 10, 2026, the source-accounted public-clean
 XPR-OS stack passed three identical final-root hardware boots with SSH, native
 smokes, and verified rollback. The corrected public source/BYO-MPSS release is
-RC2. A byte-reproducible RC3 binary/source review bundle now passes all
-automated technical and provenance gates. Public attachment is blocked only by
-qualified human review of the five module grants and the exact archives.
+RC2. The RC4 binary/source review bundle now passes its two-build
+reproducibility, archive, hardware, provenance, and rollback gates. Public
+attachment remains blocked only by qualified human review of the five module
+grants and the frozen RC4 archives.
 
 The corrected source/metadata/BYO-MPSS prerelease is published at
 <https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc2>.
@@ -20,7 +21,7 @@ Current public-clean hardware artifact state:
 - Outer Base CPIO:
   `bdb19076b7ba8dd6619b3bce4696bdb942b768fb9f11dc0a60c1533f7ff35779`
 - Public final-root payload:
-  `e5c25217a5b9a2c60f7caaefce3651dd086b6f0f0d51e88883aa3e9486c7fee7`
+  `5866743b0899e91fda0879aca9c449378b81a541ab78c5e7247fb6f8e7baeced`
 - Stock configuration baseline:
   `9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51`
 
@@ -77,9 +78,9 @@ Current execution checklist:
 1. Keep the published RC2 source/BYO-MPSS release free of Intel/MPSS payloads
    and private generated binaries.
 2. Preserve exact private artifact hashes and sanitized hardware evidence.
-3. Obtain qualified human review of the five module grants and exact RC3
+3. Obtain qualified human review of the five module grants and exact RC4
    binary/source archives before publication.
-4. Preserve the reviewed hashes if a `v0.1.0-rc3` prerelease is approved.
+4. Preserve the reviewed hashes if a `v0.1.0-rc4` prerelease is approved.
 5. Repeat the eventual publishable artifact on additional compatible KNC hardware
    when available.
 

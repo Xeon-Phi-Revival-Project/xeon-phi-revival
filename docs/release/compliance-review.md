@@ -95,7 +95,7 @@ A prebuilt RC cannot be published until it contains or links beside it:
 
 - Corrected source/BYO-MPSS prerelease RC2: `PASS` and published.
 - Existing RC1 source archive: `SUPERSEDED_FOR_LICENSE_TEXT`.
-- Current RC3 review bundle: `AUTOMATED_CHECKS_PASS_HUMAN_LEGAL_REVIEW_PENDING`.
+- Current RC4 review bundle: `AUTOMATED_CHECKS_PASS_HUMAN_LEGAL_REVIEW_PENDING`.
 - The source-accounted clean stack passed three identical hardware boots with
   final PID 1, SSH, native hello/pthread/dlopen, and stock rollback. This does
   not itself clear binary redistribution. Kernel reproduction and complete
@@ -104,7 +104,7 @@ A prebuilt RC cannot be published until it contains or links beside it:
   findings. Its public-clean profile excludes Python 3.5, Readline, and
   OpenSSL 1.0.x. BusyBox is now technically reproducible byte-for-byte.
 - Highest-value action: obtain qualified human review of the five module grants
-  and the exact RC3 archives. Do not publish or tag RC3 before that decision.
+  and the exact RC4 archives. Do not publish or tag RC4 before that decision.
 
 See [Prebuilt Image Provenance Status](prebuilt-image-provenance.md) and the
 machine-readable `prebuilt-clean-profile.json` / `prebuilt-source-ledger.json`.

@@ -1,17 +1,19 @@
 id: xpr-os-0.1.0-rc4
-status: private-staging-human-legal-review-pending
+status: technically-validated-human-legal-review-pending
 date: "2026-08-10"
 architecture: k1om
 release_kind: precompiled-public-source-candidate
-inherits_technical_validation_from: xpr-os-0.1.0-rc3
-revalidation_required:
-  - generic payload no longer embeds an authorized key
-  - provisioned deployment must complete the bounded hardware gate before publication
+technical_validation:
+  reproducible_staging_builds: 2
+  provisioned_hardware_boots: 3
+  final_root_ssh: pass
+  public_smokes: [hello, pthread, dlopen]
+  rollback: pass
 publication:
   allowed: false
   blocker: >-
-    RC4 is a candidate only. It requires successful bounded hardware validation,
-    repeatability, archive review, and qualified human legal review.
+    RC4 has passed reproducibility, archive, hardware, and rollback gates, but
+    qualified human legal review remains required before public distribution.
   github_tag_created: false
   github_release_created: false
 external_prerequisite:
