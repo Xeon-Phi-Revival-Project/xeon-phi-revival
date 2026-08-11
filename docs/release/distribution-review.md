@@ -20,7 +20,7 @@ Do not substitute a later rebuild and describe it as hardware validated.
 | --- | --- | --- | --- |
 | XPR source, scripts, init, helpers | Tracked repository source under MIT | A | Publish source and notices |
 | Tested compatibility kernel | Solros `bda6ce066e514239c9b645fd1ed2a9ffe4f2db33`, archive `0e8769...`, tested config `20f240...`, Linux GPLv2 `COPYING`, and deterministic wrapper now reproduce `d529...` byte-for-byte | B | Include complete kernel source, config, generated metadata inputs, wrapper, GPL text, and build information in the source bundle |
-| Five K1OM modules | Hash-pinned `mpss-modules-3.4.10.tar.bz2` with GPLv2 `COPYING`; every Kbuild-selected implementation source has an Intel copyright/GPLv2 notice; per-module map is tracked | B | Bundle the complete source archive, capture clean-build header dependencies, and retain human review before binary publication |
+| Five K1OM modules | Hash-pinned source archive and GPLv2 `COPYING`; all 24 selected implementation files have GPLv2 evidence; clean dependency map and complete-source staging tool pass | B | Include staged complete module source plus mapped kernel source/build inputs; retain final human review |
 | BusyBox 1.19.4 | Pinned upstream source/config/build recipe; source-built binary | B | Include source, config, GPL text, and notices in a future source bundle |
 | eglibc runtime | Pinned Ubuntu source baseline and XPR overlay recipe | B | Include orig source, Debian delta, overlays, LGPL text/notices, and relinking material |
 | libgcc runtime | Pinned GCC KNC source candidate and build recipe | B | Include exact source/prerequisites/patches and GCC Runtime Library Exception notice |
@@ -39,12 +39,10 @@ and licensing review needed to make a binary distribution conclusion.
 The hardware-tested kernel and modules must not be uploaded as a public binary
 release yet. The precise remaining questions are:
 
-1. Can the complete hash-pinned `mpss-modules-3.4.10` source archive, including
-   the headers selected by a clean build, be assembled as the corresponding
-   source bundle for the five modules? The Kbuild-selected implementation
-   sources and GPLv2 evidence are mapped, but that delivery check remains.
-2. Has a qualified human completed the final artifact review after those
-   mechanical questions are closed?
+1. Has a qualified human confirmed that the archive-level GPLv2 `COPYING` and
+   direct per-file GPLv2 grants support distribution of the five binaries with
+   the mechanically complete staged corresponding source?
+2. Has that reviewer inspected the final binary/source archives and notices?
 
 Until all three are answered, the permitted public release remains the existing
 source/metadata/BYO-MPSS RC2. The local precompiled staging set is useful for

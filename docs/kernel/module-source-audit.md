@@ -81,9 +81,17 @@ the reproducible module build script. All listed implementation sources carry
 Intel copyright notices and GPL version 2 grants. The source archive's
 `COPYING` supplies the complete GPLv2 text.
 
-The map deliberately does not claim that an implementation-source list alone
-is the full corresponding source. A publishable source bundle must include the
-complete hash-pinned archive (thereby retaining its headers and Kbuild inputs)
-and capture the generated compiler header-dependency files from the clean
-build. Until that mechanical bundle check and human review are complete, the
-module binaries remain `hold-human-review`.
+The clean-build dependency capture is now recorded in
+[`mpss-modules-3.4.10-clean-dependencies.json`](../../manifests/release/mpss-modules-3.4.10-clean-dependencies.json).
+All 24 Kbuild-selected implementation files come from the hash-pinned module
+archive. The tested build selected its headers from the separately mapped
+Solros kernel tree, generated kernel build state, and one GCC `stdarg.h`; it did
+not select a module-archive header. No module-owned implementation file lacked
+the recorded GPLv2 evidence.
+
+[`stage-mpss-module-source.sh`](../../tools/release/stage-mpss-module-source.sh)
+stages the complete source archive, `COPYING`, dependency/source maps, build
+script, and checksums while rejecting module binaries and packages. This closes
+the mechanical corresponding-source mapping. The module binaries remain
+`hold-human-review` until a qualified human reviews the authoritative license
+evidence and the final source/binary archives.

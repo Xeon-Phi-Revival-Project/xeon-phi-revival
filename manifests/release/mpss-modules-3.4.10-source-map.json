@@ -1,6 +1,6 @@
 {
   "schema": "xpr-mpss-module-source-map-v1",
-  "status": "source-evidence-complete-human-review-required",
+  "status": "mechanically-complete-human-review-required",
   "source_archive": {
     "filename": "mpss-modules-3.4.10.tar.bz2",
     "sha256": "0bfbb007aaba7f041b51229c28f11a793ba1adc76f08afd8e83b3a0488936f54",
@@ -62,5 +62,7 @@
       "license_evidence": "Each implementation source has an Intel copyright notice and GPL version 2 grant; archive COPYING is the GPLv2 text."
     }
   ],
-  "remaining_review": "The complete source archive is required for corresponding-source delivery, including headers and build inputs. A future source-bundle build must capture compiler-generated header dependency files and verify they are covered by the included complete archive before binary publication."
+  "clean_dependency_manifest": "manifests/release/mpss-modules-3.4.10-clean-dependencies.json",
+  "source_staging_script": "tools/release/stage-mpss-module-source.sh",
+  "remaining_review": "Mechanical corresponding-source staging is complete: ship the complete module archive plus the separately mapped kernel source/build inputs. A qualified human must still review the authoritative GPLv2 evidence and final assembled artifacts before public binary attachment."
 }
