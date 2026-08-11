@@ -15,6 +15,10 @@ The wrapper creates a synthetic, deterministic historical layout inside
 WORK_ROOT must exist and both generated paths must be absent. The script
 extracts the supplied Solros source archive; it does not install or boot the
 image and does not require Git metadata.
+
+The --use-existing-source and --use-existing-output switches are internal
+support for the private historical-path wrapper. They require an already
+staged source tree and an empty output directory at the computed paths.
 EOF
 }
 
@@ -22,12 +26,16 @@ source_archive=
 cross_compile=
 work_root=
 jobs=2
+use_existing_source=0
+use_existing_output=0
 while [ "$#" -gt 0 ]; do
     case "$1" in
         --source-archive) source_archive=$2; shift 2 ;;
         --cross-compile) cross_compile=$2; shift 2 ;;
         --work-root) work_root=$2; shift 2 ;;
         --jobs) jobs=$2; shift 2 ;;
+        --use-existing-source) use_existing_source=1; shift ;;
+        --use-existing-output) use_existing_output=1; shift ;;
         -h|--help) usage; exit 0 ;;
         *) echo "unknown argument: $1" >&2; usage >&2; exit 2 ;;
     esac
@@ -67,8 +75,18 @@ check_sha() {
 }
 
 [ -d "$work_root" ] || { echo "work root does not exist: $work_root" >&2; exit 1; }
-[ ! -e "$expected_source" ] || { echo "synthetic source path already exists: $expected_source" >&2; exit 1; }
-[ ! -e "$expected_output" ] || { echo "output path already exists" >&2; exit 1; }
+if [ "$use_existing_source" -eq 1 ]; then
+    [ -f "$expected_source/Makefile" ] || { echo "staged source is missing: $expected_source" >&2; exit 1; }
+else
+    [ ! -e "$expected_source" ] || { echo "synthetic source path already exists: $expected_source" >&2; exit 1; }
+fi
+if [ "$use_existing_output" -eq 1 ]; then
+    [ -d "$expected_output" ] && [ -z "$(find "$expected_output" -mindepth 1 -maxdepth 1 -print -quit)" ] || {
+        echo "staged output is not empty: $expected_output" >&2; exit 1;
+    }
+else
+    [ ! -e "$expected_output" ] || { echo "output path already exists" >&2; exit 1; }
+fi
 [ -x "${cross_compile}gcc" ] && [ -x "${cross_compile}ld" ] || {
     echo "missing K1OM cross tools" >&2; exit 1;
 }
@@ -79,18 +97,20 @@ check_sha "$compile_header_sha" "$compile_header"
     echo "exact packaging requires gzip 1.5" >&2; exit 1;
 }
 
-extract_dir=$(mktemp -d "$work_root/.xpr-kernel-extract.XXXXXX")
-source_makefile=$(tar -tf "$source_archive" | awk '/\/phi-kernel\/Makefile$/ && !found { print; found=1 } END { exit !found }')
-[ -n "$source_makefile" ] || { echo "Solros archive does not contain phi-kernel/Makefile" >&2; exit 1; }
-tar -xf "$source_archive" -C "$extract_dir"
-source_tree="$extract_dir/${source_makefile%/Makefile}"
-[ -f "$source_tree/Makefile" ] || { echo "extracted kernel source is incomplete" >&2; exit 1; }
-# K1OM's phi-kernel tree refers to sibling Solros projects such as
-# pci-ring-buffer and mpss-modules. Preserve that complete archived parent.
-source_parent=$(dirname "$source_tree")
-mv "$source_parent" "$(dirname "$expected_source")"
-[ -f "$expected_source/Makefile" ] || { echo "staged kernel source is incomplete" >&2; exit 1; }
-rm -rf "$extract_dir"
+if [ "$use_existing_source" -eq 0 ]; then
+    extract_dir=$(mktemp -d "$work_root/.xpr-kernel-extract.XXXXXX")
+    source_makefile=$(tar -tf "$source_archive" | awk '/\/phi-kernel\/Makefile$/ && !found { print; found=1 } END { exit !found }')
+    [ -n "$source_makefile" ] || { echo "Solros archive does not contain phi-kernel/Makefile" >&2; exit 1; }
+    tar -xf "$source_archive" -C "$extract_dir"
+    source_tree="$extract_dir/${source_makefile%/Makefile}"
+    [ -f "$source_tree/Makefile" ] || { echo "extracted kernel source is incomplete" >&2; exit 1; }
+    # K1OM's phi-kernel tree refers to sibling Solros projects such as
+    # pci-ring-buffer and mpss-modules. Preserve that complete archived parent.
+    source_parent=$(dirname "$source_tree")
+    mv "$source_parent" "$(dirname "$expected_source")"
+    [ -f "$expected_source/Makefile" ] || { echo "staged kernel source is incomplete" >&2; exit 1; }
+    rm -rf "$extract_dir"
+fi
 
 work_dir=$(mktemp -d "$work_root/.xpr-kernel-reproduce.XXXXXX")
 cp "$expected_source/scripts/mkcompile_h" "$work_dir/mkcompile_h"
