@@ -3,7 +3,7 @@
 This is an engineering evidence record, not a legal approval. The source/BYO-MPSS
 RC2 remains the only public release lane.
 
-## Audited Private Candidate
+## Historical Private Candidate
 
 The locally retained `banner-hw-20260810-011819` candidate was audited without
 copying its payload into the repository:
@@ -19,38 +19,42 @@ OpenSSL 1.0.x are also present and excluded by the public-clean policy. The
 remaining errors are intentionally fail-closed until each executable and
 library has complete source, license, build, and redistribution evidence.
 
-## Clean Replacement Root
+## Public-Clean Replacement Root
 
 The separate public-clean root assembler has been exercised with only
 project-owned files, the pinned source-built BusyBox, and pinned source-built
 Dropbear. It produced 35 files, passed `audit-prebuilt-image.py --stage
-candidate` with zero findings, and generated valid SPDX JSON. This is a
-technical candidate gate, not publication approval and not a bootable image:
-the kernel, modules, eglibc runtime, and `libgcc_s` are intentionally absent
-until their corresponding-source records are complete.
+candidate` with zero findings. The completed form now contains 78 files and
+passed three identical hardware boots with the source-built runtime, final PID
+1, networking, SSH, native smokes, and rollback.
 
-## Components With Exact Cached Source Evidence
+## Complete RC3 Review Bundle
 
-The source ledger records exact hashes for these locally cached upstream
-archives and current private binary matches:
+The source ledger records exact hashes for all shipped components. The private
+RC3 review source archive includes:
 
-- BusyBox 1.19.4, with the committed K1OM configuration and a source build
-  recipe. The private payload's BusyBox hash matches the source-built artifact.
-- Dropbear 2022.83, built using `tools/uos/build-k1om-dropbear.sh`. The private
-  payload's Dropbear hash matches the recorded source-built artifact.
-- CPython 3.12.13 source archive, verified against Python.org's published
-  SHA-256. Its release build recipe and complete notice bundle remain required.
+- Solros K1OM Linux source and exact reproduction metadata;
+- the complete MPSS 3.4.10 module source archive and dependency map;
+- BusyBox 1.19.4 and Dropbear 2022.83;
+- eglibc 2.19 orig and Ubuntu Debian delta plus XPR overlay;
+- GCC KNC source plus GMP, MPFR, and MPC prerequisites;
+- the exact project tree, configs, patches, recipes, notices, and manifests.
+
+Independent staging builds have produced byte-identical binary and source
+archives. Their final build commit, hashes, and automated gate results are
+recorded after the package inputs are frozen in the
+[RC3 review report](xpr-os-0.1.0-rc3-review-report.md).
 
 See [the machine-readable source ledger](../../manifests/release/prebuilt-source-ledger.json)
 and [the clean profile policy](../../manifests/release/prebuilt-clean-profile.json).
 
-## Non-Negotiable Remaining Blockers
+## Remaining Publication Gate
 
-The compatibility kernel, the five runtime modules, the exact eglibc baseline,
-and `libgcc_s` lack authoritative corresponding-source provenance. They must
-remain out of a public binary release until pinned source, patches, config,
-build commands, hashes, and licenses are assembled and a rebuilt image passes
-hardware validation.
+Mechanical provenance, corresponding-source staging, hardware validation, and
+archive reproducibility are complete. A qualified human must still confirm the
+GPLv2 distribution analysis for the five module binaries and review the exact
+binary/source archives and notices. Until then RC2 remains the only public
+release and no RC3 tag or attachment may be created.
 
 Run the audit against a private candidate only:
 
@@ -61,6 +65,5 @@ python tools/release/audit-prebuilt-image.py \
   --output /private/prebuilt-audit.json
 ```
 
-It is expected to fail until all ledger fields are complete and every excluded
-payload has been removed. A passing automated audit still requires human legal
-review before publication.
+The RC3 clean payload passes this audit. A passing automated audit still
+requires human legal review before publication.

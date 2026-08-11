@@ -28,13 +28,13 @@ stating that XPR-OS is independent and unendorsed.
 | --- | --- | --- | --- |
 | Original XPR source, scripts, tests, docs | MIT | `PUBLISH` | Include `LICENSE` and project notice |
 | K1OM eglibc overlay source | LGPL-2.1-or-later | `PUBLISH_SOURCE` | Include LGPL text, copyright notices, modifications, and exact source baseline |
-| Compatibility kernel | Linux GPL-2.0-only; candidate provenance remains incomplete | `HOLD` | Establish authoritative source provenance; publish exact corresponding source, config, patches, and build scripts beside the binary |
-| Five card-side modules | Observed MPSS source/RPM fields are GPLv2 | `HOLD` | Verify each file header and source grant; publish the exact source and build scripts corresponding to the modules |
+| Compatibility kernel | Linux GPL-2.0-only; pinned Solros source and deterministic recipe reproduce the three-boot-tested kernel byte-for-byte | `HOLD_HUMAN_REVIEW` | Review the staged exact source, config, metadata controls, build script, and final binary archive |
+| Five card-side modules | Archive GPLv2 `COPYING`, direct grants for all 24 implementation files, clean dependency map, and complete source staging | `HOLD_HUMAN_REVIEW` | Qualified human must confirm the grant supports the five binaries and inspect the exact source/binary archives |
 | Intel MPSS host software, firmware, stock uOS/kernel, SDK/sysroot | Mixed, including Intel MPSS EULA | `USER_SUPPLIED` | Never include; validate local user inputs by version/hash |
 | BusyBox | GPL-2.0-only | `REBUILD_PROVEN` | BusyBox 1.19.4 rebuild matches the private payload byte-for-byte; publish only with its source bundle, config, GPL text, notices, and human review |
-| eglibc runtime | LGPL-2.1-or-later plus file-specific notices | `REBUILD` | Publish exact source, overlays, config, build scripts, license notices, and relinking-compatible dynamic libraries |
+| eglibc runtime | LGPL-2.1-or-later plus file-specific notices | `REBUILD_PROVEN` | Exact orig/Debian sources, overlay, recipe, notices, and dynamic libraries are staged for review |
 | Dropbear | Permissive MIT/BSD-style collection | `REBUILD_PROVEN` | Dropbear 2022.83 source and current binary hash are pinned; retain the upstream multi-component `LICENSE`, build evidence, and human review gate |
-| libgcc_s | GPLv3 with GCC Runtime Library Exception expected | `HOLD` | Identify exact GCC source/version and verify the shipped file carries the exception; avoid copying an unidentified SDK binary |
+| libgcc_s | GPLv3 with GCC Runtime Library Exception 3.1 | `REBUILD_PROVEN` | Pinned GCC KNC source, prerequisites, recipe, and rebuilt runtime are staged for review |
 | CPython 3.12.13 | PSF-2.0 and incorporated licenses | `REBUILD` | Pin official source hash/SBOM; include complete Python license stack, patches, and build recipe |
 | CPython 3.5 payload | Unneeded legacy input with uncertain lineage | `REMOVE` | Exclude from the public binary profile and package dependencies |
 | libffi | Permissive MIT-style | `REBUILD` | Pin source version/hash and include its license and K1OM patches |
@@ -95,17 +95,16 @@ A prebuilt RC cannot be published until it contains or links beside it:
 
 - Corrected source/BYO-MPSS prerelease RC2: `PASS` and published.
 - Existing RC1 source archive: `SUPERSEDED_FOR_LICENSE_TEXT`.
-- Current private prebuilt image: `TECHNICALLY_VALIDATED_DO_NOT_PUBLISH`.
+- Current RC3 review bundle: `AUTOMATED_CHECKS_PASS_HUMAN_LEGAL_REVIEW_PENDING`.
 - The source-accounted clean stack passed three identical hardware boots with
   final PID 1, SSH, native hello/pthread/dlopen, and stock rollback. This does
-  not clear binary redistribution; the kernel and module corresponding-source
-  blockers below still apply.
+  not itself clear binary redistribution. Kernel reproduction and complete
+  module/source staging are now mechanically closed; human review remains.
 - The August private-payload audit has 2,916 files and 2,448 fail-closed
   findings. Its public-clean profile excludes Python 3.5, Readline, and
   OpenSSL 1.0.x. BusyBox is now technically reproducible byte-for-byte.
-- Highest-value binary-release action: build a clean profile without excluded
-  legacy payloads, then pin/rebuild the kernel, modules, eglibc, libgcc, and
-  remaining userland before any hardware validation of a publishable image.
+- Highest-value action: obtain qualified human review of the five module grants
+  and the exact RC3 archives. Do not publish or tag RC3 before that decision.
 
 See [Prebuilt Image Provenance Status](prebuilt-image-provenance.md) and the
 machine-readable `prebuilt-clean-profile.json` / `prebuilt-source-ledger.json`.

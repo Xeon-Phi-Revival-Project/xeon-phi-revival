@@ -5,25 +5,22 @@
 Development is active. On August 10, 2026, the source-accounted public-clean
 XPR-OS stack passed three identical final-root hardware boots with SSH, native
 smokes, and verified rollback. The corrected public source/BYO-MPSS release is
-RC2. The remaining prebuilt-image work is corresponding-source provenance and
-redistribution compliance, not boot-path debugging.
+RC2. A byte-reproducible RC3 binary/source review bundle now passes all
+automated technical and provenance gates. Public attachment is blocked only by
+qualified human review of the five module grants and the exact archives.
 
 The corrected source/metadata/BYO-MPSS prerelease is published at
 <https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc2>.
 It intentionally contains no private boot binaries or Intel/MPSS payloads.
 
-Current active state:
+Current public-clean hardware artifact state:
 
-- Source baseline for the accepted run:
-  `8db0dec7d6575b807846fc381065c0ded374bcb4`
 - Candidate compatibility kernel:
-  `0450c4370fb9c023c5229274d9a7a5cc02b8a37838c3220a0c714fc602cb2505`
-- Accepted bootstrap root:
-  `46fde82d0f5a0afe91719d1266c6e1151ec2b945fb78f96a3af669b1d38ff4f3`
-- Accepted Base CPIO:
-  `42b7560f8dcc277f1d976e40db57668caedb749125e66171281ea8ba755e3bef`
-- Accepted final-root payload:
-  `8a410d8577971068888f46cee66b7b6020f675144f9d0cafc6a79efce53b7520`
+  `d529aecf0de11e0b4a9a036eb0329d1bb9c907fd6a911ce08a10548c9380d4d8`
+- Outer Base CPIO:
+  `bdb19076b7ba8dd6619b3bce4696bdb942b768fb9f11dc0a60c1533f7ff35779`
+- Public final-root payload:
+  `e5c25217a5b9a2c60f7caaefce3651dd086b6f0f0d51e88883aa3e9486c7fee7`
 - Stock configuration baseline:
   `9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51`
 
@@ -67,29 +64,22 @@ Later hardware usability checks also proved:
 - Python 3.12's `exit()` and `quit()` helpers work after removing the private
   payload wrapper's hardcoded `-S` startup flag.
 
-The corresponding source fixes and release-smoke checks are committed. They
-have been validated live, but a newly rebuilt image containing all post-gate
-usability fixes still needs one complete boot, smoke, and rollback run before
-it replaces the accepted artifact hashes above.
-
-The first prebuilt-image provenance pass has now audited the current private
-banner payload without publishing it: 2,916 files produced 2,448 fail-closed
-findings. Python 3.5, Readline, and OpenSSL 1.0.x are explicitly excluded from
-the public-clean profile. BusyBox 1.19.4 was rebuilt byte-for-byte from its
-pinned upstream source and captured K1OM configuration; Dropbear 2022.83 and
-CPython 3.12.13 source archives are also pinned. Kernel, module, eglibc, and
-`libgcc_s` corresponding-source provenance remains the publication blocker.
-See [prebuilt-image provenance](release/prebuilt-image-provenance.md).
+The public-clean image and source-built runtime completed the three-boot gate.
+The earlier 2,916-file private payload and its 2,448 fail-closed findings are
+historical evidence only. Python 3.5, Readline, and OpenSSL 1.0.x are excluded
+from RC3. Kernel reproduction, module dependency mapping, eglibc, and
+`libgcc_s` source builds are complete; the exact binary/source archives now
+have SPDX metadata and two-run byte reproducibility. See
+[prebuilt-image provenance](release/prebuilt-image-provenance.md).
 
 Current execution checklist:
 
 1. Keep the published RC2 source/BYO-MPSS release free of Intel/MPSS payloads
    and private generated binaries.
 2. Preserve exact private artifact hashes and sanitized hardware evidence.
-3. Complete per-file provenance and copyleft source-offer material before any
-   prebuilt binary release.
-4. Complete corresponding-source/provenance bundles for the kernel and modules
-   before any binary publication.
+3. Obtain qualified human review of the five module grants and exact RC3
+   binary/source archives before publication.
+4. Preserve the reviewed hashes if a `v0.1.0-rc3` prerelease is approved.
 5. Repeat the eventual publishable artifact on additional compatible KNC hardware
    when available.
 

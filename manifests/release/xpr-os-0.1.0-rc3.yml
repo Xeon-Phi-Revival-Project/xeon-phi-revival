@@ -18,10 +18,13 @@ technical_validation:
   native_dlopen: passed
   stock_rollback: passed
 reproducibility:
+  independent_packaging_runs: 2
+  archives_byte_identical: true
   tested_kernel_exact_reproduction: passed
   tested_kernel_sha256: d529aecf0de11e0b4a9a036eb0329d1bb9c907fd6a911ce08a10548c9380d4d8
   kernel_source_sha256: 0e876982d8e33ffda706e46c4bee731f84c76ad22601c7b8feb751a5bc6c1b59
   module_source_sha256: 0bfbb007aaba7f041b51229c28f11a793ba1adc76f08afd8e83b3a0488936f54
+  note: Exact archive hashes are recorded outside the self-containing source archive after the build commit is frozen.
 publication:
   allowed: false
   blocker: >-
