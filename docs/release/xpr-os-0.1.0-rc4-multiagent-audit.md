@@ -1,6 +1,6 @@
 # XPR-OS 0.1.0-rc4 Adversarial Release Audit
 
-Date: 2026-08-11  
+Date: 2026-08-11
 Decision: `BLOCKED_BY_CONCRETE_ISSUES`
 
 This is a factual release-engineering audit of the frozen RC4 archives. It is
@@ -25,8 +25,8 @@ modules, BusyBox, Dropbear, eglibc, GCC, GMP, MPFR, and MPC source archives.
 
 ## Routing And Review Method
 
-Parent: Terra High.  
-Execution mode: `LIMITED_SUBAGENTS`.  
+Parent: Terra High.
+Execution mode: `LIMITED_SUBAGENTS`.
 Luna routing: `DIRECT`.
 
 Five Luna Medium reviewers were admitted concurrently. The direct-agent thread
