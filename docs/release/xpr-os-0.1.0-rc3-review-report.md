@@ -5,14 +5,18 @@ Status: `AUTOMATED_CHECKS_PASS_HUMAN_LEGAL_REVIEW_PENDING`
 
 ## Exact Candidate
 
-- Build commit: recorded after the package-input commit is frozen
+- Build commit: `3009614426d59cb5f1eaac899a950aeff3c6de2d`
 - Binary archive: `xpr-os-0.1.0-rc3.tar.gz`
+  - SHA-256: `9ce4ec5a9a6f14252cf5eb0f6859d4908fcfb48845b78f65ccb6d7108d7f36a1`
+  - Size: `20,408,216` bytes
 - Source archive: `xpr-os-0.1.0-rc3-sources.tar.gz`
+  - SHA-256: `4d7c52690fb7983ae263f129c7bd4a6b2387c0636b384dbb60d3be19d555403a`
+  - Size: `362,581,454` bytes
 
-The final hashes and sizes are added to this external report after two
-independent CentOS 7 packaging runs. This avoids placing a source archive's own
-hash inside itself. The package verifier must pass after clean extraction in
-both runs.
+Two independent CentOS 7 packaging runs produced identical bytes for both
+archives. This external follow-up records the hashes without placing a source
+archive's own hash inside itself. The package verifier passed after clean
+extraction in both runs.
 
 ## Automated Gates
 
