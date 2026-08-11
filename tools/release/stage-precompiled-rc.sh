@@ -206,10 +206,10 @@ install -m 0644 manifests/release/prebuilt-clean-profile.json "$binary_root/mani
 install -m 0644 manifests/release/third-party-notices.json "$binary_root/manifests/"
 install -m 0644 /tmp/xpr-prebuilt.spdx.json "$binary_root/manifests/xpr-os.spdx.json"
 install -m 0644 "$kernel_source" "$work/kernel-source.tar.gz"
-kernel_license_member="$(tar -tzf "$work/kernel-source.tar.gz" | awk '/(^|\/)COPYING$/ { print; exit }')"
+kernel_license_member="$(tar -tzf "$work/kernel-source.tar.gz" | awk '/\/phi-kernel\/COPYING$/ { print; exit }')"
 [[ -n "$kernel_license_member" ]] || { echo "kernel COPYING missing" >&2; exit 23; }
 tar -xOzf "$work/kernel-source.tar.gz" "$kernel_license_member" > "$binary_root/LICENSES/GPL-2.0-only.txt"
-tar -xOf "$module_source" "$(tar -tjf "$module_source" | awk '/(^|\/)COPYING$/ { print; exit }')" > "$binary_root/LICENSES/MPSS-modules-GPL-2.0-only.txt"
+tar -xOjf "$module_source" "$(tar -tjf "$module_source" | awk '/(^|\/)COPYING$/ { print; exit }')" > "$binary_root/LICENSES/MPSS-modules-GPL-2.0-only.txt"
 tar -xOjf "$busybox_source" "$(tar -tjf "$busybox_source" | awk '/(^|\/)LICENSE$/ { print; exit }')" > "$binary_root/LICENSES/BusyBox-1.19.4-GPL-2.0-only.txt"
 tar -xOJf "$eglibc_orig" "$(tar -tJf "$eglibc_orig" | awk '/(^|\/)COPYING\.LIB$/ { print; exit }')" > "$binary_root/LICENSES/LGPL-2.1-or-later.txt"
 tar -xOzf "$gcc_source" "$(tar -tzf "$gcc_source" | awk '/(^|\/)COPYING3$/ { print; exit }')" > "$binary_root/LICENSES/GPL-3.0-only.txt"
