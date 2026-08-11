@@ -10,6 +10,7 @@ import sys
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 NEWC_CANDIDATES = (
+    os.path.join(SCRIPT_DIR, "uos", "newc_archive.py"),
     os.path.join(SCRIPT_DIR, "..", "uos", "newc_archive.py"),
     os.path.join(SCRIPT_DIR, "..", "..", "tools", "uos", "newc_archive.py"),
 )
