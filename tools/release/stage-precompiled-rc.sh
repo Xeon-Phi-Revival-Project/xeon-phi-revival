@@ -181,7 +181,7 @@ work="$(mktemp -d "${TMPDIR:-/tmp}/xpr-rc4.XXXXXX")"
 trap 'rm -rf "$work" /tmp/xpr-prebuilt-audit.json /tmp/xpr-prebuilt.spdx.json' EXIT
 binary_root="$work/xpr-os-$version"
 source_root="$work/xpr-os-$version-sources"
-mkdir -p "$binary_root"/{kernel,modules,bootstrap,payload,tools,docs,manifests,LICENSES} \
+mkdir -p "$binary_root"/{kernel,modules,bootstrap,payload,tools/uos,docs,manifests,LICENSES} \
          "$source_root"/{sources,repository,manifests}
 
 install -m 0644 "$kernel" "$binary_root/kernel/bzImage"
@@ -196,6 +196,7 @@ install -m 0755 tools/release/verify-generic-payload.py "$binary_root/tools/veri
 install -m 0755 tools/release/provision-xpr-authorized-key.py "$binary_root/tools/provision-authorized-key.py"
 install -m 0755 tools/release/validate-spdx-2.3.py "$binary_root/tools/validate-spdx-2.3.py"
 install -m 0755 tools/release/validate-license-bundle.py "$binary_root/tools/validate-license-bundle.py"
+install -m 0644 tools/uos/newc_archive.py "$binary_root/tools/uos/newc_archive.py"
 install -m 0644 LICENSE NOTICE.md "$binary_root/"
 install -m 0644 "docs/release/xpr-os-$version-release-notes.md" "$binary_root/README.md"
 install -m 0644 docs/release/public-clean-stack-validation.md "$binary_root/docs/"

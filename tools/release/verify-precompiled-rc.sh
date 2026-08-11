@@ -34,7 +34,7 @@ required=(
   modules/mpssboot.ko modules/intel_micveth.ko
   bootstrap/xpr-bootstrap.cpio.gz payload/xpr-rootfs.cpio.gz
   tools/verify.sh tools/verify-generic-payload.py tools/provision-authorized-key.py
-  tools/validate-spdx-2.3.py tools/validate-license-bundle.py
+  tools/validate-spdx-2.3.py tools/validate-license-bundle.py tools/uos/newc_archive.py
   manifests/tested-artifacts.json manifests/release.yml manifests/prebuilt-clean-profile.json
   manifests/third-party-notices.json manifests/xpr-os.spdx.json SOURCE-BUNDLE.txt
   LICENSES/GPL-2.0-only.txt LICENSES/LGPL-2.1-or-later.txt
