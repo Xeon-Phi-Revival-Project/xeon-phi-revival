@@ -34,8 +34,11 @@ done
 command -v "${cross_compile}gcc" >/dev/null 2>&1 || { echo "missing ${cross_compile}gcc" >&2; exit 4; }
 
 repo_root=$(cd "$(dirname "$0")/../.." && pwd)
+python_bin="${PYTHON_BIN:-/usr/bin/python2.7}"
+command -v "$python_bin" >/dev/null 2>&1 || { echo "missing host Python with argparse: $python_bin" >&2; exit 6; }
+"$python_bin" -c 'import argparse' || { echo "host Python lacks argparse: $python_bin" >&2; exit 6; }
 mkdir -p "$out_dir"
-python "$repo_root/tools/release/build-public-clean-root.py" \
+"$python_bin" "$repo_root/tools/release/build-public-clean-root.py" \
   --ledger "$ledger" --out-root "$out_dir/root" --busybox "$busybox" \
   --dropbear "$dropbear" --eglibc-libdir "$eglibc_libdir" --libgcc "$libgcc" \
   --xpr-bin-dir "$helpers" --init-source "$repo_root/src/uos/xpr_clean_root_init.sh"
@@ -47,7 +50,7 @@ install -m 0755 "$repo_root/src/uos/xpr_stage_root.sh" "$out_dir/root/opt/xeon-p
 "${cross_compile}readelf" -l "$out_dir/root/bin/xpr-switch-root" | grep -q 'Requesting program interpreter' && {
   echo "bootstrap switch helper is unexpectedly dynamic" >&2; exit 5;
 } || true
-python "$repo_root/tools/release/pack-public-clean-root.py" \
+"$python_bin" "$repo_root/tools/release/pack-public-clean-root.py" \
   --root "$out_dir/root" --output "$out_dir/xpr-bootstrap-root.cpio.gz" \
   --manifest "$out_dir/bootstrap-manifest.json"
 sha256sum "$out_dir/xpr-bootstrap-root.cpio.gz" > "$out_dir/SHA256SUMS"
