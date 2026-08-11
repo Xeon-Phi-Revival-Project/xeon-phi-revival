@@ -85,8 +85,11 @@ source_makefile=$(tar -tf "$source_archive" | awk '/\/phi-kernel\/Makefile$/ && 
 tar -xf "$source_archive" -C "$extract_dir"
 source_tree="$extract_dir/${source_makefile%/Makefile}"
 [ -f "$source_tree/Makefile" ] || { echo "extracted kernel source is incomplete" >&2; exit 1; }
-mkdir -p "$(dirname "$expected_source")"
-mv "$source_tree" "$expected_source"
+# K1OM's phi-kernel tree refers to sibling Solros projects such as
+# pci-ring-buffer and mpss-modules. Preserve that complete archived parent.
+source_parent=$(dirname "$source_tree")
+mv "$source_parent" "$(dirname "$expected_source")"
+[ -f "$expected_source/Makefile" ] || { echo "staged kernel source is incomplete" >&2; exit 1; }
 rm -rf "$extract_dir"
 
 work_dir=$(mktemp -d "$work_root/.xpr-kernel-reproduce.XXXXXX")
