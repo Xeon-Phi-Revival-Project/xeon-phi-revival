@@ -36,6 +36,7 @@ def main():
     policy = json.load(io.open(args.policy, encoding="utf-8"))
     if policy.get("schema") != "xpr-public-source-archive-policy-v1":
         raise RuntimeError("unexpected public-source archive policy schema")
+    allow_paths = set(policy.get("allow_paths", []))
     findings = []
     for base, directories, files in os.walk(root):
         directories.sort()
@@ -46,6 +47,8 @@ def main():
             if text is None:
                 continue
             relative = os.path.relpath(path, root).replace(os.sep, "/")
+            if relative in allow_paths:
+                continue
             for line_number, line in enumerate(text.splitlines(), 1):
                 if any(pattern.search(line) for pattern in PATTERNS):
                     findings.append("%s:%d" % (relative, line_number))

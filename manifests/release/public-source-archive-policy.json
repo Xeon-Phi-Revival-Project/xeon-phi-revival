@@ -4,14 +4,22 @@
   "exclude_prefixes": [
     "docs/ubuntu-port/",
     "docs/uos/",
-    "manifests/experiments/"
+    "manifests/experiments/",
+    "tools/ubuntu-port/"
   ],
   "exclude_paths": [
     "docs/kernel/candidate-build-validation.md",
     "docs/kernel/source-search-report.md",
     "docs/publication-audit-20260727.md",
     "docs/release/xpr-os-0.1.0-rc3-multiagent-audit.md",
-    "docs/release/xpr-uos-0.1-license-review.md"
+    "docs/release/xpr-uos-0.1-license-review.md",
+    "manifests/release/xpr-uos-0.1-license-matrix.yml",
+    "tools/uos/build-minimal-k1om-initramfs.sh",
+    "tools/uos/run-micdir-pid1-handoff-experiment.sh",
+    "tools/uos/run-micdir-second-stage-service-experiment.sh"
+  ],
+  "allow_paths": [
+    "tools/kernel/reproduce-tested-k1om-kernel-historical-paths.sh"
   ],
   "required_paths": [
     "LICENSE",
@@ -26,6 +34,7 @@
     "tools/release/build-public-root.sh",
     "tools/release/build-public-clean-root.py",
     "tools/release/validate-public-source-hygiene.py",
+    "tools/uos/newc_archive.py",
     "manifests/release/prebuilt-clean-profile.json",
     "manifests/release/public-source-archive-policy.json"
   ]
