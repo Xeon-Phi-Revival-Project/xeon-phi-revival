@@ -84,11 +84,9 @@ if find "$root" -type f \( -name '*.key' -o -name '*.pem' -o -name 'id_rsa*' -o 
   echo "secret-like file found in release" >&2
   exit 24
 fi
-secret_pattern='BEGIN (RSA |OPENSSH )?'
-secret_pattern="${secret_pattern}"'PRIVATE KEY|XPR_'
-secret_pattern="${secret_pattern}"'MPSS_PASSWORD|SSH_'
-secret_pattern="${secret_pattern}"'PRIVATE_KEY|PASS'
-secret_pattern="${secret_pattern}"'WORD='
+secret_pattern='BEGIN (RSA |OPENSSH )?PRIVATE KEY'
+secret_pattern="${secret_pattern}"'|XPR_MPSS_PASSWORD|SSH_.*PRIVATE'
+secret_pattern="${secret_pattern}"'|PRIVATE_KEY|PASSWORD[[:space:]]*[:=]'
 if grep -RIlE "$secret_pattern" "$root" | grep -q .; then
   echo "secret pattern found in release" >&2
   exit 25
