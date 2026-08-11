@@ -34,6 +34,8 @@ def main():
                         help="version of the top-level binary XPR-OS release package")
     parser.add_argument("--release-file", action="append", default=[],
                         help="PATH=SHA256 for a container shipped by the binary release")
+    parser.add_argument("--container-member", action="append", default=[],
+                        help="PARENT:CHILD=SHA256 for a nested release container member")
     args = parser.parse_args()
     audit = json.load(io.open(args.audit, encoding="utf-8"))
     ledger = json.load(io.open(args.ledger, encoding="utf-8"))
@@ -90,6 +92,7 @@ def main():
                       "copyrightText": component_record.get("copyright", "NOASSERTION")})
         relationships.append({"spdxElementId": component_spdx[component],
                               "relationshipType": "CONTAINS", "relatedSpdxElement": file_id})
+    release_file_ids = {}
     for value in args.release_file:
         try:
             path, sha256 = value.rsplit("=", 1)
@@ -105,6 +108,25 @@ def main():
                       "comment": "Shipped release container; see paired source package and release manifest."})
         relationships.append({"spdxElementId": release_id, "relationshipType": "CONTAINS",
                               "relatedSpdxElement": file_id})
+        release_file_ids[path] = file_id
+    for value in args.container_member:
+        try:
+            parent, remainder = value.split(":", 1)
+            child, sha256 = remainder.rsplit("=", 1)
+        except ValueError:
+            parser.error("invalid --container-member, expected PARENT:CHILD=SHA256")
+        if parent not in release_file_ids or not child or len(sha256) != 64:
+            parser.error("invalid parent, child, or SHA256 in --container-member: " + value)
+        child_id = "SPDXRef-ContainerMember-" + sha256[:16]
+        if child_id in set(item["SPDXID"] for item in files):
+            parser.error("duplicate container member SHA256: " + sha256)
+        files.append({"SPDXID": child_id, "fileName": parent + "!/" + child.lstrip("/"),
+                      "checksums": [{"algorithm": "SHA256", "checksumValue": sha256}],
+                      "licenseConcluded": "NOASSERTION", "licenseInfoInFiles": ["NONE"],
+                      "copyrightText": "NOASSERTION",
+                      "comment": "Nested member of the shipped release container."})
+        relationships.append({"spdxElementId": release_file_ids[parent], "relationshipType": "CONTAINS",
+                              "relatedSpdxElement": child_id})
     epoch = os.environ.get("SOURCE_DATE_EPOCH")
     created = (datetime.datetime.utcfromtimestamp(int(epoch)) if epoch else
                datetime.datetime.utcnow()).replace(microsecond=0).isoformat() + "Z"

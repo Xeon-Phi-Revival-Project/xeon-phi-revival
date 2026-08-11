@@ -5,7 +5,7 @@ usage() {
   cat >&2 <<'USAGE'
 usage: stage-precompiled-rc.sh \
   --kernel FILE --system-map FILE --modules-dir DIR \
-  --bootstrap FILE --payload FILE \
+  --bootstrap FILE --bootstrap-inner FILE --payload FILE \
   --kernel-source FILE --module-source FILE --out-dir DIR \
   --busybox-source FILE --dropbear-source FILE \
   --eglibc-orig FILE --eglibc-debian FILE \
@@ -22,7 +22,7 @@ USAGE
 version="0.1.0-rc5"
 revision="HEAD"
 source_date_epoch="${SOURCE_DATE_EPOCH:-1786320000}"
-kernel="" system_map="" modules_dir="" bootstrap="" payload=""
+kernel="" system_map="" modules_dir="" bootstrap="" bootstrap_inner="" payload=""
 kernel_source="" module_source="" repository_archive="" out_dir=""
 busybox_source="" dropbear_source="" eglibc_orig="" eglibc_debian=""
 gcc_source="" gmp_source="" mpfr_source="" mpc_source=""
@@ -33,6 +33,7 @@ while [[ $# -gt 0 ]]; do
     --system-map) system_map="${2:-}"; shift 2 ;;
     --modules-dir) modules_dir="${2:-}"; shift 2 ;;
     --bootstrap) bootstrap="${2:-}"; shift 2 ;;
+    --bootstrap-inner) bootstrap_inner="${2:-}"; shift 2 ;;
     --payload) payload="${2:-}"; shift 2 ;;
     --kernel-source) kernel_source="${2:-}"; shift 2 ;;
     --module-source) module_source="${2:-}"; shift 2 ;;
@@ -53,7 +54,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-for value in kernel system_map modules_dir bootstrap payload kernel_source module_source \
+for value in kernel system_map modules_dir bootstrap bootstrap_inner payload kernel_source module_source \
   busybox_source dropbear_source eglibc_orig eglibc_debian gcc_source \
   gmp_source mpfr_source mpc_source out_dir; do
   [[ -n "${!value}" ]] || { echo "missing --${value//_/-}" >&2; usage; exit 2; }
@@ -151,6 +152,7 @@ done
 
 payload_hash="$(sha256sum "$payload" | awk '{print $1}')"
 bootstrap_hash="$(sha256sum "$bootstrap" | awk '{print $1}')"
+bootstrap_inner_hash="$(sha256sum "$bootstrap_inner" | awk '{print $1}')"
 
 bash tools/release/audit-source-compliance.sh
 "$python_bin" tools/release/audit-prebuilt-image.py \
@@ -173,6 +175,7 @@ SOURCE_DATE_EPOCH="$source_date_epoch" "$python_bin" tools/release/generate-spdx
   --external-file "mpss-compatible-modules:./modules/mpssboot.ko=${expected[mpssboot]}" \
   --external-file "mpss-compatible-modules:./modules/intel_micveth.ko=${expected[intel_micveth]}" \
   --release-file "./bootstrap/xpr-bootstrap.cpio.gz=${bootstrap_hash}" \
+  --container-member "./bootstrap/xpr-bootstrap.cpio.gz:xpr-rootfs.cpio.gz=${bootstrap_inner_hash}" \
   --release-file "./payload/xpr-rootfs.cpio.gz=${payload_hash}" \
   --output /tmp/xpr-prebuilt.spdx.json
 "$python_bin" tools/release/validate-spdx-2.3.py --input /tmp/xpr-prebuilt.spdx.json --require-release-coverage

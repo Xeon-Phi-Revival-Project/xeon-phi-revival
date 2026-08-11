@@ -1,16 +1,15 @@
 # Build XPR-OS RC From Source
 
-This is the shortest honest path from a clean Git checkout to the current
+This is the shortest honest path from the paired source archive to the current
 XPR-OS release-candidate outputs. It covers two different products:
 
 1. A fully public source/metadata archive that contains no boot binaries.
-2. A private bootable split-root image assembled from project source plus
-   locally supplied K1OM and MPSS-compatible inputs.
+2. A bootable split-root image assembled from source-accounted source archives,
+   project recipes, and a separately obtained MPSS K1OM toolchain.
 
-The second product is not yet reproducible from this Git repository alone.
-The compatibility-kernel source, module source, bootstrap input, and some
-userland binaries still require local provenance and redistribution review.
-Do not describe a private build as a public-from-source binary release.
+The generated bootstrap and final-root CPIO containers have no historical CPIO
+input. The host toolchain remains an external prerequisite and is not included
+in a public archive.
 
 ## Supported Baseline
 
@@ -67,9 +66,9 @@ Git:
 | KNC kernel source | A complete source tree with real `ARCH=k1om` support |
 | Kernel configuration | The evidence-backed candidate `.config` |
 | Card module source | Source for `ringbuffer`, `dma_module`, `micscif`, `mpssboot`, and `intel_micveth` |
-| Bootstrap source pair | Project-compatible bootstrap root CPIO and neighboring Base CPIO |
-| Final-root source | Private CPIO containing the selected K1OM runtime and userland |
-| Package repository | Optional local `binary-k1om` repository |
+| BusyBox, Dropbear, eglibc, GCC sources | The pinned archives from the paired source bundle |
+| XPR configs and overlays | The paired source bundle's `repository/` tree |
+| Public Linux headers | Exported from the pinned Solros source before building the runtime |
 
 The current public release does not download these inputs and does not grant
 rights to Intel material. Review
@@ -135,32 +134,32 @@ Validate their K1OM ELF identity, vermagic, dependencies, and unresolved
 symbols before putting them in a Base CPIO. See
 [Candidate Module Build](../kernel/candidate-module-build.md).
 
-## 7. Assemble The Split Root
+## 7. Build Source-Accounted Components And Containers
 
-The current assembler expects a prepared bootstrap source pair and a final-root
-source CPIO. The Base CPIO must be named `xpr-bootstrap-base.cpio.gz` beside
-the bootstrap source archive.
+First build BusyBox, the eglibc runtime, libgcc, Dropbear, and XPR helpers from
+the pinned source archives with the repository recipes. Their output paths are
+explicit build inputs to the container constructor; no private CPIO is accepted.
+
+After those component builders have completed, construct both the inner
+bootstrap root, outer Base CPIO, and final root/payload:
 
 ```bash
-export XPR_BOOTSTRAP_SOURCE=/path/to/xpr-bootstrap-root-source.cpio.gz
-export XPR_PAYLOAD_SOURCE=/path/to/full-root-source.cpio.gz
-export XPR_PACKAGE_REPO=/path/to/packages/repo
-export XPR_SPLIT_BUILD=/root/xpr-build/split-root
-
-bash tools/release/build-split-root-control.sh \
-  --bootstrap-source "$XPR_BOOTSTRAP_SOURCE" \
-  --payload-source "$XPR_PAYLOAD_SOURCE" \
-  --package-repo "$XPR_PACKAGE_REPO" \
-  --out-dir "$XPR_SPLIT_BUILD"
+bash tools/release/build-rc5-containers.sh \
+  --busybox /root/xpr-build/busybox/busybox \
+  --dropbear /root/xpr-build/dropbear/dropbear \
+  --eglibc-libdir /root/xpr-build/eglibc/stage/lib \
+  --libgcc /root/xpr-build/libgcc/install/k1om-mpss-linux/lib64/libgcc_s.so.1 \
+  --helpers /root/xpr-build/helpers \
+  --module-root /root/xpr-build/modules \
+  --cross-compile k1om-mpss-linux- \
+  --kernel-release 2.6.38.8+mpss3.5.1 \
+  --out-dir /root/xpr-build/containers
 ```
 
-This compiles the project switch helper and final-init trampoline, injects the
-current project init and banner, reconstructs the bootstrap and payload,
-validates K1OM/static helper properties, and emits `SHA256SUMS`, `SIZES`, and
-archive reports. It does not modify MPSS or boot the card.
-
-If no package repository is available, omit `--package-repo`; package-manager
-smoke checks will not represent the accepted RC configuration.
+The command writes `final-root/xpr-rootfs.cpio.gz`,
+`bootstrap-root/xpr-bootstrap-root.cpio.gz`, and `xpr-bootstrap.cpio.gz` with
+`private_cpio_inputs=0` in `SHA256SUMS`. It does not modify MPSS or boot the
+card.
 
 ## 8. Review Before Hardware Use
 
@@ -170,10 +169,9 @@ Record and inspect:
 sha256sum \
   "$XPR_KERNEL_BUILD/arch/x86/boot/bzImage" \
   "$XPR_KERNEL_BUILD/System.map" \
-  "$XPR_SPLIT_BUILD/xpr-bootstrap-base.cpio.gz" \
-  "$XPR_SPLIT_BUILD/payload/xpr-rootfs.cpio.gz"
-cat "$XPR_SPLIT_BUILD/SIZES"
-cat "$XPR_SPLIT_BUILD/SHA256SUMS"
+  "/root/xpr-build/containers/xpr-bootstrap.cpio.gz" \
+  "/root/xpr-build/containers/final-root/xpr-rootfs.cpio.gz"
+cat "/root/xpr-build/containers/SHA256SUMS"
 ```
 
 Also verify the active stock MPSS configuration hash and stock SSH before any
@@ -185,10 +183,10 @@ Use the existing runner with an alternate MPSS configuration:
 
 ```bash
 bash tools/kernel/run-candidate-base-cpio-control.sh \
-  --base "$XPR_SPLIT_BUILD/xpr-bootstrap-base.cpio.gz" \
+  --base /root/xpr-build/containers/xpr-bootstrap.cpio.gz \
   --kernel "$XPR_KERNEL_BUILD/arch/x86/boot/bzImage" \
   --map "$XPR_KERNEL_BUILD/System.map" \
-  --payload "$XPR_SPLIT_BUILD/payload/xpr-rootfs.cpio.gz" \
+  --payload /root/xpr-build/containers/final-root/xpr-rootfs.cpio.gz \
   --expected-stock-sha YOUR_RECORDED_STOCK_CONFIG_SHA256 \
   --out-root /root/xpr-build/hardware-runs
 ```
@@ -215,18 +213,9 @@ A build is not an RC merely because files were produced. Require:
 See the [RC Acceptance Checklist](../ubuntu-port/uos-rc-acceptance-checklist.md)
 for the complete gate.
 
-## Current Reproducibility Gap
+## RC5 Validation Status
 
-The repository has deterministic assemblers and a proven hardware path, but it
-does not yet provide a single public command that recreates every accepted
-binary from redistributable source. The highest-value remaining build work is:
-
-1. Pin and publish permissible corresponding source, configs, and patches for
-   the compatibility kernel and modules.
-2. Rebuild or remove lineage-uncertain BusyBox, `libgcc_s`, and userland inputs.
-3. Generate a complete provenance manifest and SPDX-style SBOM.
-4. Rebuild the exact publishable artifact and rerun the full hardware and
-   rollback suite.
-
-Until those gates pass, publish the source/BYO-MPSS archive and keep private
-boot images local.
+RC5 container construction is source-accounted and rejects private historical
+CPIO inputs. It remains an unpublished candidate until its exact generated
+container hashes complete the bounded hardware, rollback, and independent
+review gates.

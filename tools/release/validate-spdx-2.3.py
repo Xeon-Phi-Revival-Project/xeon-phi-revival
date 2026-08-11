@@ -103,6 +103,18 @@ def main():
         for required in ("./bootstrap/xpr-bootstrap.cpio.gz", "./payload/xpr-rootfs.cpio.gz"):
             if required not in covered:
                 errors.append("release SPDX does not cover " + required)
+        outer = next((item for item in document.get("files", [])
+                      if item.get("fileName") == "./bootstrap/xpr-bootstrap.cpio.gz"), None)
+        if not outer:
+            errors.append("release SPDX lacks outer bootstrap container")
+        else:
+            nested = set(relation.get("relatedSpdxElement") for relation in document.get("relationships", [])
+                         if relation.get("spdxElementId") == outer.get("SPDXID") and
+                         relation.get("relationshipType") == "CONTAINS")
+            nested_names = set(names.get(item) for item in nested if item in names)
+            expected_member = "./bootstrap/xpr-bootstrap.cpio.gz!/xpr-rootfs.cpio.gz"
+            if expected_member not in nested_names:
+                errors.append("release SPDX does not model the nested bootstrap root container")
     if errors:
         for error in sorted(set(errors)):
             sys.stderr.write("SPDX_2_3_VALIDATION=FAIL %s\n" % error)
