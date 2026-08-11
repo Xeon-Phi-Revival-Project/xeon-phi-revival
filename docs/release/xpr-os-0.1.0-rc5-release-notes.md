@@ -7,9 +7,10 @@ RC5 replaces the RC4 release-construction paths with source-accounted bootstrap
 and final-root builders, strict deployment SSH public-key validation, generated
 artifact metadata, and release-level SPDX container coverage.
 
-Hardware validation is pending for the RC5-generated Base CPIO and final-root
-payload. Do not describe this candidate as hardware validated until the bounded
-RC5 deployment and rollback evidence has been recorded against its exact hashes.
+The RC5-generated Base CPIO and final-root payload passed three identical
+rollback-protected deployments on the tested Xeon Phi 5110P path. This remains
+an unpublished release candidate pending the independent RC5 audit and owner
+publication decision.
 
 The generic payload is key-free. A user supplies one validated RSA public key
 only when making local deployment Base CPIO and final-payload artifacts; no

@@ -2,20 +2,22 @@
 set -euo pipefail
 
 usage() {
-  echo "usage: verify-precompiled-rc.sh --archive FILE --version VERSION [--expected-commit SHA]" >&2
+  echo "usage: verify-precompiled-rc.sh --archive FILE --version VERSION [--expected-commit SHA] [--expect-validation pending|passed]" >&2
 }
 
-archive="" version="" expected_commit=""
+archive="" version="" expected_commit="" expect_validation="pending"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --archive) archive="${2:-}"; shift 2 ;;
     --version) version="${2:-}"; shift 2 ;;
     --expected-commit) expected_commit="${2:-}"; shift 2 ;;
+    --expect-validation) expect_validation="${2:-}"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "unknown argument: $1" >&2; usage; exit 2 ;;
   esac
 done
 [[ -f "$archive" && -n "$version" ]] || { usage; exit 2; }
+[[ "$expect_validation" == pending || "$expect_validation" == passed ]] || { usage; exit 2; }
 for cmd in tar gzip sha256sum grep find mktemp; do
   command -v "$cmd" >/dev/null 2>&1 || { echo "required tool missing: $cmd" >&2; exit 10; }
 done
@@ -63,7 +65,7 @@ fi
 artifact_args=(--root "$root" --version "$version")
 [[ -z "$expected_commit" ]] || artifact_args+=(--expected-commit "$expected_commit")
 "$python_bin" "$root/tools/verify-release-artifacts.py" "${artifact_args[@]}"
-"$python_bin" "$root/tools/validate-release-consistency.py" --root "$root" --version "$version" --expect-validation pending
+"$python_bin" "$root/tools/validate-release-consistency.py" --root "$root" --version "$version" --expect-validation "$expect_validation"
 (cd "$root" && sha256sum -c SHA256SUMS)
 
 declare -A expected=(

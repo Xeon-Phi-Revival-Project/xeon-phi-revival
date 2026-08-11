@@ -11,7 +11,7 @@ usage: stage-precompiled-rc.sh \
   --eglibc-orig FILE --eglibc-debian FILE \
   --gcc-source FILE --gmp-source FILE --mpfr-source FILE --mpc-source FILE \
   [--repository-archive FILE] \
-  [--version 0.1.0-rc5] [--revision REV]
+  [--version 0.1.0-rc5] [--revision REV] [--validation-status pending|passed]
 
 Build deterministic private review archives from the exact hardware-tested
 XPR-OS artifacts and pinned corresponding-source inputs. This command stages
@@ -26,6 +26,7 @@ kernel="" system_map="" modules_dir="" bootstrap="" bootstrap_inner="" payload="
 kernel_source="" module_source="" repository_archive="" out_dir=""
 busybox_source="" dropbear_source="" eglibc_orig="" eglibc_debian=""
 gcc_source="" gmp_source="" mpfr_source="" mpc_source=""
+validation_status="pending"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -49,10 +50,14 @@ while [[ $# -gt 0 ]]; do
     --out-dir) out_dir="${2:-}"; shift 2 ;;
     --version) version="${2:-}"; shift 2 ;;
     --revision) revision="${2:-}"; shift 2 ;;
+    --validation-status) validation_status="${2:-}"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "unknown argument: $1" >&2; usage; exit 2 ;;
   esac
 done
+[[ "$validation_status" == pending || "$validation_status" == passed ]] || {
+  echo "--validation-status must be pending or passed" >&2; exit 2;
+}
 
 for value in kernel system_map modules_dir bootstrap bootstrap_inner payload kernel_source module_source \
   busybox_source dropbear_source eglibc_orig eglibc_debian gcc_source \
@@ -215,7 +220,7 @@ install -m 0644 "docs/release/xpr-os-$version-release-notes.md" "$binary_root/RE
 install -m 0644 docs/release/distribution-review.md "$binary_root/docs/"
 "$python_bin" tools/release/generate-tested-artifacts.py \
   --version "$version" --commit "$commit" --kernel "$kernel" --system-map "$system_map" \
-  --bootstrap "$bootstrap" --payload "$payload" --validation-status pending \
+  --bootstrap "$bootstrap" --payload "$payload" --validation-status "$validation_status" \
   --module "dma-module=$modules_dir/dma_module.ko" \
   --module "ringbuffer-module=$modules_dir/ringbuffer.ko" \
   --module "micscif-module=$modules_dir/micscif.ko" \
@@ -288,7 +293,8 @@ binary_archive="$out_dir/xpr-os-$version.tar.gz"
 gzip -n -9 -c "$work/binary.tar" > "$binary_archive"
 
 bash tools/release/verify-precompiled-rc.sh \
-  --archive "$binary_archive" --version "$version" --expected-commit "$commit"
+  --archive "$binary_archive" --version "$version" --expected-commit "$commit" \
+  --expect-validation "$validation_status"
 (cd "$out_dir" && sha256sum "$(basename "$binary_archive")" "$(basename "$source_archive")" > SHA256SUMS)
 (cd "$out_dir" && sha256sum -c SHA256SUMS)
 

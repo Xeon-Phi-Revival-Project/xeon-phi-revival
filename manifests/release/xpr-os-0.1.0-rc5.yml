@@ -1,17 +1,18 @@
 id: xpr-os-0.1.0-rc5
-status: source-reconstructed-hardware-validation-pending
+status: source-reconstructed-hardware-validated-awaiting-independent-audit
 date: "2026-08-11"
 architecture: k1om
 release_kind: precompiled-public-source-candidate
 technical_validation:
-  source_only_container_build: pending
-  reproducible_staging_builds: pending
-  provisioned_hardware_boots: pending
+  source_only_container_build: passed
+  reproducible_staging_builds: passed
+  provisioned_hardware_boots: passed-three-identical-runs
 publication:
   allowed: false
   blocker: >-
-    RC5 has not completed source-reconstruction, hardware, and independent
-    review gates. It must not be published or tagged by this build step.
+    RC5 passed source reconstruction and hardware gates, but independent audit
+    and owner publication review remain required. It must not be published or
+    tagged by this build step.
   github_tag_created: false
   github_release_created: false
 external_prerequisite:
