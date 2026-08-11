@@ -1,0 +1,40 @@
+id: xpr-os-0.1.0-rc3
+status: private-staging-human-legal-review-pending
+date: "2026-08-10"
+architecture: k1om
+hardware_tested:
+  card: Intel Xeon Phi 5110P
+  host: Dell PowerEdge R730
+  host_os: CentOS 7.4.1708
+  mpss: "3.4.10"
+release_kind: precompiled-public-source-candidate
+technical_validation:
+  identical_boots: 3
+  final_project_pid1: passed
+  micveth: passed
+  final_root_ssh: passed
+  native_hello: passed
+  native_pthread: passed
+  native_dlopen: passed
+  stock_rollback: passed
+reproducibility:
+  tested_kernel_exact_reproduction: passed
+  tested_kernel_sha256: d529aecf0de11e0b4a9a036eb0329d1bb9c907fd6a911ce08a10548c9380d4d8
+  kernel_source_sha256: 0e876982d8e33ffda706e46c4bee731f84c76ad22601c7b8feb751a5bc6c1b59
+  module_source_sha256: 0bfbb007aaba7f041b51229c28f11a793ba1adc76f08afd8e83b3a0488936f54
+publication:
+  allowed: false
+  blocker: >-
+    Qualified human review must confirm that the archive-level GPLv2 notice
+    and direct per-file grants support distribution of the five module
+    binaries with the staged complete corresponding source, then inspect the
+    exact RC3 source and binary archives.
+  github_tag_created: false
+  github_release_created: false
+external_prerequisite:
+  - Intel MPSS 3.4.10 host installation obtained separately by the user
+prohibited_content:
+  - Intel firmware
+  - Intel MPSS packages or card-side userspace
+  - private keys or credentials
+  - unknown-provenance binaries
