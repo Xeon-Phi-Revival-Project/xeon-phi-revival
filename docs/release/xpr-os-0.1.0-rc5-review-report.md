@@ -14,3 +14,19 @@ The generic artifacts are key-free, and deployment-only artifacts are generated
 locally from one supplied public key. RC5 passed three rollback-protected boots;
 see [RC5 Validation](xpr-os-0.1.0-rc5-validation.md). Publication remains
 blocked until the requested independent RC5 audit and owner decision complete.
+
+## Frozen Candidate
+
+The frozen candidate was built twice from commit
+`46cc833c9334dcfd4c11dee97c4447015f4f93f0`. Both binary archives and both
+source archives were byte-identical.
+
+| Artifact | SHA-256 | Bytes |
+| --- | --- | ---: |
+| `xpr-os-0.1.0-rc5.tar.gz` | `6f0c868afca16c5db68fb487af0b8dfddfc9d90c74ac521f1a069d5b466dcb0f` | 20,810,358 |
+| `xpr-os-0.1.0-rc5-sources.tar.gz` | `cdef35366d3f11d83190bf1b4c7edcd03f42bb6cbb8ca19a0dc09f5dd3f4155e` | 362,611,469 |
+
+The generic archive verifies as hardware-validation-passed and remains
+`HUMAN_LEGAL_REVIEW_PENDING`. Its required external build prerequisite is the
+separately obtained MPSS 3.4.10 K1OM host toolchain; no MPSS payload or sysroot
+is included. Status: `RC5_FROZEN_FOR_MULTIAGENT_AUDIT`.
