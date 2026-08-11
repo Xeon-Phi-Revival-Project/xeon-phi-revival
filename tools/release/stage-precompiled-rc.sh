@@ -172,8 +172,12 @@ install -m 0644 manifests/release/mpss-modules-3.4.10-clean-dependencies.json "$
 
 binary_archive="$out_dir/xpr-os-$version.tar.gz"
 source_archive="$out_dir/xpr-os-$version-sources.tar.gz"
-tar --sort=name --mtime="@$source_date_epoch" --owner=0 --group=0 --numeric-owner -C "$work" -cf - "xpr-os-$version" | gzip -n -9 > "$binary_archive"
-tar --sort=name --mtime="@$source_date_epoch" --owner=0 --group=0 --numeric-owner -C "$work" -cf - "xpr-os-$version-sources" | gzip -n -9 > "$source_archive"
+"$python_bin" tools/release/create-deterministic-tar.py \
+  --root "$binary_root" --output "$work/binary.tar" --mtime "$source_date_epoch"
+"$python_bin" tools/release/create-deterministic-tar.py \
+  --root "$source_root" --output "$work/source.tar" --mtime "$source_date_epoch"
+gzip -n -9 -c "$work/binary.tar" > "$binary_archive"
+gzip -n -9 -c "$work/source.tar" > "$source_archive"
 
 bash tools/release/verify-precompiled-rc.sh \
   --archive "$binary_archive" --version "$version" --expected-commit "$commit"
