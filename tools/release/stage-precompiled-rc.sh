@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
+# The paired source archive must not absorb interpreter cache files generated
+# while the staging validators import project modules on CentOS Python 2.
+export PYTHONDONTWRITEBYTECODE=1
 
 usage() {
   cat >&2 <<'USAGE'
@@ -90,6 +93,10 @@ else
   repo_root="$script_root"
 fi
 cd "$repo_root"
+if find . -type f \( -name '*.pyc' -o -name '*.pyo' \) -print -quit | grep -q .; then
+  echo "refusing source archive with Python bytecode cache files" >&2
+  exit 12
+fi
 if $have_git; then
   git cat-file -e "$revision^{commit}"
   commit="$(git rev-parse "$revision^{commit}")"
