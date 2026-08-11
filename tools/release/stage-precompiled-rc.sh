@@ -7,6 +7,7 @@ usage: stage-precompiled-rc.sh \
   --kernel FILE --system-map FILE --modules-dir DIR \
   --bootstrap FILE --payload FILE \
   --kernel-source FILE --module-source FILE --out-dir DIR \
+  [--repository-archive FILE] \
   [--version 0.1.0-rc3] [--revision REV]
 
 Build deterministic private review archives from the exact hardware-tested
@@ -19,7 +20,7 @@ version="0.1.0-rc3"
 revision="HEAD"
 source_date_epoch="${SOURCE_DATE_EPOCH:-1786320000}"
 kernel="" system_map="" modules_dir="" bootstrap="" payload=""
-kernel_source="" module_source="" out_dir=""
+kernel_source="" module_source="" repository_archive="" out_dir=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -30,6 +31,7 @@ while [[ $# -gt 0 ]]; do
     --payload) payload="${2:-}"; shift 2 ;;
     --kernel-source) kernel_source="${2:-}"; shift 2 ;;
     --module-source) module_source="${2:-}"; shift 2 ;;
+    --repository-archive) repository_archive="${2:-}"; shift 2 ;;
     --out-dir) out_dir="${2:-}"; shift 2 ;;
     --version) version="${2:-}"; shift 2 ;;
     --revision) revision="${2:-}"; shift 2 ;;
@@ -41,7 +43,7 @@ done
 for value in kernel system_map modules_dir bootstrap payload kernel_source module_source out_dir; do
   [[ -n "${!value}" ]] || { echo "missing --${value//_/-}" >&2; usage; exit 2; }
 done
-for cmd in git tar gzip sha256sum find sort xargs install awk grep mktemp; do
+for cmd in tar gzip sha256sum find sort xargs install cp awk grep sed mktemp; do
   command -v "$cmd" >/dev/null 2>&1 || { echo "required host tool missing: $cmd" >&2; exit 10; }
 done
 if command -v python3 >/dev/null 2>&1; then
@@ -53,13 +55,32 @@ else
   exit 10
 fi
 
-repo_root="$(git rev-parse --show-toplevel)"
+script_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+have_git=false
+if command -v git >/dev/null 2>&1 && git -C "$script_root" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  have_git=true
+  repo_root="$(git -C "$script_root" rev-parse --show-toplevel)"
+else
+  repo_root="$script_root"
+fi
 cd "$repo_root"
-git cat-file -e "$revision^{commit}"
-commit="$(git rev-parse "$revision^{commit}")"
-if [[ "$revision" == HEAD ]] && { ! git diff --quiet || ! git diff --cached --quiet; }; then
-  echo "refusing to stage from a dirty tracked worktree" >&2
-  exit 11
+if $have_git; then
+  git cat-file -e "$revision^{commit}"
+  commit="$(git rev-parse "$revision^{commit}")"
+  if [[ "$revision" == HEAD ]] && { ! git diff --quiet || ! git diff --cached --quiet; }; then
+    echo "refusing to stage from a dirty tracked worktree" >&2
+    exit 11
+  fi
+else
+  [[ "$revision" =~ ^[0-9a-f]{40}$ ]] || {
+    echo "a full 40-character --revision is required without Git" >&2
+    exit 11
+  }
+  [[ -f "$repository_archive" ]] || {
+    echo "--repository-archive is required without Git" >&2
+    exit 11
+  }
+  commit="$revision"
 fi
 
 declare -A expected=(
@@ -131,7 +152,16 @@ printf 'git_commit=%s\nsource_date_epoch=%s\npublication_status=HUMAN_LEGAL_REVI
 
 install -m 0644 "$kernel_source" "$source_root/sources/solros-bda6ce.tar.gz"
 install -m 0644 "$module_source" "$source_root/sources/mpss-modules-3.4.10.tar.bz2"
-git archive --format=tar --prefix="repository/" -o "$work/repository.tar" "$commit"
+if $have_git; then
+  git archive --format=tar --prefix="repository/" -o "$work/repository.tar" "$commit"
+else
+  cp "$repository_archive" "$work/repository.tar"
+  first_member="$(tar -tf "$work/repository.tar" | sed -n '1p')"
+  [[ "$first_member" == repository/* ]] || {
+    echo "repository archive must use a repository/ prefix" >&2
+    exit 22
+  }
+fi
 tar -xf "$work/repository.tar" -C "$source_root"
 install -m 0644 manifests/release/k1om-tested-kernel-reproduction.json "$source_root/manifests/"
 install -m 0644 manifests/release/mpss-modules-3.4.10-source-map.json "$source_root/manifests/"
