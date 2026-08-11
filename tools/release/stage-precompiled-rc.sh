@@ -61,7 +61,11 @@ done
 for cmd in tar gzip sha256sum find sort xargs install cp awk grep sed mktemp; do
   command -v "$cmd" >/dev/null 2>&1 || { echo "required host tool missing: $cmd" >&2; exit 10; }
 done
-if command -v python3 >/dev/null 2>&1; then
+if [[ -n "${PYTHON_BIN:-}" ]]; then
+  python_bin="$PYTHON_BIN"
+elif [[ -x /usr/bin/python2.7 ]] && /usr/bin/python2.7 -c 'import argparse' >/dev/null 2>&1; then
+  python_bin=/usr/bin/python2.7
+elif command -v python3 >/dev/null 2>&1; then
   python_bin=python3
 elif command -v python >/dev/null 2>&1; then
   python_bin=python
@@ -69,6 +73,7 @@ else
   echo "required Python interpreter missing" >&2
   exit 10
 fi
+"$python_bin" -c 'import argparse' >/dev/null 2>&1 || { echo "selected Python lacks argparse: $python_bin" >&2; exit 10; }
 
 script_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 have_git=false

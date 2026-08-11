@@ -47,8 +47,16 @@ for path in "${required[@]}"; do
   [[ -e "$root/$path" ]] || { echo "required release member missing: $path" >&2; exit 21; }
 done
 [[ "$(cat "$root/VERSION")" == "$version" ]] || { echo "VERSION mismatch" >&2; exit 22; }
-python_bin=""
-if command -v python3 >/dev/null 2>&1; then python_bin=python3; elif command -v python >/dev/null 2>&1; then python_bin=python; else echo "Python missing" >&2; exit 10; fi
+python_bin="${PYTHON_BIN:-}"
+if [[ -z "$python_bin" && -x /usr/bin/python2.7 ]] && /usr/bin/python2.7 -c 'import argparse' >/dev/null 2>&1; then
+  python_bin=/usr/bin/python2.7
+elif [[ -z "$python_bin" ]] && command -v python3 >/dev/null 2>&1; then
+  python_bin=python3
+elif [[ -z "$python_bin" ]] && command -v python >/dev/null 2>&1; then
+  python_bin=python
+fi
+[[ -n "$python_bin" ]] || { echo "Python missing" >&2; exit 10; }
+"$python_bin" -c 'import argparse' >/dev/null 2>&1 || { echo "selected Python lacks argparse: $python_bin" >&2; exit 10; }
 "$python_bin" "$root/tools/validate-spdx-2.3.py" --input "$root/manifests/xpr-os.spdx.json" --require-release-coverage
 "$python_bin" "$root/tools/validate-license-bundle.py" --root "$root"
 "$python_bin" "$root/tools/verify-generic-payload.py" --payload "$root/payload/xpr-rootfs.cpio.gz"
