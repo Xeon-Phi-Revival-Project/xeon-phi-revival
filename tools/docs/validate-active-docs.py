@@ -12,6 +12,7 @@ DOCS = (
     "README.md",
     "docs/README.md",
     "docs/getting-started/README.md",
+    "docs/getting-started/mpss-setup.md",
     "docs/getting-started/installation.md",
     "docs/getting-started/ssh-access.md",
     "docs/getting-started/verifying-xpr-os.md",
@@ -26,6 +27,10 @@ REQUIRED = {
         "run-candidate-base-cpio-control.sh", "--minimal-public-smoke",
         "--leave-running", "94867d9f58c12e7b04dcd0f2a8bfb176054d41b3c8e02f6c584c6efef4124d6c",
         "bb530e170e9871627903644f52d8271c1f9c3375d4d3bc1d62c0c4eaa60a6558",
+    ),
+    "docs/getting-started/mpss-setup.md": (
+        "mpss-modules-<your-running-kernel>", "rpm -Uvh --test",
+        "systemctl enable --now mpss",
     ),
     "docs/getting-started/ssh-access.md": ("ssh-rsa", "id_rsa.pub", "id_rsa"),
     "docs/getting-started/rollback.md": ("micctrl --status", "systemctl start mpss"),
@@ -62,6 +67,7 @@ def main():
     print("INSTALL_COMMANDS=PASS")
     print("RELEASE_URLS=PASS")
     print("RC6_HASHES=PASS")
+    print("MPSS_SETUP=PASS")
     print("SSH_INSTRUCTIONS=PASS")
     print("ROLLBACK_INSTRUCTIONS=PASS")
     return 0

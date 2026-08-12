@@ -29,8 +29,9 @@ and evidence-led tooling.
 ### Quick Start: Try XPR-OS
 
 1. Check the [tested hardware and host requirements](docs/hardware/supported-hardware.md).
-2. Download [XPR-OS 0.1.0-rc6](https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc6).
-3. Follow the [step-by-step installation guide](docs/getting-started/installation.md).
+2. Install or verify [MPSS 3.4.10 on the host](docs/getting-started/mpss-setup.md).
+3. Download [XPR-OS 0.1.0-rc6](https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc6).
+4. Follow the [step-by-step installation guide](docs/getting-started/installation.md).
 
 The tested path uses a separately obtained MPSS 3.4.10 host installation. It
 does not flash firmware or modify persistent card storage, and it has a

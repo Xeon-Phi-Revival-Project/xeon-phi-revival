@@ -8,7 +8,8 @@ for every Knights Corner card.
 
 You need:
 
-- A 5110P that already reaches `mic0: online` in stock MPSS.
+- A 5110P that already reaches `mic0: online` in stock MPSS. If you have not
+  installed MPSS yet, start with [Installing MPSS 3.4.10](mpss-setup.md).
 - A Linux MPSS host with root or `sudo` access, `bash`, Python with `argparse`,
   `tar`, `gzip`, `sha256sum`, OpenSSH, and the MPSS `micctrl` command.
 - MPSS 3.4.10 obtained separately under Intel's terms. It is not in RC6.
@@ -20,7 +21,7 @@ Keep enough free disk space for the two archives, extraction, logs, and a
 temporary deployment copy. Do not use a host where stock MPSS cannot already
 boot and accept SSH.
 
-## 1. Confirm The Stock Baseline
+## 1. Confirm The Stock MPSS Baseline
 
 Run on the **MPSS host**:
 
@@ -104,7 +105,7 @@ python tools/provision-authorized-key.py \
 Expected output begins with `SSH_KEY_PROVISIONING_VALIDATION=PASS`. Never give
 the command your private key file.
 
-## 6. Run The Bounded Boot And Rollback Path
+## 6. Boot XPR-OS And Leave It Running
 
 The generic release includes artifacts; the paired source archive includes the
 tested runner. From `xpr-os-0.1.0-rc6/`, run on the **MPSS host**:
@@ -122,12 +123,16 @@ bash ../xpr-os-0.1.0-rc6-sources/repository/tools/kernel/run-candidate-base-cpio
 ```
 
 The runner creates a timestamped log directory below
-`$HOME/xpr-candidate-kernel-test/`. It first verifies stock MPSS, uses an
-alternate configuration, captures logs, and rolls back automatically on error.
-`--leave-running` is honored only after the complete minimal smoke path passes.
+`$HOME/xpr-candidate-kernel-test/`. It verifies stock MPSS, uses an alternate
+configuration, captures logs, and performs automatic rollback on an error.
 
-If the command exits or a smoke test fails, it restores stock MPSS. Do not
-interrupt a boot/reset cycle with firmware or flash operations.
+Because this command includes `--leave-running`, a **successful** run leaves
+XPR-OS booted instead of immediately restoring stock MPSS. That is the normal
+mode when you want to use the operating system. Keep the printed run-directory
+path; it contains the deployment logs and evidence.
+
+If the command fails before completion, it restores stock MPSS automatically.
+Do not interrupt a boot/reset cycle with firmware or flash operations.
 
 ## 7. Connect And Verify
 
@@ -137,12 +142,33 @@ When the runner reports success, connect from the **MPSS host**:
 ssh -o IdentitiesOnly=yes -i ~/.ssh/id_rsa mic0
 ```
 
-Then follow [Verify XPR-OS](verifying-xpr-os.md). When finished, follow
-[Rollback](rollback.md) to return to stock MPSS.
+Then follow [Verify XPR-OS](verifying-xpr-os.md), use the shell and programs as
+needed, and run the manual [Rollback](rollback.md) procedure only when you want
+to return to stock MPSS.
+
+## 8. Use XPR-OS
+
+This is a small release-candidate environment, not a desktop distribution. The
+following commands provide a useful first check from the XPR-OS shell:
+
+```bash
+uname -a
+cat /etc/os-release
+pwd
+ls /
+mount
+/usr/bin/xpr-hello
+/usr/bin/xpr-pthread-smoke
+/usr/bin/xpr-dlopen-smoke
+```
+
+Stay connected and use the system for as long as you need. The runner does not
+restore stock MPSS after a successful `--leave-running` boot. Return to the
+MPSS host and follow [Returning To Stock MPSS](rollback.md) only when you are
+ready to end the XPR-OS session.
 
 ## If A Step Fails
 
 Use [Troubleshooting](../troubleshooting/README.md). Preserve the runner's log
 directory and report the card model, host OS, MPSS version, command, and
 whether stock rollback succeeded.
-

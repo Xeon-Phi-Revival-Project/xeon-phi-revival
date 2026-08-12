@@ -25,8 +25,9 @@ The output copies are local deployment artifacts; do not redistribute them.
 
 ## Connect
 
-After the bounded runner has completed successfully with `--leave-running`, run
-on the **MPSS host**:
+After the bounded runner has completed successfully with `--leave-running`,
+XPR-OS remains running until you choose the manual rollback procedure. Run on
+the **MPSS host**:
 
 ```bash
 ssh -o IdentitiesOnly=yes -i ~/.ssh/id_rsa mic0
@@ -45,4 +46,3 @@ The tested MPSS virtual network uses host `172.31.1.254` and card
   `~/.ssh/id_rsa`. Only RSA is supported by the tested RC6 Dropbear path.
 
 See [Troubleshooting](../troubleshooting/README.md) for safe next actions.
-
