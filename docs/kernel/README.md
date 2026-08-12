@@ -8,11 +8,12 @@ installation guide.
 Useful entry points:
 
 - [Compatible kernel reconstruction](compatible-kernel-reconstruction.md)
-- [Kernel source and build mapping](source-map.md)
-- [Kernel configuration reconstruction](config-reconstruction.md)
+- [Kernel source audit](kernel-source-audit.md)
+- [Candidate build validation](candidate-build-validation.md)
 - [Module source audit](module-source-audit.md)
-- [Module build validation](module-build-validation.md)
+- [Candidate module build](candidate-module-build.md)
 - [Experimental boot results](experimental-boot-results.md)
-- [Kernel search log](search-log.md)
+- [Source search report](source-search-report.md)
+- [Archival search log](archival-search-log.md)
 
 For the current supported user path, return to [Getting Started](../getting-started/README.md).
