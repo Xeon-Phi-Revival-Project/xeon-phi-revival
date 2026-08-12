@@ -102,6 +102,16 @@ set_ssh_opts() {
     -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10)
 }
 
+final_root_ready() {
+  ssh "${ssh_opts[@]}" "$mic" '
+    test -f /run/xpr-os-init &&
+    grep -q XPR_RC_ROOT_SBIN_INIT_PID1 /run/xpr-os-init &&
+    grep -q XPR_NETWORK_READY /run/xpr-os-init &&
+    test -d /proc && test -d /sys && test -d /dev && test -d /run &&
+    test -e /sys/class/net/mic0
+  '
+}
+
 wait_state() {
   local wanted=$1 attempts=${2:-24}
   local i
@@ -331,9 +341,13 @@ handoff() {
   [[ "$ready" == 1 ]] || die "XPR bootstrap did not become ready before timeout"
   ssh "${ssh_opts[@]}" "$mic" 'cat > /tmp/xpr-rootfs.cpio.gz' < "$payload"
   ssh "${ssh_opts[@]}" "$mic" "actual_bytes=\$(/bin/busybox wc -c < /tmp/xpr-rootfs.cpio.gz); actual_sha=\$(sha256sum /tmp/xpr-rootfs.cpio.gz | awk '{print \$1}'); test \"\$actual_bytes\" = \"$payload_bytes\" && test \"\$actual_sha\" = \"$payload_sha\""
-  ssh "${ssh_opts[@]}" "$mic" "/opt/xeon-phi-revival/bin/xpr-stage-root /tmp/xpr-rootfs.cpio.gz $payload_sha"
+  # switch_root intentionally stops the bootstrap Dropbear daemon. Its SSH
+  # transport may close before the staging command reports an exit status;
+  # final-root readiness below is the authoritative result.
+  ssh "${ssh_opts[@]}" "$mic" "/opt/xeon-phi-revival/bin/xpr-stage-root /tmp/xpr-rootfs.cpio.gz $payload_sha" || \
+    echo "XPR_INIT_STAGE_SSH_CLOSED=expected-during-switch-root"
   for _ in {1..24}; do
-    if ssh "${ssh_opts[@]}" "$mic" 'test -f /run/xpr-os-init && grep -q XPR_RC_ROOT_SBIN_INIT_PID1 /run/xpr-os-init'; then
+    if final_root_ready; then
       echo "XPR_INIT_HANDOFF=PASS"; return 0
     fi
     sleep 4

@@ -54,8 +54,10 @@ The explicit fallback remains available as `sudo xpr-init handoff` if systemd
 is unavailable or the automatic helper has been disabled.
 
 The install/status/recover lifecycle, direct archive input, auto-discovery, and
-service installation have host-only fixture coverage, but the preview has not
-yet been booted on a Xeon Phi. Do not use it on hardware until a dedicated
-bounded validation has been recorded. For RC6, use the supported
-[manual procedure](installation.md) or its rollback-protected scripted
-alternative.
+service installation have host-only fixture coverage. A bounded 5110P run also
+validated `--install`, the reset/wait/boot lifecycle, and `--recover`; recovery
+restored the baseline configuration hash, stock boot, and stock SSH. Automatic
+handoff still needs one clean final-root validation after its switch-root SSH
+connection handling update, so this remains a preview. For RC6, use the
+supported [manual procedure](installation.md) or its rollback-protected
+scripted alternative.
