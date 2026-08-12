@@ -1,48 +1,54 @@
-# Returning To Stock MPSS
+# Roll Back To Stock MPSS
 
-Rollback means returning `mic0` to the original MPSS configuration and stock
-card userspace. XPR-OS does not flash firmware or change persistent card
-storage.
-
-The canonical runner rolls back automatically only after a failed or ordinary
-non-interactive test. A successful boot started with `--leave-running` remains
-up so that you can use XPR-OS. For the validated host-helper workflow, run:
+For an installation made with `xpr-init`, the canonical recovery command is:
 
 ```bash
 sudo xpr-init --recover
 ```
 
-This restores the saved MPSS configuration, resets the card, and boots stock
-MPSS. If the helper cannot run, use the manual commands below on the **MPSS
-host** to return `mic0` to the unchanged stock MPSS configuration:
+This recovery path has been live-validated on the project's Intel Xeon Phi 5110P
+with CentOS 7.4 and MPSS 3.4.10.
+
+## What xpr-init Recovery Does
+
+`xpr-init --recover` is designed to:
+
+1. load the saved installation state;
+2. verify that the original stock MPSS configuration backup still matches its recorded hash;
+3. disable and remove the automatic XPR handoff service;
+4. restore the exact saved stock `mic0` configuration;
+5. verify the restored configuration hash;
+6. reset, wait for, and boot `mic0` using MPSS; and
+7. preserve an archived record of the completed XPR installation state.
+
+It does not need to flash firmware or erase the downloaded RC6 archive.
+
+## Verify Recovery
+
+After recovery:
 
 ```bash
-sudo systemctl stop mpss || true
-sleep 4
-sudo micctrl --shutdown mic0 || true
-sleep 6
-sudo micctrl --reset mic0 || true
-sleep 12
-sudo micctrl --updateramfs mic0
-sudo systemctl start mpss
-
-# If MPSS does not bring the card online on its own:
 micctrl --status
-if ! micctrl --status | grep -q 'mic0: online'; then
-  sudo micctrl --boot mic0
-fi
 ```
 
-Wait for `mic0: online`, then verify the stock environment:
+Confirm that `mic0` returns to the expected stock MPSS state and that the normal
+stock environment is reachable using the host's established MPSS procedure.
 
-```bash
-systemctl start mpss
-micctrl --status
-ssh mic0 'uname -m; cat /proc/1/comm'
-sha256sum /etc/mpss/mic0.conf
-```
+For the project's validation baseline, recovery restored the known stock MPSS
+configuration byte-for-byte and returned the card to the stock K1OM/systemd/SSH
+environment.
 
-Expected: `mic0: online`, stock `k1om`, `init`, and the configuration hash
-saved before the XPR-OS run. If that does not occur, stop and collect the run
-directory, `micctrl --status`, and MPSS service output before changing any
-firmware or persistent settings.
+## If xpr-init Cannot Perform Recovery
+
+Do not improvise destructive firmware or flash operations. The original stock
+configuration backup is deliberately preserved under the root-owned `xpr-init`
+state area so that recovery can be audited.
+
+The [manual RC6 installation procedure](installation.md) and release-validation
+records retain the advanced rollback mechanics for troubleshooting. Historical
+manual workflows may include restoring the stock MPSS configuration and then
+using `systemctl start mpss`; those commands are **advanced fallback context**,
+not the recommended `xpr-init` recovery path.
+
+If the saved backup hash or configuration state is inconsistent, stop and inspect
+the evidence rather than overwriting the original backup.

@@ -1,17 +1,36 @@
-# XPR-OS Development
+# Development
 
-If you only want to run RC6, begin with [Getting Started](../getting-started/README.md).
+This section is for work on XPR itself. If you only want to run XPR-OS, use
+[Getting Started](../getting-started/README.md) instead.
 
-Developers and researchers should use these entry points:
+## Current Engineering References
 
-- [Build From Source](building-from-source.md)
+- [Build XPR-OS](build-xpr-os.md)
 - [Architecture](../architecture/README.md)
-- [K1OM ABI observations](../architecture/observed-k1om-elf-abi.md)
-- [Kernel reconstruction](../kernel/compatible-kernel-reconstruction.md)
-- [Module build evidence](../kernel/candidate-module-build.md)
-- [Release reproducibility](release-reproducibility.md)
-- [Source index](../source-index.md)
+- [Observed K1OM ELF ABI](../architecture/observed-k1om-elf-abi.md)
+- [Kernel research and reconstruction](../kernel/README.md)
+- [uOS/bootstrap research](../uos/README.md)
+- [K1OM toolchain research](../toolchain/README.md)
+- [Ubuntu/K1OM port research](../ubuntu-port/README.md)
+- [Reproducibility](../reproducibility.md)
+- [Source Index](../source-index.md)
 
-Do not commit MPSS packages, firmware, extracted sysroots, private keys, or
-host-specific logs. See [CONTRIBUTING.md](../../CONTRIBUTING.md).
+## xpr-init
 
+The current host integration is documented for users in
+[xpr-init Host Integration](../getting-started/xpr-init-preview.md).
+
+Future ideas and validation tasks are intentionally kept out of the beginner
+path in the [xpr-init Future Changes](xpr-init-future-changes.md) backlog. Items
+in that document are **not implemented features** until code and appropriate
+host/hardware validation say otherwise.
+
+## Legacy And Experimental Development Paths
+
+[From Card To Code](../getting-started-card-to-code.md) preserves the historical
+MPSS/K1OM SDK development path and related experiments. Treat it as a development
+and research reference, not as the recommended XPR-OS installation guide.
+
+Deep experiments, failed approaches, and superseded plans belong under the
+[Research index](../research/README.md), where they can remain useful without
+being mistaken for current instructions.

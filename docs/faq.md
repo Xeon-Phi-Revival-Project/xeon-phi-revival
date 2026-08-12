@@ -1,50 +1,105 @@
-# XPR-OS FAQ
+# Frequently Asked Questions
+
+## What is the Xeon Phi Revival Project?
+
+It is an AI-assisted, Codex-driven preservation and engineering project focused
+on restoring useful software-development paths for Intel Xeon Phi Knights Corner
+coprocessors and the K1OM architecture. XPR-OS is one major project track, not
+the entire project.
 
 ## What is XPR-OS?
 
-An open-source boot and Linux userspace environment for Intel Xeon Phi Knights
-Corner coprocessors. See [Concepts](concepts/xpr-os.md).
+XPR-OS is the project's revived, source-accounted K1OM Linux operating
+environment. The current public milestone is XPR-OS 0.1.0-rc6, hardware-tested
+on an Intel Xeon Phi 5110P.
 
-## Does it work on the Xeon Phi 5110P?
+## What is xpr-init?
 
-Yes. RC6's runtime artifact set was validated on a 5110P with CentOS 7.4 and
-MPSS 3.4.10.
+`xpr-init` is the host-side installer, MPSS integration helper, automatic
+bootstrap-to-final-root handoff service, status tool, and recovery helper. It
+does **not** replace Intel MPSS or `micctrl`; `micctrl` remains responsible for
+normal card reset/wait/boot control.
 
-## Does it work on a 7120P or another KNC card?
+See [xpr-init Host Integration](getting-started/xpr-init-preview.md).
 
-Not currently tested by this project. Do not assume compatibility from the
-5110P result.
+## Is xpr-init part of the RC6 archive?
 
-## Does it support Knights Landing?
+No. RC6 was frozen before `xpr-init` was developed and validated. The RC6 binary
+archive supplies the XPR-OS runtime, while the current `xpr-init` helper is
+obtained from this repository.
 
-No. Knights Landing is a different product generation and is not an XPR-OS
-target.
+## Does xpr-init install XPR-OS permanently onto the Xeon Phi?
 
-## Do I still need MPSS?
+No. XPR-OS is booted into volatile card memory; it does not flash a persistent
+XPR installation onto the card. A power loss removes the running card-side
+instance.
 
-Yes. The tested RC6 path uses a separately obtained MPSS 3.4.10 host install
-and its host driver. RC6 does not redistribute MPSS or firmware.
+The host-side `xpr-init` installation is persistent: its XPR images, state,
+saved stock MPSS configuration, and enabled handoff service are stored on the
+host. The exact cold-host-reboot cycle is still awaiting explicit live
+validation, so the project does not yet label that behavior hardware-validated.
 
-## Does XPR-OS replace firmware?
+## Why use SSH keys instead of a root password?
 
-No. The tested path is RAM-only and includes stock rollback; it does not flash
-firmware or modify persistent card storage.
+The generic release should not contain a universal administrator credential.
+Public-key authentication lets each deployment authorize its own key without
+shipping a shared password, and it also lets the host-side automatic handoff use
+SSH noninteractively without storing a password in a script or state file.
 
-## Can I SSH into the card?
+Only the public key is provisioned into the XPR deployment. The private key
+stays on the host.
 
-Yes on the tested path, using Dropbear and a deployment-only RSA public key.
-See [SSH Access](getting-started/ssh-access.md).
+## Why RSA keys?
 
-## Can I use Ed25519?
+RSA is the authentication path that has been validated across the current
+legacy host/OpenSSH and K1OM/Dropbear environment. This is a compatibility
+choice, not a claim that RSA is the only desirable modern SSH key type.
+Additional key types can be evaluated later and must be tested before becoming
+part of the supported path.
 
-Not in the validated RC6 path. Use an RSA public key.
+## Does xpr-init generate an RSA key if I do not have one?
 
-## Is RC6 production-ready?
+Not currently. It can auto-discover exactly one compatible `ssh-rsa` public key
+in the invoking user's SSH directory, or you can provide a public key and its
+matching private identity explicitly. Automatic creation of a dedicated XPR key
+pair is tracked as a future improvement.
 
-No. It is a hardware-tested release candidate, not a stable release.
+See [SSH Access](getting-started/ssh-access.md) and the
+[xpr-init future changes roadmap](development/xpr-init-future-changes.md).
 
-## Can I build the image from source?
+## Why does SSH disconnect during the automatic handoff?
 
-The release includes a corresponding source archive and build material. See
-[Development](development/README.md) and [Release](release/README.md).
+There are two SSH phases. The temporary bootstrap starts Dropbear so `xpr-init`
+can transfer and verify the final root payload. During `switch_root`, that
+bootstrap SSH daemon is intentionally stopped, so its connection may close.
+The final XPR root then starts its own Dropbear server. `xpr-init` treats final-
+root readiness—not survival of the bootstrap connection—as authoritative.
 
+## What hardware is supported?
+
+The project currently makes a strong hardware-validation claim only for the
+Intel Xeon Phi 5110P on the documented CentOS 7.4 + MPSS 3.4.10 host baseline.
+Other Knights Corner cards are unvalidated. Knights Landing is a different
+platform and is not an XPR-OS target.
+
+See [Supported Hardware](hardware/supported-hardware.md).
+
+## Is MPSS included in this repository?
+
+No. Intel MPSS and other separately licensed Intel software are not distributed
+by XPR. The tested host baseline uses MPSS 3.4.10 obtained separately under the
+terms applicable to that software.
+
+## Is the old manual RC6 installation procedure still useful?
+
+Yes, but it is no longer the recommended beginner path. It remains valuable for
+troubleshooting, release validation, and understanding the underlying Base CPIO,
+payload transfer, and switch-root process.
+
+See [Installing XPR-OS](getting-started/installation.md).
+
+## Where should I read old experiments and failed approaches?
+
+Use the [Research index](research/README.md). Historical notes are deliberately
+preserved because failed experiments and old vendor behavior are useful evidence,
+but they are separated from current user instructions.
