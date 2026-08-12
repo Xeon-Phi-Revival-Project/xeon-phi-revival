@@ -1,5 +1,12 @@
 # Install, Boot, And Use XPR-OS On An Intel Xeon Phi 5110P
 
+For the tested CentOS 7.4 + MPSS 3.4.10 + Xeon Phi 5110P configuration, the
+recommended beginner path is [xpr-init](xpr-init-preview.md). It validates the
+release, provisions your public key, installs the MPSS configuration, performs
+the final-root handoff automatically, and provides `sudo xpr-init --recover`
+for returning to stock MPSS. The manual procedure below remains available for
+advanced users and troubleshooting.
+
 This is the canonical RC6 procedure for the **tested** configuration: Intel
 Xeon Phi 5110P, CentOS 7.4, and MPSS 3.4.10. It is not a compatibility claim
 for every Knights Corner card.

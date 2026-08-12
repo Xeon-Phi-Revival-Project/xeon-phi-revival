@@ -31,7 +31,21 @@ and evidence-led tooling.
 1. Check the [tested hardware and host requirements](docs/hardware/supported-hardware.md).
 2. Install or verify [MPSS 3.4.10 on the host](docs/getting-started/mpss-setup.md).
 3. Download [XPR-OS 0.1.0-rc6](https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc6).
-4. Follow the [step-by-step installation guide](docs/getting-started/installation.md).
+4. Install the validated host helper from the source archive or repository:
+
+   ```bash
+   sudo install -m 755 tools/host/xpr-init /usr/local/sbin/xpr-init
+   sudo ln -sfn /usr/local/sbin/xpr-init /usr/sbin/xpr-init
+   sudo xpr-init --install
+   sudo micctrl --reset mic0
+   sudo micctrl --wait mic0
+   sudo micctrl --boot mic0
+   ssh mic0
+   ```
+
+   When finished, restore stock MPSS with `sudo xpr-init --recover`.
+   See the [xpr-init guide](docs/getting-started/xpr-init-preview.md) for
+   auto-discovery and explicit release-path options.
 
 The tested path uses a separately obtained MPSS 3.4.10 host installation. It
 does not flash firmware or modify persistent card storage, and it has a

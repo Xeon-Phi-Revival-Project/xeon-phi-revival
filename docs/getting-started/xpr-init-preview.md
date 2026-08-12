@@ -1,14 +1,14 @@
-# XPR-Init Host Integration Preview
+# xpr-init Host Integration
 
-`xpr-init` is a post-RC6 host-side convenience tool under development for the
-next XPR-OS release. It is not part of the frozen RC6 archive and has not yet
-received hardware validation. It exists to make the normal operator flow:
+`xpr-init` is a host-side convenience tool for the tested RC6 workflow. It is
+not part of the frozen RC6 runtime archive. It has been live-validated on the
+project's CentOS 7.4 + MPSS 3.4.10 + Intel Xeon Phi 5110P configuration:
 
 ```text
 install -> micctrl reset/wait/boot -> handoff -> SSH -> recover
 ```
 
-After validating it on hardware, the intended workflow is:
+The validated workflow is:
 
 ```bash
 # Install the host command once from the source tree or future release package.
@@ -54,10 +54,8 @@ The explicit fallback remains available as `sudo xpr-init handoff` if systemd
 is unavailable or the automatic helper has been disabled.
 
 The install/status/recover lifecycle, direct archive input, auto-discovery, and
-service installation have host-only fixture coverage. A bounded 5110P run also
-validated `--install`, the reset/wait/boot lifecycle, and `--recover`; recovery
-restored the baseline configuration hash, stock boot, and stock SSH. Automatic
-handoff still needs one clean final-root validation after its switch-root SSH
-connection handling update, so this remains a preview. For RC6, use the
-supported [manual procedure](installation.md) or its rollback-protected
-scripted alternative.
+service installation also have host-only fixture coverage. The live run proved
+final PID 1, micveth, authenticated final-root SSH, and the hello/pthread/dlopen
+smoke programs. `xpr-init --recover` restored the baseline configuration hash,
+stock boot, and stock SSH. This validation applies to the tested host/card
+configuration only; other MPSS hosts and KNC cards remain unvalidated.

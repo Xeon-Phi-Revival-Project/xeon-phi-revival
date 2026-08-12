@@ -321,6 +321,9 @@ EOF
 handoff() {
   require_root; load_state
   set_ssh_opts
+  # The normal command probes must not inherit stdin, but the payload upload
+  # intentionally streams the archive through SSH stdin.
+  local -a payload_ssh_opts=("${ssh_opts[@]:1}")
   local ready=0
   if [[ "$handoff_once" == 1 ]]; then
     grep -Fqx "Base CPIO $root/current/xpr-bootstrap.cpio.gz" "$stock_conf" || die "$mic is not configured for XPR-OS"
@@ -339,7 +342,7 @@ handoff() {
     done
   fi
   [[ "$ready" == 1 ]] || die "XPR bootstrap did not become ready before timeout"
-  ssh "${ssh_opts[@]}" "$mic" 'cat > /tmp/xpr-rootfs.cpio.gz' < "$payload"
+  ssh "${payload_ssh_opts[@]}" "$mic" 'cat > /tmp/xpr-rootfs.cpio.gz' < "$payload"
   ssh "${ssh_opts[@]}" "$mic" "actual_bytes=\$(/bin/busybox wc -c < /tmp/xpr-rootfs.cpio.gz); actual_sha=\$(sha256sum /tmp/xpr-rootfs.cpio.gz | awk '{print \$1}'); test \"\$actual_bytes\" = \"$payload_bytes\" && test \"\$actual_sha\" = \"$payload_sha\""
   # switch_root intentionally stops the bootstrap Dropbear daemon. Its SSH
   # transport may close before the staging command reports an exit status;

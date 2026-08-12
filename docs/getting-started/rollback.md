@@ -6,8 +6,15 @@ storage.
 
 The canonical runner rolls back automatically only after a failed or ordinary
 non-interactive test. A successful boot started with `--leave-running` remains
-up so that you can use XPR-OS. When you are done, run the following commands on
-the **MPSS host** to return `mic0` to the unchanged stock MPSS configuration:
+up so that you can use XPR-OS. For the validated host-helper workflow, run:
+
+```bash
+sudo xpr-init --recover
+```
+
+This restores the saved MPSS configuration, resets the card, and boots stock
+MPSS. If the helper cannot run, use the manual commands below on the **MPSS
+host** to return `mic0` to the unchanged stock MPSS configuration:
 
 ```bash
 sudo systemctl stop mpss || true

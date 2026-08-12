@@ -90,4 +90,8 @@ grep -q 'disable --now xpr-init-handoff@mic0.service' "$tmp/systemctl.log"
 cmp "$tmp/mpss/mic0.conf" <(printf 'Base CPIO /stock/base\nOSimage /stock/kernel /stock/map\nRootDevice Ramfs /stock/mic0.image.gz\n')
 env "${common_env[@]}" "$tmp/sbin/xpr-init" --recover > "$tmp/recover2.out"
 grep -qx 'XPR_INIT_RECOVER=ALREADY_STOCK' "$tmp/recover2.out"
+# The handoff's archive stream must not use the normal SSH probe's -n option.
+grep -q 'local -a payload_ssh_opts=("${ssh_opts\[@\]:1}")' "$repo/tools/host/xpr-init"
+grep -q 'ssh "${payload_ssh_opts\[@]}" "$mic" '\''cat > /tmp/xpr-rootfs.cpio.gz'\'' < "$payload"' "$repo/tools/host/xpr-init"
+! grep -q 'ssh "${ssh_opts\[@]}" "$mic" '\''cat > /tmp/xpr-rootfs.cpio.gz'\'' < "$payload"' "$repo/tools/host/xpr-init"
 echo 'XPR_INIT_INSTALL_TEST=PASS'
