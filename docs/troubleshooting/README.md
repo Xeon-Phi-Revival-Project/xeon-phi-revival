@@ -6,6 +6,7 @@ Do not flash firmware as a troubleshooting step.
 | Symptom | Safe first checks | Next page |
 | --- | --- | --- |
 | `mic0` is absent or not online | `lspci -nn`, `systemctl status mpss`, `micctrl --status` | [Hardware](../hardware/supported-hardware.md) |
+| MPSS is not installed or cannot start | Confirm the matching host-kernel module RPM and run the MPSS dry-run install | [Install MPSS](../getting-started/mpss-setup.md) |
 | Stock SSH does not work | `ssh mic0 'uname -m; cat /proc/1/comm'` | [Rollback](../getting-started/rollback.md) |
 | RC6 verifier fails | Recheck archive SHA-256 and rerun `./tools/verify.sh` | [Installation](../getting-started/installation.md) |
 | RSA key is rejected | Confirm `id_rsa.pub`, not `id_rsa`, was supplied | [SSH Access](../getting-started/ssh-access.md) |
@@ -18,4 +19,3 @@ Do not flash firmware as a troubleshooting step.
 When reporting an issue, include card model, PCI ID, host OS, MPSS version,
 XPR-OS version, command, output, and whether stock rollback succeeded. Never
 post a private key, password, or private network details.
-

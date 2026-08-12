@@ -1,4 +1,4 @@
-# Installing XPR-OS On An Intel Xeon Phi 5110P
+# Install, Boot, And Use XPR-OS On An Intel Xeon Phi 5110P
 
 This is the canonical RC6 procedure for the **tested** configuration: Intel
 Xeon Phi 5110P, CentOS 7.4, and MPSS 3.4.10. It is not a compatibility claim
@@ -21,11 +21,27 @@ Keep enough free disk space for the two archives, extraction, logs, and a
 temporary deployment copy. Do not use a host where stock MPSS cannot already
 boot and accept SSH.
 
-## 1. Confirm The Stock MPSS Baseline
+## 1. Copy The Release To The MPSS Host
+
+Download both RC6 archives on your workstation, then copy them to the MPSS
+host. Replace `mpss-host` with the hostname or address of that host:
+
+```bash
+scp xpr-os-0.1.0-rc6.tar.gz xpr-os-0.1.0-rc6-sources.tar.gz \
+  root@mpss-host:~/xpr-os-rc6/
+ssh root@mpss-host
+cd ~/xpr-os-rc6
+```
+
+You may instead download the two release assets directly on the MPSS host. All
+remaining commands in this guide run on that host.
+
+## 2. Start MPSS And Confirm The Stock Baseline
 
 Run on the **MPSS host**:
 
 ```bash
+sudo systemctl start mpss
 micctrl --status
 ssh mic0 'uname -m; cat /proc/1/comm'
 sha256sum /etc/mpss/mic0.conf
@@ -36,7 +52,7 @@ runner requires it to prevent accidentally applying an experiment to an
 unexpected MPSS configuration. If this fails, stop and use
 [Troubleshooting](../troubleshooting/README.md).
 
-## 2. Download And Verify RC6
+## 3. Verify RC6
 
 Download both files from the [RC6 release page](https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc6):
 
@@ -60,7 +76,7 @@ bb530e170e9871627903644f52d8271c1f9c3375d4d3bc1d62c0c4eaa60a6558  xpr-os-0.1.0-r
 
 Do not continue if either value differs.
 
-## 3. Extract And Verify The Binary Release
+## 4. Extract And Verify The Binary Release
 
 ```bash
 tar -xzf xpr-os-0.1.0-rc6.tar.gz
@@ -75,7 +91,7 @@ Expected final line: `PRECOMPILED_RC_VERIFY=PASS`. This checks the archive
 contents, release metadata, SPDX, licenses, known artifacts, and key-free
 generic payload.
 
-## 4. Create Or Locate Your RSA Public Key
+## 5. Create Or Locate Your RSA Public Key
 
 If you do not already have one, create a key on the **MPSS host**:
 
@@ -86,7 +102,7 @@ ssh-keygen -t rsa -b 3072 -f ~/.ssh/id_rsa
 The public key is `~/.ssh/id_rsa.pub`. Keep `~/.ssh/id_rsa` private. Read
 [SSH Access](ssh-access.md) before continuing.
 
-## 5. Create Deployment-Only Copies
+## 6. Create Deployment-Only Copies
 
 The generic RC6 payload deliberately contains no login key. Create deployment
 copies containing **your public key only**:
@@ -105,10 +121,12 @@ python tools/provision-authorized-key.py \
 Expected output begins with `SSH_KEY_PROVISIONING_VALIDATION=PASS`. Never give
 the command your private key file.
 
-## 6. Boot XPR-OS And Leave It Running
+## 7. Load And Boot XPR-OS With MPSS And `micctrl`
 
-The generic release includes artifacts; the paired source archive includes the
-tested runner. From `xpr-os-0.1.0-rc6/`, run on the **MPSS host**:
+The generic release includes the kernel, Base CPIO, and final-root payload. The
+paired source archive includes the tested launcher that creates an isolated
+MPSS configuration, calls `micctrl`, waits for boot, transfers the final root,
+and keeps the card running on success. From `xpr-os-0.1.0-rc6/`, run:
 
 ```bash
 stock_sha=$(sha256sum /etc/mpss/mic0.conf | awk '{print $1}')
@@ -134,7 +152,27 @@ path; it contains the deployment logs and evidence.
 If the command fails before completion, it restores stock MPSS automatically.
 Do not interrupt a boot/reset cycle with firmware or flash operations.
 
-## 7. Connect And Verify
+### The MPSS Commands Being Used
+
+The launcher copies the stock configuration into its timestamped run directory
+and changes only that copy. It then runs the MPSS operations below. This is a
+reference for the boot process; use the launcher command above rather than
+running this block independently, because it creates the required `$run/conf`
+configuration first:
+
+```bash
+micctrl --shutdown mic0
+micctrl --configdir="$run/conf" --updateramfs mic0
+micctrl --configdir="$run/conf" --boot mic0
+micctrl --status
+```
+
+`$run/conf` is generated from the current host configuration and points to the
+RC6 kernel, Base CPIO, and generated ramfs. Do not manually replace
+`/etc/mpss/mic0.conf` with release paths: that bypasses the documented
+alternate-configuration and rollback safeguards.
+
+## 8. SSH Into XPR-OS
 
 When the runner reports success, connect from the **MPSS host**:
 
@@ -146,7 +184,7 @@ Then follow [Verify XPR-OS](verifying-xpr-os.md), use the shell and programs as
 needed, and run the manual [Rollback](rollback.md) procedure only when you want
 to return to stock MPSS.
 
-## 8. Use XPR-OS
+## 9. Use XPR-OS
 
 This is a small release-candidate environment, not a desktop distribution. The
 following commands provide a useful first check from the XPR-OS shell:
