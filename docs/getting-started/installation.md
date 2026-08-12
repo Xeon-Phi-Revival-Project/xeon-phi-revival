@@ -121,12 +121,98 @@ python tools/provision-authorized-key.py \
 Expected output begins with `SSH_KEY_PROVISIONING_VALIDATION=PASS`. Never give
 the command your private key file.
 
-## 7. Load And Boot XPR-OS With MPSS And `micctrl`
+## 7. Manually Load And Boot XPR-OS With MPSS And `micctrl`
 
-The generic release includes the kernel, Base CPIO, and final-root payload. The
-paired source archive includes the tested launcher that creates an isolated
-MPSS configuration, calls `micctrl`, waits for boot, transfers the final root,
-and keeps the card running on success. From `xpr-os-0.1.0-rc6/`, run:
+This is the direct operator path. It uses an alternate MPSS configuration, so
+the stock `/etc/mpss/mic0.conf` remains unchanged. Run these commands as root
+on the MPSS host from the extracted `xpr-os-0.1.0-rc6/` directory:
+
+```bash
+run_dir="$HOME/xpr-os-manual-$(date -u +%Y%m%d-%H%M%S)"
+mkdir -p "$run_dir/conf"
+cp -a /etc/mpss/. "$run_dir/conf/"
+
+base=$(readlink -f deployment/xpr-bootstrap.cpio.gz)
+kernel=$(readlink -f kernel/bzImage)
+map=$(readlink -f kernel/System.map)
+payload=$(readlink -f deployment/xpr-rootfs.cpio.gz)
+
+sed -i "s|^Base CPIO .*|Base CPIO $base|" "$run_dir/conf/mic0.conf"
+sed -i "s|^OSimage .*|OSimage $kernel $map|" "$run_dir/conf/mic0.conf"
+sed -i "s|^RootDevice Ramfs .*|RootDevice Ramfs $run_dir/mic0.image.gz|" \
+  "$run_dir/conf/mic0.conf"
+
+micctrl --shutdown mic0
+until micctrl --status | grep -q 'mic0: ready'; do sleep 5; done
+micctrl --configdir="$run_dir/conf" --updateramfs mic0
+micctrl --configdir="$run_dir/conf" --boot mic0
+```
+
+Wait for the bootstrap environment to reach `online`, then connect with your
+deployment key:
+
+```bash
+until micctrl --status | grep -q 'mic0: online'; do sleep 5; done
+ssh -o IdentitiesOnly=yes -i ~/.ssh/id_rsa \
+  -o PubkeyAcceptedKeyTypes=+ssh-rsa \
+  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+  mic0 'uname -m; cat /proc/1/comm'
+```
+
+## 8. Transfer The Final XPR-OS Root And Switch To It
+
+The first SSH command transfers the per-deployment final-root payload to the
+bootstrap. The second verifies its SHA-256 and asks the bootstrap to stage and
+switch to the final XPR root:
+
+```bash
+payload_sha=$(sha256sum "$payload" | awk '{print $1}')
+payload_bytes=$(wc -c < "$payload")
+
+ssh -o IdentitiesOnly=yes -i ~/.ssh/id_rsa \
+  -o PubkeyAcceptedKeyTypes=+ssh-rsa \
+  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null mic0 \
+  'cat > /tmp/xpr-rootfs.cpio.gz' < "$payload"
+
+ssh -o IdentitiesOnly=yes -i ~/.ssh/id_rsa \
+  -o PubkeyAcceptedKeyTypes=+ssh-rsa \
+  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null mic0 \
+  "actual_bytes=\$(/bin/busybox wc -c < /tmp/xpr-rootfs.cpio.gz); \
+   actual_sha=\$(sha256sum /tmp/xpr-rootfs.cpio.gz | awk '{print \$1}'); \
+   test \"\$actual_bytes\" = \"$payload_bytes\" && \
+   test \"\$actual_sha\" = \"$payload_sha\""
+
+ssh -o IdentitiesOnly=yes -i ~/.ssh/id_rsa \
+  -o PubkeyAcceptedKeyTypes=+ssh-rsa \
+  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null mic0 \
+  "/opt/xeon-phi-revival/bin/xpr-stage-root /tmp/xpr-rootfs.cpio.gz $payload_sha"
+```
+
+The staging command causes the transition from the bootstrap to final XPR-OS.
+Wait for SSH to return, then log into the final root:
+
+```bash
+until ssh -o IdentitiesOnly=yes -i ~/.ssh/id_rsa \
+  -o PubkeyAcceptedKeyTypes=+ssh-rsa \
+  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=8 mic0 \
+  'test -f /run/xpr-os-init && cat /proc/1/comm'; do
+  sleep 5
+done
+ssh -o IdentitiesOnly=yes -i ~/.ssh/id_rsa \
+  -o PubkeyAcceptedKeyTypes=+ssh-rsa \
+  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null mic0
+```
+
+At this point XPR-OS stays running. It does not return to stock automatically.
+Use it normally, then follow [Returning To Stock MPSS](rollback.md) when you
+want to end the session.
+
+## 9. Optional: Use The Scripted Boot Method
+
+The paired source archive contains a convenience runner for users who prefer a
+single rollback-protected command. It performs the same alternate-config
+`micctrl` boot and payload handoff as the manual steps above, while collecting
+logs and restoring stock MPSS if a step fails. From `xpr-os-0.1.0-rc6/`, run:
 
 ```bash
 stock_sha=$(sha256sum /etc/mpss/mic0.conf | awk '{print $1}')
@@ -140,10 +226,6 @@ bash ../xpr-os-0.1.0-rc6-sources/repository/tools/kernel/run-candidate-base-cpio
   --leave-running
 ```
 
-The runner creates a timestamped log directory below
-`$HOME/xpr-candidate-kernel-test/`. It verifies stock MPSS, uses an alternate
-configuration, captures logs, and performs automatic rollback on an error.
-
 Because this command includes `--leave-running`, a **successful** run leaves
 XPR-OS booted instead of immediately restoring stock MPSS. That is the normal
 mode when you want to use the operating system. Keep the printed run-directory
@@ -152,39 +234,22 @@ path; it contains the deployment logs and evidence.
 If the command fails before completion, it restores stock MPSS automatically.
 Do not interrupt a boot/reset cycle with firmware or flash operations.
 
-### The MPSS Commands Being Used
+## 10. Reconnect After A Scripted Boot
 
-The launcher copies the stock configuration into its timestamped run directory
-and changes only that copy. It then runs the MPSS operations below. This is a
-reference for the boot process; use the launcher command above rather than
-running this block independently, because it creates the required `$run/conf`
-configuration first:
+The manual path already ends in an XPR-OS SSH shell. When the convenience
+runner reports success, connect from the **MPSS host**:
 
 ```bash
-micctrl --shutdown mic0
-micctrl --configdir="$run/conf" --updateramfs mic0
-micctrl --configdir="$run/conf" --boot mic0
-micctrl --status
-```
-
-`$run/conf` is generated from the current host configuration and points to the
-RC6 kernel, Base CPIO, and generated ramfs. Do not manually replace
-`/etc/mpss/mic0.conf` with release paths: that bypasses the documented
-alternate-configuration and rollback safeguards.
-
-## 8. SSH Into XPR-OS
-
-When the runner reports success, connect from the **MPSS host**:
-
-```bash
-ssh -o IdentitiesOnly=yes -i ~/.ssh/id_rsa mic0
+ssh -o IdentitiesOnly=yes -i ~/.ssh/id_rsa \
+  -o PubkeyAcceptedKeyTypes=+ssh-rsa \
+  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null mic0
 ```
 
 Then follow [Verify XPR-OS](verifying-xpr-os.md), use the shell and programs as
 needed, and run the manual [Rollback](rollback.md) procedure only when you want
 to return to stock MPSS.
 
-## 9. Use XPR-OS
+## 11. Use XPR-OS
 
 This is a small release-candidate environment, not a desktop distribution. The
 following commands provide a useful first check from the XPR-OS shell:
