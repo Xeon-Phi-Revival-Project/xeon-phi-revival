@@ -1,110 +1,83 @@
-# XPR-OS
+# Xeon Phi Revival Project
 
-XPR-OS is an open-source Linux boot environment for reviving Intel Xeon Phi
-Knights Corner (KNC/K1OM) coprocessors.
+[![Latest release](https://img.shields.io/github/v/release/Xeon-Phi-Revival-Project/xeon-phi-revival?include_prereleases&label=XPR-OS)](https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc6)
+[![License](https://img.shields.io/github/license/Xeon-Phi-Revival-Project/xeon-phi-revival)](LICENSE)
+[![Tested hardware](https://img.shields.io/badge/tested-Xeon%20Phi%205110P-2ea44f)](docs/hardware/supported-hardware.md)
 
-It gives a Knights Corner card a project-built kernel, bootstrap, userspace,
-networking, and SSH environment while keeping Intel MPSS, firmware, and stock
-card-side software outside the distribution. The current public release is
-hardware-tested on an Intel Xeon Phi 5110P.
+**A preservation and software-revival project for Intel Xeon Phi Knights Corner
+(KNC/K1OM) coprocessors.** We are rebuilding practical paths to boot, program,
+study, and use this historical manycore platform with public, reproducible,
+and evidence-led tooling.
 
-> [!IMPORTANT]
-> **Latest release:** [XPR-OS 0.1.0-rc6](https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc6)
-> is a prerelease, not a stable 1.0 release. It was tested on one 5110P using
-> CentOS 7.4 and MPSS 3.4.10. Other Knights Corner models are untested.
+> **Current milestone:** [XPR-OS 0.1.0-rc6](https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc6)
+> is the first public release candidate. Its project-built K1OM runtime was
+> tested on an Intel Xeon Phi 5110P. It remains a prerelease, and other KNC
+> models are not yet project-tested.
 
-## What Works In RC6
+## What This Project Covers
 
-- A project-built K1OM-compatible kernel and five required MIC modules.
-- Project bootstrap and final XPR `/sbin/init` running as PID 1.
-- Source-built runtime, micveth networking, and Dropbear SSH.
-- Deployment-specific RSA public-key provisioning; no universal login key is
-  present in the generic release.
-- Native dynamic hello, pthread, and `dlopen` tests.
-- Three rollback-protected 5110P boots, each restoring stock MPSS afterward.
-- Deterministic binary and corresponding-source archives with SPDX, license,
-  and notice metadata.
+| Track | Purpose | Current state |
+| --- | --- | --- |
+| **XPR-OS** | A project-built K1OM boot and Linux userspace environment | RC6 published and hardware-tested on 5110P |
+| **K1OM tools** | Native compilers, binutils, ABI, sysroot, and runtime research | Active research and reproducibility work |
+| **Software ports** | Practical K1OM applications such as Python and Doom | Experimental, built on the runtime baseline |
+| **Hardware preservation** | Bring-up, cooling, MPSS behavior, and recovery evidence | 5110P baseline documented |
+| **Historical research** | KNC, uOS, kernel, module, and release-engineering records | Preserved and clearly indexed |
 
-## Quick Start
+## Start Here
 
-This is the shortest supported route for the tested configuration. Run these
-commands on the **MPSS host**, as `root` or through `sudo`.
+### Quick Start: Try XPR-OS
 
-1. Confirm your card and MPSS baseline:
+1. Check the [tested hardware and host requirements](docs/hardware/supported-hardware.md).
+2. Download [XPR-OS 0.1.0-rc6](https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc6).
+3. Follow the [step-by-step installation guide](docs/getting-started/installation.md).
 
-   ```bash
-   micctrl --status
-   ssh mic0 'uname -m; cat /proc/1/comm'
-   ```
+The tested path uses a separately obtained MPSS 3.4.10 host installation. It
+does not flash firmware or modify persistent card storage, and it has a
+[documented rollback path](docs/getting-started/rollback.md).
 
-   The tested baseline reports `mic0: online`, `k1om`, and `init`.
+### I want to learn or contribute
 
-2. Download both RC6 assets from the
-   [release page](https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc6),
-   then verify them:
-
-   ```bash
-   sha256sum xpr-os-0.1.0-rc6.tar.gz xpr-os-0.1.0-rc6-sources.tar.gz
-   ```
-
-   Compare against the hashes in the release notes or the
-   [installation guide](docs/getting-started/installation.md).
-
-3. Follow the single end-to-end guide:
-   [Installing XPR-OS on a Xeon Phi 5110P](docs/getting-started/installation.md).
-   It covers extraction, RSA key provisioning, the bounded boot runner, SSH,
-   verification, and rollback.
-
-## Documentation
-
-| I want to... | Read |
+| Goal | Read |
 | --- | --- |
-| Install RC6 on the tested 5110P path | [Getting Started](docs/getting-started/README.md) |
-| Check whether my hardware is supported | [Supported Hardware](docs/hardware/supported-hardware.md) |
-| Connect through SSH | [SSH Access](docs/getting-started/ssh-access.md) |
-| Verify a running XPR-OS system | [Verification](docs/getting-started/verifying-xpr-os.md) |
-| Return to stock MPSS | [Rollback](docs/getting-started/rollback.md) |
-| Diagnose a problem safely | [Troubleshooting](docs/troubleshooting/README.md) |
-| Understand KNC, K1OM, MPSS, and the boot path | [Concepts](docs/concepts/README.md) |
-| Build or study the project | [Development](docs/development/README.md) |
-| Find terms quickly | [Glossary](docs/glossary.md) |
-| Read release validation and audit evidence | [Release Documentation](docs/release/README.md) |
+| Understand Knights Corner, K1OM, and MPSS | [Concepts](docs/concepts/README.md) |
+| Compile and run native K1OM code | [From Card To Code](docs/getting-started-card-to-code.md) |
+| Build or study XPR-OS | [Development](docs/development/README.md) |
+| Browse preserved technical evidence | [Research](docs/research/README.md) |
+| Report hardware results or contribute docs/code | [Contributing](CONTRIBUTING.md) |
 
-## Why This Exists
+## XPR-OS RC6 At A Glance
 
-Knights Corner cards relied on the Intel Manycore Platform Software Stack
-(MPSS), whose ecosystem is now historical. XPR-OS preserves a practical path
-to boot and use a K1OM environment without redistributing Intel MPSS packages,
-firmware, extracted sysroots, or stock card-side userspace.
+- Project K1OM-compatible kernel and five required MIC modules.
+- Project bootstrap and final XPR `/sbin/init` as PID 1.
+- micveth networking, Dropbear SSH, and deployment-specific RSA key handling.
+- Native dynamic hello, pthread, and `dlopen` validation.
+- Three rollback-protected 5110P boots, restoring stock MPSS each time.
+- Deterministic binary and corresponding-source archives with SPDX, notices,
+  and release metadata.
 
-XPR-OS does **not** flash firmware or alter persistent card storage. Its tested
-workflow uses a reversible RAM-only boot path and verifies recovery to the
-stock MPSS environment after each run.
+Read [Getting Started](docs/getting-started/README.md) for the user path and
+[Release Documentation](docs/release/README.md) for validation evidence.
 
-## Support Status
+## Project Principles
 
-| Category | Status |
-| --- | --- |
-| Intel Xeon Phi 5110P | Tested with RC6 evidence |
-| Other Knights Corner cards | Possibly compatible, not tested by this project |
-| Knights Landing / Knights Mill | Not a target; different architecture and software stack |
-| Intel MPSS host software | Required separately; not included |
-| Stable production support | Not claimed; RC6 is a release candidate |
+```text
+Evidence before assumptions.
+Rollback before risky hardware changes.
+Open project work separated from proprietary Intel components.
+Historical research preserved, but never confused with current instructions.
+```
 
-## Contributing And Research
+The project is AI-assisted and Codex-driven, but hardware claims are accepted
+only when real-card evidence and repeatable validation support them.
 
-Contributions are welcome for documentation, hardware reports, K1OM tests,
-toolchain work, and reproducible build improvements. Start with
-[CONTRIBUTING.md](CONTRIBUTING.md). Historical investigation is preserved in
-[Research](docs/research/README.md); it is valuable evidence, but it is not the
-current installation path.
+## Important Boundaries
 
-## License And Boundaries
+Intel MPSS host software, firmware, stock card-side userspace, compiler
+installers, and extracted sysroots are **not** redistributed here. Users obtain
+required Intel material separately under its applicable terms. XPR-OS is not
+affiliated with, endorsed by, or supported by Intel.
 
-Project-authored material is MIT-licensed. Third-party material retains its
-own licenses. The release requires a separately obtained MPSS 3.4.10 host
-installation; it does not include Intel firmware, MPSS packages, card-side
-MPSS userspace, extracted Intel sysroots, credentials, or fixed SSH keys.
-
-See [Release Documentation](docs/release/README.md) and
-[Source Index](docs/source-index.md) for details.
+Project-authored material is MIT-licensed; third-party material retains its own
+licenses. See [Source Index](docs/source-index.md) and
+[Release Documentation](docs/release/README.md).
