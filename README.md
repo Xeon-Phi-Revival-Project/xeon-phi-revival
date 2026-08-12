@@ -24,6 +24,38 @@ and evidence-led tooling.
 | **Hardware preservation** | Bring-up, cooling, MPSS behavior, and recovery evidence | 5110P baseline documented |
 | **Historical research** | KNC, uOS, kernel, module, and release-engineering records | Preserved and clearly indexed |
 
+## xpr-init Host Integration
+
+`xpr-init` is XPR-OS's host-side installation, integration, and recovery helper
+for Intel MPSS. It prepares an existing, working MPSS host to boot XPR-OS while
+preserving the normal `micctrl` control model used for Knights Corner hardware.
+It does **not** replace MPSS or `micctrl`.
+
+On `--install`, `xpr-init` verifies the selected XPR-OS release, provisions the
+user's RSA public key into deployment-specific copies, preserves and hashes the
+stock MPSS configuration, installs the XPR kernel/bootstrap/root payload, and
+enables the automatic bootstrap-to-final-root handoff service. The operator then
+uses the familiar MPSS lifecycle:
+
+```bash
+sudo xpr-init --install
+sudo micctrl --reset mic0
+sudo micctrl --wait mic0
+sudo micctrl --boot mic0
+ssh mic0
+```
+
+When the session is finished, `sudo xpr-init --recover` restores the saved stock
+MPSS configuration, resets and boots the card back into the stock environment,
+and verifies the recovery path. This complete install -> boot -> automatic
+handoff -> final SSH -> recovery workflow has been live-validated on the
+project's Intel Xeon Phi 5110P with CentOS 7.4 and MPSS 3.4.10.
+
+`xpr-init` was developed after the frozen RC6 release archives were published,
+so the current helper is obtained from this repository rather than from the RC6
+archives themselves. See the [xpr-init guide](docs/getting-started/xpr-init-preview.md)
+for the validated workflow and advanced options.
+
 ## Start Here
 
 ### Quick Start: Try XPR-OS
