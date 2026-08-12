@@ -62,7 +62,7 @@ for the validated workflow and advanced options.
 
 1. Check the [tested hardware and host requirements](docs/hardware/supported-hardware.md).
 2. Install or verify [MPSS 3.4.10 on the host](docs/getting-started/mpss-setup.md).
-3. Download [XPR-OS 0.1.0-rc6](https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc6). Put the binary archive (`xpr-os-0.1.0-rc6.tar.gz`) in your normal Downloads folder or note its path.
+3. Download [XPR-OS 0.1.0-rc6](https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc6). For the simplest `xpr-init` auto-discovery path, put the binary archive (`xpr-os-0.1.0-rc6.tar.gz`) in the invoking user's `~/Downloads` folder. If it is stored elsewhere, pass it explicitly, for example: `sudo xpr-init --install --release /path/to/xpr-os-0.1.0-rc6.tar.gz`.
 4. Get the current repository and install the validated `xpr-init` host helper. `xpr-init` was validated after RC6 was frozen, so it is **not** contained in the RC6 release archives:
 
    ```bash
