@@ -1,5 +1,5 @@
 id: xpr-os-0.1.0-rc6
-status: runtime-identical-to-rc5-awaiting-targeted-audit
+status: published-prerelease
 date: "2026-08-11"
 architecture: k1om
 release_kind: precompiled-public-source-candidate
@@ -8,13 +8,12 @@ technical_validation:
   runtime_artifact_identity: required-before-freeze
   reproducible_staging_builds: required-before-freeze
 publication:
-  allowed: false
-  blocker: >-
-    RC6 is a documentation/package-cleanup candidate. It must pass a targeted
-    independent audit and owner publication decision before it may be tagged
-    or published.
-  github_tag_created: false
-  github_release_created: false
+  allowed: true
+  status: published-prerelease
+  github_tag: v0.1.0-rc6
+  github_release_url: https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc6
+  github_tag_created: true
+  github_release_created: true
 external_prerequisite:
   - Intel MPSS 3.4.10 host installation obtained separately by the user
 prohibited_content:
