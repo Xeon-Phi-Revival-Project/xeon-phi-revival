@@ -2,18 +2,15 @@
 
 ## Current Release Work
 
-Development is active. XPR-OS `0.1.0-rc6` is an unpublished
-documentation/package-cleanup candidate. It preserves the exact runtime
-artifacts validated during the RC5 three-boot gate and changes only
-release-facing metadata and public-source archive membership.
+Development is active. [XPR-OS 0.1.0-rc6](https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc6)
+is the published precompiled release candidate. It preserves the exact runtime
+artifacts validated during the RC5 three-boot gate and passed the RC6 targeted
+release audit.
 
-RC6 must pass a targeted independent audit before an owner publication
-decision. It is not a GitHub release, tag, or approval to redistribute any
-third-party binary.
-
-The published source/metadata/BYO-MPSS prerelease remains
-[XPR-OS 0.1.0-rc2](https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc2).
-It intentionally contains no private boot binaries or Intel/MPSS payloads.
+RC6 is a prerelease, not a stable release. It includes the project-built kernel,
+modules, bootstrap, and final payload plus a paired source archive. Intel MPSS,
+firmware, stock uOS contents, and extracted sysroots remain separate
+user-supplied prerequisites.
 
 ## Verified RC5 Runtime Baseline
 
@@ -38,9 +35,8 @@ The RC6 review report records that comparison.
 - Generic release containers contain no private key, password, credential, or
   fixed `authorized_keys` file. A user-owned RSA public key is validated and
   applied only to deployment-specific copies.
-- The RC6 candidate is frozen for targeted audit after deterministic package
-  builds and archive validation. It must not be published until that audit and
-  owner decision complete.
+- RC6 was packaged deterministically, independently audited, and published as
+  a prerelease. The release tag and assets remain immutable release evidence.
 
 ## Historical Evidence
 

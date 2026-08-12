@@ -16,6 +16,8 @@ Do not submit:
 Good contributions include:
 
 - Original source code for small K1OM tests.
+- Hardware compatibility reports with card model, PCI ID, host OS, MPSS
+  version, XPR-OS release, command output, and rollback result.
 - Public-safe command transcripts and summarized results.
 - Package names, versions, hashes, and file-list metadata.
 - Reproducible scripts that operate on locally supplied MPSS/toolchain inputs.
@@ -31,6 +33,12 @@ evidence to match a later result. Add a short supersession notice and update
 Check relative Markdown links and run `git diff --check` before submitting a
 documentation-only change. Commands in guides must identify whether they are
 host-side, card-side, build-only, or hardware-mutating.
+
+For a user-facing documentation change, also run:
+
+```bash
+python3 tools/docs/validate-active-docs.py
+```
 
 Before opening a pull request, run the publication audit patterns described in
 `docs/publication-audit-20260727.md` if that file exists, and review generated
