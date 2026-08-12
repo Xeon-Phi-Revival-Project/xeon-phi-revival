@@ -30,10 +30,12 @@ and evidence-led tooling.
 
 1. Check the [tested hardware and host requirements](docs/hardware/supported-hardware.md).
 2. Install or verify [MPSS 3.4.10 on the host](docs/getting-started/mpss-setup.md).
-3. Download [XPR-OS 0.1.0-rc6](https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc6).
-4. Install the validated host helper from the source archive or repository:
+3. Download [XPR-OS 0.1.0-rc6](https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc6). Put the binary archive (`xpr-os-0.1.0-rc6.tar.gz`) in your normal Downloads folder or note its path.
+4. Get the current repository and install the validated `xpr-init` host helper. `xpr-init` was validated after RC6 was frozen, so it is **not** contained in the RC6 release archives:
 
    ```bash
+   git clone https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival.git
+   cd xeon-phi-revival
    sudo install -m 755 tools/host/xpr-init /usr/local/sbin/xpr-init
    sudo ln -sfn /usr/local/sbin/xpr-init /usr/sbin/xpr-init
    sudo xpr-init --install
@@ -45,7 +47,7 @@ and evidence-led tooling.
 
    When finished, restore stock MPSS with `sudo xpr-init --recover`.
    See the [xpr-init guide](docs/getting-started/xpr-init-preview.md) for
-   auto-discovery and explicit release-path options.
+   prerequisites, auto-discovery, and explicit release/key options.
 
 The tested path uses a separately obtained MPSS 3.4.10 host installation. It
 does not flash firmware or modify persistent card storage, and it has a
