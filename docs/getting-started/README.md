@@ -9,6 +9,10 @@ running MPSS 3.4.10. Read the pages in order:
 4. [Verify XPR-OS](verifying-xpr-os.md)
 5. [Return To Stock MPSS when finished](rollback.md)
 
+The planned simplified host integration is documented separately as an
+unvalidated [XPR-Init preview](xpr-init-preview.md). It does not replace the
+RC6 procedure yet.
+
 > [!WARNING]
 > This is release-candidate software for legacy coprocessor hardware. Do not
 > run the boot path on an untested card or host without first confirming that

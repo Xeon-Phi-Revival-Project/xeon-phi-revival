@@ -1,0 +1,194 @@
+#!/usr/bin/env bash
+# XPR-OS host integration preview.  Run as root on an MPSS host.
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+usage:
+  xpr-init install --release DIR --authorized-key FILE [--identity FILE] [--mic mic0]
+  xpr-init handoff [--mic mic0]
+  xpr-init boot [--mic mic0]
+  xpr-init status [--mic mic0]
+  xpr-init recover [--mic mic0]
+
+install creates a deployment-specific XPR configuration, backs up the active
+stock MPSS config, and installs artifacts under /opt/xpr-os. It never copies a
+private key. After install, users may run micctrl --updateramfs mic0 and
+micctrl --boot mic0 directly, then run xpr-init handoff to enter the final root.
+EOF
+}
+
+die() { echo "xpr-init: $*" >&2; exit 1; }
+require_root() { [[ ${EUID:-$(id -u)} -eq 0 ]] || die "must run as root"; }
+sha() { sha256sum "$1" | awk '{print $1}'; }
+
+command_name=${1:-}
+[[ -n "$command_name" ]] || { usage; exit 2; }
+shift || true
+mic=mic0
+release=""
+authorized_key=""
+identity="${SUDO_USER:+/home/$SUDO_USER}/.ssh/id_rsa"
+[[ -n "$identity" ]] || identity="$HOME/.ssh/id_rsa"
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --mic) mic=${2:?}; shift 2 ;;
+    --release) release=${2:?}; shift 2 ;;
+    --authorized-key) authorized_key=${2:?}; shift 2 ;;
+    --identity) identity=${2:?}; shift 2 ;;
+    -h|--help) usage; exit 0 ;;
+    *) die "unknown option: $1" ;;
+  esac
+done
+
+root=/opt/xpr-os
+state_root=/var/lib/xpr-init
+state="$state_root/$mic.env"
+stock_conf="/etc/mpss/$mic.conf"
+ssh_opts=(-n -o BatchMode=yes -o IdentitiesOnly=yes -i "$identity"
+  -o PubkeyAcceptedKeyTypes=+ssh-rsa -o StrictHostKeyChecking=no
+  -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10)
+
+wait_state() {
+  local wanted=$1 attempts=${2:-24}
+  local i
+  for ((i=0; i<attempts; i++)); do
+    micctrl --status || true
+    micctrl --status 2>/dev/null | grep -q "$mic: $wanted" && return 0
+    sleep 5
+  done
+  return 1
+}
+
+load_state() {
+  [[ -r "$state" ]] || die "no XPR-OS installation state for $mic"
+  # State is created root-only by this script and contains shell-quoted paths.
+  # shellcheck disable=SC1090
+  source "$state"
+}
+
+install_xpr() {
+  require_root
+  [[ -n "$release" && -n "$authorized_key" ]] || die "install needs --release and --authorized-key"
+  local self
+  self=$(readlink -f "$0")
+  release=$(readlink -f "$release")
+  authorized_key=$(readlink -f "$authorized_key")
+  [[ -d "$release" && -f "$authorized_key" ]] || die "release directory or public key missing"
+  [[ -f "$stock_conf" ]] || die "missing $stock_conf"
+  [[ ! -e "$state" ]] || die "existing XPR-OS install found; run xpr-init recover first"
+  [[ -f "$release/kernel/bzImage" && -f "$release/kernel/System.map" ]] || die "release kernel files missing"
+  [[ -f "$release/bootstrap/xpr-bootstrap.cpio.gz" && -f "$release/payload/xpr-rootfs.cpio.gz" ]] || die "release containers missing"
+  [[ -x "$release/tools/provision-authorized-key.py" ]] || die "release key provisioner missing"
+  [[ "$authorized_key" != *id_rsa && "$authorized_key" != *id_ed25519 ]] || die "supply a public key, not a private key"
+  [[ -r "$identity" ]] || die "SSH identity is not readable: $identity"
+
+  local stamp backup stage config deploy_base deploy_payload
+  stamp=$(date -u +%Y%m%d-%H%M%S)
+  backup="$state_root/backups/$mic.conf.$stamp"
+  mkdir -p "$state_root/backups" "$root/current"
+  chmod 700 "$state_root" "$state_root/backups" "$root" "$root/current"
+  stage=$(mktemp -d "$state_root/stage.XXXXXX")
+  cp -a "$stock_conf" "$backup"
+  deploy_base="$stage/xpr-bootstrap.cpio.gz"
+  deploy_payload="$stage/xpr-rootfs.cpio.gz"
+  python "$release/tools/provision-authorized-key.py" \
+    --generic-payload "$release/payload/xpr-rootfs.cpio.gz" \
+    --generic-bootstrap "$release/bootstrap/xpr-bootstrap.cpio.gz" \
+    --authorized-key "$authorized_key" --output "$deploy_payload" \
+    --bootstrap-output "$deploy_base" --report "$stage/key-provisioning.json"
+
+  install -m 600 "$release/kernel/bzImage" "$root/current/bzImage"
+  install -m 600 "$release/kernel/System.map" "$root/current/System.map"
+  install -m 600 "$deploy_base" "$root/current/xpr-bootstrap.cpio.gz"
+  install -m 600 "$deploy_payload" "$root/current/xpr-rootfs.cpio.gz"
+  rm -rf "$stage"
+
+  config="$stock_conf.xpr-init.new"
+  cp -a "$stock_conf" "$config"
+  sed -i "s|^Base CPIO .*|Base CPIO $root/current/xpr-bootstrap.cpio.gz|" "$config"
+  sed -i "s|^OSimage .*|OSimage $root/current/bzImage $root/current/System.map|" "$config"
+  sed -i "s|^RootDevice Ramfs .*|RootDevice Ramfs $root/current/$mic.image.gz|" "$config"
+  mv "$config" "$stock_conf"
+  chmod 600 "$stock_conf"
+  install -D -m 755 "$self" /usr/local/sbin/xpr-init
+
+  cat > "$state" <<EOF
+stock_conf='$stock_conf'
+stock_backup='$backup'
+stock_sha='$(sha "$backup")'
+identity='$identity'
+payload='$root/current/xpr-rootfs.cpio.gz'
+payload_sha='$(sha "$root/current/xpr-rootfs.cpio.gz")'
+payload_bytes='$(wc -c < "$root/current/xpr-rootfs.cpio.gz")'
+installed_at='$stamp'
+EOF
+  chmod 600 "$state"
+  echo "XPR_INIT_INSTALL=PASS"
+  echo "XPR_INIT_STOCK_BACKUP=$backup"
+  echo "Run: micctrl --updateramfs $mic && micctrl --boot $mic && xpr-init handoff"
+}
+
+handoff() {
+  require_root; load_state
+  wait_state online 24 || die "$mic did not reach online"
+  for _ in {1..24}; do
+    ssh "${ssh_opts[@]}" "$mic" 'true' && break
+    sleep 4
+  done
+  ssh "${ssh_opts[@]}" "$mic" 'cat > /tmp/xpr-rootfs.cpio.gz' < "$payload"
+  ssh "${ssh_opts[@]}" "$mic" "actual_bytes=\$(/bin/busybox wc -c < /tmp/xpr-rootfs.cpio.gz); actual_sha=\$(sha256sum /tmp/xpr-rootfs.cpio.gz | awk '{print \$1}'); test \"\$actual_bytes\" = \"$payload_bytes\" && test \"\$actual_sha\" = \"$payload_sha\""
+  ssh "${ssh_opts[@]}" "$mic" "/opt/xeon-phi-revival/bin/xpr-stage-root /tmp/xpr-rootfs.cpio.gz $payload_sha"
+  for _ in {1..24}; do
+    if ssh "${ssh_opts[@]}" "$mic" 'test -f /run/xpr-os-init && grep -q XPR_RC_ROOT_SBIN_INIT_PID1 /run/xpr-os-init'; then
+      echo "XPR_INIT_HANDOFF=PASS"; return 0
+    fi
+    sleep 4
+  done
+  die "final XPR root did not become ready"
+}
+
+boot_xpr() {
+  require_root; load_state
+  micctrl --shutdown "$mic" || true
+  wait_state ready 24 || die "$mic did not reach ready"
+  micctrl --updateramfs "$mic"
+  micctrl --boot "$mic"
+  handoff
+}
+
+status_xpr() {
+  if [[ -r "$state" ]]; then
+    load_state
+    echo "XPR_INIT_INSTALLED=YES"
+    echo "XPR_INIT_STOCK_SHA=$stock_sha"
+    echo "XPR_INIT_PAYLOAD_SHA=$payload_sha"
+  else
+    echo "XPR_INIT_INSTALLED=NO"
+  fi
+  micctrl --status || true
+}
+
+recover_xpr() {
+  require_root; load_state
+  [[ -f "$stock_backup" ]] || die "stock config backup missing: $stock_backup"
+  micctrl --shutdown "$mic" || true
+  sleep 6
+  cp -a "$stock_backup" "$stock_conf"
+  test "$(sha "$stock_conf")" = "$stock_sha" || die "restored stock config hash mismatch"
+  micctrl --updateramfs "$mic"
+  micctrl --boot "$mic" || true
+  wait_state online 30 || die "stock $mic did not return online"
+  rm -f "$state"
+  echo "XPR_INIT_RECOVER=PASS"
+}
+
+case "$command_name" in
+  install) install_xpr ;;
+  handoff) handoff ;;
+  boot) boot_xpr ;;
+  status) status_xpr ;;
+  recover) recover_xpr ;;
+  *) usage; exit 2 ;;
+esac

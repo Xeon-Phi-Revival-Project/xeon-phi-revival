@@ -13,6 +13,7 @@ DOCS = (
     "docs/README.md",
     "docs/getting-started/README.md",
     "docs/getting-started/mpss-setup.md",
+    "docs/getting-started/xpr-init-preview.md",
     "docs/getting-started/installation.md",
     "docs/getting-started/ssh-access.md",
     "docs/getting-started/verifying-xpr-os.md",
