@@ -28,6 +28,13 @@ open(value('--report'), 'w').write('{}\n')
 print('SSH_KEY_PROVISIONING_VALIDATION=PASS')
 PY
 chmod +x "$tmp/release/tools/provision-authorized-key.py"
+printf '0.1.0-rc6\n' > "$tmp/release/VERSION"
+(cd "$tmp/release" && find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)
+mkdir -p "$tmp/archive-root"
+cp -a "$tmp/release" "$tmp/archive-root/xpr-os-0.1.0-rc6"
+tar -czf "$tmp/home/Downloads-xpr-os-0.1.0-rc6.tar.gz" -C "$tmp/archive-root" xpr-os-0.1.0-rc6
+mkdir -p "$tmp/home/Downloads"
+mv "$tmp/home/Downloads-xpr-os-0.1.0-rc6.tar.gz" "$tmp/home/Downloads/xpr-os-0.1.0-rc6.tar.gz"
 cat > "$tmp/bin/python" <<'EOF'
 #!/usr/bin/env bash
 shift
@@ -54,21 +61,32 @@ case "$1" in
 esac
 EOF
 chmod +x "$tmp/bin/micctrl"
+cat > "$tmp/bin/systemctl" <<'EOF'
+#!/usr/bin/env bash
+printf '%s\n' "$*" >> "${XPR_INIT_TEST_LOG:?}"
+exit 0
+EOF
+chmod +x "$tmp/bin/systemctl"
 
-env PATH="$tmp/bin:$PATH" HOME="$tmp/home" \
-  XPR_INIT_ROOT="$tmp/root" XPR_INIT_STATE_ROOT="$tmp/state" XPR_INIT_MPSS_DIR="$tmp/mpss" XPR_INIT_BIN_DIR="$tmp/sbin" XPR_INIT_TEST_MODE=1 \
-  "$repo/tools/host/xpr-init" install --release "$tmp/release" \
+common_env=(PATH="$tmp/bin:$PATH" HOME="$tmp/home" SUDO_USER=xprtest XPR_INIT_TEST_LOG="$tmp/systemctl.log" \
+  XPR_INIT_ROOT="$tmp/root" XPR_INIT_STATE_ROOT="$tmp/state" XPR_INIT_MPSS_DIR="$tmp/mpss" \
+  XPR_INIT_BIN_DIR="$tmp/sbin" XPR_INIT_SYSTEMD_DIR="$tmp/systemd" XPR_INIT_TEST_MODE=1)
+
+env "${common_env[@]}" "$repo/tools/host/xpr-init" --install \
+  --release "$tmp/home/Downloads/xpr-os-0.1.0-rc6.tar.gz" \
   --authorized-key "$tmp/home/.ssh/id_rsa.pub" --identity "$tmp/home/.ssh/id_rsa" > "$tmp/install.out"
 test -x "$tmp/sbin/xpr-init"
 grep -qx 'XPR_INIT_INSTALL=PASS' "$tmp/install.out"
 grep -q "$tmp/root/current/xpr-bootstrap.cpio.gz" "$tmp/mpss/mic0.conf"
-env PATH="$tmp/bin:$PATH" HOME="$tmp/home" \
-  XPR_INIT_ROOT="$tmp/root" XPR_INIT_STATE_ROOT="$tmp/state" XPR_INIT_MPSS_DIR="$tmp/mpss" XPR_INIT_BIN_DIR="$tmp/sbin" XPR_INIT_TEST_MODE=1 \
-  "$repo/tools/host/xpr-init" status > "$tmp/status.out"
-grep -qx 'XPR_INIT_INSTALLED=YES' "$tmp/status.out"
-env PATH="$tmp/bin:$PATH" HOME="$tmp/home" \
-  XPR_INIT_ROOT="$tmp/root" XPR_INIT_STATE_ROOT="$tmp/state" XPR_INIT_MPSS_DIR="$tmp/mpss" XPR_INIT_BIN_DIR="$tmp/sbin" XPR_INIT_TEST_MODE=1 \
-  "$repo/tools/host/xpr-init" recover > "$tmp/recover.out"
+grep -q 'enable --now xpr-init-handoff@mic0.service' "$tmp/systemctl.log"
+env "${common_env[@]}" "$tmp/sbin/xpr-init" --install > "$tmp/reinstall.out"
+grep -qx 'XPR_INIT_INSTALL=ALREADY_INSTALLED' "$tmp/reinstall.out"
+env "${common_env[@]}" "$tmp/sbin/xpr-init" --status > "$tmp/status.out"
+grep -qx 'Mode: XPR-OS' "$tmp/status.out"
+env "${common_env[@]}" "$tmp/sbin/xpr-init" --recover > "$tmp/recover.out"
 grep -qx 'XPR_INIT_RECOVER=PASS' "$tmp/recover.out"
+grep -q 'disable --now xpr-init-handoff@mic0.service' "$tmp/systemctl.log"
 cmp "$tmp/mpss/mic0.conf" <(printf 'Base CPIO /stock/base\nOSimage /stock/kernel /stock/map\nRootDevice Ramfs /stock/mic0.image.gz\n')
+env "${common_env[@]}" "$tmp/sbin/xpr-init" --recover > "$tmp/recover2.out"
+grep -qx 'XPR_INIT_RECOVER=ALREADY_STOCK' "$tmp/recover2.out"
 echo 'XPR_INIT_INSTALL_TEST=PASS'

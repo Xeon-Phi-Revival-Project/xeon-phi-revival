@@ -5,16 +5,19 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 usage:
-  xpr-init install --release DIR --authorized-key FILE [--identity FILE] [--mic mic0]
-  xpr-init handoff [--mic mic0]
-  xpr-init boot [--mic mic0]
-  xpr-init status [--mic mic0]
-  xpr-init recover [--mic mic0]
+  xpr-init --install [--release ARCHIVE_OR_DIR] [--authorized-key FILE] [--identity FILE] [--mic mic0]
+  xpr-init --recover [--mic mic0]
+  xpr-init --status [--mic mic0]
+
+Advanced aliases: install, handoff, status, recover. `handoff` is retained as
+a fallback; normal installs enable a small host service to perform it after a
+successful XPR bootstrap boot.
 
 install creates a deployment-specific XPR configuration, backs up the active
 stock MPSS config, and installs artifacts under /opt/xpr-os. It never copies a
 private key. After install, users may run micctrl --updateramfs mic0 and
-micctrl --boot mic0 directly, then run xpr-init handoff to enter the final root.
+micctrl --boot mic0 directly; the installed handoff service enters the final
+root after the XPR bootstrap is ready.
 EOF
 }
 
@@ -35,8 +38,15 @@ shift || true
 mic=mic0
 release=""
 authorized_key=""
-identity="${SUDO_USER:+/home/$SUDO_USER}/.ssh/id_rsa"
-[[ -n "$identity" ]] || identity="$HOME/.ssh/id_rsa"
+identity=""
+handoff_once=0
+
+case "$command_name" in
+  --install) command_name=install ;;
+  --recover) command_name=recover ;;
+  --status) command_name=status ;;
+  --handoff) command_name=handoff ;;
+esac
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -44,6 +54,7 @@ while [[ $# -gt 0 ]]; do
     --release) release=${2:?}; shift 2 ;;
     --authorized-key) authorized_key=${2:?}; shift 2 ;;
     --identity) identity=${2:?}; shift 2 ;;
+    --once) handoff_once=1; shift ;;
     -h|--help) usage; exit 0 ;;
     *) die "unknown option: $1" ;;
   esac
@@ -52,11 +63,43 @@ done
 root=${XPR_INIT_ROOT:-/opt/xpr-os}
 state_root=${XPR_INIT_STATE_ROOT:-/var/lib/xpr-init}
 bin_dir=${XPR_INIT_BIN_DIR:-/usr/local/sbin}
+systemd_dir=${XPR_INIT_SYSTEMD_DIR:-/etc/systemd/system}
 state="$state_root/$mic.env"
 stock_conf="${XPR_INIT_MPSS_DIR:-/etc/mpss}/$mic.conf"
-ssh_opts=(-n -o BatchMode=yes -o IdentitiesOnly=yes -i "$identity"
-  -o PubkeyAcceptedKeyTypes=+ssh-rsa -o StrictHostKeyChecking=no
-  -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10)
+handoff_unit="xpr-init-handoff@$mic.service"
+ssh_opts=()
+
+invoker_home() {
+  local user=${SUDO_USER:-${USER:-root}} entry
+  entry=$(getent passwd "$user" 2>/dev/null || true)
+  if [[ -n "$entry" ]]; then
+    printf '%s\n' "${entry#*:*:*:*:*:}" | cut -d: -f1
+  elif [[ -n ${SUDO_USER:-} && -d "/home/$SUDO_USER" ]]; then
+    printf '%s\n' "/home/$SUDO_USER"
+  else
+    printf '%s\n' "$HOME"
+  fi
+}
+
+choose_single() {
+  local label=$1; shift
+  local -a items=("$@")
+  if [[ ${#items[@]} -eq 1 ]]; then
+    printf '%s\n' "${items[0]}"
+  elif [[ ${#items[@]} -eq 0 ]]; then
+    die "no $label found; use the explicit option"
+  else
+    printf 'xpr-init: multiple %s candidates found:\n' "$label" >&2
+    printf '  %s\n' "${items[@]}" >&2
+    die "use the explicit option"
+  fi
+}
+
+set_ssh_opts() {
+  ssh_opts=(-n -o BatchMode=yes -o IdentitiesOnly=yes -i "$identity"
+    -o PubkeyAcceptedKeyTypes=+ssh-rsa -o StrictHostKeyChecking=no
+    -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10)
+}
 
 wait_state() {
   local wanted=$1 attempts=${2:-24}
@@ -76,25 +119,128 @@ load_state() {
   source "$state"
 }
 
-install_xpr() {
-  require_root
-  [[ -n "$release" && -n "$authorized_key" ]] || die "install needs --release and --authorized-key"
-  local self
-  self=$(readlink -f "$0")
-  release=$(readlink -f "$release")
-  authorized_key=$(readlink -f "$authorized_key")
-  [[ -d "$release" && -f "$authorized_key" ]] || die "release directory or public key missing"
-  [[ -f "$stock_conf" ]] || die "missing $stock_conf"
-  [[ ! -e "$state" ]] || die "existing XPR-OS install found; run xpr-init recover first"
+discover_release() {
+  local home candidate
+  local -a candidates=()
+  home=$(invoker_home)
+  for candidate in "$PWD"/xpr-os-*.tar.gz "$home"/Downloads/xpr-os-*.tar.gz "$home"/xpr-os-*.tar.gz; do
+    [[ -f "$candidate" ]] || continue
+    candidates+=("$candidate")
+  done
+  for candidate in "$PWD"/xpr-os-* "$home"/Downloads/xpr-os-*; do
+    [[ -d "$candidate" ]] || continue
+    candidates+=("$candidate")
+  done
+  choose_single "XPR-OS release" "${candidates[@]}"
+}
+
+prepare_release() {
+  local input=$1 extracted root_name version
+  input=$(readlink -f "$input")
+  [[ -e "$input" ]] || die "release not found: $input"
+  if [[ -f "$input" ]]; then
+    gzip -t "$input" || die "release archive gzip check failed"
+    tar -tzf "$input" | grep -Eq '(^/|(^|/)\.\.(/|$))' && die "unsafe release archive member"
+    root_name=$(tar -tzf "$input" | sed -n '1s#/.*##p')
+    [[ "$root_name" =~ ^xpr-os-[0-9] ]] || die "unexpected release archive root"
+    extracted="$state_root/releases/${root_name}"
+    if [[ ! -d "$extracted" ]]; then
+      mkdir -p "$state_root/releases"
+      local stage
+      stage=$(mktemp -d "$state_root/release.XXXXXX")
+      tar -xzf "$input" -C "$stage"
+      [[ -d "$stage/$root_name" ]] || die "release archive root missing after extraction"
+      mv "$stage/$root_name" "$extracted"
+      rmdir "$stage"
+    fi
+    release=$extracted
+  else
+    release=$input
+  fi
+  [[ -f "$release/VERSION" && -f "$release/SHA256SUMS" ]] || die "release metadata missing"
+  version=$(cat "$release/VERSION")
+  [[ "$version" =~ ^0\.[0-9]+\.[0-9]+-rc[0-9]+$ ]] || die "unsupported release version metadata"
+  (cd "$release" && sha256sum -c SHA256SUMS) >/dev/null || die "release checksum validation failed"
   [[ -f "$release/kernel/bzImage" && -f "$release/kernel/System.map" ]] || die "release kernel files missing"
   [[ -f "$release/bootstrap/xpr-bootstrap.cpio.gz" && -f "$release/payload/xpr-rootfs.cpio.gz" ]] || die "release containers missing"
   [[ -x "$release/tools/provision-authorized-key.py" ]] || die "release key provisioner missing"
-  [[ -r "$identity" ]] || die "SSH identity is not readable: $identity"
+  release_version=$version
+}
 
+discover_authorized_key() {
+  local home candidate
+  local -a candidates=()
+  home=$(invoker_home)
+  for candidate in "$home"/.ssh/*.pub; do
+    [[ -f "$candidate" ]] || continue
+    grep -q '^ssh-rsa ' "$candidate" && candidates+=("$candidate")
+  done
+  choose_single "RSA public key" "${candidates[@]}"
+}
+
+install_handoff_service() {
+  local unit="$systemd_dir/xpr-init-handoff@.service"
+  install -d -m 755 "$systemd_dir"
+  cat > "$unit" <<EOF
+[Unit]
+Description=XPR-OS final-root handoff for %i
+After=mpss.service network.target
+
+[Service]
+Type=oneshot
+ExecStart=$bin_dir/xpr-init --handoff --once --mic %i
+Restart=on-failure
+RestartSec=5
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+EOF
+  systemctl daemon-reload
+  systemctl enable --now "$handoff_unit"
+}
+
+remove_handoff_service() {
+  systemctl disable --now "$handoff_unit" >/dev/null 2>&1 || true
+  rm -f "$systemd_dir/xpr-init-handoff@.service"
+  systemctl daemon-reload || true
+}
+
+install_xpr() {
+  require_root
+  command -v micctrl >/dev/null 2>&1 || die "micctrl is not installed"
+  [[ -f "$stock_conf" ]] || die "missing $stock_conf"
+  [[ -n "$release" ]] || release=$(discover_release)
+  prepare_release "$release"
+  [[ -n "$authorized_key" ]] || authorized_key=$(discover_authorized_key)
+  [[ -n "$identity" ]] || identity="$(invoker_home)/.ssh/id_rsa"
+  local self original_sha
+  self=$(readlink -f "$0")
+  authorized_key=$(readlink -f "$authorized_key")
+  [[ -f "$authorized_key" ]] || die "public key missing: $authorized_key"
+  [[ -r "$identity" ]] || die "SSH identity is not readable: $identity"
+  set_ssh_opts
+  if [[ -e "$state" ]]; then
+    load_state
+    [[ "$release_version" == "$installed_release" ]] || die "XPR-OS $installed_release is already installed; recover before changing releases"
+    [[ "$(sha "$stock_backup")" == "$stock_sha" ]] || die "saved stock backup hash does not match state"
+    echo "XPR_INIT_INSTALL=ALREADY_INSTALLED"
+    echo "XPR_INIT_RELEASE=$installed_release"
+    return
+  fi
+  original_sha=$(sha "$stock_conf")
+  echo "XPR-OS Host Installer"
+  echo "[PASS] MPSS configuration found: $stock_conf"
+  echo "[PASS] Release verified: $release_version ($release)"
+  echo "[PASS] RSA public key selected: $authorized_key"
   local stamp backup stage config deploy_base deploy_payload installed=0
   rollback_install() {
     if [[ "$installed" == 0 && -n "${backup:-}" && -f "$backup" ]]; then
       cp -a "$backup" "$stock_conf"
+    fi
+    if [[ "$installed" == 0 ]]; then
+      rm -f "$state"
+      remove_handoff_service
     fi
     [[ -n "${stage:-}" ]] && rm -rf "$stage"
   }
@@ -131,28 +277,42 @@ install_xpr() {
   cat > "$state" <<EOF
 stock_conf='$stock_conf'
 stock_backup='$backup'
-stock_sha='$(sha "$backup")'
+stock_sha='$original_sha'
 identity='$identity'
+installed_release='$release_version'
+release_root='$release'
 payload='$root/current/xpr-rootfs.cpio.gz'
 payload_sha='$(sha "$root/current/xpr-rootfs.cpio.gz")'
 payload_bytes='$(wc -c < "$root/current/xpr-rootfs.cpio.gz")'
+public_key_path='$authorized_key'
+public_key_sha='$(sha "$authorized_key")'
 installed_at='$stamp'
 EOF
   chmod 600 "$state"
+  install_handoff_service
   installed=1
   echo "XPR_INIT_INSTALL=PASS"
+  echo "XPR_INIT_RELEASE=$release_version"
   echo "XPR_INIT_STOCK_BACKUP=$backup"
-  echo "Run: micctrl --updateramfs $mic && micctrl --boot $mic && xpr-init handoff"
+  echo "[PASS] Automatic payload handoff installed"
+  echo "Run: micctrl --updateramfs $mic && micctrl --boot $mic"
   trap - RETURN
 }
 
 handoff() {
   require_root; load_state
-  wait_state online 24 || die "$mic did not reach online"
-  for _ in {1..24}; do
-    ssh "${ssh_opts[@]}" "$mic" 'true' && break
-    sleep 4
-  done
+  set_ssh_opts
+  grep -Fqx "Base CPIO $root/current/xpr-bootstrap.cpio.gz" "$stock_conf" || die "$mic is not configured for XPR-OS"
+  if [[ "$handoff_once" == 1 ]]; then
+    wait_state online 1 || die "$mic is not online yet"
+    ssh "${ssh_opts[@]}" "$mic" 'test -x /opt/xeon-phi-revival/bin/xpr-stage-root' || die "XPR bootstrap is not ready yet"
+  else
+    wait_state online 24 || die "$mic did not reach online"
+    for _ in {1..24}; do
+      ssh "${ssh_opts[@]}" "$mic" 'test -x /opt/xeon-phi-revival/bin/xpr-stage-root' && break
+      sleep 4
+    done
+  fi
   ssh "${ssh_opts[@]}" "$mic" 'cat > /tmp/xpr-rootfs.cpio.gz' < "$payload"
   ssh "${ssh_opts[@]}" "$mic" "actual_bytes=\$(/bin/busybox wc -c < /tmp/xpr-rootfs.cpio.gz); actual_sha=\$(sha256sum /tmp/xpr-rootfs.cpio.gz | awk '{print \$1}'); test \"\$actual_bytes\" = \"$payload_bytes\" && test \"\$actual_sha\" = \"$payload_sha\""
   ssh "${ssh_opts[@]}" "$mic" "/opt/xeon-phi-revival/bin/xpr-stage-root /tmp/xpr-rootfs.cpio.gz $payload_sha"
@@ -165,30 +325,34 @@ handoff() {
   die "final XPR root did not become ready"
 }
 
-boot_xpr() {
-  require_root; load_state
-  micctrl --shutdown "$mic" || true
-  wait_state ready 24 || die "$mic did not reach ready"
-  micctrl --updateramfs "$mic"
-  micctrl --boot "$mic"
-  handoff
-}
-
 status_xpr() {
   if [[ -r "$state" ]]; then
     load_state
-    echo "XPR_INIT_INSTALLED=YES"
-    echo "XPR_INIT_STOCK_SHA=$stock_sha"
-    echo "XPR_INIT_PAYLOAD_SHA=$payload_sha"
+    echo "Mode: XPR-OS"
+    echo "Installed release: $installed_release"
+    echo "Device: $mic"
+    echo "Stock backup: verified"
+    echo "SSH public key SHA256: $public_key_sha"
+    echo "Handoff service: $handoff_unit"
+    echo "Recovery available: yes"
   else
-    echo "XPR_INIT_INSTALLED=NO"
+    echo "Mode: stock MPSS"
+    echo "XPR-OS installed: no"
+    echo "Recovery available: no"
   fi
   micctrl --status || true
 }
 
 recover_xpr() {
-  require_root; load_state
+  require_root
+  if [[ ! -r "$state" ]]; then
+    echo "XPR_INIT_RECOVER=ALREADY_STOCK"
+    return
+  fi
+  load_state
   [[ -f "$stock_backup" ]] || die "stock config backup missing: $stock_backup"
+  [[ "$(sha "$stock_backup")" == "$stock_sha" ]] || die "stock config backup hash mismatch"
+  remove_handoff_service
   micctrl --shutdown "$mic" || true
   sleep 6
   cp -a "$stock_backup" "$stock_conf"
@@ -196,14 +360,14 @@ recover_xpr() {
   micctrl --updateramfs "$mic"
   micctrl --boot "$mic" || true
   wait_state online 30 || die "stock $mic did not return online"
-  rm -f "$state"
+  mkdir -p "$state_root/recovered"
+  mv "$state" "$state_root/recovered/$mic.$installed_at.env"
   echo "XPR_INIT_RECOVER=PASS"
 }
 
 case "$command_name" in
   install) install_xpr ;;
   handoff) handoff ;;
-  boot) boot_xpr ;;
   status) status_xpr ;;
   recover) recover_xpr ;;
   *) usage; exit 2 ;;
