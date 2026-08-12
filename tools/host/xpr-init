@@ -15,8 +15,8 @@ successful XPR bootstrap boot.
 
 install creates a deployment-specific XPR configuration, backs up the active
 stock MPSS config, and installs artifacts under /opt/xpr-os. It never copies a
-private key. After install, users may run micctrl --updateramfs mic0 and
-micctrl --boot mic0 directly; the installed handoff service enters the final
+private key. After install, users reset the card to ready, then run micctrl
+--boot directly; the installed handoff service enters the final
 root after the XPR bootstrap is ready.
 EOF
 }
@@ -63,6 +63,7 @@ done
 root=${XPR_INIT_ROOT:-/opt/xpr-os}
 state_root=${XPR_INIT_STATE_ROOT:-/var/lib/xpr-init}
 bin_dir=${XPR_INIT_BIN_DIR:-/usr/local/sbin}
+sudo_bin_dir=${XPR_INIT_SUDO_BIN_DIR:-/usr/sbin}
 systemd_dir=${XPR_INIT_SYSTEMD_DIR:-/etc/systemd/system}
 state="$state_root/$mic.env"
 stock_conf="${XPR_INIT_MPSS_DIR:-/etc/mpss}/$mic.conf"
@@ -187,11 +188,10 @@ Description=XPR-OS final-root handoff for %i
 After=mpss.service network.target
 
 [Service]
-Type=oneshot
-ExecStart=$bin_dir/xpr-init --handoff --once --mic %i
+Type=simple
+ExecStart=$bin_dir/xpr-init handoff --mic %i
 Restart=on-failure
 RestartSec=5
-RemainAfterExit=yes
 
 [Install]
 WantedBy=multi-user.target
@@ -210,6 +210,8 @@ install_xpr() {
   require_root
   command -v micctrl >/dev/null 2>&1 || die "micctrl is not installed"
   [[ -f "$stock_conf" ]] || die "missing $stock_conf"
+  [[ ! -e "$sudo_bin_dir/xpr-init" || -L "$sudo_bin_dir/xpr-init" ]] \
+    || die "refusing to replace existing non-symlink $sudo_bin_dir/xpr-init"
   [[ -n "$release" ]] || release=$(discover_release)
   prepare_release "$release"
   [[ -n "$authorized_key" ]] || authorized_key=$(discover_authorized_key)
@@ -244,7 +246,7 @@ install_xpr() {
     fi
     [[ -n "${stage:-}" ]] && rm -rf "$stage"
   }
-  trap rollback_install RETURN
+  trap rollback_install ERR
   stamp=$(date -u +%Y%m%d-%H%M%S)
   backup="$state_root/backups/$mic.conf.$stamp"
   mkdir -p "$state_root/backups" "$root/current"
@@ -272,7 +274,13 @@ install_xpr() {
   sed -i "s|^RootDevice Ramfs .*|RootDevice Ramfs $root/current/$mic.image.gz|" "$config"
   mv "$config" "$stock_conf"
   chmod 600 "$stock_conf"
-  install -D -m 755 "$self" "$bin_dir/xpr-init"
+  if [[ "$self" != "$bin_dir/xpr-init" ]]; then
+    install -D -m 755 "$self" "$bin_dir/xpr-init"
+  fi
+  if [[ "$sudo_bin_dir" != "$bin_dir" ]]; then
+    install -d -m 755 "$sudo_bin_dir"
+    ln -sfn "$bin_dir/xpr-init" "$sudo_bin_dir/xpr-init"
+  fi
 
   cat > "$state" <<EOF
 stock_conf='$stock_conf'
@@ -291,28 +299,36 @@ EOF
   chmod 600 "$state"
   install_handoff_service
   installed=1
+  trap - ERR
   echo "XPR_INIT_INSTALL=PASS"
   echo "XPR_INIT_RELEASE=$release_version"
   echo "XPR_INIT_STOCK_BACKUP=$backup"
   echo "[PASS] Automatic payload handoff installed"
-  echo "Run: micctrl --updateramfs $mic && micctrl --boot $mic"
-  trap - RETURN
+  echo "Run: micctrl --reset $mic && micctrl --wait $mic && micctrl --boot $mic"
+  trap - ERR
 }
 
 handoff() {
   require_root; load_state
   set_ssh_opts
-  grep -Fqx "Base CPIO $root/current/xpr-bootstrap.cpio.gz" "$stock_conf" || die "$mic is not configured for XPR-OS"
+  local ready=0
   if [[ "$handoff_once" == 1 ]]; then
+    grep -Fqx "Base CPIO $root/current/xpr-bootstrap.cpio.gz" "$stock_conf" || die "$mic is not configured for XPR-OS"
     wait_state online 1 || die "$mic is not online yet"
     ssh "${ssh_opts[@]}" "$mic" 'test -x /opt/xeon-phi-revival/bin/xpr-stage-root' || die "XPR bootstrap is not ready yet"
+    ready=1
   else
-    wait_state online 24 || die "$mic did not reach online"
-    for _ in {1..24}; do
-      ssh "${ssh_opts[@]}" "$mic" 'test -x /opt/xeon-phi-revival/bin/xpr-stage-root' && break
+    for _ in {1..720}; do
+      grep -Fqx "Base CPIO $root/current/xpr-bootstrap.cpio.gz" "$stock_conf" || die "$mic is no longer configured for XPR-OS"
+      if micctrl --status 2>/dev/null | grep -q "$mic: online" \
+        && ssh "${ssh_opts[@]}" "$mic" 'test -x /opt/xeon-phi-revival/bin/xpr-stage-root'; then
+        ready=1
+        break
+      fi
       sleep 4
     done
   fi
+  [[ "$ready" == 1 ]] || die "XPR bootstrap did not become ready before timeout"
   ssh "${ssh_opts[@]}" "$mic" 'cat > /tmp/xpr-rootfs.cpio.gz' < "$payload"
   ssh "${ssh_opts[@]}" "$mic" "actual_bytes=\$(/bin/busybox wc -c < /tmp/xpr-rootfs.cpio.gz); actual_sha=\$(sha256sum /tmp/xpr-rootfs.cpio.gz | awk '{print \$1}'); test \"\$actual_bytes\" = \"$payload_bytes\" && test \"\$actual_sha\" = \"$payload_sha\""
   ssh "${ssh_opts[@]}" "$mic" "/opt/xeon-phi-revival/bin/xpr-stage-root /tmp/xpr-rootfs.cpio.gz $payload_sha"
@@ -353,12 +369,11 @@ recover_xpr() {
   [[ -f "$stock_backup" ]] || die "stock config backup missing: $stock_backup"
   [[ "$(sha "$stock_backup")" == "$stock_sha" ]] || die "stock config backup hash mismatch"
   remove_handoff_service
-  micctrl --shutdown "$mic" || true
-  sleep 6
   cp -a "$stock_backup" "$stock_conf"
   test "$(sha "$stock_conf")" = "$stock_sha" || die "restored stock config hash mismatch"
-  micctrl --updateramfs "$mic"
-  micctrl --boot "$mic" || true
+  micctrl --reset "$mic"
+  micctrl --wait "$mic"
+  micctrl --boot "$mic"
   wait_state online 30 || die "stock $mic did not return online"
   mkdir -p "$state_root/recovered"
   mv "$state" "$state_root/recovered/$mic.$installed_at.env"

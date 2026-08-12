@@ -70,12 +70,13 @@ chmod +x "$tmp/bin/systemctl"
 
 common_env=(PATH="$tmp/bin:$PATH" HOME="$tmp/home" SUDO_USER=xprtest XPR_INIT_TEST_LOG="$tmp/systemctl.log" \
   XPR_INIT_ROOT="$tmp/root" XPR_INIT_STATE_ROOT="$tmp/state" XPR_INIT_MPSS_DIR="$tmp/mpss" \
-  XPR_INIT_BIN_DIR="$tmp/sbin" XPR_INIT_SYSTEMD_DIR="$tmp/systemd" XPR_INIT_TEST_MODE=1)
+  XPR_INIT_BIN_DIR="$tmp/sbin" XPR_INIT_SUDO_BIN_DIR="$tmp/sudo-sbin" XPR_INIT_SYSTEMD_DIR="$tmp/systemd" XPR_INIT_TEST_MODE=1)
 
 env "${common_env[@]}" "$repo/tools/host/xpr-init" --install \
   --release "$tmp/home/Downloads/xpr-os-0.1.0-rc6.tar.gz" \
   --authorized-key "$tmp/home/.ssh/id_rsa.pub" --identity "$tmp/home/.ssh/id_rsa" > "$tmp/install.out"
 test -x "$tmp/sbin/xpr-init"
+test -L "$tmp/sudo-sbin/xpr-init"
 grep -qx 'XPR_INIT_INSTALL=PASS' "$tmp/install.out"
 grep -q "$tmp/root/current/xpr-bootstrap.cpio.gz" "$tmp/mpss/mic0.conf"
 grep -q 'enable --now xpr-init-handoff@mic0.service' "$tmp/systemctl.log"
