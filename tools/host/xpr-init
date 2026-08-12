@@ -19,7 +19,14 @@ EOF
 }
 
 die() { echo "xpr-init: $*" >&2; exit 1; }
-require_root() { [[ ${EUID:-$(id -u)} -eq 0 ]] || die "must run as root"; }
+require_root() {
+  if [[ ${EUID:-$(id -u)} -eq 0 ]]; then
+    return
+  fi
+  [[ ${XPR_INIT_TEST_MODE:-0} == 1 ]] || die "must run as root"
+  [[ "$root" != /opt/xpr-os && "$state_root" != /var/lib/xpr-init && "$bin_dir" != /usr/local/sbin ]] \
+    || die "test mode requires non-production paths"
+}
 sha() { sha256sum "$1" | awk '{print $1}'; }
 
 command_name=${1:-}
@@ -42,10 +49,11 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-root=/opt/xpr-os
-state_root=/var/lib/xpr-init
+root=${XPR_INIT_ROOT:-/opt/xpr-os}
+state_root=${XPR_INIT_STATE_ROOT:-/var/lib/xpr-init}
+bin_dir=${XPR_INIT_BIN_DIR:-/usr/local/sbin}
 state="$state_root/$mic.env"
-stock_conf="/etc/mpss/$mic.conf"
+stock_conf="${XPR_INIT_MPSS_DIR:-/etc/mpss}/$mic.conf"
 ssh_opts=(-n -o BatchMode=yes -o IdentitiesOnly=yes -i "$identity"
   -o PubkeyAcceptedKeyTypes=+ssh-rsa -o StrictHostKeyChecking=no
   -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10)
@@ -81,10 +89,16 @@ install_xpr() {
   [[ -f "$release/kernel/bzImage" && -f "$release/kernel/System.map" ]] || die "release kernel files missing"
   [[ -f "$release/bootstrap/xpr-bootstrap.cpio.gz" && -f "$release/payload/xpr-rootfs.cpio.gz" ]] || die "release containers missing"
   [[ -x "$release/tools/provision-authorized-key.py" ]] || die "release key provisioner missing"
-  [[ "$authorized_key" != *id_rsa && "$authorized_key" != *id_ed25519 ]] || die "supply a public key, not a private key"
   [[ -r "$identity" ]] || die "SSH identity is not readable: $identity"
 
-  local stamp backup stage config deploy_base deploy_payload
+  local stamp backup stage config deploy_base deploy_payload installed=0
+  rollback_install() {
+    if [[ "$installed" == 0 && -n "${backup:-}" && -f "$backup" ]]; then
+      cp -a "$backup" "$stock_conf"
+    fi
+    [[ -n "${stage:-}" ]] && rm -rf "$stage"
+  }
+  trap rollback_install RETURN
   stamp=$(date -u +%Y%m%d-%H%M%S)
   backup="$state_root/backups/$mic.conf.$stamp"
   mkdir -p "$state_root/backups" "$root/current"
@@ -112,7 +126,7 @@ install_xpr() {
   sed -i "s|^RootDevice Ramfs .*|RootDevice Ramfs $root/current/$mic.image.gz|" "$config"
   mv "$config" "$stock_conf"
   chmod 600 "$stock_conf"
-  install -D -m 755 "$self" /usr/local/sbin/xpr-init
+  install -D -m 755 "$self" "$bin_dir/xpr-init"
 
   cat > "$state" <<EOF
 stock_conf='$stock_conf'
@@ -125,9 +139,11 @@ payload_bytes='$(wc -c < "$root/current/xpr-rootfs.cpio.gz")'
 installed_at='$stamp'
 EOF
   chmod 600 "$state"
+  installed=1
   echo "XPR_INIT_INSTALL=PASS"
   echo "XPR_INIT_STOCK_BACKUP=$backup"
   echo "Run: micctrl --updateramfs $mic && micctrl --boot $mic && xpr-init handoff"
+  trap - RETURN
 }
 
 handoff() {

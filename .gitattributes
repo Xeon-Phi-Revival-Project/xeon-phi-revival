@@ -5,6 +5,7 @@
 *.S text eol=lf
 *.sh text eol=lf
 tools/host/xpr-init text eol=lf
+tools/host/test-xpr-init-install.sh text eol=lf
 *.py text eol=lf
 *.yml text eol=lf
 *.yaml text eol=lf
