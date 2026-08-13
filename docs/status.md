@@ -101,7 +101,7 @@ manual RC6 procedure is retained for advanced troubleshooting and learning.
 
 1. **XPR-OS maintenance and release engineering** — preserve the validated RC6 baseline while preparing future improvements cleanly.
 2. **xpr-init packaging and polish** — key generation, status/diagnostics, fresh-user flow, and reboot persistence are validated on the tested baseline; the main remaining usability issue is packaging `xpr-init` with a future release instead of requiring the frozen RC6 archive plus a current repository checkout.
-3. **K1OM toolchain and SDK work** — make practical compilation less dependent on a historical host environment.
+3. **K1OM toolchain and SDK work**: the initial XPR K1OM Toolkit now compiles and runs dynamic C hello and pthread examples on the validated 5110P baseline; it still requires the historical MPSS SDK compiler and a source-built XPR eglibc stage.
 4. **Software ports and runtime expansion** — explore useful programs and libraries on the validated K1OM baseline.
 5. **Source-package / xpr-build research** — investigate rebuilding normal source packages and dependencies for K1OM; this is future work, not a current package manager.
 6. **Hardware preservation** — collect compatibility and recovery evidence on additional Knights Corner cards without generalizing from untested hardware.

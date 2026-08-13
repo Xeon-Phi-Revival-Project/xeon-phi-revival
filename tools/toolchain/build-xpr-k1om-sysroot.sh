@@ -56,6 +56,9 @@ done
 mkdir -p "$out/sysroot/usr/include" "$out/sysroot/usr/lib64" "$out/metadata"
 cp -a "$work/root/lib64" "$out/sysroot/lib64"
 ln -s lib64 "$out/sysroot/lib"
+# eglibc's installed linker scripts name /usr/lib/*.a.  K1OM uses the LP64
+# lib64 directory, so keep the script-visible path inside this sysroot.
+ln -s lib64 "$out/sysroot/usr/lib"
 cp -a "$eglibc_stage/usr/include/." "$out/sysroot/usr/include/"
 for item in crt1.o Scrt1.o Mcrt1.o gcrt1.o crti.o crtn.o libc_nonshared.a libpthread_nonshared.a; do
   [[ -e "$eglibc_libdir/$item" ]] && cp -a "$eglibc_libdir/$item" "$out/sysroot/usr/lib64/"

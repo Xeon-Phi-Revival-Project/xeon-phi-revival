@@ -9,9 +9,9 @@ XPR.
 
 ## Current State
 
-The prior SDK-CRT host-side setup and static validation passed on the tested
-CentOS 7.4 + MPSS 3.4.10 host. The source-built-CRT path below is the required
-replacement and awaits the same host and 5110P validation:
+The source-built-CRT path below passed host-side setup, K1OM ELF validation,
+and live execution on the tested CentOS 7.4 + MPSS 3.4.10 host and Xeon Phi
+5110P:
 
 ```bash
 tools/toolchain/build-xpr-k1om-eglibc-stage.sh \
@@ -30,18 +30,17 @@ This produces an Intel K1OM dynamic ELF with interpreter
 `/lib64/ld-linux-k1om.so.2`, XPR `/lib64` RPATH, and no host-library path in
 dynamic metadata. `examples/k1om/pthread.c` also compiles and links.
 
-## Current Blocker
+## Validated Scope
 
-This is **not yet a supported live compiler workflow**. On the real 5110P,
-binaries linked with the MPSS SDK CRT objects exit successfully but do not emit
-the expected `puts` output. The known-good RC6 helpers use the project-built
-eglibc CRT objects. The toolkit now requires the stage emitted by the tracked
-source builder rather than silently substituting an SDK or historical private
-CRT path. A live retry is pending while the MPSS host is unreachable.
+The 5110P executed the source-built-CRT `hello` and `pthread` examples from
+the final XPR root. The former printed `Hello from XPR-OS on K1OM`; the latter
+printed `XPR toolkit pthread result=123`. The SDK CRT path remains rejected:
+it previously produced binaries that exited successfully but emitted no
+stdio output. The toolkit does not silently substitute it.
 
-The next focused toolkit task is to rerun the hello and pthread 5110P
-validation with the source-built CRT path. This is runtime/sysroot closure
-work, not a new compiler backend or package-manager project.
+This validates C development for these compact dynamic programs. C++,
+package building, `xpr-build`, and a modern compiler backend remain out of
+scope.
 
 ## Boundary
 

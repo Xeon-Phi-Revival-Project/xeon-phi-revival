@@ -12,7 +12,7 @@ Host: CentOS 7.4 with MPSS 3.4.10 and separately installed
 | GCC SHA-256 | `e4becb8ba03656d06751cf485f5302eadc7516c9284f28a6b8ee2d999dfc43fb` |
 | readelf SHA-256 | `36c200ef5c0ebfbd59dbf8989e2b61af89466dc10fa082b0c9805ea66982e3ea` |
 | Binutils | 2.22.52.20120302 |
-| Sysroot construction | PASS: RC6 payload runtime plus user-supplied SDK headers/CRT/link inputs |
+| Sysroot construction | PASS: RC6 payload runtime plus source-built XPR eglibc headers/CRT/link inputs and user-supplied SDK compiler support |
 | Hello compile | PASS |
 | Pthread compile | PASS |
 | ELF machine | PASS: Intel K1OM |
@@ -22,23 +22,25 @@ Host: CentOS 7.4 with MPSS 3.4.10 and separately installed
 Host-built hashes during the validation:
 
 ```text
-hello    3ed219a5d86b38be0aaf54fcf9af5947ac58ccaf9e24a0c9b99bf2e9896f2093
-pthread  48e41563e16367519c30e63d48dd061597e86346c9c30509f01c1b8e031f7e5f
+hello    63dbed29bc67ec4d9c18d8e959d7fa181b4240617eb2e6c600c4f87427652b7a
+pthread  248725441cd6ec49740ad7b11d86d9fd5751b90d8cfd2f0136320d9fc5d01b53
 ```
 
 ## Live 5110P Result
 
-The binaries transferred and executed with exit status zero on final XPR-OS,
-but neither emitted its expected `puts` output. Existing project helpers built
-with the source-built RC6 runtime did emit output in the same SSH session.
+The final XPR root on the 5110P ran both source-built-CRT toolkit programs over
+authenticated SSH:
 
-`LIVE_TOOLKIT_OUTPUT=FAIL`
+```text
+Hello from XPR-OS on K1OM
+XPR toolkit pthread result=123
+```
 
-The observed difference is the startup-object path: the toolkit used SDK CRT
-objects while the known-good helpers use source-built eglibc CRT objects. The
-toolkit builder now requires the stage emitted by the tracked eglibc builder.
-The live retry is pending while the MPSS host is unreachable. No kernel, boot,
-MPSS, or runtime image change was attempted.
+The card-side binary hashes matched the host-built values above. The final root
+was reached through the normal `xpr-init` automatic handoff. No kernel, MPSS,
+or runtime-image change was required.
+
+`LIVE_TOOLKIT_OUTPUT=PASS`
 
 ## Recovery
 
