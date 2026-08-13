@@ -5,7 +5,7 @@ not part of the frozen RC6 runtime archive. It has been live-validated on the
 project's CentOS 7.4 + MPSS 3.4.10 + Intel Xeon Phi 5110P configuration:
 
 ```text
-install -> micctrl reset/wait/boot -> automatic handoff -> SSH -> recover
+install -> boot/handoff -> SSH -> reboot persistence -> recover
 ```
 
 ## Before You Begin
@@ -52,14 +52,19 @@ sudo ln -sfn /usr/local/sbin/xpr-init /usr/sbin/xpr-init
 # a dedicated ~/.ssh/xpr_os_rsa key pair for XPR-OS.
 sudo xpr-init --install
 
-# A card that is already online must return to ready before micctrl can boot it.
+# For an explicit first boot, or whenever mic0 is not already online with XPR:
 sudo micctrl --reset mic0
 sudo micctrl --wait mic0
 sudo micctrl --boot mic0
 
 # The installed host service waits for the bootstrap, transfers and verifies
-# the final root, and completes the handoff automatically. Then connect:
-ssh -o IdentitiesOnly=yes -i ~/.ssh/id_rsa mic0
+# the final root, and completes the handoff automatically.
+# If xpr-init generated the dedicated key, connect with:
+ssh -o IdentitiesOnly=yes -i ~/.ssh/xpr_os_rsa mic0
+
+# If xpr-init reused an existing compatible RSA key instead, use that key's
+# matching private-key path. xpr-init --status can help identify the installed
+# key state without printing private-key material.
 
 # Later, when finished:
 sudo xpr-init --recover
@@ -79,11 +84,11 @@ backs up and hashes the active stock MPSS configuration, installs XPR artifacts
 below `/opt/xpr-os`, and changes the active MPSS configuration to reference the
 XPR kernel and Base CPIO. It also installs the host handoff service.
 
-After a normal XPR `micctrl --boot`, the service waits for bootstrap SSH,
-transfers the final-root payload, verifies its byte count and SHA-256, requests
-the `switch_root` transition, and waits for final XPR PID 1/network readiness.
-The bootstrap SSH connection disappearing during `switch_root` is expected;
-the final XPR root starts its own Dropbear SSH service.
+After an XPR `micctrl --boot`, the service waits for bootstrap SSH, transfers
+the final-root payload, verifies its byte count and SHA-256, requests the
+`switch_root` transition, and waits for final XPR PID 1/network readiness. The
+bootstrap SSH connection disappearing during `switch_root` is expected; the
+final XPR root starts its own Dropbear SSH service.
 
 `sudo xpr-init --status` reports the installed release, active configuration
 mode, saved stock hash, current configuration hash, handoff-service state,
@@ -95,17 +100,45 @@ stock configuration, resets `mic0`, waits for ready, and boots it back into
 stock MPSS. The explicit fallback remains available as `sudo xpr-init handoff`
 if systemd is unavailable or the automatic helper has been disabled.
 
-The host-side installation, deployed artifacts, saved stock backup, and enabled
-handoff unit persisted through one normal reboot of the tested host. Do not run
-`--install` again after a normal reboot. The card-side XPR instance is
-RAM-resident, not flashed: once `mic0` has booted again, use the normal
-`micctrl --reset`, `--wait`, and `--boot` sequence and the persisted service
-will complete the handoff.
+## What Happens After A Host Reboot
 
-The install/status/recover lifecycle, direct archive input, auto-discovery, and
-service installation also have host-only fixture coverage. The live 5110P run
-proved automatic handoff, final PID 1, micveth, authenticated final-root SSH,
-and the hello/pthread/dlopen smoke programs. `xpr-init --recover` restored the
-known stock configuration hash, stock boot, and stock SSH. This validation
-applies to the tested host/card configuration only; other MPSS hosts and KNC
-cards remain unvalidated.
+The host-side installation, deployed artifacts, saved stock backup, active XPR
+MPSS configuration, and enabled handoff unit all persisted through a normal
+reboot of the tested host. **Do not rerun `xpr-init --install` after a normal
+reboot.**
+
+On the validated CentOS 7.4 + MPSS 3.4.10 host, `mic0` was already reported
+online with the installed XPR kernel when the host returned from that reboot,
+and the persisted handoff service successfully reached the final XPR root. No
+XPR-owned automatic boot wrapper and no `xpr-init --boot` command were required.
+
+The project has not yet isolated the exact MPSS startup path responsible for
+that observed card boot, so this is documented as tested behavior rather than a
+general guarantee for every MPSS host. If `mic0` is not online with XPR after a
+reboot, use the normal MPSS lifecycle:
+
+```bash
+sudo micctrl --reset mic0
+sudo micctrl --wait mic0
+sudo micctrl --boot mic0
+```
+
+The card-side XPR instance remains RAM-resident and is **not** flashed to the
+Xeon Phi. Host-side XPR configuration persists; the running card-side instance
+must be booted again after card/host power loss by whatever supported MPSS path
+is active on that host.
+
+## Validation Scope
+
+The install/status/recover lifecycle, direct archive input, auto-discovery,
+dedicated RSA-key generation, and service installation have host fixture
+coverage and live 5110P validation. A fresh-user-state run on the existing
+known-good CentOS 7.4 + MPSS 3.4.10 host passed archive discovery, automatic RSA
+key generation, install, handoff, authenticated SSH, all three runtime smokes,
+and exact stock recovery. That was not a literal fresh CentOS/MPSS installation.
+
+The live runs proved automatic handoff, final PID 1, micveth, authenticated
+final-root SSH, `xpr-hello`, `xpr-pthread-smoke`, and `xpr-dlopen-smoke`.
+`xpr-init --recover` repeatedly restored the known stock configuration hash,
+stock boot, and stock SSH. This validation applies to the tested host/card
+configuration only; other MPSS hosts and KNC cards remain unvalidated.

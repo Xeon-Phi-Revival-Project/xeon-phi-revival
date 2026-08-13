@@ -41,20 +41,53 @@ state and deployment artifacts. A new isolated user had one RC6 archive in
 `~/Downloads` and no RSA keys.
 
 The literal `git clone` command could not run because Git was absent from the
-tested host. This was the only beginner documentation gap; the guide now states
-the tested CentOS command to install Git. To avoid silently installing extra
-host packages during validation, an exact copy of the current helper was placed
-in an isolated test tree instead. The no-argument install then passed archive
-discovery, generated the dedicated RSA key, completed automatic handoff, final
-SSH, and all three smoke programs. Recovery again restored the exact stock hash
-and stock SSH.
+tested host. This was the only beginner documentation gap found; the guide now
+states the tested CentOS command to install Git. To avoid silently installing
+extra host packages during validation, an exact copy of the current helper was
+placed in an isolated test tree instead. The no-argument install then passed
+archive discovery, generated the dedicated RSA key, completed automatic
+handoff, final SSH, and all three smoke programs. Recovery again restored the
+exact stock hash and stock SSH.
 
-## Cold-Reboot Status
+## Cold-Reboot Validation
 
 PASS. After one normal host reboot, the saved XPR state, stock backup, deployed
-files, XPR MPSS configuration, and enabled handoff unit all persisted. No
-reinstall was run. `mic0` appeared online with the installed XPR kernel after
-host startup; the documented reset/wait/boot sequence was then run and the
-persisted handoff service again reached final PID 1, micveth, generated-key
-SSH, and all three smoke programs. Recovery again restored the exact stock
-configuration hash and stock SSH (`k1om`, PID 1 `init`).
+files, active XPR MPSS configuration, and enabled handoff unit all persisted.
+No reinstall was run or required.
+
+When the host returned, `mic0` was already reported online using the installed
+XPR kernel. No XPR-owned automatic boot wrapper and no `xpr-init --boot` command
+had been added. The exact MPSS startup path responsible for that observed card
+boot was not isolated during this validation and is therefore not generalized
+to other MPSS hosts.
+
+For conservative lifecycle coverage, the documented reset/wait/boot sequence
+was still exercised during the validation. The persisted handoff service then
+reached final XPR PID 1, micveth, generated-key SSH, `xpr-hello`,
+`xpr-pthread-smoke`, and `xpr-dlopen-smoke` again.
+
+Recovery after the reboot test restored the exact stock configuration hash
+`9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51` and
+stock SSH (`k1om`, PID 1 `init`).
+
+## Validated Claims
+
+For the tested 5110P + CentOS 7.4 + MPSS 3.4.10 baseline, the evidence supports
+all of the following:
+
+- `xpr-init` can perform a no-argument first-use install when release discovery
+  is unambiguous;
+- a dedicated RSA key pair is generated safely when no compatible RSA key is
+  present;
+- the generated private key remains host-only;
+- automatic bootstrap-to-final-root handoff works;
+- final PID 1, micveth, authenticated SSH, and the three runtime smokes work;
+- host-side XPR installation/state persists through a normal reboot;
+- reinstalling XPR after that reboot is unnecessary;
+- `mic0` was observed online with the XPR kernel after that reboot on this host;
+  and
+- recovery repeatedly restores the exact known stock MPSS configuration and
+  stock runtime state.
+
+The validation does not establish a literal fresh CentOS/MPSS installation, nor
+does it prove identical automatic card-start behavior on other MPSS hosts.
