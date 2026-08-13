@@ -18,7 +18,7 @@ UPSTREAM = (
     ("mpc-0.8.1.tar.gz", "e664603757251fd8a352848276497a4c79b7f8b21fd8aedd5cc0598a38fee3e4"),
     ("binutils-2.22+mpss3.8.6.tar.bz2", "0e498581badb505bd2639bc1f75debe9299212fb50e8eee5deb40631a78abd9c"),
     ("eglibc_2.19.orig.tar.xz", "e5d30be72b702dffae527779af1be755f0dfbf13c171998a04f7265cd4da131f"),
-    ("eglibc_2.19-0ubuntu6.15.debian.tar.xz", "2e0a1d4dfbc8bb666604d6804b9fbd9ce7a1f23b2a5bcb487f5a774d2c557e4"),
+    ("eglibc_2.19-0ubuntu6.15.debian.tar.xz", "2e0a1d4dfbc8bb666604d6804b9fbd9ce7a1f23b2a5bcb487f5a774d2c557e4c"),
 )
 
 def sha256(path):
@@ -93,7 +93,11 @@ def main():
         shutil.copy2(source, os.path.join(upstream_dir, filename))
         sources.append({"file": filename, "sha256": expected})
     solros = os.path.join(upstream_dir, "solros-bda6ce.tar.gz")
-    extract_member(args.rc6_sources, "/sources/solros-bda6ce.tar.gz", solros)
+    source_solros = os.path.join(args.source_dir, "solros-bda6ce.tar.gz")
+    if os.path.isfile(source_solros):
+        shutil.copy2(source_solros, solros)
+    else:
+        extract_member(args.rc6_sources, "/sources/solros-bda6ce.tar.gz", solros)
     sources.append({"file": "solros-bda6ce.tar.gz", "sha256": sha256(solros),
                     "from": "xpr-os-0.1.0-rc6-sources.tar.gz"})
     repo_stage = os.path.join(stage, "repository")
@@ -113,9 +117,9 @@ def main():
         ("gcc-5.1.1-knc-af7cc04.tar.gz", "/COPYING.RUNTIME", "GCC-Runtime-Library-Exception-3.1.txt"),
         ("binutils-2.22+mpss3.8.6.tar.bz2", "/COPYING", "Binutils-GPL-3.0-or-later.txt"),
         ("eglibc_2.19.orig.tar.xz", "/COPYING.LIB", "Eglibc-LGPL-2.1-or-later.txt"),
-        ("gmp-4.3.2.tar.bz2", "/COPYINGv3", "GMP-LGPL-3.0-or-later.txt"),
-        ("mpfr-2.4.2.tar.bz2", "/COPYING", "MPFR-LGPL-3.0-or-later.txt"),
-        ("mpc-0.8.1.tar.gz", "/COPYING.LESSER", "MPC-LGPL-3.0-or-later.txt"),
+        ("gmp-4.3.2.tar.bz2", "/COPYING.LIB", "GMP-LGPL-3.0-or-later.txt"),
+        ("mpfr-2.4.2.tar.bz2", "/COPYING.LIB", "MPFR-LGPL-3.0-or-later.txt"),
+        ("mpc-0.8.1.tar.gz", "/COPYING.LIB", "MPC-LGPL-3.0-or-later.txt"),
     )
     for archive, suffix, output in extracted:
         extract_member(os.path.join(upstream_dir, archive), suffix, os.path.join(licenses, output))
@@ -142,7 +146,10 @@ def main():
             {"SPDXID":"SPDXRef-Eglibc","name":"eglibc","versionInfo":"2.19-0ubuntu6.15","downloadLocation":"https://launchpad.net/ubuntu/+source/eglibc/2.19-0ubuntu6.15","licenseConcluded":"LGPL-2.1-or-later","licenseDeclared":"LGPL-2.1-or-later"},
             {"SPDXID":"SPDXRef-Libgcc","name":"libgcc","versionInfo":"5.1.1","downloadLocation":"git+https://github.com/apc-llc/gcc-5.1.1-knc.git@af7cc04cef723da3166f0d6f1539f02525fe5a93","licenseConcluded":"GPL-3.0-or-later WITH GCC-exception-3.1","licenseDeclared":"GPL-3.0-or-later WITH GCC-exception-3.1"},
         ]
-        files, relationships, known = [], [], set(item["SPDXID"] for item in packages)
+        files = [{"SPDXID":"SPDXRef-ReleaseArchive","fileName":"./xpr-k1om-toolkit-%s-linux-x86_64.tar.xz" % args.version,"checksums":[{"algorithm":"SHA256","checksumValue":EXPECTED_TOOLKIT_SHA256}],"licenseConcluded":"NOASSERTION","licenseInfoInFiles":["NOASSERTION"],"copyrightText":"NOASSERTION"}]
+        relationships, known = [], set(item["SPDXID"] for item in packages)
+        known.add("SPDXRef-ReleaseArchive")
+        relationships.append({"spdxElementId":"SPDXRef-XPRToolkit","relationshipType":"CONTAINS","relatedSpdxElement":"SPDXRef-ReleaseArchive"})
         counter = 0
         for current, _, names in os.walk(root):
             for name in sorted(names):
@@ -159,8 +166,14 @@ def main():
     sbom = os.path.join(args.out, "xpr-k1om-toolkit-%s.spdx.json" % args.version)
     with open(sbom, "w") as handle: json.dump(document, handle, indent=2, sort_keys=True); handle.write("\n")
     assert document["spdxVersion"] == "SPDX-2.3" and all(item["SPDXID"] in known for item in relationships for item in (item["spdxElementId"], item["relatedSpdxElement"]))
+    # Ship the notices document with the license texts, not merely alongside it
+    # in the corresponding-source archive.
+    notices_root = os.path.join(args.out, "xpr-k1om-toolkit-%s-notices" % args.version)
+    os.makedirs(notices_root)
+    safe_copytree(os.path.join(stage, "LICENSES"), os.path.join(notices_root, "LICENSES"))
+    shutil.copy2(os.path.join(stage, "THIRD-PARTY-NOTICES.md"), notices_root)
     notices_archive = os.path.join(args.out, "xpr-k1om-toolkit-%s-notices.tar.xz" % args.version)
-    deterministic_tar(os.path.join(stage, "LICENSES"), notices_archive)
+    deterministic_tar(notices_root, notices_archive)
     checksums = os.path.join(args.out, "SHA256SUMS")
     with open(checksums, "w") as handle:
         for path in (args.toolkit, source_archive, sbom, notices_archive): handle.write("%s  %s\n" % (sha256(path), os.path.basename(path)))
