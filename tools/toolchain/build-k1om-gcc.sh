@@ -7,8 +7,9 @@ usage() {
 Usage: build-k1om-gcc.sh --gcc ARCHIVE --gmp ARCHIVE --mpfr ARCHIVE --mpc ARCHIVE \
   --target-tools DIR --sysroot DIR --out DIR [--jobs N]
 
-Builds only the cross C compiler. Target runtime libraries are built later by
-build-k1om-libgcc.sh against the source-built XPR eglibc stage.
+Builds the cross C compiler plus a source-built bootstrap libgcc. The final
+shared libgcc runtime is rebuilt later against the source-built XPR eglibc
+stage.
 EOF
 }
 
@@ -74,11 +75,11 @@ STRIP_FOR_TARGET="$target_tools/k1om-mpss-linux-strip" \
     --disable-libsanitizer --with-as="$target_tools/k1om-mpss-linux-as" \
     --with-ld="$target_tools/k1om-mpss-linux-ld" --with-sysroot="$sysroot" \
     > "$out/configure.log" 2>&1
-make -j"$jobs" all-gcc > "$out/build.log" 2>&1
+make -j"$jobs" all-gcc all-target-libgcc > "$out/build.log" 2>&1
 grep -F 'ORIGINAL_AS_FOR_TARGET="' gcc/as | grep -F 'k1om-mpss-linux-as"' >/dev/null || {
     echo "generated target-as wrapper is not bound to KNC binutils" >&2; exit 1;
 }
-make install-gcc > "$out/install.log" 2>&1
+make install-gcc install-target-libgcc > "$out/install.log" 2>&1
 popd >/dev/null
 
 [[ -x "$out/install/bin/k1om-mpss-linux-gcc" ]] || { echo "GCC install missing driver" >&2; exit 1; }
