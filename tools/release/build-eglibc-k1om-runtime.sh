@@ -76,6 +76,10 @@ pushd "$out/build" >/dev/null
 BUILD_CC=gcc CC="${cross_compile}gcc" AR="${cross_compile}ar" \
     AS="${cross_compile}as" LD="${cross_compile}ld" NM="${cross_compile}nm" \
     RANLIB="${cross_compile}ranlib" READELF="${cross_compile}readelf" \
+    # Stage-one GCC is intentionally built before target libgcc.  Its forced
+    # unwind probe cannot link yet, although the subsequent source-built
+    # libgcc stage supplies the required unwind implementation.
+    libc_cv_forced_unwind=yes \
     libc_cv_ssp=no \
     CFLAGS="-O2 -fno-stack-protector" \
     "$source_dir/configure" --build=x86_64-pc-linux-gnu --host=k1om-mpss-linux \
