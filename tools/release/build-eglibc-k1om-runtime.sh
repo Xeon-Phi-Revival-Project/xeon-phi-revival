@@ -72,13 +72,13 @@ printf 'overlay_sha256=%s\n' "$(find "$overlay" -type f -print0 | sort -z | xarg
 "${cross_compile}gcc" --version | head -n 1 | tee -a "$out/build-provenance.txt"
 "${cross_compile}ld" --version | head -n 1 | tee -a "$out/build-provenance.txt"
 
+# Stage-one GCC is intentionally built before target libgcc. Its forced-unwind
+# probe cannot link yet, although the subsequent source-built libgcc stage
+# supplies the required unwind implementation.
 pushd "$out/build" >/dev/null
 BUILD_CC=gcc CC="${cross_compile}gcc" AR="${cross_compile}ar" \
     AS="${cross_compile}as" LD="${cross_compile}ld" NM="${cross_compile}nm" \
     RANLIB="${cross_compile}ranlib" READELF="${cross_compile}readelf" \
-    # Stage-one GCC is intentionally built before target libgcc.  Its forced
-    # unwind probe cannot link yet, although the subsequent source-built
-    # libgcc stage supplies the required unwind implementation.
     libc_cv_forced_unwind=yes \
     libc_cv_ssp=no \
     CFLAGS="-O2 -fno-stack-protector" \
