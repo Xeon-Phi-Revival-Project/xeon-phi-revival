@@ -64,7 +64,7 @@ install -D -m 0644 k1om-mpss-linux/libgcc/libgcc.a \
 make -C k1om-mpss-linux/libgcc libgcc_eh.a >> "$out/gcc/build.log" 2>&1
 install -m 0644 k1om-mpss-linux/libgcc/libgcc_eh.a \
     "$out/gcc/install/lib/gcc/k1om-mpss-linux/$gcc_version/libgcc_eh.a"
-for object in crtbegin.o crtbeginS.o crtend.o crtendS.o; do
+for object in crtbegin.o crtbeginS.o crtbeginT.o crtend.o crtendS.o; do
     make -C k1om-mpss-linux/libgcc "$object" >> "$out/gcc/build.log" 2>&1
     install -m 0644 "k1om-mpss-linux/libgcc/$object" \
         "$out/gcc/install/lib/gcc/k1om-mpss-linux/$gcc_version/$object"
