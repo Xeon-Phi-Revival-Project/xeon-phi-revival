@@ -59,6 +59,12 @@ xpr-init --install
 Automatic bootstrap-to-final-root handoff, final SSH, the three runtime smoke
 programs, and recovery have all passed on the 5110P baseline above.
 
+A fresh-user-state validation on that existing known-good host also passed
+archive auto-discovery, dedicated RSA-key generation, installation, handoff,
+smokes, and recovery. It was not a fresh CentOS/MPSS installation; Git was
+absent on the tested host, so the guide now lists Git as a host prerequisite for
+cloning the current `xpr-init` helper.
+
 The host-side installation files, saved stock configuration, state, and enabled
 handoff service persisted through one normal reboot of the tested host. The
 XPR-OS instance running on the card is RAM-resident and is lost when card/host

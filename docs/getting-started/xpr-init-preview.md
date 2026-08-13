@@ -21,6 +21,13 @@ You need:
   the public key into deployment copies and never copies your private key into
   XPR-OS.
 
+The current helper is obtained from this repository, so Git is also required.
+On the tested CentOS 7 host, install it before cloning when it is absent:
+
+```bash
+sudo yum install -y git
+```
+
 For the simplest auto-discovery path, place the RC6 binary archive in the
 invoking user's `~/Downloads` directory. `xpr-init` uses exactly one compatible
 RSA public key with its matching private key when it finds one. If it finds no
