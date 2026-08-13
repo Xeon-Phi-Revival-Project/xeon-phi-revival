@@ -42,10 +42,12 @@ claim of support for every Xeon Phi.
 `xpr-init` is the host-side installation, integration, automatic handoff, and
 recovery helper. It does not replace MPSS or `micctrl`.
 
-The tested end-to-end path is:
+The tested first-install path is:
 
 ```text
 xpr-init --install
+  -> archive auto-discovery
+  -> existing RSA key selection or dedicated RSA-key generation
   -> micctrl reset / wait / boot
   -> bootstrap SSH
   -> verified payload transfer
@@ -57,21 +59,37 @@ xpr-init --install
 ```
 
 Automatic bootstrap-to-final-root handoff, final SSH, the three runtime smoke
-programs, and recovery have all passed on the 5110P baseline above.
+programs, and recovery have all passed on the 5110P baseline above. Dedicated
+RSA-key generation was also live-tested with an isolated invoking user; the
+private key remained host-only.
 
-A fresh-user-state validation on that existing known-good host also passed
-archive auto-discovery, dedicated RSA-key generation, installation, handoff,
-smokes, and recovery. It was not a fresh CentOS/MPSS installation; Git was
-absent on the tested host, so the guide now lists Git as a host prerequisite for
-cloning the current `xpr-init` helper.
+A fresh-user-state validation on that existing known-good host passed archive
+auto-discovery, dedicated RSA-key generation, installation, handoff, smokes,
+and recovery. It was not a fresh CentOS/MPSS installation. The literal beginner
+flow exposed one host prerequisite gap: Git was absent, so the guide now lists
+`sudo yum install -y git` for the tested CentOS host when needed.
 
-The host-side installation files, saved stock configuration, state, and enabled
-handoff service persisted through one normal reboot of the tested host. The
-XPR-OS instance running on the card is RAM-resident and is lost when card/host
-power is removed; XPR is not flashed to the card. After reboot, use the normal
-`micctrl --reset`, `--wait`, and `--boot` lifecycle without rerunning
-`xpr-init --install`; the persisted handoff service completes the final-root
-transition.
+## Reboot Persistence: Validated
+
+The host-side installation files, saved stock configuration, state, active XPR
+MPSS configuration, and enabled handoff service persisted through a normal
+reboot of the tested host. Reinstalling XPR with `xpr-init --install` was **not**
+required.
+
+After that reboot, `mic0` was observed already online with the installed XPR
+kernel, and the persisted handoff path successfully reached final XPR PID 1,
+micveth, generated-key SSH, and all three runtime smoke programs. No XPR-owned
+automatic card-boot service and no `xpr-init --boot` command were added.
+
+The project has not yet isolated the exact MPSS startup path responsible for the
+observed post-reboot card boot, so that behavior is recorded as evidence for the
+tested CentOS 7.4 + MPSS 3.4.10 system rather than generalized to every MPSS
+host. The normal `micctrl --reset`, `--wait`, and `--boot` lifecycle remains the
+explicit fallback when `mic0` is not already online with XPR.
+
+The card-side XPR instance remains RAM-resident and is not flashed permanently
+to the Xeon Phi. Host-side configuration persistence and card-side runtime
+persistence are separate properties.
 
 ## Current User Path
 
@@ -82,9 +100,7 @@ manual RC6 procedure is retained for advanced troubleshooting and learning.
 ## Active Engineering Tracks
 
 1. **XPR-OS maintenance and release engineering** — preserve the validated RC6 baseline while preparing future improvements cleanly.
-2. **xpr-init usability** — dedicated RSA-key generation fallback and
-   host-side diagnostics are validated; cold-host-reboot persistence and future
-   release packaging remain to be validated.
+2. **xpr-init packaging and polish** — key generation, status/diagnostics, fresh-user flow, and reboot persistence are validated on the tested baseline; the main remaining usability issue is packaging `xpr-init` with a future release instead of requiring the frozen RC6 archive plus a current repository checkout.
 3. **K1OM toolchain and SDK work** — make practical compilation less dependent on a historical host environment.
 4. **Software ports and runtime expansion** — explore useful programs and libraries on the validated K1OM baseline.
 5. **Source-package / xpr-build research** — investigate rebuilding normal source packages and dependencies for K1OM; this is future work, not a current package manager.
@@ -97,8 +113,10 @@ The project does not currently claim:
 - production readiness;
 - support for every Knights Corner card;
 - Knights Landing compatibility;
-- a modern native package repository;
-- a modern GCC/LLVM K1OM backend;
+- a literal fresh CentOS 7.4 + MPSS 3.4.10 installation validation;
+- identical automatic card-start behavior on every MPSS host;
+- a modern native package repository; or
+- a modern GCC/LLVM K1OM backend.
 
 Historical blockers, old project plans, and superseded experiments are preserved
 under [Research](research/README.md) rather than being mixed into current status.
