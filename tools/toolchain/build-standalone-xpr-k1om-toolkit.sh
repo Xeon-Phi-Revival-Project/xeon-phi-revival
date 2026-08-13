@@ -48,7 +48,20 @@ bash "$repo/tools/toolchain/build-k1om-gcc.sh" \
     --gcc "$inputs/gcc-5.1.1-knc-af7cc04.tar.gz" --gmp "$inputs/gmp-4.3.2.tar.bz2" \
     --mpfr "$inputs/mpfr-2.4.2.tar.bz2" --mpc "$inputs/mpc-0.8.1.tar.gz" \
     --target-tools "$out/binutils/target-tools" --sysroot "$out/bootstrap-sysroot" \
-    --out "$out/gcc" --jobs "$jobs"
+    --out "$out/gcc" --jobs "$jobs" --keep-work
+bash "$repo/tools/release/build-eglibc-k1om-bootstrap-headers.sh" \
+    --orig "$inputs/eglibc_2.19.orig.tar.xz" --debian "$inputs/eglibc_2.19-0ubuntu6.15.debian.tar.xz" \
+    --overlay "$repo/ubuntu-port/k1om/glibc" --linux-headers "$out/linux-headers/usr/include" \
+    --gcc-build "$out/gcc/build" --target-tools "$out/binutils/target-tools" \
+    --out "$out/eglibc-bootstrap-headers"
+cp -a "$out/eglibc-bootstrap-headers/usr/include/." "$out/bootstrap-sysroot/usr/include/"
+pushd "$out/gcc/build" >/dev/null
+make configure-target-libgcc >> "$out/gcc/build.log" 2>&1
+make -C k1om-mpss-linux/libgcc libgcc.a >> "$out/gcc/build.log" 2>&1
+gcc_version=$("$out/gcc/install/bin/k1om-mpss-linux-gcc" -dumpversion)
+install -D -m 0644 k1om-mpss-linux/libgcc/libgcc.a \
+    "$out/gcc/install/lib/gcc/k1om-mpss-linux/$gcc_version/libgcc.a"
+popd >/dev/null
 mkdir -p "$out/cross/bin"
 ln -s "$out/gcc/install/bin/k1om-mpss-linux-gcc" "$out/cross/bin/k1om-mpss-linux-gcc"
 for tool in ar as ld nm ranlib readelf; do

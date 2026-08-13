@@ -5,15 +5,14 @@ set -euo pipefail
 usage() {
     cat <<'EOF'
 Usage: build-k1om-gcc.sh --gcc ARCHIVE --gmp ARCHIVE --mpfr ARCHIVE --mpc ARCHIVE \
-  --target-tools DIR --sysroot DIR --out DIR [--jobs N]
+  --target-tools DIR --sysroot DIR --out DIR [--jobs N] [--keep-work]
 
-Builds the cross C compiler plus a source-built bootstrap libgcc. The final
-shared libgcc runtime is rebuilt later against the source-built XPR eglibc
-stage.
+Builds the cross C compiler.  A caller that needs a bootstrap libgcc must
+first stage libc headers, then build it from this retained GCC build tree.
 EOF
 }
 
-gcc_archive= gmp_archive= mpfr_archive= mpc_archive= target_tools= sysroot= out= jobs=2
+gcc_archive= gmp_archive= mpfr_archive= mpc_archive= target_tools= sysroot= out= jobs=2 keep_work=no
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --gcc) gcc_archive=$2; shift 2 ;;
@@ -24,6 +23,7 @@ while [[ $# -gt 0 ]]; do
         --sysroot) sysroot=$2; shift 2 ;;
         --out) out=$2; shift 2 ;;
         --jobs) jobs=$2; shift 2 ;;
+        --keep-work) keep_work=yes; shift ;;
         -h|--help) usage; exit 0 ;;
         *) usage >&2; exit 2 ;;
     esac
@@ -42,7 +42,9 @@ done
 [[ -d "$sysroot" && ! -e "$out" ]] || { echo "invalid sysroot or existing output" >&2; exit 1; }
 
 mkdir -p "$out/work" "$out/build"
-trap 'rm -rf "$out/work"' EXIT
+if [[ "$keep_work" != yes ]]; then
+    trap 'rm -rf "$out/work"' EXIT
+fi
 for archive in "$gcc_archive" "$gmp_archive" "$mpfr_archive" "$mpc_archive"; do
     tar -C "$out/work" -xf "$archive"
 done
@@ -80,15 +82,7 @@ make -j"$jobs" all-gcc > "$out/build.log" 2>&1
 grep -F 'ORIGINAL_AS_FOR_TARGET="' gcc/as | grep -F 'k1om-mpss-linux-as"' >/dev/null || {
     echo "generated target-as wrapper is not bound to KNC binutils" >&2; exit 1;
 }
-make configure-target-libgcc >> "$out/build.log" 2>&1
-# GCC 5.1.1's complete libgcc target includes gcov sources, which need libc
-# headers. Build only the header-independent static archive for eglibc's first
-# link; the final libgcc/libgcc_s rebuild happens after eglibc is available.
-make -C "$out/build/k1om-mpss-linux/libgcc" libgcc.a >> "$out/build.log" 2>&1
 make install-gcc > "$out/install.log" 2>&1
-gcc_version=$("$out/install/bin/k1om-mpss-linux-gcc" -dumpversion)
-install -D -m 0644 "$out/build/k1om-mpss-linux/libgcc/libgcc.a" \
-    "$out/install/lib/gcc/k1om-mpss-linux/$gcc_version/libgcc.a"
 popd >/dev/null
 
 [[ -x "$out/install/bin/k1om-mpss-linux-gcc" ]] || { echo "GCC install missing driver" >&2; exit 1; }
