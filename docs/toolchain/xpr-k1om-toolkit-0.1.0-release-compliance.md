@@ -36,8 +36,6 @@ MPSS SDK binary payload. Engineering evidence supports a source-accounted
 rebuild; a qualified reviewer must decide whether any surrounding source-
 distribution terms affect publication of rebuilt binaries.
 
-## Status
-
 ## Clean Rebuild Result
 
 The clean source-only reconstruction now passes. It builds GCC 5.1.1 KNC,
@@ -57,3 +55,24 @@ The package-path scan passed with no `/opt/mpss` or `mpss-sdk` reference.
 candidate remains unchanged, but its publication is
 `TOOLKIT_RELEASE_CANDIDATE=HOLD_HUMAN_REVIEW` pending the independent KNC
 binutils source-distribution licensing interpretation described above.
+
+## Final Release Sidecars
+
+The immutable binary candidate remains
+`xpr-k1om-toolkit-0.1.0-linux-x86_64-b.tar.xz`, SHA-256
+`8227898056918423beab850b4daddd01423e88e75332698f636720d4b6fd6cc2`.
+The final sidecars generated for that exact candidate are:
+
+- `xpr-k1om-toolkit-0.1.0-sources.tar.xz`:
+  `a2ec298e578652fff3118e29af203134c3e73a94da5202a07ff09760f799618a`
+- `xpr-k1om-toolkit-0.1.0.spdx.json`:
+  `a741b0e002fcf94101d085d41b7608fae954966d1a5f8efef5ebbbc235de48a4`
+  (`SPDX_2_3_VALIDATION=PASS`)
+- `xpr-k1om-toolkit-0.1.0-notices.tar.xz`:
+  `4bbe8ce48a24c59834cbe47c14c67d3051c57709820956913dc346d1c171599f`
+
+`SHA256SUMS` records all release-facing files. The final source archive
+contains byte-identical copies of the active standalone-toolkit, EGLIBC
+bootstrap-header, and K1OM GCC build scripts. This confirms the delivered
+recipe matches the clean source-only reconstruction; full archive
+byte-reproducibility has not been asserted.
