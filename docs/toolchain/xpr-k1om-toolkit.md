@@ -9,13 +9,18 @@ XPR.
 
 ## Current State
 
-Host-side setup and static validation pass on the tested CentOS 7.4 + MPSS
-3.4.10 host:
+The prior SDK-CRT host-side setup and static validation passed on the tested
+CentOS 7.4 + MPSS 3.4.10 host. The source-built-CRT path below is the required
+replacement and awaits the same host and 5110P validation:
 
 ```bash
+tools/toolchain/build-xpr-k1om-eglibc-stage.sh \
+  --source-bundle ~/Downloads/xpr-os-0.1.0-rc6-sources.tar.gz \
+  --out build/xpr-k1om-eglibc
+
 tools/toolchain/setup-xpr-k1om-toolkit.sh \
   --release ~/Downloads/xpr-os-0.1.0-rc6.tar.gz \
-  --eglibc-stage /path/to/eglibc-k1om/stage
+  --eglibc-stage build/xpr-k1om-eglibc/stage
 source build/xpr-k1om/env.sh
 xpr-gcc examples/k1om/hello.c -o build/hello
 tools/toolchain/validate-k1om-elf.sh build/hello
