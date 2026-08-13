@@ -62,4 +62,8 @@ BUILD_CC=gcc CC="$cross_cc" AR="$target_tools/k1om-mpss-linux-ar" \
 make install-headers install_root="$out" > "$out/install-headers.log" 2>&1
 popd >/dev/null
 [ -f "$out/usr/include/stdio.h" ] || { echo "eglibc bootstrap stdio.h missing" >&2; exit 1; }
+# The complete runtime build regenerates the architecture-specific stubs list.
+# GCC's initial libgcc compilation only needs the selector to exist.
+mkdir -p "$out/usr/include/gnu"
+: > "$out/usr/include/gnu/stubs.h"
 echo XPR_EGLIBC_BOOTSTRAP_HEADERS=PASS
