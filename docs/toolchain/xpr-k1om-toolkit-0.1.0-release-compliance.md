@@ -38,7 +38,18 @@ distribution terms affect publication of rebuilt binaries.
 
 ## Status
 
-`XPR_STANDALONE_TOOLKIT=TECHNICALLY_PASS` is contingent on the clean source
-rebuild and sidecar validation results. `TOOLKIT_RELEASE_CANDIDATE` remains
-`HOLD_HUMAN_REVIEW` until the KNC binutils source-distribution boundary is
-reviewed by a qualified human.
+## Clean Rebuild Result
+
+The source archive reaches source-built KNC binutils and GCC without an MPSS
+SDK. The fresh stage-one compiler reports `k1om-mpss-linux` from
+`-dumpmachine`, but the subsequent eglibc build produced `EM_X86_64` runtime
+objects (for example `stage/lib/ld-2.19.so`), not `EM_K1OM`. This is a release
+blocker: the fresh GCC/binutils stage does not yet reproduce the validated
+K1OM runtime link semantics. The original validated binary toolkit is
+unchanged.
+
+`XPR_STANDALONE_TOOLKIT=PARTIAL` and `TOOLKIT_RELEASE_CANDIDATE=BLOCKED` until
+that target-selection defect is corrected and the complete source-only rebuild
+produces K1OM ELF files. The independent KNC binutils legal boundary also
+remains subject to qualified human review after the engineering rebuild gate
+passes.
