@@ -61,6 +61,11 @@ make -C k1om-mpss-linux/libgcc libgcc.a >> "$out/gcc/build.log" 2>&1
 gcc_version=$("$out/gcc/install/bin/k1om-mpss-linux-gcc" -dumpversion)
 install -D -m 0644 k1om-mpss-linux/libgcc/libgcc.a \
     "$out/gcc/install/lib/gcc/k1om-mpss-linux/$gcc_version/libgcc.a"
+for object in crtbegin.o crtbeginS.o crtend.o crtendS.o; do
+    make -C k1om-mpss-linux/libgcc "$object" >> "$out/gcc/build.log" 2>&1
+    install -m 0644 "k1om-mpss-linux/libgcc/$object" \
+        "$out/gcc/install/lib/gcc/k1om-mpss-linux/$gcc_version/$object"
+done
 popd >/dev/null
 mkdir -p "$out/cross/bin"
 ln -s "$out/gcc/install/bin/k1om-mpss-linux-gcc" "$out/cross/bin/k1om-mpss-linux-gcc"
