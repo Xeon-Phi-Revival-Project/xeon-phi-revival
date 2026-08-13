@@ -1,9 +1,9 @@
 # xpr-init Future Changes
 
 This document is a parking lot and implementation roadmap for **future** `xpr-init`
-work. It records ideas that have been identified after the successful live
-5110P validation so they can be implemented later without losing context or
-reopening already-solved design questions.
+work. It records ideas identified after live 5110P validation so they can be
+implemented later without losing context or reopening already-solved design
+questions.
 
 Nothing in this document should be treated as implemented, supported, or
 hardware-validated until the corresponding change is merged and tested.
@@ -15,33 +15,26 @@ Current validated baseline:
 - Intel MPSS 3.4.10
 - XPR-OS 0.1.0-rc6 runtime
 - `xpr-init` automatic bootstrap-to-final-root handoff validated on hardware
+- dedicated RSA-key generation validated on hardware
+- fresh-user-state install flow validated on the existing known-good host
+- one normal host reboot persistence cycle validated
 - final XPR PID 1, micveth, authenticated SSH, hello/pthread/dlopen smokes: PASS
-- `xpr-init --recover` restored stock MPSS and the known baseline configuration
-  hash
+- `xpr-init --recover` repeatedly restored stock MPSS and the known baseline
+  configuration hash
 
 ## Completed: Dedicated RSA Key Generation Fallback
-
-### Idea
 
 If `xpr-init --install` cannot find a compatible RSA public key with a matching
 private key, it creates an XPR-specific RSA key pair instead of stopping.
 
-Suggested dedicated key names:
+Dedicated key names:
 
 ```text
 ~/.ssh/xpr_os_rsa
 ~/.ssh/xpr_os_rsa.pub
 ```
 
-Suggested generation command:
-
-```bash
-ssh-keygen -t rsa -b 3072 \
-  -f ~/.ssh/xpr_os_rsa \
-  -C "XPR-OS Xeon Phi access"
-```
-
-### Desired selection behavior
+Selection behavior:
 
 1. Explicit `--authorized-key` / `--identity` wins.
 2. If exactly one compatible RSA key pair is discoverable, use it.
@@ -53,13 +46,7 @@ ssh-keygen -t rsa -b 3072 \
 7. Provision only the public key into deployment-specific bootstrap/final-root
    images.
 
-### Why
-
-This removes one of the remaining first-time-user setup steps while keeping the
-legacy `ssh-rsa` compatibility requirement isolated to XPR rather than forcing
-users to make RSA their general-purpose SSH identity.
-
-### Evidence
+Evidence:
 
 - focused host fixtures cover explicit, zero, one, multiple, reusable, and
   incomplete-key states;
@@ -68,86 +55,77 @@ users to make RSA their general-purpose SSH identity.
 - automatic handoff, final PID 1, micveth, generated-key SSH, hello, pthread,
   dlopen, and stock recovery passed.
 
-## Priority 2: Host Reboot / Power-Cycle Persistence Validation
-
-### Current design
+## Completed: Host Reboot Persistence Validation
 
 `xpr-init --install` stores persistent host-side state, including deployment
 artifacts, the saved stock MPSS configuration, active XPR MPSS configuration,
 and the enabled handoff systemd service. The running card-side XPR-OS instance
-is volatile and must be booted again after power loss.
+is volatile and is not flashed to the card.
 
-The intended post-reboot behavior is therefore:
+A normal reboot of the tested CentOS 7.4 + MPSS 3.4.10 host validated that:
 
-```text
-host powers on
-    -> xpr-init installation/state is still present
-    -> handoff service is enabled
-    -> operator boots mic0 with normal micctrl reset/wait/boot
-    -> handoff service detects bootstrap
-    -> final XPR root is entered automatically
-```
+- XPR host state persisted;
+- `/opt/xpr-os` deployment artifacts persisted;
+- the saved stock backup persisted unchanged;
+- the active XPR MPSS configuration persisted;
+- the handoff unit remained installed and enabled;
+- `xpr-init --install` did not need to be rerun;
+- final XPR PID 1, micveth, generated-key SSH, and all three runtime smokes
+  passed after the reboot; and
+- `xpr-init --recover` again restored the exact known stock configuration hash
+  and stock SSH state.
 
-### Future validation
+### Observed host-start behavior
 
-Perform one explicit cold-host-reboot or full power-cycle test:
+When the host returned from the validated reboot, `mic0` was already reported
+online with the installed XPR kernel. No XPR-owned automatic card-boot wrapper
+and no `xpr-init --boot` command had been installed.
 
-1. Start from a known stock baseline.
-2. Run `xpr-init --install`.
-3. Verify installed state and saved stock hash.
-4. Shut down or power-cycle the host.
-5. Boot the host normally.
-6. Verify `xpr-init --status` still reports the installation.
-7. Verify the handoff unit is still enabled/active as designed.
-8. Run normal `micctrl --reset mic0`, `--wait`, `--boot`.
-9. Confirm automatic handoff reaches final XPR PID 1, networking, and SSH.
-10. Run hello/pthread/dlopen smokes.
-11. Run `xpr-init --recover`.
-12. Verify exact stock MPSS configuration hash and stock SSH/systemd state.
+The project has not yet isolated the exact MPSS startup path responsible for
+that observed boot. Therefore the correct claim is:
 
-### Documentation outcome if validated
+> On the tested CentOS 7.4 + MPSS 3.4.10 host, `mic0` was observed online with
+> the XPR kernel after reboot and the persisted handoff path completed
+> successfully.
 
-Document clearly that `xpr-init --install` is a persistent host configuration
-step and normally does **not** need to be rerun after every host reboot.
+Do not generalize that into a guarantee that every MPSS host automatically boots
+`mic0`. If the card is not online with XPR, the normal `micctrl --reset`,
+`--wait`, and `--boot` lifecycle remains the explicit fallback.
 
-Completed on 2026-08-13. A normal reboot preserved XPR host state, the saved
-stock backup, deployed artifacts, the active XPR MPSS configuration, and the
-enabled handoff unit. No reinstall was required before the documented
-reset/wait/boot sequence completed automatic handoff, final SSH, and the three
-smokes. The card-side XPR instance remains RAM-resident and must boot again
-after host/card power loss; this does not write XPR to card flash.
+## Completed: Fresh-User-State Validation
 
-## Priority 3: First-Run UX and Error Messages
+A fresh-user-state test was performed on the existing known-good CentOS 7.4 +
+MPSS 3.4.10 host. It was intentionally **not** described as a literal fresh-OS
+installation.
 
-Improve errors so a beginner is told both what went wrong and the exact next
-command to use.
+The test exercised:
 
-Examples:
+- a first-use repository/helper path;
+- RC6 archive auto-discovery;
+- an isolated invoking user with no compatible RSA key;
+- automatic dedicated RSA-key generation;
+- no-argument `xpr-init --install`;
+- normal hardware boot/handoff;
+- final authenticated SSH;
+- hello/pthread/dlopen smokes; and
+- exact stock recovery.
 
-```text
-No XPR-OS release found.
-Place xpr-os-0.1.0-rc6.tar.gz in ~/Downloads or run:
-  sudo xpr-init --install --release /path/to/xpr-os-0.1.0-rc6.tar.gz
-```
+The only concrete beginner documentation gap found was that Git was absent from
+the host, causing the literal `git clone` step to fail. The tested CentOS guide
+now documents `sudo yum install -y git` when Git is missing.
 
-```text
-Multiple XPR-OS releases found:
-  ...
-Select one explicitly with --release.
-```
+## Priority: First-Run UX and Error Messages
 
-```text
-No compatible RSA key found.
-Generate an XPR-specific key or provide --authorized-key and --identity.
-```
+Most of the first-run path is now hardware-validated. Future work here should be
+triggered by concrete user friction rather than speculative redesign.
 
-Potential additions:
+Potential small improvements:
 
 - `--help` examples for the common beginner flow;
 - clearer distinction between `--authorized-key` (public key) and `--identity`
   (private key used by host-side SSH);
 - more explicit confirmation of selected release/key before installation;
-- human-readable success summary after install.
+- concise human-readable success summary after install.
 
 ## Completed: Status Improvements
 
@@ -164,7 +142,7 @@ Potential additions:
 It remains non-destructive and does not require an online card to report
 host-side state.
 
-## Priority 5: Packaging and Distribution
+## Priority: Packaging and Distribution
 
 `xpr-init` was developed after the frozen RC6 archives were published, so users
 currently obtain RC6 separately and install the current helper from the GitHub
@@ -184,7 +162,7 @@ Possible forms:
 Any packaging work must preserve the existing separation between XPR-OS
 project artifacts and separately obtained Intel MPSS components.
 
-## Priority 6: Additional SSH-Key Compatibility
+## Priority: Additional SSH-Key Compatibility
 
 RSA is currently the hardware-validated compatibility path. Future work may
 investigate additional key types, especially Ed25519, if the project Dropbear
@@ -200,10 +178,10 @@ Requirements before claiming support:
 Do not remove the currently validated RSA path merely because a newer key type
 works on a development host.
 
-## Priority 7: Repeated Boot / Idempotence Validation
+## Priority: Repeated Boot / Idempotence Validation
 
-Beyond one reboot persistence test, exercise repeated normal cycles without
-rerunning `--install`:
+Beyond the validated reboot and reinstall/recovery fixtures, additional repeated
+card cycles could still be exercised without rerunning `--install`:
 
 ```text
 boot XPR -> use -> reset -> boot XPR again -> use -> recover
@@ -214,10 +192,13 @@ Validate that:
 - deployment artifacts remain intact;
 - handoff can run more than once across separate card boots;
 - no stale bootstrap/final-root state breaks the next boot;
-- the original stock backup remains unchanged;
+- the original stock backup remains unchanged; and
 - recovery still restores the exact original configuration.
 
-## Priority 8: Optional Convenience Boot Command (Design Discussion Only)
+This is additional robustness coverage, not a blocker for the currently
+validated first-use lifecycle.
+
+## Optional Convenience Boot Command (Design Discussion Only)
 
 A future convenience command could potentially perform the normal MPSS
 lifecycle for the user, for example:
@@ -226,28 +207,19 @@ lifecycle for the user, for example:
 xpr-init --boot
 ```
 
-which would internally call reset -> wait -> boot and then wait for the
-validated automatic handoff.
+This is **not currently recommended as an implementation priority**. The tested
+host already returned from reboot with `mic0` online using the XPR kernel, and
+adding another boot layer without understanding the exact MPSS startup path
+could introduce redundant state handling or races.
 
-This is **not currently recommended as an implementation priority** because the
-project deliberately keeps responsibilities clear:
+The responsibility boundary remains:
 
 - `xpr-init` = install/integrate/recover XPR host configuration;
 - `micctrl` = control Xeon Phi hardware;
 - XPR-OS = card-side operating environment.
 
-If such a helper is ever added, it should remain a thin convenience wrapper and
-must not obscure or replace `micctrl` semantics.
-
-### Host-start boot investigation
-
-The MPSS init script starts `mpssd` and uses `micctrl --wait`. During the
-2026-08-13 reboot validation, `mic0` was nevertheless already online with the
-installed XPR kernel when the host returned. The project has not yet isolated
-the exact MPSS path responsible for that observed startup boot. No XPR-owned
-automatic boot service and no `xpr-init --boot` command were added: a wrapper
-would need deterministic state/race handling before it could replace the
-documented `micctrl --reset`, `--wait`, and `--boot` lifecycle.
+If a helper is ever added, it should remain a thin convenience wrapper and must
+not obscure or replace `micctrl` semantics.
 
 ## Implementation Rules For Future Codex Passes
 
@@ -269,7 +241,6 @@ When resuming this backlog with Codex:
 Use this section as a lightweight parking lot for additional `xpr-init` ideas
 before implementation details are decided.
 
-- clearer post-install "what happens after a host reboot" messaging;
 - optional dedicated XPR SSH config entry for easier `ssh mic0` use;
 - improved troubleshooting output for handoff failures;
 - structured diagnostic bundle generation for bug reports;
