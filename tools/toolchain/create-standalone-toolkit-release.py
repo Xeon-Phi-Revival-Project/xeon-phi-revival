@@ -67,7 +67,7 @@ def component_for(path):
         return "SPDXRef-Libgcc"
     if path.startswith("./sysroot/"):
         return "SPDXRef-Eglibc"
-    return "SPDXRef-XPR"
+    return "SPDXRef-XPRToolkit"
 
 def main():
     parser = argparse.ArgumentParser()
@@ -76,6 +76,8 @@ def main():
     parser.add_argument("--rc6-sources", required=True)
     parser.add_argument("--repo", required=True)
     parser.add_argument("--out", required=True)
+    parser.add_argument("--existing-source-archive",
+                        help="validated deterministic source archive to reuse")
     parser.add_argument("--version", default="0.1.0")
     args = parser.parse_args()
     if sha256(args.toolkit) != EXPECTED_TOOLKIT_SHA256:
@@ -134,11 +136,20 @@ def main():
     with open(os.path.join(stage, "BUILD.md"), "w") as handle:
         handle.write("# Rebuild\n\nRun:\n\n```bash\nbash repository/tools/toolchain/build-standalone-xpr-k1om-toolkit.sh --sources \"$PWD\" --out build\n```\n\nNo MPSS SDK or `/opt/mpss` input is accepted. The host C compiler is only a bootstrap compiler.\n")
     source_archive = os.path.join(args.out, "xpr-k1om-toolkit-%s-sources.tar.xz" % args.version)
-    deterministic_tar(stage, source_archive)
+    if args.existing_source_archive:
+        with tarfile.open(args.existing_source_archive, "r:xz") as archive:
+            if stage.split(os.sep)[-1] + "/SOURCE-MANIFEST.json" not in archive.getnames():
+                raise SystemExit("existing source archive is not an XPR toolkit source bundle")
+        shutil.copy2(args.existing_source_archive, source_archive)
+    else:
+        deterministic_tar(stage, source_archive)
 
-    with tempfile.TemporaryDirectory() as temporary:
-        with tarfile.open(args.toolkit, "r:xz") as archive: archive.extractall(temporary)
-        root = os.path.join(temporary, os.listdir(temporary)[0])
+    with tarfile.open(args.toolkit, "r:xz") as archive:
+        members = archive.getmembers()
+        roots = {member.name.split("/", 1)[0] for member in members if member.name}
+        if len(roots) != 1:
+            raise SystemExit("toolkit archive does not have one top-level directory")
+        root_prefix = roots.pop() + "/"
         packages = [
             {"SPDXID":"SPDXRef-XPRToolkit","name":"XPR K1OM Toolkit","versionInfo":args.version,"downloadLocation":"NOASSERTION","licenseConcluded":"MIT","licenseDeclared":"MIT","supplier":"Organization: Xeon Phi Revival Project"},
             {"SPDXID":"SPDXRef-GCC","name":"GCC KNC","versionInfo":"5.1.1","downloadLocation":"git+https://github.com/apc-llc/gcc-5.1.1-knc.git@af7cc04cef723da3166f0d6f1539f02525fe5a93","licenseConcluded":"GPL-3.0-or-later","licenseDeclared":"GPL-3.0-or-later"},
@@ -147,25 +158,33 @@ def main():
             {"SPDXID":"SPDXRef-Libgcc","name":"libgcc","versionInfo":"5.1.1","downloadLocation":"git+https://github.com/apc-llc/gcc-5.1.1-knc.git@af7cc04cef723da3166f0d6f1539f02525fe5a93","licenseConcluded":"GPL-3.0-or-later WITH GCC-exception-3.1","licenseDeclared":"GPL-3.0-or-later WITH GCC-exception-3.1"},
         ]
         files = [{"SPDXID":"SPDXRef-ReleaseArchive","fileName":"./xpr-k1om-toolkit-%s-linux-x86_64.tar.xz" % args.version,"checksums":[{"algorithm":"SHA256","checksumValue":EXPECTED_TOOLKIT_SHA256}],"licenseConcluded":"NOASSERTION","licenseInfoInFiles":["NOASSERTION"],"copyrightText":"NOASSERTION"}]
-        relationships, known = [], set(item["SPDXID"] for item in packages)
+        relationships, known = [], {"SPDXRef-DOCUMENT"} | set(item["SPDXID"] for item in packages)
         known.add("SPDXRef-ReleaseArchive")
         relationships.append({"spdxElementId":"SPDXRef-XPRToolkit","relationshipType":"CONTAINS","relatedSpdxElement":"SPDXRef-ReleaseArchive"})
         counter = 0
-        for current, _, names in os.walk(root):
-            for name in sorted(names):
-                path = os.path.join(current, name)
-                relative = "./" + os.path.relpath(path, root).replace(os.sep, "/")
-                if os.path.islink(path): continue
-                counter += 1; file_id = "SPDXRef-File-%d" % counter
-                owner = component_for(relative)
-                files.append({"SPDXID":file_id,"fileName":relative,"checksums":[{"algorithm":"SHA256","checksumValue":sha256(path)}],"licenseConcluded":"NOASSERTION","licenseInfoInFiles":["NOASSERTION"],"copyrightText":"NOASSERTION"})
-                known.add(file_id); relationships.append({"spdxElementId":owner,"relationshipType":"CONTAINS","relatedSpdxElement":file_id})
+        for member in members:
+            if not member.isfile():
+                continue
+            relative = "./" + member.name[len(root_prefix):]
+            contents = archive.extractfile(member)
+            if contents is None:
+                raise SystemExit("cannot read toolkit archive member: " + member.name)
+            digest = hashlib.sha256()
+            for block in iter(lambda: contents.read(1024 * 1024), b""):
+                digest.update(block)
+            contents.close()
+            counter += 1; file_id = "SPDXRef-File-%d" % counter
+            owner = component_for(relative)
+            files.append({"SPDXID":file_id,"fileName":relative,"checksums":[{"algorithm":"SHA256","checksumValue":digest.hexdigest()}],"licenseConcluded":"NOASSERTION","licenseInfoInFiles":["NOASSERTION"],"copyrightText":"NOASSERTION"})
+            known.add(file_id); relationships.append({"spdxElementId":owner,"relationshipType":"CONTAINS","relatedSpdxElement":file_id})
         for package in packages[1:]: relationships.append({"spdxElementId":"SPDXRef-XPRToolkit","relationshipType":"CONTAINS","relatedSpdxElement":package["SPDXID"]})
         relationships.insert(0, {"spdxElementId":"SPDXRef-DOCUMENT","relationshipType":"DESCRIBES","relatedSpdxElement":"SPDXRef-XPRToolkit"})
         document = {"spdxVersion":"SPDX-2.3","dataLicense":"CC0-1.0","SPDXID":"SPDXRef-DOCUMENT","name":"XPR-K1OM-Toolkit-%s" % args.version,"documentNamespace":"https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/spdx/xpr-k1om-toolkit-%s-%s" % (args.version, EXPECTED_TOOLKIT_SHA256),"creationInfo":{"created":"1970-01-01T00:00:00Z","creators":["Tool: create-standalone-toolkit-release.py"]},"packages":packages,"files":files,"relationships":relationships}
     sbom = os.path.join(args.out, "xpr-k1om-toolkit-%s.spdx.json" % args.version)
     with open(sbom, "w") as handle: json.dump(document, handle, indent=2, sort_keys=True); handle.write("\n")
-    assert document["spdxVersion"] == "SPDX-2.3" and all(item["SPDXID"] in known for item in relationships for item in (item["spdxElementId"], item["relatedSpdxElement"]))
+    assert document["spdxVersion"] == "SPDX-2.3" and all(
+        identifier in known for relationship in relationships
+        for identifier in (relationship["spdxElementId"], relationship["relatedSpdxElement"]))
     # Ship the notices document with the license texts, not merely alongside it
     # in the corresponding-source archive.
     notices_root = os.path.join(args.out, "xpr-k1om-toolkit-%s-notices" % args.version)

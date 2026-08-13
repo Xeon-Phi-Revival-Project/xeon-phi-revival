@@ -34,7 +34,10 @@ done
 
 mkdir -p "$out/headers-work" "$out/linux-headers/usr" "$out/bootstrap-sysroot/usr/include"
 tar -C "$out/headers-work" -xzf "$inputs/solros-bda6ce.tar.gz"
-linux_source=$(find "$out/headers-work" -mindepth 1 -maxdepth 1 -type d -print -quit)
+# The Solros source bundle contains both host and Phi kernels.  The XPR
+# sysroot needs the K1OM-facing UAPI headers from phi-kernel, not its wrapper.
+linux_source=$(find "$out/headers-work" -type f -path '*/phi-kernel/Makefile' -printf '%h\n' -quit)
+[[ -n "$linux_source" ]] || { echo "Solros source lacks phi-kernel headers" >&2; exit 1; }
 make -C "$linux_source" ARCH=x86 INSTALL_HDR_PATH="$out/linux-headers/usr" headers_install > "$out/linux-headers.log" 2>&1
 cp -a "$out/linux-headers/usr/include/." "$out/bootstrap-sysroot/usr/include/"
 
