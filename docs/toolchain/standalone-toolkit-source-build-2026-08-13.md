@@ -3,6 +3,15 @@
 This checkpoint records source closure for the KNC compiler path. It is not a
 standalone toolkit release.
 
+## Source-Only Runtime Closure
+
+The subsequent source-only runtime build completed with the pinned GCC 5.1.1
+and recovered KNC binutils. It produced the eglibc runtime/development stage,
+then rebuilt `libgcc.a` and `libgcc_s.so.1` from GCC source against that stage.
+No MPSS SDK compiler, binutils, CRT, or runtime object was used for those
+outputs. See the [standalone toolkit validation record](standalone-toolkit-validation-2026-08-13.md)
+for the packaged modern-host and 5110P results.
+
 ## Proven Host-Only Results
 
 On the tested CentOS 7.4 build host, using a controlled environment with no
@@ -62,10 +71,9 @@ of this newly built artifact.
 
 ## Next Exact Action
 
-Use the recorded source builders to produce a relocatable toolkit candidate,
-then validate it on a modern Linux host without MPSS and execute binaries from
-that candidate on the 5110P. Only after those gates and a release-level license
-review may XPR make an MPSS-free toolkit distribution claim.
+Complete a release-level corresponding-source bundle, SPDX SBOM, notices, and
+license/provenance review for the validated standalone candidate. Only after
+those gates may XPR make an MPSS-free toolkit distribution claim.
 
 ## References
 

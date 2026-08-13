@@ -7,6 +7,7 @@ Useful entry points include:
 
 - [XPR K1OM Toolkit](xpr-k1om-toolkit.md)
 - [Standalone toolkit source-build checkpoint](standalone-toolkit-source-build-2026-08-13.md)
+- [Standalone toolkit modern-host and 5110P validation](standalone-toolkit-validation-2026-08-13.md)
 
 - [K1OM package requirements](k1om-package-requirements.md)
 - [Minimum K1OM runtime](minimum-k1om-runtime.md)

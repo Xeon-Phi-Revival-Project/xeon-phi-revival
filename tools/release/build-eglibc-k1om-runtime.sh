@@ -34,7 +34,11 @@ done
 [ -f "$orig" ] && [ -f "$debian" ] || { echo "missing eglibc source archive" >&2; exit 1; }
 [ -d "$overlay" ] || { echo "missing K1OM overlay: $overlay" >&2; exit 1; }
 [ -d "$sysroot/usr/include" ] || { echo "missing sysroot headers: $sysroot/usr/include" >&2; exit 1; }
-[ -x "${cross_compile}gcc" ] || { echo "missing compiler: ${cross_compile}gcc" >&2; exit 1; }
+for tool in gcc ar as ld nm ranlib readelf; do
+    [ -x "${cross_compile}${tool}" ] || {
+        echo "missing cross tool: ${cross_compile}${tool}" >&2; exit 1;
+    }
+done
 [ ! -e "$out" ] || { echo "output already exists: $out" >&2; exit 1; }
 
 mkdir -p "$out/work" "$out/build" "$out/stage"
@@ -53,6 +57,14 @@ done < "$source_dir/debian/patches/series"
 
 # The overlay uses glibc's native sysdeps paths and is intentionally tracked.
 cp -a "$overlay"/. "$source_dir"/
+# Overlay files may have been checked out on Windows.  In particular, CRLF in
+# a sysdeps/Implies entry makes eglibc search for a literal `x86_64\r`
+# directory. Normalize only the copied build-tree overlay, never the tracked
+# input, so the source build is host-independent.
+while IFS= read -r -d '' overlay_file; do
+    relative=${overlay_file#"$overlay"/}
+    sed -i 's/\r$//' "$source_dir/$relative"
+done < <(find "$overlay" -type f -print0)
 
 printf 'orig_sha256=%s\n' "$(sha256sum "$orig" | awk '{print $1}')" | tee "$out/build-provenance.txt"
 printf 'debian_sha256=%s\n' "$(sha256sum "$debian" | awk '{print $1}')" | tee -a "$out/build-provenance.txt"
@@ -61,11 +73,15 @@ printf 'overlay_sha256=%s\n' "$(find "$overlay" -type f -print0 | sort -z | xarg
 "${cross_compile}ld" --version | head -n 1 | tee -a "$out/build-provenance.txt"
 
 pushd "$out/build" >/dev/null
-BUILD_CC=gcc CC="${cross_compile}gcc" AR="${cross_compile}ar" RANLIB="${cross_compile}ranlib" \
+BUILD_CC=gcc CC="${cross_compile}gcc" AR="${cross_compile}ar" \
+    AS="${cross_compile}as" LD="${cross_compile}ld" NM="${cross_compile}nm" \
+    RANLIB="${cross_compile}ranlib" READELF="${cross_compile}readelf" \
+    libc_cv_ssp=no \
+    CFLAGS="-O2 -fno-stack-protector" \
     "$source_dir/configure" --build=x86_64-pc-linux-gnu --host=k1om-mpss-linux \
     --prefix=/usr --with-headers="$sysroot/usr/include" --enable-kernel=2.6.38 \
     --enable-add-ons=nptl,ports --disable-werror > "$out/configure.log" 2>&1
-make -j"$jobs" > "$out/build.log" 2>&1
+make -j"$jobs" CFLAGS="-O2 -fno-stack-protector" > "$out/build.log" 2>&1
 make install DESTDIR="$out/stage" > "$out/install.log" 2>&1
 # K1OM inherits LP64 headers, but it must not inherit the x86-64 stubs.h
 # selector for gnu/stubs-64.h. Generate the architecture-neutral installed
@@ -79,6 +95,8 @@ popd >/dev/null
 
 libdir="$out/stage/lib"
 [ -d "$libdir" ] || libdir="$out/stage/usr/lib"
+dev_libdir="$out/stage/usr/lib"
+[ -d "$dev_libdir" ] || dev_libdir="$libdir"
 runtime_source() {
     local soname=$1 candidate
     if [ -f "$libdir/$soname" ]; then
@@ -98,7 +116,7 @@ for library in ld-linux-k1om.so.2 libc.so.6 libpthread.so.0 libm.so.6 libdl.so.2
 done
 for object in crt1.o crti.o crtn.o libc_nonshared.a libpthread_nonshared.a \
               libc.so libpthread.so libm.so libdl.so librt.so libutil.so; do
-    [ -e "$libdir/$object" ] || { echo "missing installed development input: $libdir/$object" >&2; exit 1; }
+    [ -e "$dev_libdir/$object" ] || { echo "missing installed development input: $dev_libdir/$object" >&2; exit 1; }
 done
 loader_source=$(runtime_source ld-linux-k1om.so.2)
 ln -sf "$(basename "$loader_source")" "$libdir/ld-linux-k1om.so.2"
@@ -106,6 +124,7 @@ for library in ld-linux-k1om.so.2 libc.so.6 libpthread.so.0 libm.so.6 libdl.so.2
     printf '%s  %s\n' "$(sha256sum "$(runtime_source "$library")" | awk '{print $1}')" "$library"
 done > "$out/runtime-sha256sums.txt"
 for object in crt1.o crti.o crtn.o libc_nonshared.a libpthread_nonshared.a; do
-    printf '%s  %s\n' "$(sha256sum "$libdir/$object" | awk '{print $1}')" "$object"
+    printf '%s  %s\n' "$(sha256sum "$dev_libdir/$object" | awk '{print $1}')" "$object"
 done >> "$out/runtime-sha256sums.txt"
 printf 'runtime_libdir=%s\n' "$libdir" >> "$out/build-provenance.txt"
+printf 'development_libdir=%s\n' "$dev_libdir" >> "$out/build-provenance.txt"

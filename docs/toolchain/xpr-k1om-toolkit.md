@@ -1,52 +1,69 @@
 # XPR K1OM Toolkit
 
-The XPR K1OM Toolkit is the project entry point for practical C cross
-development for XPR-OS. It uses a locally supplied MPSS 3.4.10 K1OM SDK for
-the historical compiler, binutils, and compiler support objects. A
-source-built XPR eglibc stage supplies headers and CRT objects; RC6 supplies
-the runtime libraries. No Intel SDK binary is committed or redistributed by
-XPR.
+The XPR K1OM Toolkit is XPR's C cross-development environment for XPR-OS on
+Knights Corner. The standalone candidate contains source-built K1OM GCC 5.1.1,
+KNC binutils, XPR eglibc headers/CRT/runtime, and K1OM libgcc. It does not use
+an Intel MPSS SDK or `/opt/mpss` to compile programs.
 
-## Current State
+## Current Validation
 
-The source-built-CRT path below passed host-side setup, K1OM ELF validation,
-and live execution on the tested CentOS 7.4 + MPSS 3.4.10 host and Xeon Phi
-5110P:
+The staged `0.1.0` candidate was unpacked and used on a modern Linux 6.12
+x86-64 host with no `/opt/mpss`. It built and validated:
 
-```bash
-tools/toolchain/build-xpr-k1om-eglibc-stage.sh \
-  --source-bundle ~/Downloads/xpr-os-0.1.0-rc6-sources.tar.gz \
-  --out build/xpr-k1om-eglibc
+- `hello.c`;
+- `pthread.c` with `-pthread`;
+- `libc-smoke.c`.
 
-tools/toolchain/setup-xpr-k1om-toolkit.sh \
-  --release ~/Downloads/xpr-os-0.1.0-rc6.tar.gz \
-  --eglibc-stage build/xpr-k1om-eglibc/stage
-source build/xpr-k1om/env.sh
-xpr-gcc examples/k1om/hello.c -o build/hello
-tools/toolchain/validate-k1om-elf.sh build/hello
+All outputs were dynamic `Intel K1OM` ELFs using
+`/lib64/ld-linux-k1om.so.2` and `libgcc_s.so.1`. The exact binaries were then
+copied unchanged to the tested Xeon Phi 5110P running XPR-OS RC6. They printed:
+
+```text
+Hello from XPR-OS on K1OM
+XPR toolkit pthread result=123
+XPR libc smoke 42
 ```
 
-This produces an Intel K1OM dynamic ELF with interpreter
-`/lib64/ld-linux-k1om.so.2`, XPR `/lib64` RPATH, and no host-library path in
-dynamic metadata. `examples/k1om/pthread.c` also compiles and links.
+The detailed evidence is in
+[standalone-toolkit-validation-2026-08-13.md](standalone-toolkit-validation-2026-08-13.md).
 
-## Validated Scope
+## Candidate Usage
 
-The 5110P executed the source-built-CRT `hello` and `pthread` examples from
-the final XPR root. The former printed `Hello from XPR-OS on K1OM`; the latter
-printed `XPR toolkit pthread result=123`. The SDK CRT path remains rejected:
-it previously produced binaries that exited successfully but emitted no
-stdio output. The toolkit does not silently substitute it.
+After unpacking a standalone toolkit candidate on an executable Linux
+filesystem:
 
-This validates C development for these compact dynamic programs. C++,
-package building, `xpr-build`, and a modern compiler backend remain out of
-scope.
+```bash
+cd xpr-k1om-toolkit-0.1.0-linux-x86_64
+source env.sh
+xpr-gcc examples/hello.c -o hello
+xpr-validate hello
+xpr-gcc examples/pthread.c -pthread -o pthread
+```
 
-## Boundary
+`./bin/xpr-gcc` also works without sourcing `env.sh`. The toolkit's wrappers
+select their bundled compiler, KNC binutils, and XPR sysroot; callers should
+not supply `--sysroot` or an internal target triple for normal C programs.
 
-- Historical compiler required: user-supplied `mpss-sdk-k1om-3.4.10`.
-- Compiler: `k1om-mpss-linux-gcc` 4.7.0 (GCC 4.7.0 20110509 experimental).
-- Binutils: GNU Binutils 2.22.52.20120302.
-- XPR provides: wrapper sources, sysroot assembly tooling, examples, and ELF
-  validation.
-- C++ is not validated; package building and `xpr-build` are deferred.
+Transfer a resulting executable to a running XPR-OS system with the current
+host-control workflow and execute it from the final XPR root. The toolkit
+does not replace MPSS/micctrl/xpr-init for physical card control.
+
+## Provenance Boundary
+
+- GCC: `apc-llc/gcc-5.1.1-knc` commit
+  `af7cc04cef723da3166f0d6f1539f02525fe5a93`.
+- KNC binutils: public MPSS 3.8.6 source archive,
+  `binutils-2.22+mpss3.8.6.tar.bz2` SHA-256
+  `0e498581badb505bd2639bc1f75debe9299212fb50e8eee5deb40631a78abd9c`.
+- Sysroot: XPR's pinned eglibc 2.19 source package plus the tracked K1OM
+  overlay and public Linux UAPI headers.
+- libgcc: rebuilt from the same pinned GCC source against that sysroot.
+
+No Intel MPSS SDK binary belongs in the standalone package. Corresponding
+source, notices, SPDX, and final release packaging remain a separate release
+gate; the current candidate is not published.
+
+## Boundaries
+
+Validated scope is compact dynamic C programs. C++, Python, package building,
+`xpr-build`, LLVM, and a modern GCC backend are not part of Toolkit v1.

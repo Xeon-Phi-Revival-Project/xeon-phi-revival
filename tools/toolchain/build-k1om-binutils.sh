@@ -58,7 +58,7 @@ declare -A tools=(
 for name in "${!tools[@]}"; do
     tool="$out/install/bin/${tools[$name]}"
     [[ -x "$tool" ]] || { echo "missing installed tool: $tool" >&2; exit 1; }
-    ln -s "../install/bin/${tools[$name]}" "$out/target-tools/k1om-mpss-linux-$name"
+    ln -s "$out/install/bin/${tools[$name]}" "$out/target-tools/k1om-mpss-linux-$name"
 done
 
 printf 'kmov %%eax, %%k1\nvpackstorelq %%zmm0, (%%rax)\nret\n' > "$out/imci.s"
