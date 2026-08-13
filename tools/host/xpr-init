@@ -82,6 +82,54 @@ invoker_home() {
   fi
 }
 
+invoker_user() {
+  printf '%s\n' "${SUDO_USER:-${USER:-root}}"
+}
+
+validate_rsa_public_key() {
+  local key=$1 type
+  [[ -f "$key" ]] || return 1
+  type=$(awk 'NF { print $1; exit }' "$key" 2>/dev/null || true)
+  [[ "$type" == ssh-rsa ]] || return 1
+  command -v ssh-keygen >/dev/null 2>&1 || return 1
+  ssh-keygen -l -f "$key" >/dev/null 2>&1
+}
+
+dedicated_key_paths() {
+  local home
+  home=$(invoker_home)
+  printf '%s\n' "$home/.ssh/xpr_os_rsa" "$home/.ssh/xpr_os_rsa.pub"
+}
+
+generate_dedicated_key() {
+  local home user private public uid gid
+  local -a paths
+  home=$(invoker_home)
+  user=$(invoker_user)
+  mapfile -t paths < <(dedicated_key_paths)
+  private=${paths[0]}
+  public=${paths[1]}
+  if [[ -e "$private" || -e "$public" ]]; then
+    die "dedicated XPR key state is incomplete or ambiguous; expected both $private and $public"
+  fi
+  command -v ssh-keygen >/dev/null 2>&1 || die "ssh-keygen is required to create a dedicated XPR RSA key; install OpenSSH client tools or supply --authorized-key"
+  if [[ "$user" != root ]] && getent passwd "$user" >/dev/null 2>&1; then
+    uid=$(id -u "$user")
+    gid=$(id -g "$user")
+    install -d -m 700 -o "$uid" -g "$gid" "$home/.ssh"
+    runuser -u "$user" -- ssh-keygen -q -t rsa -b 3072 -N '' -f "$private" -C 'XPR-OS Xeon Phi access'
+  else
+    install -d -m 700 "$home/.ssh"
+    ssh-keygen -q -t rsa -b 3072 -N '' -f "$private" -C 'XPR-OS Xeon Phi access'
+  fi
+  chmod 600 "$private"
+  chmod 644 "$public"
+  validate_rsa_public_key "$public" || die "generated dedicated XPR public key failed validation: $public"
+  [[ -r "$private" ]] || die "generated dedicated XPR private key is not readable: $private"
+  echo "XPR_INIT_RSA_KEY=GENERATED:$public" >&2
+  printf '%s\n' "$public"
+}
+
 choose_single() {
   local label=$1; shift
   local -a items=("$@")
@@ -179,14 +227,30 @@ prepare_release() {
 }
 
 discover_authorized_key() {
-  local home candidate
-  local -a candidates=()
+  local home candidate private dedicated_private dedicated_public
+  local -a candidates=() paths=()
   home=$(invoker_home)
+  mapfile -t paths < <(dedicated_key_paths)
+  dedicated_private=${paths[0]}
+  dedicated_public=${paths[1]}
+  if [[ -e "$dedicated_private" || -e "$dedicated_public" ]]; then
+    [[ -f "$dedicated_private" && -f "$dedicated_public" ]] || die "dedicated XPR key state is incomplete; expected both $dedicated_private and $dedicated_public"
+    [[ -r "$dedicated_private" ]] || die "dedicated XPR private key is not readable: $dedicated_private"
+    validate_rsa_public_key "$dedicated_public" || die "dedicated XPR public key is malformed or not RSA: $dedicated_public"
+    echo "XPR_INIT_RSA_KEY=REUSED:$dedicated_public" >&2
+    printf '%s\n' "$dedicated_public"
+    return
+  fi
   for candidate in "$home"/.ssh/*.pub; do
     [[ -f "$candidate" ]] || continue
-    grep -q '^ssh-rsa ' "$candidate" && candidates+=("$candidate")
+    private=${candidate%.pub}
+    validate_rsa_public_key "$candidate" && [[ -r "$private" ]] && candidates+=("$candidate")
   done
-  choose_single "RSA public key" "${candidates[@]}"
+  if [[ ${#candidates[@]} -eq 0 ]]; then
+    generate_dedicated_key
+  else
+    choose_single "RSA public key with matching private key" "${candidates[@]}"
+  fi
 }
 
 install_handoff_service() {
@@ -220,16 +284,18 @@ install_xpr() {
   require_root
   command -v micctrl >/dev/null 2>&1 || die "micctrl is not installed"
   [[ -f "$stock_conf" ]] || die "missing $stock_conf"
-  [[ ! -e "$sudo_bin_dir/xpr-init" || -L "$sudo_bin_dir/xpr-init" ]] \
-    || die "refusing to replace existing non-symlink $sudo_bin_dir/xpr-init"
+  if [[ "$sudo_bin_dir" != "$bin_dir" ]]; then
+    [[ ! -e "$sudo_bin_dir/xpr-init" || -L "$sudo_bin_dir/xpr-init" ]] \
+      || die "refusing to replace existing non-symlink $sudo_bin_dir/xpr-init"
+  fi
   [[ -n "$release" ]] || release=$(discover_release)
   prepare_release "$release"
   [[ -n "$authorized_key" ]] || authorized_key=$(discover_authorized_key)
-  [[ -n "$identity" ]] || identity="$(invoker_home)/.ssh/id_rsa"
+  [[ -n "$identity" ]] || identity="${authorized_key%.pub}"
   local self original_sha
   self=$(readlink -f "$0")
   authorized_key=$(readlink -f "$authorized_key")
-  [[ -f "$authorized_key" ]] || die "public key missing: $authorized_key"
+  validate_rsa_public_key "$authorized_key" || die "RSA public key is missing, malformed, or unsupported: $authorized_key"
   [[ -r "$identity" ]] || die "SSH identity is not readable: $identity"
   set_ssh_opts
   if [[ -e "$state" ]]; then
@@ -359,19 +425,29 @@ handoff() {
 }
 
 status_xpr() {
+  local current_sha mode=UNKNOWN enabled=UNKNOWN active=UNKNOWN
   if [[ -r "$state" ]]; then
     load_state
-    echo "Mode: XPR-OS"
-    echo "Installed release: $installed_release"
-    echo "Device: $mic"
-    echo "Stock backup: verified"
-    echo "SSH public key SHA256: $public_key_sha"
-    echo "Handoff service: $handoff_unit"
-    echo "Recovery available: yes"
+    current_sha=$(sha "$stock_conf" 2>/dev/null || true)
+    if grep -Fqx "Base CPIO $root/current/xpr-bootstrap.cpio.gz" "$stock_conf" 2>/dev/null; then mode=XPR; fi
+    [[ -f "$stock_backup" && "$(sha "$stock_backup")" == "$stock_sha" ]] || mode=UNKNOWN
+    systemctl is-enabled "$handoff_unit" >/dev/null 2>&1 && enabled=yes || enabled=no
+    systemctl is-active "$handoff_unit" >/dev/null 2>&1 && active=yes || active=no
+    echo "XPR_INIT_INSTALLED=yes"
+    echo "XPR_INIT_RELEASE=$installed_release"
+    echo "XPR_INIT_MIC=$mic"
+    echo "XPR_INIT_CONFIG_MODE=$mode"
+    echo "XPR_INIT_STOCK_BACKUP=$([[ -f "$stock_backup" ]] && echo present || echo missing)"
+    echo "XPR_INIT_STOCK_SHA=$stock_sha"
+    echo "XPR_INIT_CURRENT_CONF_SHA=${current_sha:-UNKNOWN}"
+    echo "XPR_INIT_HANDOFF_ENABLED=$enabled"
+    echo "XPR_INIT_HANDOFF_ACTIVE=$active"
+    echo "XPR_INIT_PUBLIC_KEY_SHA=$public_key_sha"
+    echo "XPR_INIT_RECOVERY_AVAILABLE=yes"
   else
-    echo "Mode: stock MPSS"
-    echo "XPR-OS installed: no"
-    echo "Recovery available: no"
+    echo "XPR_INIT_INSTALLED=no"
+    echo "XPR_INIT_CONFIG_MODE=STOCK"
+    echo "XPR_INIT_RECOVERY_AVAILABLE=no"
   fi
   micctrl --status || true
 }
