@@ -31,9 +31,10 @@ and evidence-led tooling.
 1. Check the [tested hardware and host requirements](docs/hardware/supported-hardware.md).
 2. Install or verify [MPSS 3.4.10 on the host](docs/getting-started/mpss-setup.md).
 3. Download [XPR-OS 0.1.0-rc6](https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc6). For the simplest `xpr-init` auto-discovery path, put the binary archive (`xpr-os-0.1.0-rc6.tar.gz`) in the invoking user's `~/Downloads` folder. If it is stored elsewhere, pass it explicitly, for example: `sudo xpr-init --install --release /path/to/xpr-os-0.1.0-rc6.tar.gz`.
-4. Get the current repository and install the validated `xpr-init` host helper. `xpr-init` was validated after RC6 was frozen, so it is **not** contained in the RC6 release archives:
+4. Get the current repository and install the validated `xpr-init` host helper. `xpr-init` was validated after RC6 was frozen, so it is **not** contained in the RC6 release archives. Git is required for this path; on the tested CentOS 7 host install it first if needed:
 
    ```bash
+   sudo yum install -y git
    git clone https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival.git
    cd xeon-phi-revival
    sudo install -m 755 tools/host/xpr-init /usr/local/sbin/xpr-init
@@ -42,12 +43,23 @@ and evidence-led tooling.
    sudo micctrl --reset mic0
    sudo micctrl --wait mic0
    sudo micctrl --boot mic0
-   ssh mic0
    ```
 
-   When finished, restore stock MPSS with `sudo xpr-init --recover`.
+   If no compatible RSA key exists, `xpr-init` creates a dedicated
+   `~/.ssh/xpr_os_rsa` key pair automatically and provisions only its public key.
+   With that generated key, connect with:
+
+   ```bash
+   ssh -o IdentitiesOnly=yes -i ~/.ssh/xpr_os_rsa mic0
+   ```
+
+   If `xpr-init` reused an existing compatible RSA key, use that key's matching
+   private key instead. When finished, restore stock MPSS with
+   `sudo xpr-init --recover`.
+
    See the [xpr-init guide](docs/getting-started/xpr-init-preview.md) for
-   prerequisites, auto-discovery, and explicit release/key options.
+   prerequisites, auto-discovery, reboot behavior, and explicit release/key
+   options.
 
 The tested path uses a separately obtained MPSS 3.4.10 host installation. It
 does not flash firmware or modify persistent card storage, and it has a
@@ -70,18 +82,21 @@ for Intel MPSS. It prepares an existing, working MPSS host to boot XPR-OS while
 preserving the normal `micctrl` control model used for Knights Corner hardware.
 It does **not** replace MPSS or `micctrl`.
 
-On `--install`, `xpr-init` verifies the selected XPR-OS release, provisions the
-user's RSA public key into deployment-specific copies, preserves and hashes the
-stock MPSS configuration, installs the XPR kernel/bootstrap/root payload, and
-enables the automatic bootstrap-to-final-root handoff service. The operator then
-uses the familiar MPSS lifecycle:
+On `--install`, `xpr-init` verifies the selected XPR-OS release, selects one
+compatible RSA key pair or generates a dedicated XPR key when none exists,
+provisions only the public key into deployment-specific copies, preserves and
+hashes the stock MPSS configuration, installs the XPR kernel/bootstrap/root
+payload, and enables the automatic bootstrap-to-final-root handoff service.
+
+The validated first-use path is:
 
 ```bash
 sudo xpr-init --install
 sudo micctrl --reset mic0
 sudo micctrl --wait mic0
 sudo micctrl --boot mic0
-ssh mic0
+# If xpr-init generated the dedicated key:
+ssh -o IdentitiesOnly=yes -i ~/.ssh/xpr_os_rsa mic0
 ```
 
 When the session is finished, `sudo xpr-init --recover` restores the saved stock
@@ -89,6 +104,21 @@ MPSS configuration, resets and boots the card back into the stock environment,
 and verifies the recovery path. This complete install -> boot -> automatic
 handoff -> final SSH -> recovery workflow has been live-validated on the
 project's Intel Xeon Phi 5110P with CentOS 7.4 and MPSS 3.4.10.
+
+A fresh-user-state validation on that known-good host also passed release
+auto-discovery, automatic dedicated RSA-key generation, handoff, authenticated
+SSH, the hello/pthread/dlopen runtime smokes, and exact stock recovery. This was
+not a literal fresh CentOS/MPSS installation.
+
+The host-side XPR installation, saved stock configuration, deployed artifacts,
+and enabled handoff service also persisted through a normal host reboot without
+rerunning `xpr-init --install`. On the validated host, `mic0` was observed
+already online using the installed XPR kernel after reboot and the persisted
+handoff completed successfully. The exact MPSS startup path responsible for that
+card boot has not yet been isolated, so this behavior is documented as observed
+on the tested baseline rather than generalized to every MPSS host. If `mic0` is
+not online with XPR, use the normal `micctrl --reset`, `--wait`, and `--boot`
+lifecycle.
 
 `xpr-init` was developed after the frozen RC6 release archives were published,
 so the current helper is obtained from this repository rather than from the RC6
@@ -101,7 +131,7 @@ for the validated workflow and advanced options.
 - Project bootstrap and final XPR `/sbin/init` as PID 1.
 - micveth networking, Dropbear SSH, and deployment-specific RSA key handling.
 - Native dynamic hello, pthread, and `dlopen` validation.
-- Three rollback-protected 5110P boots, restoring stock MPSS each time.
+- Rollback-protected 5110P validation repeatedly restored the exact stock MPSS baseline.
 - Deterministic binary and corresponding-source archives with SPDX, notices,
   and release metadata.
 
