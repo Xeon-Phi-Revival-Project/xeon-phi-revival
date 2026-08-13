@@ -60,10 +60,12 @@ Automatic bootstrap-to-final-root handoff, final SSH, the three runtime smoke
 programs, and recovery have all passed on the 5110P baseline above.
 
 The host-side installation files, saved stock configuration, state, and enabled
-handoff service are designed to persist across a host reboot. The XPR-OS instance
-running on the card is RAM-resident and is lost when card/host power is removed.
-A full cold-host-reboot persistence cycle is still listed for explicit live
-validation before it is promoted as a hardware-tested guarantee.
+handoff service persisted through one normal reboot of the tested host. The
+XPR-OS instance running on the card is RAM-resident and is lost when card/host
+power is removed; XPR is not flashed to the card. After reboot, use the normal
+`micctrl --reset`, `--wait`, and `--boot` lifecycle without rerunning
+`xpr-init --install`; the persisted handoff service completes the final-root
+transition.
 
 ## Current User Path
 
@@ -74,7 +76,9 @@ manual RC6 procedure is retained for advanced troubleshooting and learning.
 ## Active Engineering Tracks
 
 1. **XPR-OS maintenance and release engineering** — preserve the validated RC6 baseline while preparing future improvements cleanly.
-2. **xpr-init usability** — dedicated RSA-key generation fallback, reboot-persistence validation, diagnostics, and future release packaging.
+2. **xpr-init usability** — dedicated RSA-key generation fallback and
+   host-side diagnostics are validated; cold-host-reboot persistence and future
+   release packaging remain to be validated.
 3. **K1OM toolchain and SDK work** — make practical compilation less dependent on a historical host environment.
 4. **Software ports and runtime expansion** — explore useful programs and libraries on the validated K1OM baseline.
 5. **Source-package / xpr-build research** — investigate rebuilding normal source packages and dependencies for K1OM; this is future work, not a current package manager.
@@ -89,8 +93,6 @@ The project does not currently claim:
 - Knights Landing compatibility;
 - a modern native package repository;
 - a modern GCC/LLVM K1OM backend;
-- automatic RSA-key generation in `xpr-init`; or
-- a live-validated cold-host-reboot persistence guarantee.
 
 Historical blockers, old project plans, and superseded experiments are preserved
 under [Research](research/README.md) rather than being mixed into current status.

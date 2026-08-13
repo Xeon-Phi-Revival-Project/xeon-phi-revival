@@ -19,12 +19,12 @@ Current validated baseline:
 - `xpr-init --recover` restored stock MPSS and the known baseline configuration
   hash
 
-## Priority 1: Dedicated RSA Key Generation Fallback
+## Completed: Dedicated RSA Key Generation Fallback
 
 ### Idea
 
-If `xpr-init --install` cannot find a compatible RSA public key, offer or create
-an XPR-specific RSA key pair instead of stopping with only an error.
+If `xpr-init --install` cannot find a compatible RSA public key with a matching
+private key, it creates an XPR-specific RSA key pair instead of stopping.
 
 Suggested dedicated key names:
 
@@ -47,8 +47,7 @@ ssh-keygen -t rsa -b 3072 \
 2. If exactly one compatible RSA key pair is discoverable, use it.
 3. If multiple compatible RSA candidates exist, list them and stop rather than
    guessing.
-4. If no compatible RSA key exists, generate a dedicated XPR key pair or offer
-   a clear noninteractive fallback path.
+4. If no compatible RSA key exists, generate a dedicated XPR key pair.
 5. Never overwrite an existing private key.
 6. Never copy the private key into XPR-OS.
 7. Provision only the public key into deployment-specific bootstrap/final-root
@@ -60,13 +59,14 @@ This removes one of the remaining first-time-user setup steps while keeping the
 legacy `ssh-rsa` compatibility requirement isolated to XPR rather than forcing
 users to make RSA their general-purpose SSH identity.
 
-### Validation needed
+### Evidence
 
-- host fixture coverage for zero/one/multiple key cases;
-- confirm generated key ownership and permissions belong to the invoking user,
-  not root under `sudo`;
-- live automatic handoff using the generated dedicated identity;
-- successful final SSH and recovery.
+- focused host fixtures cover explicit, zero, one, multiple, reusable, and
+  incomplete-key states;
+- the live generated key belonged to the invoking test user with `700` `.ssh`,
+  `600` private key, and `644` public key;
+- automatic handoff, final PID 1, micveth, generated-key SSH, hello, pthread,
+  dlopen, and stock recovery passed.
 
 ## Priority 2: Host Reboot / Power-Cycle Persistence Validation
 
@@ -110,6 +110,13 @@ Perform one explicit cold-host-reboot or full power-cycle test:
 Document clearly that `xpr-init --install` is a persistent host configuration
 step and normally does **not** need to be rerun after every host reboot.
 
+Completed on 2026-08-13. A normal reboot preserved XPR host state, the saved
+stock backup, deployed artifacts, the active XPR MPSS configuration, and the
+enabled handoff unit. No reinstall was required before the documented
+reset/wait/boot sequence completed automatic handoff, final SSH, and the three
+smokes. The card-side XPR instance remains RAM-resident and must boot again
+after host/card power loss; this does not write XPR to card flash.
+
 ## Priority 3: First-Run UX and Error Messages
 
 Improve errors so a beginner is told both what went wrong and the exact next
@@ -142,34 +149,20 @@ Potential additions:
 - more explicit confirmation of selected release/key before installation;
 - human-readable success summary after install.
 
-## Priority 4: Status Improvements
+## Completed: Status Improvements
 
-Current `--status` is intentionally simple. Future additions could report:
+`--status` now reports:
 
 - whether the handoff systemd unit is enabled and running;
 - installed release path and version;
 - whether the active `/etc/mpss/mic0.conf` still points to XPR artifacts;
 - whether the saved stock backup hash still verifies;
-- whether `mic0` appears to be stock, bootstrap, or final XPR root when SSH is
-  reachable;
-- final-root marker state when available;
-- a concise suggested next action.
+- saved/current configuration hashes and mode;
+- public-key hash and recovery availability; and
+- `micctrl` state.
 
-Example concept:
-
-```text
-Mode: XPR-OS installed
-Release: 0.1.0-rc6
-Device: mic0
-MPSS config: XPR active
-Stock backup: verified
-Handoff service: enabled
-Card state: ready
-Next: sudo micctrl --boot mic0
-Recovery available: yes
-```
-
-Do not make `--status` destructive or automatically change card state.
+It remains non-destructive and does not require an online card to report
+host-side state.
 
 ## Priority 5: Packaging and Distribution
 
@@ -245,6 +238,16 @@ project deliberately keeps responsibilities clear:
 
 If such a helper is ever added, it should remain a thin convenience wrapper and
 must not obscure or replace `micctrl` semantics.
+
+### Host-start boot investigation
+
+The MPSS init script starts `mpssd` and uses `micctrl --wait`. During the
+2026-08-13 reboot validation, `mic0` was nevertheless already online with the
+installed XPR kernel when the host returned. The project has not yet isolated
+the exact MPSS path responsible for that observed startup boot. No XPR-owned
+automatic boot service and no `xpr-init --boot` command were added: a wrapper
+would need deterministic state/race handling before it could replace the
+documented `micctrl --reset`, `--wait`, and `--boot` lifecycle.
 
 ## Implementation Rules For Future Codex Passes
 
