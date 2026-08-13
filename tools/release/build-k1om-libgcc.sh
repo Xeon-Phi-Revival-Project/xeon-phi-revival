@@ -45,9 +45,11 @@ case "$sysroot" in
     /opt/mpss/*) echo "MPSS sysroots are forbidden: use the source-built eglibc stage" >&2; exit 1 ;;
 esac
 [ -f "$linux_headers/linux/errno.h" ] || { echo "missing public Linux UAPI headers" >&2; exit 1; }
-[ -x "$target_tools/k1om-mpss-linux-nm" ] || { echo "missing target nm: $target_tools/k1om-mpss-linux-nm" >&2; exit 1; }
-[ -x "$target_tools/k1om-mpss-linux-as" ] || { echo "missing target assembler" >&2; exit 1; }
-[ -x "$target_tools/k1om-mpss-linux-ld" ] || { echo "missing target linker" >&2; exit 1; }
+for tool in ar as ld nm objcopy objdump ranlib readelf strip; do
+    [ -x "$target_tools/k1om-mpss-linux-$tool" ] || {
+        echo "missing target tool: $target_tools/k1om-mpss-linux-$tool" >&2; exit 1;
+    }
+done
 [ ! -e "$out" ] || { echo "output already exists: $out" >&2; exit 1; }
 
 mkdir -p "$out/work" "$out/build" "$out/install/k1om-mpss-linux/lib" "$out/sysroot"
@@ -85,10 +87,20 @@ printf 'crt_dir=%s\n' "$crt_dir" >> "$out/build-provenance.txt"
 printf 'sysroot=%s\n' "$sysroot" >> "$out/build-provenance.txt"
 printf 'linux_headers=%s\n' "$linux_headers" >> "$out/build-provenance.txt"
 
-# Configure must see target binutils. Without this, GCC 5.1.1 emits an nm
-# wrapper with an empty ORIGINAL_NM_FOR_TARGET and then executes `-p`.
+# GCC 5.1.1's generated as/nm wrappers need absolute ORIGINAL_*_FOR_TARGET
+# values.  PATH discovery alone leaves those values empty and makes wrappers
+# execute `-p` instead of the selected target tool.
 export PATH="$target_tools:$PATH"
 pushd "$out/build" >/dev/null
+AS_FOR_TARGET="$target_tools/k1om-mpss-linux-as" \
+LD_FOR_TARGET="$target_tools/k1om-mpss-linux-ld" \
+NM_FOR_TARGET="$target_tools/k1om-mpss-linux-nm" \
+AR_FOR_TARGET="$target_tools/k1om-mpss-linux-ar" \
+RANLIB_FOR_TARGET="$target_tools/k1om-mpss-linux-ranlib" \
+OBJCOPY_FOR_TARGET="$target_tools/k1om-mpss-linux-objcopy" \
+OBJDUMP_FOR_TARGET="$target_tools/k1om-mpss-linux-objdump" \
+READELF_FOR_TARGET="$target_tools/k1om-mpss-linux-readelf" \
+STRIP_FOR_TARGET="$target_tools/k1om-mpss-linux-strip" \
 "$source_dir/configure" --build=x86_64-linux-gnu --host=x86_64-linux-gnu \
     --target=k1om-mpss-linux --prefix="$out/install" \
     --enable-languages=c --enable-shared --enable-threads=posix \
@@ -100,6 +112,9 @@ pushd "$out/build" >/dev/null
 make -j"$jobs" all-gcc all-target-libgcc > "$out/build.log" 2>&1
 grep -F 'ORIGINAL_NM_FOR_TARGET="' gcc/nm | grep -F 'k1om-mpss-linux-nm"' > /dev/null || {
     echo "generated target-nm wrapper is not bound to k1om-mpss-linux-nm" >&2; exit 1;
+}
+grep -F 'ORIGINAL_AS_FOR_TARGET="' gcc/as | grep -F 'k1om-mpss-linux-as"' > /dev/null || {
+    echo "generated target-as wrapper is not bound to k1om-mpss-linux-as" >&2; exit 1;
 }
 make install-target-libgcc > "$out/install.log" 2>&1
 popd >/dev/null

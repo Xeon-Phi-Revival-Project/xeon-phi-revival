@@ -1,7 +1,7 @@
 # Standalone Toolkit Source-Build Checkpoint
 
-This checkpoint records a bounded attempt to remove the MPSS SDK from the
-K1OM compiler path. It is not a standalone toolkit release.
+This checkpoint records source closure for the KNC compiler path. It is not a
+standalone toolkit release.
 
 ## Proven Host-Only Results
 
@@ -22,41 +22,54 @@ On the tested CentOS 7.4 build host, using a controlled environment with no
   `/opt/mpss` reference. Static inspection reported `Intel K1OM`, requested
   `/lib64/ld-linux-k1om.so.2`, and depended on `libc.so.6`.
 
-This proves a useful source-built driver path for a narrow non-IMCI C program.
-It does **not** prove a redistributable standalone toolkit.
+## Recovered KNC Binutils Source
 
-## Blocking Source Gap
+The public Internet Archive copy of Intel MPSS 3.8.6 provides a source release
+whose MD5 matches the archive metadata. Its SHA-256 is
+`2550f10c32cc28ed90049c1fe67eccf4f29a9f2a9991fa0d90f18d86d8db7d70`.
+The nested `mpss-3.8.6/src/binutils-2.22+mpss3.8.6.tar.bz2` source archive has
+SHA-256
+`0e498581badb505bd2639bc1f75debe9299212fb50e8eee5deb40631a78abd9c`.
 
-The generic GNU binutils source above retains K1OM ELF/BFD and linker-emulation
-support but does not encode Knights Corner IMCI instructions. An explicit
-`kmov %eax, %k1` probe fails, and GCC-generated KNC code using `vpackstorelq`
-also fails in that assembler.
+That archive contains GPL license material, K1OM BFD/linker support, and the
+KNC assembler opcode implementation. Built with the source-built XPR sysroot,
+it successfully assembles and disassembles both `kmov` and `vpackstorelq`, then
+links an ELF64 `Intel K1OM` probe. `tools/toolchain/build-k1om-binutils.sh`
+pins the nested source hash and fails closed if it differs.
 
-The public KNC GCC tree's own README requires K1OM-targeted MPSS assembler and
-linker tools. The historical MPSS source layout describes a separate patched
-`binutils.tar.xz`, but the available MPSS 3.4.10 installation media and local
-source cache do not contain that archive. No SDK binary was copied into this
-experiment.
+The KNC GCC 5.1.1 C driver was rebuilt with explicit source-built target tools.
+Passing only a target-tool directory on `PATH` is insufficient: GCC 5.1.1
+otherwise emits empty `ORIGINAL_AS_FOR_TARGET` and `ORIGINAL_NM_FOR_TARGET`
+wrapper values. The updated libgcc builder passes absolute `*_FOR_TARGET`
+values during configure and asserts the generated wrappers are bound correctly.
 
-Until an authoritative, redistributable patched K1OM binutils source archive
-is recovered and pinned, XPR cannot truthfully ship a fully source-rebuildable
-standalone prebuilt toolkit. In particular, the target `libgcc` rebuild reaches
-KNC instructions that generic binutils cannot assemble.
+With the public KNC binutils, public Linux UAPI headers, source-built eglibc
+sysroot, and GCC source, the host build produced:
+
+- `libgcc.a`;
+- `libgcc_s.so.1` with SHA-256
+  `c79bfa2961f3702000fce933d3b77667f7ab989eb86c9748003df262bf95a73c`,
+  ELF64 `Intel K1OM`, and SONAME `libgcc_s.so.1`;
+- a dynamic K1OM hello with SHA-256
+  `d1008c856c986316082e0da5f4da08f0fe9cc59f2f5115d3e4da2ba87cf0ccb9`,
+  interpreter `/lib64/ld-linux-k1om.so.2`, and `libc.so.6` as its dynamic
+  dependency.
+
+No `/opt/mpss` or MPSS SDK path appeared in either the compile or link trace.
+This closes the assembler/source-accounting blocker; it does **not** yet prove
+a redistributable standalone toolkit, modern-host support, or 5110P execution
+of this newly built artifact.
 
 ## Next Exact Action
 
-Recover the MPSS-era GPL `binutils.tar.xz` (or an equivalent authoritative
-patched K1OM binutils source tree), record its revision and license evidence,
-and repeat these two gates before packaging:
-
-1. assemble representative IMCI instructions with the source-built assembler;
-2. build `libgcc_s` from the pinned GCC source with that assembler.
-
-Only then should the project create a standalone toolkit artifact or make an
-MPSS-free compilation claim.
+Use the recorded source builders to produce a relocatable toolkit candidate,
+then validate it on a modern Linux host without MPSS and execute binaries from
+that candidate on the 5110P. Only after those gates and a release-level license
+review may XPR make an MPSS-free toolkit distribution claim.
 
 ## References
 
 - [GNU Binutils](https://www.sourceware.org/binutils/)
 - [KNC GCC source](https://github.com/apc-llc/gcc-5.1.1-knc)
 - [Intel Community source-package description](https://community.intel.com/t5/Software-Archive/Clarifying-MPSS-source-code-package/td-p/943880)
+- [Archived MPSS 3.8.6 source release](https://archive.org/details/intel-mpss-3.8.6)
