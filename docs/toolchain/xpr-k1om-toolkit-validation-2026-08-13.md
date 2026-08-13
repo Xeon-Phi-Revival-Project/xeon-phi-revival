@@ -35,9 +35,10 @@ with the source-built RC6 runtime did emit output in the same SSH session.
 `LIVE_TOOLKIT_OUTPUT=FAIL`
 
 The observed difference is the startup-object path: the toolkit used SDK CRT
-objects because the project-built eglibc CRT objects are not yet a declared
-public toolkit input. This is a precise sysroot-closure blocker. No kernel,
-boot, MPSS, or runtime image change was attempted.
+objects while the known-good helpers use source-built eglibc CRT objects. The
+toolkit builder now requires the stage emitted by the tracked eglibc builder.
+The live retry is pending while the MPSS host is unreachable. No kernel, boot,
+MPSS, or runtime image change was attempted.
 
 ## Recovery
 

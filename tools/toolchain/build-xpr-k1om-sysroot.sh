@@ -5,28 +5,36 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-usage: build-xpr-k1om-sysroot.sh --release RC6.tar.gz [--sdk-root DIR] --out DIR
+usage: build-xpr-k1om-sysroot.sh --release RC6.tar.gz --eglibc-stage DIR [--sdk-root DIR] --out DIR
 EOF
 }
 
-release= sdk_root= out=
+release= eglibc_stage= sdk_root= out=
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --release) release=$2; shift 2 ;;
+    --eglibc-stage) eglibc_stage=$2; shift 2 ;;
     --sdk-root) sdk_root=$2; shift 2 ;;
     --out) out=$2; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) usage >&2; exit 2 ;;
   esac
 done
-[[ -n "$release" && -n "$out" ]] || { usage >&2; exit 2; }
+[[ -n "$release" && -n "$eglibc_stage" && -n "$out" ]] || { usage >&2; exit 2; }
 [[ -f "$release" ]] || { echo "release not found: $release" >&2; exit 1; }
 sdk_root=${sdk_root:-/opt/mpss/3.4.10}
-sdk_sysroot="$sdk_root/sysroots/k1om-mpss-linux"
 sdk_tools="$sdk_root/sysroots/x86_64-mpsssdk-linux/usr/bin/k1om-mpss-linux"
-for path in "$sdk_sysroot/usr/include" "$sdk_sysroot/usr/lib64/crt1.o" \
-            "$sdk_tools/k1om-mpss-linux-gcc" "$sdk_tools/k1om-mpss-linux-readelf"; do
-  [[ -e "$path" ]] || { echo "missing MPSS SDK input: $path" >&2; exit 1; }
+[[ -d "$eglibc_stage/usr/include" ]] || { echo "missing source-built eglibc headers: $eglibc_stage/usr/include" >&2; exit 1; }
+for path in "$sdk_tools/k1om-mpss-linux-gcc" "$sdk_tools/k1om-mpss-linux-readelf"; do
+  [[ -e "$path" ]] || { echo "missing MPSS SDK tool: $path" >&2; exit 1; }
+done
+eglibc_libdir="$eglibc_stage/usr/lib"
+[[ -d "$eglibc_libdir" ]] || eglibc_libdir="$eglibc_stage/lib"
+for item in crt1.o crti.o crtn.o libc_nonshared.a libpthread_nonshared.a \
+            libc.so libpthread.so libm.so libdl.so librt.so libutil.so; do
+  [[ -e "$eglibc_libdir/$item" ]] || {
+    echo "source-built eglibc stage is missing: $eglibc_libdir/$item" >&2; exit 1;
+  }
 done
 [[ ! -e "$out" ]] || { echo "output already exists: $out" >&2; exit 1; }
 
@@ -48,12 +56,12 @@ done
 mkdir -p "$out/sysroot/usr/include" "$out/sysroot/usr/lib64" "$out/metadata"
 cp -a "$work/root/lib64" "$out/sysroot/lib64"
 ln -s lib64 "$out/sysroot/lib"
-cp -a "$sdk_sysroot/usr/include/." "$out/sysroot/usr/include/"
+cp -a "$eglibc_stage/usr/include/." "$out/sysroot/usr/include/"
 for item in crt1.o Scrt1.o Mcrt1.o gcrt1.o crti.o crtn.o libc_nonshared.a libpthread_nonshared.a; do
-  [[ -e "$sdk_sysroot/usr/lib64/$item" ]] && cp -a "$sdk_sysroot/usr/lib64/$item" "$out/sysroot/usr/lib64/"
+  [[ -e "$eglibc_libdir/$item" ]] && cp -a "$eglibc_libdir/$item" "$out/sysroot/usr/lib64/"
 done
 for item in libc.so libpthread.so libm.so libdl.so librt.so libutil.so; do
-  [[ -e "$sdk_sysroot/usr/lib64/$item" ]] && cp -a "$sdk_sysroot/usr/lib64/$item" "$out/sysroot/usr/lib64/"
+  cp -a "$eglibc_libdir/$item" "$out/sysroot/usr/lib64/"
 done
 for item in crtbegin.o crtbeginS.o crtend.o crtendS.o libgcc.a; do
   compiler_item=$("$sdk_tools/k1om-mpss-linux-gcc" --print-file-name="$item")
@@ -64,8 +72,9 @@ done
 {
   echo "release=$(readlink -f "$release")"
   echo "sdk_root=$(readlink -f "$sdk_root")"
+  echo "eglibc_stage=$(readlink -f "$eglibc_stage")"
   echo "runtime_source=public RC6 payload"
-  echo "headers_and_crt_source=user-supplied MPSS SDK"
+  echo "headers_and_crt_source=source-built XPR eglibc stage"
   echo "compiler=$sdk_tools/k1om-mpss-linux-gcc"
   sha256sum "$release"
   find "$out/sysroot" -type f -print0 | sort -z | xargs -0 sha256sum

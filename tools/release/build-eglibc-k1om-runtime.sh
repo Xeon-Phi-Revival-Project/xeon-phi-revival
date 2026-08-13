@@ -96,9 +96,16 @@ runtime_source() {
 for library in ld-linux-k1om.so.2 libc.so.6 libpthread.so.0 libm.so.6 libdl.so.2 librt.so.1 libutil.so.1; do
     readelf -h "$(runtime_source "$library")" | grep -F 'Machine:                           Intel K1OM'
 done
+for object in crt1.o crti.o crtn.o libc_nonshared.a libpthread_nonshared.a \
+              libc.so libpthread.so libm.so libdl.so librt.so libutil.so; do
+    [ -e "$libdir/$object" ] || { echo "missing installed development input: $libdir/$object" >&2; exit 1; }
+done
 loader_source=$(runtime_source ld-linux-k1om.so.2)
 ln -sf "$(basename "$loader_source")" "$libdir/ld-linux-k1om.so.2"
 for library in ld-linux-k1om.so.2 libc.so.6 libpthread.so.0 libm.so.6 libdl.so.2 librt.so.1 libutil.so.1; do
     printf '%s  %s\n' "$(sha256sum "$(runtime_source "$library")" | awk '{print $1}')" "$library"
 done > "$out/runtime-sha256sums.txt"
+for object in crt1.o crti.o crtn.o libc_nonshared.a libpthread_nonshared.a; do
+    printf '%s  %s\n' "$(sha256sum "$libdir/$object" | awk '{print $1}')" "$object"
+done >> "$out/runtime-sha256sums.txt"
 printf 'runtime_libdir=%s\n' "$libdir" >> "$out/build-provenance.txt"
