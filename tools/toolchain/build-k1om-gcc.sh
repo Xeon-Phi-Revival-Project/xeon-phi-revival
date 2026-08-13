@@ -71,6 +71,7 @@ STRIP_FOR_TARGET="$target_tools/k1om-mpss-linux-strip" \
 "$gcc_source/configure" --build=x86_64-linux-gnu --host=x86_64-linux-gnu \
     --target=k1om-mpss-linux --prefix="$out/install" --without-headers \
     --enable-languages=c --disable-multilib --disable-bootstrap --disable-nls \
+    --disable-libgcov \
     --disable-libssp --disable-libgomp --disable-libmudflap --disable-libitm \
     --disable-libsanitizer --with-as="$target_tools/k1om-mpss-linux-as" \
     --with-ld="$target_tools/k1om-mpss-linux-ld" --with-sysroot="$sysroot" \
