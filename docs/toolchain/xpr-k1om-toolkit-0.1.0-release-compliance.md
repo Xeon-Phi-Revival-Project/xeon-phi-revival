@@ -40,16 +40,20 @@ distribution terms affect publication of rebuilt binaries.
 
 ## Clean Rebuild Result
 
-The source archive reaches source-built KNC binutils and GCC without an MPSS
-SDK. The fresh stage-one compiler reports `k1om-mpss-linux` from
-`-dumpmachine`, but the subsequent eglibc build produced `EM_X86_64` runtime
-objects (for example `stage/lib/ld-2.19.so`), not `EM_K1OM`. This is a release
-blocker: the fresh GCC/binutils stage does not yet reproduce the validated
-K1OM runtime link semantics. The original validated binary toolkit is
-unchanged.
+The clean source-only reconstruction now passes. It builds GCC 5.1.1 KNC,
+installs source-built eglibc bootstrap headers, stages the required
+source-built GCC bootstrap archive/CRT objects, builds the full K1OM eglibc
+runtime, then rebuilds `libgcc_s.so.1` against that runtime. No MPSS SDK or
+`/opt/mpss` input was used.
 
-`XPR_STANDALONE_TOOLKIT=PARTIAL` and `TOOLKIT_RELEASE_CANDIDATE=BLOCKED` until
-that target-selection defect is corrected and the complete source-only rebuild
-produces K1OM ELF files. The independent KNC binutils legal boundary also
-remains subject to qualified human review after the engineering rebuild gate
-passes.
+The rebuilt loader, libc, pthread, libm, libdl, librt, and libutil all report
+`Machine: Intel K1OM`. The rebuilt `libgcc_s.so.1` reports the expected SONAME
+and `_Unwind_RaiseException`. The reconstructed toolkit compiled and validated
+the `hello`, `pthread` (with `-pthread`), and `libc-smoke` examples; each has
+the `/lib64/ld-linux-k1om.so.2` interpreter and passes the K1OM ELF validator.
+The package-path scan passed with no `/opt/mpss` or `mpss-sdk` reference.
+
+`XPR_STANDALONE_TOOLKIT=TECHNICALLY_PASS`. The immutable validated binary
+candidate remains unchanged, but its publication is
+`TOOLKIT_RELEASE_CANDIDATE=HOLD_HUMAN_REVIEW` pending the independent KNC
+binutils source-distribution licensing interpretation described above.
