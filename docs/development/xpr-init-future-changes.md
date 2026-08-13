@@ -182,7 +182,123 @@ without supplying `-i` or `IdentitiesOnly` manually.
 Do not promote `ssh mic0` as the default README command until the live test
 passes.
 
-## Priority 2: First-Run UX and Success Summary
+## Priority 2: Human-Friendly Console UX
+
+### Goal
+
+Keep the existing reliable `XPR_INIT_*` state markers for tests, automation, and
+debugging, while making normal interactive use read like a polished installer,
+status utility, and recovery tool.
+
+The current implementation is already partly human-readable during install, for
+example:
+
+```text
+XPR-OS Host Installer
+[PASS] MPSS configuration found: ...
+[PASS] Release verified: ...
+[PASS] RSA public key selected: ...
+```
+
+but handoff, status, and recovery still rely heavily on terse markers such as:
+
+```text
+XPR_INIT_INSTALL=PASS
+XPR_INIT_HANDOFF=PASS
+XPR_INIT_RECOVER=PASS
+XPR_INIT_CONFIG_MODE=XPR
+```
+
+Those markers are useful and should not simply be removed.
+
+### Desired interactive shape
+
+Normal terminal output should present a concise progression such as:
+
+```text
+XPR-OS Host Integration
+
+Release
+  XPR-OS 0.1.0-rc6                     PASS
+
+SSH
+  Dedicated XPR identity               READY
+  Private key remains host-only        PASS
+
+Stock MPSS
+  Configuration backup                 PASS
+  Backup hash                          PASS
+
+Installation
+  Kernel                               PASS
+  Bootstrap                            PASS
+  Final-root payload                   PASS
+  Handoff service                      PASS
+
+Installation complete.
+
+Next:
+  sudo micctrl --reset mic0
+  sudo micctrl --wait mic0
+  sudo micctrl --boot mic0
+  ssh mic0
+```
+
+The exact wording/layout should be implemented from real state, not copied
+blindly from this mockup.
+
+Similarly, `--status` should have a readable default presentation showing the
+installed release, configuration mode, rollback integrity, handoff state, card
+state, and the simplest connection command.
+
+Recovery should clearly show the important safety steps and end with an
+unambiguous statement that stock MPSS is restored only after the saved stock hash
+and stock-card return path pass.
+
+### Machine-readable compatibility
+
+Do not sacrifice existing scriptability merely to make output attractive.
+Prefer one of these designs after checking current tests/callers:
+
+1. keep `XPR_INIT_*` markers alongside concise human output;
+2. add an explicit machine-readable mode such as `--machine` / `--porcelain`;
+3. route stable machine-readable markers to a documented stream while keeping
+   normal stdout readable.
+
+Choose the least disruptive design supported by existing tests and consumers.
+Do not break host fixtures or external scripts that already parse stable markers.
+
+### UX principles
+
+- no ANSI color dependency for correctness;
+- if color is added later, detect TTY and support `NO_COLOR` / noninteractive
+  output cleanly;
+- use `[PASS]`, `[WARN]`, `[FAIL]`, or similarly obvious states consistently;
+- do not print secrets/private-key material;
+- preserve exact hashes where they matter for rollback evidence;
+- errors should say what failed and the safest next action;
+- do not hide useful MPSS/micctrl errors behind decorative summaries;
+- avoid spinners/progress animations that make logs hard to capture;
+- default output should remain useful over SSH and in plain text logs;
+- installation, status, handoff, and recovery wording should use the same terms.
+
+### Validation
+
+Before promoting the polished UX:
+
+- update host fixtures to assert the stable machine-readable contract;
+- test interactive and redirected/non-TTY output;
+- test install, already-installed, status, handoff success, expected switch-root
+  SSH closure, recovery, already-stock, and important failure states;
+- perform one live 5110P install/status/handoff/recovery run and capture the
+  actual terminal transcript;
+- update beginner docs/screenshots/examples from that **real transcript**, not a
+  conceptual mockup.
+
+This should be treated as UX polish around already-validated behavior, not as a
+reason to redesign the underlying xpr-init state machine.
+
+## Priority 3: First-Run UX and Success Summary
 
 Most of the first-run path is now hardware-validated. Continue improving it only
 when concrete friction appears.
@@ -199,7 +315,7 @@ Reasonable small improvements include:
 Avoid turning `xpr-init` into an interactive wizard unless real user experience
 shows that is needed.
 
-## Priority 3: Packaging And Distribution
+## Priority 4: Packaging And Distribution
 
 `xpr-init` was developed after the frozen RC6 archives, so current users obtain
 RC6 separately and install the helper from the repository.
@@ -218,7 +334,7 @@ Possible forms:
 Any packaging must preserve the separation between XPR project artifacts and
 separately obtained Intel MPSS components.
 
-## Priority 4: Repeated Boot / Idempotence Coverage
+## Priority 5: Repeated Boot / Idempotence Coverage
 
 Additional normal card cycles can strengthen robustness evidence:
 
@@ -237,7 +353,7 @@ Validate that:
 This is useful robustness coverage, not a blocker for the validated first-use
 lifecycle.
 
-## Priority 5: Better Failure Diagnostics
+## Priority 6: Better Failure Diagnostics
 
 Future troubleshooting improvements may include:
 
@@ -251,7 +367,7 @@ Future troubleshooting improvements may include:
 Diagnostic tooling must not collect private SSH keys, passwords, or unrelated
 host data.
 
-## Priority 6: Additional SSH-Key Compatibility
+## Priority 7: Additional SSH-Key Compatibility
 
 RSA is the current hardware-validated compatibility path. Additional key types,
 especially Ed25519, may be investigated if the project Dropbear build and the
@@ -268,7 +384,7 @@ Before claiming another key type:
 Do not remove a validated compatibility path merely because a newer key type is
 preferred on modern systems.
 
-## Priority 7: Understand Host-Start `mic0` Boot Behavior
+## Priority 8: Understand Host-Start `mic0` Boot Behavior
 
 The validated reboot observed `mic0` online with the XPR kernel after host
 startup even though XPR installed no separate auto-boot wrapper.
