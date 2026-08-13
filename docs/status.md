@@ -85,7 +85,10 @@ manual RC6 procedure is retained for advanced troubleshooting and learning.
 2. **xpr-init usability** — dedicated RSA-key generation fallback and
    host-side diagnostics are validated; cold-host-reboot persistence and future
    release packaging remain to be validated.
-3. **K1OM toolchain and SDK work** — make practical compilation less dependent on a historical host environment.
+3. **K1OM toolchain and SDK work** — the initial XPR K1OM Toolkit can assemble
+   an RC6-based local sysroot and produce statically validated K1OM C ELF
+   files with a user-supplied MPSS SDK. Live stdio behavior remains blocked on
+   source-accounted CRT/startup-object closure.
 4. **Software ports and runtime expansion** — explore useful programs and libraries on the validated K1OM baseline.
 5. **Source-package / xpr-build research** — investigate rebuilding normal source packages and dependencies for K1OM; this is future work, not a current package manager.
 6. **Hardware preservation** — collect compatibility and recovery evidence on additional Knights Corner cards without generalizing from untested hardware.

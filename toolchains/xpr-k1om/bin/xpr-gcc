@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+# shellcheck disable=SC1091
+source "$root/config.env"
+exec "$XPR_K1OM_GCC" --sysroot="$XPR_K1OM_SYSROOT" -isystem "$XPR_K1OM_SYSROOT/usr/include" \
+  -L"$XPR_K1OM_SYSROOT/usr/lib64" -L"$XPR_K1OM_SYSROOT/lib64" \
+  -Wl,--dynamic-linker=/lib64/ld-linux-k1om.so.2 -Wl,-rpath,/lib64 \
+  -Wl,--no-as-needed "$@" -lgcc_s

@@ -5,6 +5,8 @@ building Knights Corner / K1OM software.
 
 Useful entry points include:
 
+- [XPR K1OM Toolkit](xpr-k1om-toolkit.md)
+
 - [K1OM package requirements](k1om-package-requirements.md)
 - [Minimum K1OM runtime](minimum-k1om-runtime.md)
 - [MPSS SDK/K1OM pre-install report](mpss-sdk-k1om-3.4.10-preinstall-report.md)
