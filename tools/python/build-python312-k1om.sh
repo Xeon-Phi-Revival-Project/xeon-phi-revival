@@ -70,6 +70,9 @@ export RANLIB="$toolkit/bin/xpr-ranlib"
 export READELF="$toolkit/bin/xpr-readelf"
 export ac_cv_file__dev_ptmx=yes
 export ac_cv_file__dev_ptc=no
+# Cross configuration cannot execute the target probe.  K1OM EGLIBC does not
+# provide the BSD-only chflags(2); prevent configure from enabling that code.
+export ac_cv_func_chflags=no
 "$out/target-src/configure" \
     --build=x86_64-pc-linux-gnu \
     --host=k1om-mpss-linux \

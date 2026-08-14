@@ -27,7 +27,7 @@ index 8e6d9c4..9d71810 100644
 diff --git a/Include/pyport.h b/Include/pyport.h
 --- a/Include/pyport.h
 +++ b/Include/pyport.h
-@@ -129,7 +129,9 @@ typedef intptr_t        Py_intptr_t;
+@@ -129,4 +129,8 @@ typedef intptr_t        Py_intptr_t;
  #elif HAVE_SSIZE_T
  typedef ssize_t         Py_ssize_t;
 +# if defined(__k1om__) && !defined(SSIZE_MAX)

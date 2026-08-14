@@ -4,7 +4,10 @@ Public-safe report for the first CPython 3.12 K1OM build probe.
 
 ## Status
 
-Status: packaged expanded runtime and full ctypes smoke passed.
+Status: historical experimental package and ctypes smoke passed. It used a
+private GCC 4.7-era build tree and is preserved as evidence, not as the current
+RC7-ready build path. See [the source-built GCC 5.1.1 checkpoint]
+(python-3.12-k1om-source-build-2026-08-14.md) for the current tracked lane.
 
 The initial probe produced a dynamically linked `python` executable for
 `Machine: Intel K1OM`. Follow-up work rebuilt that interpreter with a static
