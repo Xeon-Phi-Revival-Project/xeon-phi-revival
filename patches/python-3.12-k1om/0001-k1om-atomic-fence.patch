@@ -8,7 +8,8 @@ semantics.
 
 ---
  Include/internal/pycore_atomic.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Include/pyport.h                 | 4 +++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/Include/internal/pycore_atomic.h b/Include/internal/pycore_atomic.h
 index 8e6d9c4..9d71810 100644
@@ -23,3 +24,15 @@ index 8e6d9c4..9d71810 100644
  }
  
  /* Tell the race checker about this operation's effects. */
+diff --git a/Include/pyport.h b/Include/pyport.h
+--- a/Include/pyport.h
++++ b/Include/pyport.h
+@@ -129,7 +129,9 @@ typedef intptr_t        Py_intptr_t;
+ #elif HAVE_SSIZE_T
+ typedef ssize_t         Py_ssize_t;
++# if defined(__k1om__) && !defined(SSIZE_MAX)
++#  define PY_SSIZE_T_MAX LONG_MAX
++# else
+ #   define PY_SSIZE_T_MAX SSIZE_MAX
++# endif
+ #elif SIZEOF_VOID_P == SIZEOF_SIZE_T
