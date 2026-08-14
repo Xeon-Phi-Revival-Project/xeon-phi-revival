@@ -42,18 +42,28 @@ third-party extension-module lanes. Historical zlib, SQLite, OpenSSL, curses,
 readline, and libffi/ctypes results remain experimental evidence, not part of
 this new release-quality build.
 
-## 5110P Attempt
+## 5110P Core Validation
 
-The exact staged executable was transferred to the final RC6 XPR root and its
-SHA-256 matched the build-host value. The final root and SSH were healthy, but
-the executable did not start: the running-root check listed
-`/lib64/ld-linux-k1om.so.2`, while immediately following loader access returned
-`No such file or directory`; direct Python execution returned `cannot execute
-binary file`.
+The initial failed attempt was a staging-command error, not a loader/runtime
+defect: the minimal RC6 root provides the `tar` BusyBox applet but deliberately
+does not install a `/bin/tar` link. The initial `tar -xzf` command therefore
+never extracted the staged Python tree.
 
-This is an unresolved `LOADER_OR_RUNTIME_EXECUTION` boundary. It is not a
-Python source-build, ELF-machine, transfer-integrity, or MPSS-SDK provenance
-failure. No attempt was made to substitute historical private runtime files.
+The bounded follow-up used the same final RC6 root without any runtime overlay:
+
+- a fresh `examples/k1om/loader-probe.c` built by the current source-built
+  toolkit executed and printed `XPR fresh loader probe PASS`;
+- the exact Python executable transferred with matching SHA-256
+  `3112f3c1d0026fd8f9a4755010696f1e15b9a1ace1034c7d8d167dd8cf9d79c3` and
+  ran `--version` as `Python 3.12.13`;
+- `busybox tar -xzf` extracted the complete source-built stage, after which
+  `PYTHONHOME=/tmp/xpr-python312/usr` ran the core smoke and printed
+  `Hello from Python on Xeon Phi`, Python `3.12.13`, and `k1om`.
+
+The final RC6 loader, libc, and libgcc_s were recorded in the running root and
+no historical/private runtime component was substituted. This validates the
+source-built CPython core execution path; future RC7 packaging must install
+the staged tree directly rather than relying on an unavailable `tar` command.
 
 ## Recovery
 
@@ -65,6 +75,6 @@ stock `mic0` SSH returned `k1om` with `systemd` as PID 1.
 
 `PYTHON312_CORE_SOURCE_BUILD=PASS`
 
-`PYTHON312_5110P_CORE_EXECUTION=BLOCKED_LOADER_OR_RUNTIME_EXECUTION`
+`PYTHON312_5110P_CORE_EXECUTION=PASS`
 
 `XPR_PYTHON312=PARTIAL`
