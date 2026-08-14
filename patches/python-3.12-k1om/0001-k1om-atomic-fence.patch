@@ -1,0 +1,27 @@
+From: Xeon Phi Revival Project
+Subject: [PATCH] python: use a K1OM-supported sequential fence
+
+Knights Corner does not implement the x86 `mfence` instruction used by
+CPython's x86 atomic fallback. GCC's `__sync_synchronize()` emits a supported
+locked operation for K1OM and retains the required compiler and CPU barrier
+semantics.
+
+---
+ Include/internal/pycore_atomic.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Include/internal/pycore_atomic.h b/Include/internal/pycore_atomic.h
+index 8e6d9c4..9d71810 100644
+--- a/Include/internal/pycore_atomic.h
++++ b/Include/internal/pycore_atomic.h
+@@ -131,7 +131,7 @@ _Py_atomic_thread_fence(_Py_memory_order order)
+ _Py_atomic_thread_fence(_Py_memory_order order)
+ {
+     if (order != _Py_memory_order_relaxed)
+-        __asm__ volatile("mfence":::"memory");
++        __sync_synchronize();
+ }
+ 
+ /* Tell the race checker about this operation's effects. */
+-- 
+2.39.0
