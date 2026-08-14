@@ -87,6 +87,7 @@ bash "$repo/tools/release/build-k1om-libgcc.sh" \
     --out "$out/libgcc" --jobs "$jobs"
 bash "$repo/tools/toolchain/package-standalone-xpr-k1om-toolkit.sh" \
     --gcc-prefix "$out/gcc/install" --binutils-prefix "$out/binutils/install" \
-    --eglibc-stage "$out/eglibc/stage" --libgcc-dir "$out/libgcc/install/k1om-mpss-linux/lib64" \
+    --eglibc-stage "$out/eglibc/stage" --linux-headers "$out/linux-headers/usr/include" \
+    --libgcc-dir "$out/libgcc/install/k1om-mpss-linux/lib64" \
     --examples "$repo/examples/k1om" --out "$out/package"
 echo XPR_STANDALONE_TOOLKIT_REBUILD=PASS

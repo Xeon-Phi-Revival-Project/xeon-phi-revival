@@ -6,7 +6,7 @@ repo_root=$(CDPATH= cd -- "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 usage() {
     cat <<'EOF'
 Usage: package-standalone-xpr-k1om-toolkit.sh \
-  --gcc-prefix DIR --binutils-prefix DIR --eglibc-stage DIR --libgcc-dir DIR \
+  --gcc-prefix DIR --binutils-prefix DIR --eglibc-stage DIR --linux-headers DIR --libgcc-dir DIR \
   --out DIR [--examples DIR] [--version VERSION]
 
 All inputs must be outputs of the source-accounted XPR builders.  This script
@@ -14,12 +14,13 @@ intentionally has no MPSS SDK or /opt/mpss input.
 EOF
 }
 
-gcc_prefix= binutils_prefix= eglibc_stage= libgcc_dir= out= examples="$repo_root/examples/k1om" version=0.1.0
+gcc_prefix= binutils_prefix= eglibc_stage= linux_headers= libgcc_dir= out= examples="$repo_root/examples/k1om" version=0.1.0
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --gcc-prefix) gcc_prefix=$2; shift 2 ;;
         --binutils-prefix) binutils_prefix=$2; shift 2 ;;
         --eglibc-stage) eglibc_stage=$2; shift 2 ;;
+        --linux-headers) linux_headers=$2; shift 2 ;;
         --libgcc-dir) libgcc_dir=$2; shift 2 ;;
         --out) out=$2; shift 2 ;;
         --examples) examples=$2; shift 2 ;;
@@ -29,7 +30,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-for required in "$gcc_prefix" "$binutils_prefix" "$eglibc_stage" "$libgcc_dir" "$out"; do
+for required in "$gcc_prefix" "$binutils_prefix" "$eglibc_stage" "$linux_headers" "$libgcc_dir" "$out"; do
     [[ -n "$required" ]] || { usage >&2; exit 2; }
 done
 [[ ! -e "$out" ]] || { echo "output already exists: $out" >&2; exit 1; }
@@ -40,6 +41,7 @@ for tool in as ld ar ranlib nm objdump objcopy readelf strip; do
     [[ -x "$binutils_prefix/bin/$tool" ]] || { echo "missing source-built binutils tool: $tool" >&2; exit 1; }
 done
 [[ -d "$eglibc_stage/usr/include" ]] || { echo "missing source-built eglibc headers" >&2; exit 1; }
+[[ -f "$linux_headers/linux/errno.h" ]] || { echo "missing K1OM Linux UAPI headers" >&2; exit 1; }
 [[ -d "$examples" ]] || { echo "missing K1OM examples: $examples" >&2; exit 1; }
 eglibc_libdir="$eglibc_stage/lib"
 [[ -d "$eglibc_libdir" ]] || eglibc_libdir="$eglibc_stage/usr/lib"
@@ -72,6 +74,7 @@ done
 cp -a "$gcc_prefix/k1om-mpss-linux" "$root/" 2>/dev/null || true
 
 cp -a "$eglibc_stage/usr/include" "$root/sysroot/usr/"
+cp -a "$linux_headers/." "$root/sysroot/usr/include/"
 cp -a "$eglibc_libdir" "$root/sysroot/lib64"
 cp -a "$eglibc_dev_libdir/." "$root/sysroot/lib64/"
 ln -s lib64 "$root/sysroot/lib"
