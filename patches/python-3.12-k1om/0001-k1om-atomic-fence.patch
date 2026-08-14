@@ -23,5 +23,3 @@ index 8e6d9c4..9d71810 100644
  }
  
  /* Tell the race checker about this operation's effects. */
--- 
-2.39.0

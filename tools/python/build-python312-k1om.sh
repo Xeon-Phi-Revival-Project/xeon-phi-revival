@@ -37,10 +37,9 @@ done
     echo "unexpected CPython source checksum" >&2
     exit 1
 }
-[[ ! -e /opt/mpss ]] || {
-    echo "refusing MPSS SDK input path /opt/mpss" >&2
-    exit 1
-}
+# A host may happen to have MPSS installed for card control. This builder never
+# adds it to PATH or to compiler/sysroot inputs; the toolkit is complete.
+export PATH="$toolkit/bin:/usr/bin:/bin"
 for path in "$toolkit/bin/xpr-gcc" "$toolkit/bin/xpr-ar" "$toolkit/bin/xpr-ranlib"; do
     [[ -x "$path" ]] || { echo "toolkit missing $path" >&2; exit 1; }
 done
