@@ -17,18 +17,27 @@ corresponding-source component archive.
 
 ## Candidate status
 
-`XPR_OS_RC7_CANDIDATE=BLOCKED_PREBUILD_INPUTS_UNAVAILABLE`
+`XPR_OS_RC7_CANDIDATE=BLOCKED_PUBLIC_ROOT_REBUILD`
 
-No RC7 archive was created or hardware-tested in this checkpoint.  The active
-CentOS host retains the validated CPython package and RC6 archive, but no
-current source-built public-root input set is available outside historical
-archive trees: BusyBox, Dropbear, eglibc runtime, libgcc, and XPR smoke-helper
-build outputs are required by `tools/release/build-public-root.sh`.
+No RC7 archive was created or hardware-tested in this checkpoint. The active
+CentOS host retains the validated CPython package and RC6 archive but not a
+current public-root input set. A bounded reconstruction attempt used the
+pinned BusyBox, Dropbear, eglibc, GCC, binutils, and Linux-source inputs with
+the source-built GCC 5.1.1/KNC-binutils toolkit, not an MPSS SDK binary.
+
+The first blocking rebuild is eglibc 2.19 configure: its K1OM target linker
+probe fails with `Need linker with .init_array/.fini_array support.` The
+source-built compiler and binutils are identified as GCC 5.1.1 and GNU ld
+2.22.52.20120302. BusyBox reaches its final link but cannot find `-lgcc_s`, as
+expected before a fresh eglibc/libgcc build exists. Therefore no current
+source-built eglibc runtime, libgcc, BusyBox, Dropbear, or helper input set is
+available for `build-public-root.sh`.
 
 Reusing a historical root tree or CPIO as the RC7 payload input would violate
-the public-clean root policy.  Rebuild those five declared inputs with the
-tracked release builders, then invoke `build-public-root.sh --python-root` on
-the extracted validated CPython package before staging the new RC7 candidate.
+the public-clean root policy. Resolve the source-built KNC linker
+`.init_array/.fini_array` capability discrepancy, rebuild eglibc and libgcc,
+then rebuild BusyBox, Dropbear, and helpers before invoking
+`build-public-root.sh --python-root` on the extracted validated CPython package.
 
 `TOOLKIT_RC7_INCLUSION=HOLD_HUMAN_REVIEW`
 

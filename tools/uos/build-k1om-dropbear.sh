@@ -3,7 +3,7 @@ set -euo pipefail
 
 usage() {
   cat >&2 <<'USAGE'
-usage: build-k1om-dropbear.sh --source-dir DIR --out FILE [--link-mode static|dynamic] [--runtime-prefix DIR] [--work-root DIR]
+usage: build-k1om-dropbear.sh --source-dir DIR --out FILE [--cross-compile PREFIX] [--link-mode static|dynamic] [--runtime-prefix DIR] [--work-root DIR]
 
 Build a static K1OM Dropbear server from a locally supplied upstream source
 tree. The source tree and output remain outside the repository.
@@ -15,11 +15,13 @@ out=""
 work_root="${HOME}/xeon-phi-revival-local/dropbear-builds"
 link_mode="static"
 runtime_prefix=""
+cross_compile="k1om-mpss-linux-"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --source-dir) source_dir="${2:-}"; shift 2 ;;
     --out) out="${2:-}"; shift 2 ;;
+    --cross-compile) cross_compile="${2:-}"; shift 2 ;;
     --link-mode) link_mode="${2:-}"; shift 2 ;;
     --runtime-prefix) runtime_prefix="${2:-}"; shift 2 ;;
     --work-root) work_root="${2:-}"; shift 2 ;;
@@ -36,11 +38,11 @@ if [[ -n "$runtime_prefix" ]]; then
     exit 4
   }
 fi
-if ! command -v k1om-mpss-linux-gcc >/dev/null 2>&1 && [[ -f /opt/mpss/3.4.10/environment-setup-k1om-mpss-linux ]]; then
+if ! command -v "${cross_compile}gcc" >/dev/null 2>&1 && [[ "$cross_compile" == "k1om-mpss-linux-" && -f /opt/mpss/3.4.10/environment-setup-k1om-mpss-linux ]]; then
   # shellcheck disable=SC1091
   source /opt/mpss/3.4.10/environment-setup-k1om-mpss-linux
 fi
-command -v k1om-mpss-linux-gcc >/dev/null 2>&1 || { echo "K1OM compiler unavailable" >&2; exit 10; }
+command -v "${cross_compile}gcc" >/dev/null 2>&1 || { echo "K1OM compiler unavailable" >&2; exit 10; }
 
 run_dir="$work_root/dropbear-$(date -u +%Y%m%d-%H%M%S)"
 build_dir="$run_dir/source"
@@ -62,7 +64,7 @@ cp -a "$source_dir" "$build_dir"
       configure_ldflags+=" -B$runtime_prefix/lib64 -L$runtime_prefix/lib -Wl,--dynamic-linker,/lib64/ld-linux-k1om.so.2"
     fi
   fi
-  CC=k1om-mpss-linux-gcc CFLAGS="$configure_cflags" LDFLAGS="$configure_ldflags" ./configure "${configure_args[@]}" \
+  CC="${cross_compile}gcc" CFLAGS="$configure_cflags" LDFLAGS="$configure_ldflags" ./configure "${configure_args[@]}" \
     --disable-zlib --disable-syslog --disable-utmp --disable-utmpx \
     --disable-wtmp --disable-wtmpx --disable-pututline --disable-pututxline \
     --disable-lastlog --disable-loginfunc > "$run_dir/configure.log" 2>&1
