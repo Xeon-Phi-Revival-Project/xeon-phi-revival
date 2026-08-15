@@ -38,7 +38,7 @@ root=$(CDPATH= cd -- "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 command -v xz >/dev/null || { echo "missing xz" >&2; exit 1; }
 version=3.12.13
 package="xpr-python-$version-k1om-core"
-runtime="$out/$package.tar.xz"
+runtime="$out/$package.tar.gz"
 sources="$out/$package-sources.tar.xz"
 [[ ! -e "$runtime" && ! -e "$sources" ]] || { echo "output already exists" >&2; exit 1; }
 
@@ -84,13 +84,17 @@ EOF
 
 mkdir -p "$out"
 make_archive() {
-    local name=$1 archive=$2 list="$work/$1.list" tarball="$work/$1.tar"
+    local name=$1 archive=$2 compression=$3 list="$work/$1.list" tarball="$work/$1.tar"
     ( cd "$work" && find "$name" -print | LC_ALL=C sort > "$list" )
     tar --no-recursion -C "$work" -T "$list" -cf "$tarball"
-    xz --threads=1 --check=crc64 -6 -c "$tarball" > "$archive"
+    case "$compression" in
+        gzip) gzip -n -9 -c "$tarball" > "$archive" ;;
+        xz) xz --threads=1 --check=crc64 -6 -c "$tarball" > "$archive" ;;
+        *) echo "unknown archive compression: $compression" >&2; exit 1 ;;
+    esac
 }
-make_archive "$package" "$runtime"
-make_archive "$package-sources" "$sources"
+make_archive "$package" "$runtime" gzip
+make_archive "$package-sources" "$sources" xz
 ( cd "$out" && sha256sum "$(basename "$runtime")" "$(basename "$sources")" > SHA256SUMS )
 echo "PYTHON312_CORE_PACKAGE=PASS"
 echo "PYTHON312_CORE_RUNTIME=$runtime"

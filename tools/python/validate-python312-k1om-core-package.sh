@@ -2,11 +2,11 @@
 # Validate that a CPython K1OM core package contains no legacy or SDK payload.
 set -euo pipefail
 
-[[ $# -eq 1 ]] || { echo "Usage: $0 PACKAGE.tar.xz" >&2; exit 2; }
+[[ $# -eq 1 ]] || { echo "Usage: $0 PACKAGE.tar.gz" >&2; exit 2; }
 package=$1
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
-tar -C "$work" -xJf "$package"
+tar -C "$work" -xzf "$package"
 root=$(find "$work" -mindepth 1 -maxdepth 1 -type d -print -quit)
 python=$(find "$root" -path '*/usr/bin/python3.12' -type f -print -quit)
 [[ -n "$python" ]] || { echo "missing python3.12" >&2; exit 1; }

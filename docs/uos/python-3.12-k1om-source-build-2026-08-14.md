@@ -74,22 +74,25 @@ K1OM interpreter with SHA-256
 the package copy, excludes the non-runtime CPython `test` and `idlelib` trees,
 and writes sorted xz archives suitable for an RC7 integration candidate:
 
-- `xpr-python-3.12.13-k1om-core.tar.xz`
-  SHA-256 `3e1d202a75046063713389098f7125f824ad71f73fe3c6b22fab678f9080146d`
+- `xpr-python-3.12.13-k1om-core.tar.gz`
+  SHA-256 `3bc29c848a975ca4426a949f6e7e2fbe1275f7ee4b4253b8fe27ff5cdd9b9479`
 - `xpr-python-3.12.13-k1om-core-sources.tar.xz`
-  SHA-256 `ac7c449c2d67e426de9d03c5cb13f9c3dd58c4c5e650805338198aec15d86c53`
+  SHA-256 `190eb43345763b266dbbfa3495485bc43dc4a5fc62f93854608f7db7404268eb`
 
-The package validator confirms `Machine: Intel K1OM`,
+The runtime archive deliberately uses deterministic gzip: RC6 BusyBox cannot
+extract `.tar.xz`, but does support `busybox tar -xzf`. The package validator confirms `Machine: Intel K1OM`,
 `PYTHON312_MPSS_BINARY_PAYLOAD=0`, and `PYTHON35_PAYLOAD=0`. The source bundle
 contains the official CPython archive, the tracked K1OM patch, build/package
 helpers, a source manifest, and the PSF license.
 
-The exact package was prepared for a repeat hardware smoke, but that one
-bounded boot did not expose the final root after the automatic handoff despite
-the host service reporting success. The card was immediately recovered to the
-exact stock baseline. This does not invalidate the prior staged-core 5110P
-execution evidence, but the final RC7 integration should rerun the exact
-package smoke before release freeze.
+The exact gzip package was transferred to the final RC6 root with matching
+host/card SHA-256 and extracted successfully using `busybox tar -xzf`.
+`python3.12 --version` passed. The concise package smoke then found one real
+core-profile gap: `import math` fails because `make python` did not build or
+stage CPython's `math` extension module. The next build must add that module
+through a tracked CPython static-module or extension-module configuration,
+then rebuild and smoke the resulting exact package. The card was immediately
+recovered to the exact stock baseline.
 
 ## Recovery
 
@@ -107,4 +110,4 @@ stock `mic0` SSH returned `k1om` with `systemd` as PID 1.
 
 `PYTHON312_CORE_SOURCE_ACCOUNTING=PASS`
 
-`XPR_PYTHON312=CORE_RC7_READY_WITH_PACKAGE_SMOKE_PENDING`
+`XPR_PYTHON312=PARTIAL_MISSING_MATH_EXTENSION`
