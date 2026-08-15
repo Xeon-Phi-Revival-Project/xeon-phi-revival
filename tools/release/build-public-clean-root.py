@@ -159,14 +159,16 @@ def main():
             os.chmod(os.path.join(root, "usr", "bin", name), 0o755)
     if args.python_root:
         component = require_component(ledger, "cpython")
-        interpreter = os.path.join(args.python_root, "python")
-        library = os.path.join(args.python_root, "Lib")
+        # The validated CPython component is a package-root tree.  Keep its
+        # normal target prefix rather than reviving the historical /opt layout.
+        interpreter = os.path.join(args.python_root, "usr", "bin", "python3.12")
+        library = os.path.join(args.python_root, "usr", "lib", "python3.12")
         if not os.path.isfile(interpreter) or not os.path.isdir(library):
-            raise RuntimeError("Python root must contain python and Lib/")
+            raise RuntimeError("Python root must contain usr/bin/python3.12 and usr/lib/python3.12/")
         copy_file(interpreter, os.path.join(root, "usr", "bin", "python3.12"))
         os.symlink("python3.12", os.path.join(root, "usr", "bin", "python3"))
         os.symlink("python3.12", os.path.join(root, "usr", "bin", "python"))
-        target = os.path.join(root, "opt", "xeon-phi-revival", "lib", "python3.12")
+        target = os.path.join(root, "usr", "lib", "python3.12")
         shutil.copytree(library, target, ignore=shutil.ignore_patterns("test", "idlelib", "tkinter", "__pycache__"))
         selected.append(component["id"])
 
@@ -184,7 +186,7 @@ def main():
                 owner = "busybox"
             elif rel == "/usr/sbin/dropbear":
                 owner = "dropbear"
-            elif rel.startswith("/usr/bin/python") or rel.startswith("/opt/xeon-phi-revival/lib/python3.12/"):
+            elif rel.startswith("/usr/bin/python") or rel.startswith("/usr/lib/python3.12/"):
                 owner = "cpython"
             else:
                 owner = "xpr-owned"
