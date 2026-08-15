@@ -13,6 +13,8 @@ Useful entry points:
 - [Clean-root bootstrap experiment](clean-root-bootstrap-experiment.md)
 - [Standalone initramfs live report](standalone-initramfs-live-report.md)
 - [Stock rollback baseline](stock-rollback-baseline.md)
+- [CPython 3.12 K1OM source-build checkpoint](python-3.12-k1om-source-build-2026-08-14.md)
+- [CPython 3.12 K1OM core component ledger](python-3.12-k1om-core-component-ledger.md)
 - [Ubuntu 24.04 / K1OM uOS research](ubuntu-24.04-uos-research.md)
 
 Historical uOS observations remain useful for understanding the platform, but

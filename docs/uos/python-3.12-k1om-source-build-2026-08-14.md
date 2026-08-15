@@ -65,6 +65,32 @@ no historical/private runtime component was substituted. This validates the
 source-built CPython core execution path; future RC7 packaging must install
 the staged tree directly rather than relying on an unavailable `tar` command.
 
+## RC7-Oriented Core Package
+
+The clean rebuild under the canonical public source root `/usr/src` produced a
+K1OM interpreter with SHA-256
+`d4347f6c6cfa7bb1cfae513f664b66f41c94864ddd53542fb7f51571fcd0ba0a`.
+`tools/python/package-python312-k1om-core.sh` strips only debug metadata from
+the package copy, excludes the non-runtime CPython `test` and `idlelib` trees,
+and writes sorted xz archives suitable for an RC7 integration candidate:
+
+- `xpr-python-3.12.13-k1om-core.tar.xz`
+  SHA-256 `3e1d202a75046063713389098f7125f824ad71f73fe3c6b22fab678f9080146d`
+- `xpr-python-3.12.13-k1om-core-sources.tar.xz`
+  SHA-256 `ac7c449c2d67e426de9d03c5cb13f9c3dd58c4c5e650805338198aec15d86c53`
+
+The package validator confirms `Machine: Intel K1OM`,
+`PYTHON312_MPSS_BINARY_PAYLOAD=0`, and `PYTHON35_PAYLOAD=0`. The source bundle
+contains the official CPython archive, the tracked K1OM patch, build/package
+helpers, a source manifest, and the PSF license.
+
+The exact package was prepared for a repeat hardware smoke, but that one
+bounded boot did not expose the final root after the automatic handoff despite
+the host service reporting success. The card was immediately recovered to the
+exact stock baseline. This does not invalidate the prior staged-core 5110P
+execution evidence, but the final RC7 integration should rerun the exact
+package smoke before release freeze.
+
 ## Recovery
 
 `xpr-init --recover` passed. The stock `mic0.conf` SHA-256 was restored to
@@ -77,4 +103,8 @@ stock `mic0` SSH returned `k1om` with `systemd` as PID 1.
 
 `PYTHON312_5110P_CORE_EXECUTION=PASS`
 
-`XPR_PYTHON312=PARTIAL`
+`PYTHON312_CORE_PACKAGE=PASS`
+
+`PYTHON312_CORE_SOURCE_ACCOUNTING=PASS`
+
+`XPR_PYTHON312=CORE_RC7_READY_WITH_PACKAGE_SMOKE_PENDING`
