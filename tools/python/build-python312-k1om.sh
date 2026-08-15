@@ -80,6 +80,12 @@ export ac_cv_func_chflags=no
     --disable-ipv6 \
     --without-ensurepip \
     --prefix=/usr > configure.log 2>&1
+# Keep the essential math module in the core profile.  The cross build invokes
+# `make python`, which otherwise leaves math as an unbuilt shared extension.
+cat > Modules/Setup.local <<'EOF'
+*static*
+math mathmodule.c
+EOF
 make -j"$jobs" python > make-python.log 2>&1
 "$toolkit/bin/xpr-validate" python
 mkdir -p "$out/stage/usr/bin" "$out/stage/usr/lib/python3.12"

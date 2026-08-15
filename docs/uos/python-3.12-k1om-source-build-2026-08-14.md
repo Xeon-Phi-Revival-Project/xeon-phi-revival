@@ -69,15 +69,17 @@ the staged tree directly rather than relying on an unavailable `tar` command.
 
 The clean rebuild under the canonical public source root `/usr/src` produced a
 K1OM interpreter with SHA-256
-`d4347f6c6cfa7bb1cfae513f664b66f41c94864ddd53542fb7f51571fcd0ba0a`.
+`0c15380e4e00c0aeb3beddf48db5a16d2378014745aa352f8a90c2ab3049b0d3`.
+The tracked build profile statically links CPython's essential `math` module;
+the target build's `Modules/config.c` records `PyInit_math`.
 `tools/python/package-python312-k1om-core.sh` strips only debug metadata from
 the package copy, excludes the non-runtime CPython `test` and `idlelib` trees,
 and writes sorted xz archives suitable for an RC7 integration candidate:
 
 - `xpr-python-3.12.13-k1om-core.tar.gz`
-  SHA-256 `3bc29c848a975ca4426a949f6e7e2fbe1275f7ee4b4253b8fe27ff5cdd9b9479`
+  SHA-256 `7cfe57598fecf9263af84f5409a4c9f3f3e688b13d6ae784eaae79aba4e49d4a`
 - `xpr-python-3.12.13-k1om-core-sources.tar.xz`
-  SHA-256 `190eb43345763b266dbbfa3495485bc43dc4a5fc62f93854608f7db7404268eb`
+  SHA-256 `f35bdbb603651cf00da87283a2b2740e06d3a801b94330539939b3311f93ff1d`
 
 The runtime archive deliberately uses deterministic gzip: RC6 BusyBox cannot
 extract `.tar.xz`, but does support `busybox tar -xzf`. The package validator confirms `Machine: Intel K1OM`,
@@ -87,12 +89,11 @@ helpers, a source manifest, and the PSF license.
 
 The exact gzip package was transferred to the final RC6 root with matching
 host/card SHA-256 and extracted successfully using `busybox tar -xzf`.
-`python3.12 --version` passed. The concise package smoke then found one real
-core-profile gap: `import math` fails because `make python` did not build or
-stage CPython's `math` extension module. The next build must add that module
-through a tracked CPython static-module or extension-module configuration,
-then rebuild and smoke the resulting exact package. The card was immediately
-recovered to the exact stock baseline.
+`python3.12 --version` passed. The exact package smoke imported `sys`, `os`,
+`pathlib`, `json`, `math`, `threading`, and `platform`, asserted
+`platform.machine() == "k1om"`, and printed
+`XPR Python core smoke PASS 3.12.13 k1om`. The card was immediately recovered
+to the exact stock baseline.
 
 ## Recovery
 
@@ -110,4 +111,6 @@ stock `mic0` SSH returned `k1om` with `systemd` as PID 1.
 
 `PYTHON312_CORE_SOURCE_ACCOUNTING=PASS`
 
-`XPR_PYTHON312=PARTIAL_MISSING_MATH_EXTENSION`
+`PYTHON312_CORE_PACKAGE_5110P=PASS`
+
+`XPR_PYTHON312=RC7_READY`
