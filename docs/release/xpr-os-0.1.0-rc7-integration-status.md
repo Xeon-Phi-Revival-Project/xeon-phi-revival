@@ -37,7 +37,8 @@ so the link failed before eglibc could inspect its `INIT_ARRAY` section.
 `tools/release/fixtures/k1om-initfini-probe.c`, linked with the source-built
 GCC/binutils without default libraries, produces a genuine Intel K1OM ELF with
 both `INIT_ARRAY` and `FINI_ARRAY` sections. The wrapper now honors explicit
-`-nostdlib` and `-nodefaultlibs`. Re-running the clean eglibc configure with
+`-nostdlib` and `-nodefaultlibs`, using explicit execution branches so CentOS
+Bash with `set -u` does not expand an empty array. Re-running the clean eglibc configure with
 that behavior reports `.preinit_array/.init_array/.fini_array support... yes`
 and continues through later target checks.
 

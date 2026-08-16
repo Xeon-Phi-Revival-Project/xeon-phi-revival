@@ -95,13 +95,14 @@ case "$tool" in
        for arg in "$@"; do
          case "$arg" in -nostdlib|-nodefaultlibs) link_libgcc=no ;; esac
        done
-       extra=()
-       [[ "$link_libgcc" == yes ]] && extra=(-lgcc_s)
+       common=(-B"$root/libexec/gcc/k1om-mpss-linux/5.1.1" -B"$root/lib/gcc/k1om-mpss-linux/5.1.1" -B"$root/libexec" --sysroot="$root/sysroot" \
+         -isystem "$root/sysroot/usr/include" -L"$root/sysroot/usr/lib64" -L"$root/sysroot/lib64" \
+         -Wl,--dynamic-linker=/lib64/ld-linux-k1om.so.2 -Wl,-rpath,/lib64 -Wl,--no-as-needed)
+       if [[ "$link_libgcc" == yes ]]; then
+         exec env GCC_EXEC_PREFIX="$root/libexec/gcc/" "$root/libexec/k1om-mpss-linux-gcc" "${common[@]}" "$@" -lgcc_s
+       fi
        exec env GCC_EXEC_PREFIX="$root/libexec/gcc/" "$root/libexec/k1om-mpss-linux-gcc" \
-      -B"$root/libexec/gcc/k1om-mpss-linux/5.1.1" -B"$root/lib/gcc/k1om-mpss-linux/5.1.1" -B"$root/libexec" --sysroot="$root/sysroot" \
-      -isystem "$root/sysroot/usr/include" -L"$root/sysroot/usr/lib64" -L"$root/sysroot/lib64" \
-      -Wl,--dynamic-linker=/lib64/ld-linux-k1om.so.2 -Wl,-rpath,/lib64 \
-      -Wl,--no-as-needed "$@" "${extra[@]}" ;;
+         "${common[@]}" "$@" ;;
   cpp) exec env GCC_EXEC_PREFIX="$root/libexec/gcc/" "$root/libexec/k1om-mpss-linux-gcc" \
       -B"$root/libexec/gcc/k1om-mpss-linux/5.1.1" -B"$root/lib/gcc/k1om-mpss-linux/5.1.1" -B"$root/libexec" --sysroot="$root/sysroot" -E "$@" ;;
   *) exec "$root/libexec/k1om-mpss-linux-$tool" "$@" ;;

@@ -9,9 +9,10 @@ for arg in "$@"; do
     -nostdlib|-nodefaultlibs) link_libgcc=no ;;
   esac
 done
-extra=()
-[[ "$link_libgcc" == yes ]] && extra=(-lgcc_s)
-exec "$XPR_K1OM_GCC" --sysroot="$XPR_K1OM_SYSROOT" -isystem "$XPR_K1OM_SYSROOT/usr/include" \
-  -L"$XPR_K1OM_SYSROOT/usr/lib64" -L"$XPR_K1OM_SYSROOT/lib64" \
-  -Wl,--dynamic-linker=/lib64/ld-linux-k1om.so.2 -Wl,-rpath,/lib64 \
-  -Wl,--no-as-needed "$@" "${extra[@]}"
+common=(--sysroot="$XPR_K1OM_SYSROOT" -isystem "$XPR_K1OM_SYSROOT/usr/include"
+  -L"$XPR_K1OM_SYSROOT/usr/lib64" -L"$XPR_K1OM_SYSROOT/lib64"
+  -Wl,--dynamic-linker=/lib64/ld-linux-k1om.so.2 -Wl,-rpath,/lib64 -Wl,--no-as-needed)
+if [[ "$link_libgcc" == yes ]]; then
+  exec "$XPR_K1OM_GCC" "${common[@]}" "$@" -lgcc_s
+fi
+exec "$XPR_K1OM_GCC" "${common[@]}" "$@"
