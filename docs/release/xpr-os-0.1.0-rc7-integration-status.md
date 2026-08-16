@@ -25,18 +25,31 @@ current public-root input set. A bounded reconstruction attempt used the
 pinned BusyBox, Dropbear, eglibc, GCC, binutils, and Linux-source inputs with
 the source-built GCC 5.1.1/KNC-binutils toolkit, not an MPSS SDK binary.
 
-The first blocking rebuild is eglibc 2.19 configure: its K1OM target linker
-probe fails with `Need linker with .init_array/.fini_array support.` The
-source-built compiler and binutils are identified as GCC 5.1.1 and GNU ld
-2.22.52.20120302. BusyBox reaches its final link but cannot find `-lgcc_s`, as
-expected before a fresh eglibc/libgcc build exists. Therefore no current
-source-built eglibc runtime, libgcc, BusyBox, Dropbear, or helper input set is
-available for `build-public-root.sh`.
+The original blocker was eglibc 2.19 configure reporting `Need linker with
+.init_array/.fini_array support.` The source-built compiler and binutils are
+GCC 5.1.1 and GNU ld 2.22.52.20120302.
+
+The root cause is a wrapper misdetection, not a binutils deficiency. The
+original `xpr-gcc` appended `-lgcc_s` unconditionally, including when eglibc
+uses `-static -nostartfiles -nostdlib`. The fresh bootstrap has no libgcc yet,
+so the link failed before eglibc could inspect its `INIT_ARRAY` section.
+
+`tools/release/fixtures/k1om-initfini-probe.c`, linked with the source-built
+GCC/binutils without default libraries, produces a genuine Intel K1OM ELF with
+both `INIT_ARRAY` and `FINI_ARRAY` sections. The wrapper now honors explicit
+`-nostdlib` and `-nodefaultlibs`. Re-running the clean eglibc configure with
+that behavior reports `.preinit_array/.init_array/.fini_array support... yes`
+and continues through later target checks.
+
+`EGLIBC_CONFIGURE_INITFINI=PASS`
+
+No full eglibc build was started in this checkpoint. A fresh eglibc runtime,
+libgcc, BusyBox, Dropbear, and helper input set is still required before
+`build-public-root.sh` can construct RC7.
 
 Reusing a historical root tree or CPIO as the RC7 payload input would violate
-the public-clean root policy. Resolve the source-built KNC linker
-`.init_array/.fini_array` capability discrepancy, rebuild eglibc and libgcc,
-then rebuild BusyBox, Dropbear, and helpers before invoking
+the public-clean root policy. Rebuild eglibc and libgcc with the corrected
+wrapper behavior, then rebuild BusyBox, Dropbear, and helpers before invoking
 `build-public-root.sh --python-root` on the extracted validated CPython package.
 
 `TOOLKIT_RC7_INCLUSION=HOLD_HUMAN_REVIEW`

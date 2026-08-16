@@ -91,11 +91,17 @@ set -euo pipefail
 root=$(CDPATH= cd -- "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 tool=$(basename "$0" | sed 's/^xpr-//')
 case "$tool" in
-  gcc) exec env GCC_EXEC_PREFIX="$root/libexec/gcc/" "$root/libexec/k1om-mpss-linux-gcc" \
+  gcc) link_libgcc=yes
+       for arg in "$@"; do
+         case "$arg" in -nostdlib|-nodefaultlibs) link_libgcc=no ;; esac
+       done
+       extra=()
+       [[ "$link_libgcc" == yes ]] && extra=(-lgcc_s)
+       exec env GCC_EXEC_PREFIX="$root/libexec/gcc/" "$root/libexec/k1om-mpss-linux-gcc" \
       -B"$root/libexec/gcc/k1om-mpss-linux/5.1.1" -B"$root/lib/gcc/k1om-mpss-linux/5.1.1" -B"$root/libexec" --sysroot="$root/sysroot" \
       -isystem "$root/sysroot/usr/include" -L"$root/sysroot/usr/lib64" -L"$root/sysroot/lib64" \
       -Wl,--dynamic-linker=/lib64/ld-linux-k1om.so.2 -Wl,-rpath,/lib64 \
-      -Wl,--no-as-needed "$@" -lgcc_s ;;
+      -Wl,--no-as-needed "$@" "${extra[@]}" ;;
   cpp) exec env GCC_EXEC_PREFIX="$root/libexec/gcc/" "$root/libexec/k1om-mpss-linux-gcc" \
       -B"$root/libexec/gcc/k1om-mpss-linux/5.1.1" -B"$root/lib/gcc/k1om-mpss-linux/5.1.1" -B"$root/libexec" --sysroot="$root/sysroot" -E "$@" ;;
   *) exec "$root/libexec/k1om-mpss-linux-$tool" "$@" ;;
