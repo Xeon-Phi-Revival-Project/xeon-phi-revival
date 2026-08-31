@@ -79,9 +79,12 @@ else
 fi
 
 smoke_failed=0
-/usr/bin/xpr-hello >> /run/xpr-os-init 2>&1 || { printf '%s\n' XPR_HELLO_FAIL >> /run/xpr-os-init; smoke_failed=1; }
-/usr/bin/xpr-pthread-smoke >> /run/xpr-os-init 2>&1 || { printf '%s\n' XPR_PTHREAD_FAIL >> /run/xpr-os-init; smoke_failed=1; }
-/usr/bin/xpr-dlopen-smoke >> /run/xpr-os-init 2>&1 || { printf '%s\n' XPR_DLOPEN_FAIL >> /run/xpr-os-init; smoke_failed=1; }
+/bin/busybox timeout -t 15 /usr/bin/xpr-hello >> /run/xpr-os-init 2>&1 \
+    || { printf '%s\n' XPR_HELLO_FAIL >> /run/xpr-os-init; smoke_failed=1; }
+/bin/busybox timeout -t 15 /usr/bin/xpr-pthread-smoke >> /run/xpr-os-init 2>&1 \
+    || { printf '%s\n' XPR_PTHREAD_FAIL >> /run/xpr-os-init; smoke_failed=1; }
+/bin/busybox timeout -t 15 /usr/bin/xpr-dlopen-smoke >> /run/xpr-os-init 2>&1 \
+    || { printf '%s\n' XPR_DLOPEN_FAIL >> /run/xpr-os-init; smoke_failed=1; }
 test "$smoke_failed" = 0 && mark XPR_SMOKE_PASS
 mark XPR_RC_SMOKES_COMPLETE
 

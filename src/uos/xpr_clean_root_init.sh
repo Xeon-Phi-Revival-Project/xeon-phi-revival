@@ -23,8 +23,10 @@ printf 'pid=%s\n' "$$" >> /run/xpr-os-init
 uname -m >> /run/xpr-os-init 2>&1 || true
 printf '%s\n' XPR_CLEAN_ROOT_SBIN_INIT_PID1 > /dev/kmsg 2>/dev/null || true
 
-/usr/bin/xpr-hello >> /run/xpr-os-init 2>&1 || printf '%s\n' XPR_HELLO_FAIL >> /run/xpr-os-init
-/usr/bin/xpr-pthread-smoke >> /run/xpr-os-init 2>&1 || printf '%s\n' XPR_PTHREAD_FAIL >> /run/xpr-os-init
+/bin/busybox timeout -t 15 /usr/bin/xpr-hello >> /run/xpr-os-init 2>&1 \
+    || printf '%s\n' XPR_HELLO_FAIL >> /run/xpr-os-init
+/bin/busybox timeout -t 15 /usr/bin/xpr-pthread-smoke >> /run/xpr-os-init 2>&1 \
+    || printf '%s\n' XPR_PTHREAD_FAIL >> /run/xpr-os-init
 
 # This first project root targets the StaticPair values documented in mic0.conf.
 ifconfig mic0 172.31.1.1 netmask 255.255.255.0 mtu 64512 up >> /run/xpr-os-init 2>&1 || {
