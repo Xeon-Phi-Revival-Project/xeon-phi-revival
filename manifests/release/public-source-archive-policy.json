@@ -10,6 +10,8 @@
   "exclude_paths": [
     "docs/kernel/candidate-build-validation.md",
     "docs/kernel/source-search-report.md",
+    "docs/development/xpr-init-rsa-validation-2026-08-12.md",
+    "docs/research/history/publication-audit-20260727.md",
     "docs/publication-audit-20260727.md",
     "docs/release/xpr-os-0.1.0-rc3-multiagent-audit.md",
     "docs/release/xpr-os-0.1.0-rc6-review-report.md",
