@@ -231,7 +231,8 @@ install -m 0644 tools/uos/newc_archive.py "$binary_root/tools/uos/newc_archive.p
 install -m 0755 tools/host/xpr-init "$binary_root/tools/host/xpr-init"
 install -m 0644 LICENSE NOTICE.md "$binary_root/"
 install -m 0644 "docs/release/xpr-os-$version-release-notes.md" "$binary_root/README.md"
-install -m 0644 docs/release/distribution-review.md "$binary_root/docs/"
+install -m 0644 "docs/release/xpr-os-$version-distribution-review.md" \
+    "$binary_root/docs/distribution-review.md"
 "$python_bin" tools/release/generate-tested-artifacts.py \
   --version "$version" --commit "$commit" --kernel "$kernel" --system-map "$system_map" \
   --bootstrap "$bootstrap" --payload "$payload" --validation-status "$validation_status" \
