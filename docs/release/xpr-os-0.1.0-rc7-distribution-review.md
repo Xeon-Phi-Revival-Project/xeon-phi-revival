@@ -31,9 +31,29 @@ are not included. The separately prepared standalone K1OM toolkit binary is
 also excluded while its source-distribution terms remain under qualified human
 review.
 
+## Component Decisions
+
+| Component | Source/accounting | RC7 decision |
+| --- | --- | --- |
+| XPR K1OM kernel | Exact reproduced, hash-pinned kernel source and config | Include |
+| Five MIC modules | Mapped MPSS 3.4.10 source, build inputs, and hashes | Include |
+| BusyBox 1.19.4 | Fresh source build with tracked configuration | Include |
+| Dropbear 2022.83 | Fresh source build with deployment-key provisioning | Include |
+| eglibc runtime | Fresh source build from pinned source and XPR overlay | Include |
+| `libgcc_s.so.1` | GCC 5.1.1 KNC source build; Runtime Library Exception included | Include |
+| XPR bootstrap and final-root files | Current tracked XPR scripts, configuration, and helpers | Include |
+| `xpr-init` | Current tracked host integration source | Include |
+| CPython 3.12.13 core | Official hash-pinned source, tracked K1OM patches, validated package | Include |
+| Python 3.5 | Not present | Exclude |
+| Intel MPSS SDK binary payload | Not present | Exclude |
+| Private or universal credentials | Not present | Exclude |
+| Standalone XPR K1OM Toolkit binary | Technically validated; separate KNC-binutils terms review open | Hold human review; exclude |
+
 ## Current Decision
 
 `XPR_OS_RC7_CANDIDATE=TECHNICALLY_PASS`. Static audit, live Intel Xeon Phi
 5110P validation, Python core validation, and exact stock recovery passed.
 Publication remains an owner decision; the standalone toolkit binary remains
 excluded under its separate human-review hold.
+
+`TOOLKIT_RC7_INCLUSION=HOLD_HUMAN_REVIEW`

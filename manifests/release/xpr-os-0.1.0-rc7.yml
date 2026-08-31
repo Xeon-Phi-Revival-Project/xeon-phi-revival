@@ -6,10 +6,32 @@ release_kind: precompiled-public-source-candidate
 technical_validation:
   runtime_foundation: rc6-hardware-validated
   python_component: python-3.12.13-core-hardware-validated
-  exact_rc7_candidate: pending
+  exact_rc7_candidate: hardware-validated
+  reproducibility: byte-identical-second-staging
+artifacts:
+  binary:
+    filename: xpr-os-0.1.0-rc7.tar.gz
+    sha256: a4b313ad4b696ebdfe8a406da18288d1903933a6d3a12a1a41da1a69f218e0a4
+    size: 20894789
+  source:
+    filename: xpr-os-0.1.0-rc7-sources.tar.gz
+    sha256: 79bd109d097e105229266db7095f355fb17d431fe1f3310f8369621e475f61ad
+    size: 383311982
+  spdx:
+    filename: xpr-os-0.1.0-rc7.spdx.json
+    sha256: eb09d81c6ce10841724dd2a742832d551c30fca322fb1efbe57fd2434177cab8
+    size: 44159
+  notices:
+    filename: xpr-os-0.1.0-rc7-notices.tar.gz
+    sha256: 5a76f612f09445d9af14a00dc5ee79f6ebe69a87350a07e0de49f139b2ebb924
+    size: 42279
+  checksums:
+    filename: SHA256SUMS
+    sha256: 484dea684a1ad695f525dcf788520387b470f265649c84d8b0dfb9aa17171e7d
+    size: 379
 publication:
   allowed: false
-  status: owner-decision-pending
+  status: awaiting-owner-authorization
 external_prerequisite:
   - Intel MPSS 3.4.10 host installation obtained separately by the user
 excluded_components:

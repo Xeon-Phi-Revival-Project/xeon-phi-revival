@@ -10,7 +10,9 @@ the successful Intel Xeon Phi 5110P validation. It is not publication approval.
 | --- | ---: | --- |
 | `xpr-os-0.1.0-rc7.tar.gz` | 20,894,789 bytes | `a4b313ad4b696ebdfe8a406da18288d1903933a6d3a12a1a41da1a69f218e0a4` |
 | `xpr-os-0.1.0-rc7-sources.tar.gz` | 383,311,982 bytes | `79bd109d097e105229266db7095f355fb17d431fe1f3310f8369621e475f61ad` |
-| `SHA256SUMS` | | `b6628b913bb497bbf121068af82876f39c99de5ebb6c1578b657b9e6c7394d77` |
+| `xpr-os-0.1.0-rc7.spdx.json` | 44,159 bytes | `eb09d81c6ce10841724dd2a742832d551c30fca322fb1efbe57fd2434177cab8` |
+| `xpr-os-0.1.0-rc7-notices.tar.gz` | 42,279 bytes | `5a76f612f09445d9af14a00dc5ee79f6ebe69a87350a07e0de49f139b2ebb924` |
+| `SHA256SUMS` | 379 bytes | `484dea684a1ad695f525dcf788520387b470f265649c84d8b0dfb9aa17171e7d` |
 
 Container hashes:
 
@@ -21,6 +23,10 @@ Container hashes:
 The candidate remains frozen with `hardware-validation-pending` in its embedded
 pre-validation metadata. This external record ties the completed validation to
 the exact immutable archive rather than modifying it after the hardware run.
+The release-facing SPDX file is an exact copy of the validated SPDX document
+embedded in that archive. The notices sidecar deterministically packages the
+embedded `LICENSE`, `NOTICE.md`, and `LICENSES/` files. The external
+`SHA256SUMS` verifies all four intended publication assets.
 
 ## Source-Built Root Inputs
 
@@ -64,6 +70,9 @@ used as a public-root construction input.
 - archive checksum verification: PASS
 - paired source archive verification: PASS
 - precompiled release verification: PASS
+- release-facing SPDX sidecar validation: PASS
+- release-facing notices bundle validation: PASS
+- release-facing four-asset `SHA256SUMS`: PASS
 
 `RC7_CONTAMINATION_AUDIT=PASS`
 
@@ -155,3 +164,7 @@ without replacing the tested runtime bytes. The standalone toolkit remains
 excluded while its separate distribution review is held.
 
 `TOOLKIT_RC7_INCLUSION=HOLD_HUMAN_REVIEW`
+
+`RC7_PUBLICATION_PREP=PASS`
+
+`RC7_PUBLICATION=AWAITING_OWNER_AUTHORIZATION`

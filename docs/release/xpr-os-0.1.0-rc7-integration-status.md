@@ -14,6 +14,15 @@ Its paired source archive SHA-256 is
 Built-in source-policy, payload, SPDX 2.3, license, release-consistency, and
 archive checks passed.
 
+Release-facing sidecars are finalized as:
+
+- SPDX: `xpr-os-0.1.0-rc7.spdx.json`, SHA-256
+  `eb09d81c6ce10841724dd2a742832d551c30fca322fb1efbe57fd2434177cab8`
+- notices/licenses: `xpr-os-0.1.0-rc7-notices.tar.gz`, SHA-256
+  `5a76f612f09445d9af14a00dc5ee79f6ebe69a87350a07e0de49f139b2ebb924`
+- publication checksums: `SHA256SUMS`, SHA-256
+  `484dea684a1ad695f525dcf788520387b470f265649c84d8b0dfb9aa17171e7d`
+
 ## Integrated Runtime
 
 The public-clean root is assembled only from current source-built BusyBox,
@@ -50,6 +59,10 @@ rejected-candidate boundaries, and command-level evidence.
 The candidate is not tagged or published. Its archive intentionally retains
 pre-validation metadata because it was frozen before hardware testing; the
 external validation record now binds the result to that exact immutable hash.
+
+`RC7_PUBLICATION_PREP=PASS`
+
+`RC7_PUBLICATION=AWAITING_OWNER_AUTHORIZATION`
 
 `TOOLKIT_RC7_INCLUSION=HOLD_HUMAN_REVIEW`
 
