@@ -70,14 +70,14 @@ cp -a "$source_dir" "$build_dir"
     --disable-lastlog --disable-loginfunc > "$run_dir/configure.log" 2>&1
   make PROGRAMS=dropbear -j2 > "$run_dir/build.log" 2>&1
 )
-readelf -h "$build_dir/dropbear" | grep -q 'Machine:.*Intel K1OM' || { echo "Dropbear is not K1OM" >&2; exit 11; }
+"${cross_compile}readelf" -h "$build_dir/dropbear" | grep -q 'Machine:.*Intel K1OM' || { echo "Dropbear is not K1OM" >&2; exit 11; }
 if [[ "$link_mode" == static ]]; then
-  readelf -d "$build_dir/dropbear" 2>/dev/null | grep -q NEEDED && { echo "Dropbear is not static" >&2; exit 12; } || true
+  "${cross_compile}readelf" -d "$build_dir/dropbear" 2>/dev/null | grep -q NEEDED && { echo "Dropbear is not static" >&2; exit 12; } || true
 else
-  readelf -d "$build_dir/dropbear" 2>/dev/null | grep -q 'Shared library: \[libc.so.6\]' || { echo "dynamic Dropbear is missing libc dependency" >&2; exit 13; }
-  readelf -d "$build_dir/dropbear" 2>/dev/null | grep -Eq '(RPATH|RUNPATH).*\[/lib64\]' || { echo "dynamic Dropbear is missing /lib64 runtime path" >&2; exit 14; }
+  "${cross_compile}readelf" -d "$build_dir/dropbear" 2>/dev/null | grep -q 'Shared library: \[libc.so.6\]' || { echo "dynamic Dropbear is missing libc dependency" >&2; exit 13; }
+  "${cross_compile}readelf" -d "$build_dir/dropbear" 2>/dev/null | grep -Eq '(RPATH|RUNPATH).*\[/lib64\]' || { echo "dynamic Dropbear is missing /lib64 runtime path" >&2; exit 14; }
   if [[ -n "$runtime_prefix" ]]; then
-    readelf --version-info "$build_dir/dropbear" 2>/dev/null | grep -q 'GLIBC_2.14' && { echo "Dropbear still depends on SDK GLIBC_2.14" >&2; exit 15; }
+    "${cross_compile}readelf" --version-info "$build_dir/dropbear" 2>/dev/null | grep -q 'GLIBC_2.14' && { echo "Dropbear still depends on SDK GLIBC_2.14" >&2; exit 15; }
   fi
 fi
 cp -a "$build_dir/dropbear" "$out"

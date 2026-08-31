@@ -1,0 +1,22 @@
+id: xpr-os-0.1.0-rc7
+status: candidate-unpublished
+date: "2026-08-30"
+architecture: k1om
+release_kind: precompiled-public-source-candidate
+technical_validation:
+  runtime_foundation: rc6-hardware-validated
+  python_component: python-3.12.13-core-hardware-validated
+  exact_rc7_candidate: pending
+publication:
+  allowed: false
+  status: owner-decision-pending
+external_prerequisite:
+  - Intel MPSS 3.4.10 host installation obtained separately by the user
+excluded_components:
+  - standalone K1OM toolkit binary pending qualified source-distribution review
+prohibited_content:
+  - Intel firmware
+  - Intel MPSS packages or card-side userspace
+  - private keys or credentials
+  - fixed authorized_keys files
+  - unknown-provenance binaries

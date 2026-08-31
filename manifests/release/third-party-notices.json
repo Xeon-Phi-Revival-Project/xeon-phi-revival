@@ -8,6 +8,7 @@
     {"component": "eglibc", "version": "2.19-0ubuntu6.15", "license": "LGPL-2.1-or-later", "license_file": "LICENSES/LGPL-2.1-or-later.txt", "source_archive": "sources/eglibc_2.19.orig.tar.xz and sources/eglibc_2.19-0ubuntu6.15.debian.tar.xz"},
     {"component": "libgcc", "version": "5.1.1-knc-af7cc04", "license": "GPL-3.0-only WITH GCC-exception-3.1", "license_file": "LICENSES/GPL-3.0-only.txt; LICENSES/GCC-Runtime-Library-Exception-3.1.txt", "source_archive": "sources/gcc-5.1.1-knc-af7cc04.tar.gz"},
     {"component": "dropbear", "version": "2022.83", "license": "LicenseRef-Dropbear-2022-83", "license_file": "LICENSES/Dropbear-2022.83-LICENSE.txt", "source_archive": "sources/dropbear-2022.83.tar.bz2"},
+    {"component": "cpython", "version": "3.12.13", "license": "PSF-2.0-plus-incorporated-notices", "license_file": "LICENSES/CPython-3.12.13-PSF.txt", "source_archive": "sources/xpr-python-3.12.13-k1om-core-sources.tar.xz"},
     {"component": "xpr-owned", "version": "git-pinned", "license": "MIT", "license_file": "LICENSE", "source_archive": "repository/"}
   ]
 }

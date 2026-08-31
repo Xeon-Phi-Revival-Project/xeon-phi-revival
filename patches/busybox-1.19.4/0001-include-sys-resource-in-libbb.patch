@@ -1,0 +1,10 @@
+--- a/include/libbb.h
++++ b/include/libbb.h
+@@ -34,6 +34,7 @@
+ #include <sys/socket.h>
+ #include <sys/stat.h>
+ #include <sys/time.h>
++#include <sys/resource.h>
+ #include <sys/types.h>
+ #ifndef major
+ # include <sys/sysmacros.h>

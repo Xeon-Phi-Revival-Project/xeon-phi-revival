@@ -77,6 +77,18 @@ cp -a "$eglibc_stage/usr/include" "$root/sysroot/usr/"
 cp -a "$linux_headers/." "$root/sysroot/usr/include/"
 cp -a "$eglibc_libdir" "$root/sysroot/lib64"
 cp -a "$eglibc_dev_libdir/." "$root/sysroot/lib64/"
+# Development symlinks in eglibc's usr/lib point back to ../../lib.  The
+# standalone sysroot merges both directories into lib64, so retarget only
+# those now-broken links to the matching packaged SONAME in the same directory.
+for link in "$root/sysroot/lib64"/*.so; do
+    [[ -L "$link" && ! -e "$link" ]] || continue
+    soname=$(basename "$(readlink "$link")")
+    [[ -e "$root/sysroot/lib64/$soname" ]] || {
+        echo "unresolved eglibc development symlink: $link -> $(readlink "$link")" >&2
+        exit 1
+    }
+    ln -snf "$soname" "$link"
+done
 ln -s lib64 "$root/sysroot/lib"
 ln -s ../lib64 "$root/sysroot/usr/lib"
 ln -s ../lib64 "$root/sysroot/usr/lib64"
@@ -84,19 +96,47 @@ cp -a "$libgcc_dir/libgcc_s.so.1" "$root/sysroot/lib64/"
 ln -sf libgcc_s.so.1 "$root/sysroot/lib64/libgcc_s.so"
 cp -a "$libgcc_support/." "$root/lib/gcc/k1om-mpss-linux/5.1.1/"
 
+# GCC was initially installed before the target libc existed. Regenerate its
+# fixed headers now that the source-built eglibc sysroot is present, otherwise
+# bootstrap fallbacks such as MB_LEN_MAX=1 override eglibc's target values.
+mkheaders="$root/libexec/gcc/k1om-mpss-linux/5.1.1/install-tools/mkheaders"
+[[ -x "$mkheaders" ]] || { echo "missing GCC mkheaders tool" >&2; exit 1; }
+"$mkheaders" "$root" "$root/sysroot"
+gcc_lib="$root/lib/gcc/k1om-mpss-linux/5.1.1"
+fixed_limits="$gcc_lib/include-fixed/limits.h"
+{
+    cat "$gcc_lib/plugin/include/limitx.h"
+    cat "$gcc_lib/install-tools/include/limits.h"
+    cat "$gcc_lib/plugin/include/limity.h"
+} > "$fixed_limits.tmp"
+mv "$fixed_limits.tmp" "$fixed_limits"
+
 for tool in gcc cpp as ld ar ranlib nm objdump objcopy readelf strip; do
     cat > "$root/bin/xpr-$tool" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 root=$(CDPATH= cd -- "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-tool=$(basename "$0" | sed 's/^xpr-//')
+tool=$(basename "$0")
+tool=${tool#xpr-}
+tool=${tool#k1om-mpss-linux-}
 case "$tool" in
   gcc) link_libgcc=yes
+       sysroot="$root/sysroot"
+       next_is_sysroot=no
        for arg in "$@"; do
-         case "$arg" in -nostdlib|-nodefaultlibs) link_libgcc=no ;; esac
+         if [[ "$next_is_sysroot" == yes ]]; then
+           sysroot=$arg
+           next_is_sysroot=no
+           continue
+         fi
+         case "$arg" in -nostdlib|-nodefaultlibs|-static) link_libgcc=no ;; esac
+         case "$arg" in
+           --sysroot=*) sysroot=${arg#--sysroot=} ;;
+           --sysroot) next_is_sysroot=yes ;;
+         esac
        done
-       common=(-B"$root/libexec/gcc/k1om-mpss-linux/5.1.1" -B"$root/lib/gcc/k1om-mpss-linux/5.1.1" -B"$root/libexec" --sysroot="$root/sysroot" \
-         -isystem "$root/sysroot/usr/include" -L"$root/sysroot/usr/lib64" -L"$root/sysroot/lib64" \
+       common=(-B"$root/libexec/gcc/k1om-mpss-linux/5.1.1" -B"$root/lib/gcc/k1om-mpss-linux/5.1.1" -B"$root/libexec" --sysroot="$sysroot" \
+         -isystem "$sysroot/usr/include" -L"$sysroot/usr/lib64" -L"$sysroot/lib64" \
          -Wl,--dynamic-linker=/lib64/ld-linux-k1om.so.2 -Wl,-rpath,/lib64 -Wl,--no-as-needed)
        if [[ "$link_libgcc" == yes ]]; then
          exec env GCC_EXEC_PREFIX="$root/libexec/gcc/" "$root/libexec/k1om-mpss-linux-gcc" "${common[@]}" "$@" -lgcc_s
@@ -109,7 +149,10 @@ case "$tool" in
 esac
 EOF
     chmod 755 "$root/bin/xpr-$tool"
+    ln -s "xpr-$tool" "$root/bin/k1om-mpss-linux-$tool"
 done
+mb_len_max=$(printf '' | "$root/bin/xpr-gcc" -dM -E -include limits.h - | awk '$2 == "MB_LEN_MAX" { print $3 }')
+[[ "$mb_len_max" == 16 ]] || { echo "target MB_LEN_MAX mismatch: $mb_len_max" >&2; exit 1; }
 cat > "$root/bin/xpr-validate" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail

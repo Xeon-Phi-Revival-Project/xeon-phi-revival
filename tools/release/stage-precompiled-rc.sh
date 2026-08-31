@@ -13,6 +13,7 @@ usage: stage-precompiled-rc.sh \
   --busybox-source FILE --dropbear-source FILE \
   --eglibc-orig FILE --eglibc-debian FILE \
   --gcc-source FILE --gmp-source FILE --mpfr-source FILE --mpc-source FILE \
+  --python-source FILE \
   [--repository-archive FILE] \
   --version VERSION [--revision REV] [--validation-status pending|passed]
 
@@ -29,6 +30,7 @@ kernel="" system_map="" modules_dir="" bootstrap="" bootstrap_inner="" payload="
 kernel_source="" module_source="" repository_archive="" out_dir=""
 busybox_source="" dropbear_source="" eglibc_orig="" eglibc_debian=""
 gcc_source="" gmp_source="" mpfr_source="" mpc_source=""
+python_source=""
 validation_status="pending"
 
 while [[ $# -gt 0 ]]; do
@@ -49,6 +51,7 @@ while [[ $# -gt 0 ]]; do
     --gmp-source) gmp_source="${2:-}"; shift 2 ;;
     --mpfr-source) mpfr_source="${2:-}"; shift 2 ;;
     --mpc-source) mpc_source="${2:-}"; shift 2 ;;
+    --python-source) python_source="${2:-}"; shift 2 ;;
     --repository-archive) repository_archive="${2:-}"; shift 2 ;;
     --out-dir) out_dir="${2:-}"; shift 2 ;;
     --version) version="${2:-}"; shift 2 ;;
@@ -65,7 +68,7 @@ done
 
 for value in kernel system_map modules_dir bootstrap bootstrap_inner payload kernel_source module_source \
   busybox_source dropbear_source eglibc_orig eglibc_debian gcc_source \
-  gmp_source mpfr_source mpc_source out_dir; do
+  gmp_source mpfr_source mpc_source python_source out_dir; do
   [[ -n "${!value}" ]] || { echo "missing --${value//_/-}" >&2; usage; exit 2; }
 done
 for cmd in tar gzip sha256sum find sort xargs install cp awk grep sed mktemp; do
@@ -130,6 +133,7 @@ declare -A expected=(
   [gmp_source]=936162c0312886c21581002b79932829aa048cfaf9937c6265aeaa14f1cd1775
   [mpfr_source]=c7e75a08a8d49d2082e4caee1591a05d11b9d5627514e678f02d66a124bcf2ba
   [mpc_source]=e664603757251fd8a352848276497a4c79b7f8b21fd8aedd5cc0598a38fee3e4
+  [python_source]=f35bdbb603651cf00da87283a2b2740e06d3a801b94330539939b3311f93ff1d
   [dma_module]=af0a88a14bcd815bea07739b88a54d453eb68b7e5c1acc81de0fc8aac70af32a
   [ringbuffer]=e7339e86b9a00c047acc982e7f8a734f963b5ec945991f3cbd62bca1a6eba068
   [micscif]=0c5476258e5a4f200a1c38c1f434ae3ffccd29ec6f098b165d028c27655f64e2
@@ -159,6 +163,7 @@ verify_hash gcc_source "$gcc_source"
 verify_hash gmp_source "$gmp_source"
 verify_hash mpfr_source "$mpfr_source"
 verify_hash mpc_source "$mpc_source"
+verify_hash python_source "$python_source"
 for module in dma_module ringbuffer micscif mpssboot intel_micveth; do
   verify_hash "$module" "$modules_dir/$module.ko"
 done
@@ -204,7 +209,7 @@ work="$(mktemp -d "${TMPDIR:-/tmp}/xpr-release.XXXXXX")"
 trap 'rm -rf "$work" /tmp/xpr-prebuilt-audit.json /tmp/xpr-prebuilt.spdx.json' EXIT
 binary_root="$work/xpr-os-$version"
 source_root="$work/xpr-os-$version-sources"
-mkdir -p "$binary_root"/{kernel,modules,bootstrap,payload,tools/uos,docs,manifests,LICENSES} \
+mkdir -p "$binary_root"/{kernel,modules,bootstrap,payload,tools/uos,tools/host,docs,manifests,LICENSES} \
          "$source_root"/{sources,repository,manifests}
 
 install -m 0644 "$kernel" "$binary_root/kernel/bzImage"
@@ -223,6 +228,7 @@ install -m 0755 tools/release/verify-release-artifacts.py "$binary_root/tools/ve
 install -m 0755 tools/release/validate-release-consistency.py "$binary_root/tools/validate-release-consistency.py"
 install -m 0755 tools/release/validate-license-bundle.py "$binary_root/tools/validate-license-bundle.py"
 install -m 0644 tools/uos/newc_archive.py "$binary_root/tools/uos/newc_archive.py"
+install -m 0755 tools/host/xpr-init "$binary_root/tools/host/xpr-init"
 install -m 0644 LICENSE NOTICE.md "$binary_root/"
 install -m 0644 "docs/release/xpr-os-$version-release-notes.md" "$binary_root/README.md"
 install -m 0644 docs/release/distribution-review.md "$binary_root/docs/"
@@ -249,6 +255,7 @@ tar -xOJf "$eglibc_orig" "$(tar -tJf "$eglibc_orig" | awk '/(^|\/)COPYING\.LIB$/
 tar -xOzf "$gcc_source" "$(tar -tzf "$gcc_source" | awk '/(^|\/)COPYING3$/ && !found { print; found=1 } END { exit !found }')" > "$binary_root/LICENSES/GPL-3.0-only.txt"
 tar -xOzf "$gcc_source" "$(tar -tzf "$gcc_source" | awk '/(^|\/)COPYING.RUNTIME$/ && !found { print; found=1 } END { exit !found }')" > "$binary_root/LICENSES/GCC-Runtime-Library-Exception-3.1.txt"
 tar -xOjf "$dropbear_source" "$(tar -tjf "$dropbear_source" | awk '/(^|\/)LICENSE$/ && !found { print; found=1 } END { exit !found }')" > "$binary_root/LICENSES/Dropbear-2022.83-LICENSE.txt"
+tar -xOJf "$python_source" "$(tar -tJf "$python_source" | awk '/(^|\/)LICENSE$/ && !found { print; found=1 } END { exit !found }')" > "$binary_root/LICENSES/CPython-3.12.13-PSF.txt"
 install -m 0644 LICENSE "$binary_root/LICENSES/XPR-MIT.txt"
 printf '%s\n' "$version" > "$binary_root/VERSION"
 printf 'git_commit=%s\nsource_date_epoch=%s\npublication_status=HUMAN_LEGAL_REVIEW_PENDING\n' \
@@ -265,6 +272,7 @@ install -m 0644 "$gcc_source" "$source_root/sources/gcc-5.1.1-knc-af7cc04.tar.gz
 install -m 0644 "$gmp_source" "$source_root/sources/gmp-4.3.2.tar.bz2"
 install -m 0644 "$mpfr_source" "$source_root/sources/mpfr-2.4.2.tar.bz2"
 install -m 0644 "$mpc_source" "$source_root/sources/mpc-0.8.1.tar.gz"
+install -m 0644 "$python_source" "$source_root/sources/xpr-python-3.12.13-k1om-core-sources.tar.xz"
 if $have_git; then
   git -c core.autocrlf=false archive --format=tar --prefix="repository/" -o "$work/repository.tar" "$commit"
 else
@@ -283,7 +291,7 @@ tar -xf "$work/repository.tar" -C "$source_root"
 "$python_bin" tools/release/validate-release-source-integrity.py \
   --root "$source_root/repository" \
   --config configs/kernel/k1om-solros-tested.config=20f240d00b033c1a0e14ffc8d2023533552adc4040ac0deff3404c79f1f12479 \
-  --config configs/busybox/k1om-1.19.4.config=15e366d935d4171070590039b1085e5818954e78fd8c00a39bffa9b88c6191df
+  --config configs/busybox/k1om-1.19.4.config=1950ab2c97f504d6eed96bde6b08de41b840c28bc2e5fc9eeaac8f150379e40d
 "$python_bin" tools/release/validate-public-source-hygiene.py \
   --root "$source_root/repository" \
   --policy manifests/release/public-source-archive-policy.json

@@ -33,7 +33,7 @@ done
 [ ! -e "$out" ] || { echo "output already exists: $out" >&2; exit 1; }
 
 mkdir -p "$out/sysroot/usr/lib"
-ln -s "$root/lib64" "$out/sysroot/lib64"
+cp -a "$root/lib64" "$out/sysroot/lib64"
 ln -s lib64 "$out/sysroot/lib"
 cp -a "$linux_headers"/. "$out/sysroot/usr/include"/
 for object in libc_nonshared.a libpthread_nonshared.a; do
