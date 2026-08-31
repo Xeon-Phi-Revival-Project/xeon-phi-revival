@@ -99,9 +99,9 @@ manual RC6 procedure is retained for advanced troubleshooting and learning.
 
 ## Active Engineering Tracks
 
-1. **XPR-OS maintenance and release engineering** — preserve the validated RC6 baseline while preparing future improvements cleanly.
-2. **xpr-init packaging and polish** — key generation, status/diagnostics, fresh-user flow, and reboot persistence are validated on the tested baseline; the main remaining usability issue is packaging `xpr-init` with a future release instead of requiring the frozen RC6 archive plus a current repository checkout.
-3. **K1OM toolchain and SDK work**: the initial XPR K1OM Toolkit now compiles and runs dynamic C hello and pthread examples on the validated 5110P baseline. The standalone path now has pinned KNC-aware binutils and source-built libgcc; relocatable packaging, modern-host validation without MPSS, 5110P execution of the new artifact, and release-level license/provenance review remain before an MPSS-free toolkit claim.
+1. **XPR-OS maintenance and release engineering** — preserve the validated RC6 baseline while completing live validation of the source-built, Python-enabled RC7 candidate.
+2. **xpr-init packaging and polish** — key generation, status/diagnostics, fresh-user flow, and reboot persistence are validated on the tested baseline; the current helper is included in the staged RC7 candidate.
+3. **K1OM toolchain and SDK work**: the standalone XPR K1OM Toolkit is technically validated for MPSS-free compilation and real 5110P execution. Public binary distribution remains held for qualified review of the recovered KNC binutils source-distribution terms.
 4. **Software ports and runtime expansion** — explore useful programs and libraries on the validated K1OM baseline.
 5. **Source-package / xpr-build research** — investigate rebuilding normal source packages and dependencies for K1OM; this is future work, not a current package manager.
 6. **Hardware preservation** — collect compatibility and recovery evidence on additional Knights Corner cards without generalizing from untested hardware.
