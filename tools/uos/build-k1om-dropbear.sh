@@ -15,6 +15,7 @@ out=""
 work_root="${HOME}/xeon-phi-revival-local/dropbear-builds"
 link_mode="static"
 runtime_prefix=""
+runtime_include=""
 cross_compile="k1om-mpss-linux-"
 
 while [[ $# -gt 0 ]]; do
@@ -33,8 +34,13 @@ done
 [[ -f "$source_dir/configure" && -n "$out" ]] || { usage; exit 2; }
 [[ "$link_mode" == static || "$link_mode" == dynamic ]] || { echo "invalid link mode: $link_mode" >&2; exit 3; }
 if [[ -n "$runtime_prefix" ]]; then
-  [[ "$link_mode" == dynamic && -f "$runtime_prefix/include/stdio.h" && -f "$runtime_prefix/lib64/crt1.o" && -f "$runtime_prefix/lib/ld-2.19.so" ]] || {
-    echo "runtime prefix must provide include/, lib64/crt1.o, and lib/ld-2.19.so for a dynamic build" >&2
+  if [[ -f "$runtime_prefix/usr/include/stdio.h" ]]; then
+    runtime_include="$runtime_prefix/usr/include"
+  elif [[ -f "$runtime_prefix/include/stdio.h" ]]; then
+    runtime_include="$runtime_prefix/include"
+  fi
+  [[ "$link_mode" == dynamic && -n "$runtime_include" && -f "$runtime_prefix/lib64/crt1.o" && -f "$runtime_prefix/lib64/ld-2.19.so" ]] || {
+    echo "runtime prefix must provide usr/include/ (or include/), lib64/crt1.o, and lib64/ld-2.19.so for a dynamic build" >&2
     exit 4
   }
 fi
@@ -60,8 +66,8 @@ cp -a "$source_dir" "$build_dir"
     # The project runtime is intentionally self-contained under /lib64.
     configure_ldflags="-Wl,-rpath,/lib64"
     if [[ -n "$runtime_prefix" ]]; then
-      configure_cflags+=" -isystem $runtime_prefix/include"
-      configure_ldflags+=" -B$runtime_prefix/lib64 -L$runtime_prefix/lib -Wl,--dynamic-linker,/lib64/ld-linux-k1om.so.2"
+      configure_cflags+=" -isystem $runtime_include"
+      configure_ldflags+=" -B$runtime_prefix/lib64 -L$runtime_prefix/lib64 -Wl,--dynamic-linker,/lib64/ld-linux-k1om.so.2"
     fi
   fi
   CC="${cross_compile}gcc" CFLAGS="$configure_cflags" LDFLAGS="$configure_ldflags" ./configure "${configure_args[@]}" \
