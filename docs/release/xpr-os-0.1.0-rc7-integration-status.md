@@ -1,57 +1,58 @@
 # XPR-OS 0.1.0-rc7 Integration Status
 
-## CPython layout reconciliation
+## Current Candidate
 
-`tools/release/build-public-clean-root.py` now consumes the validated CPython
-3.12.13 core package layout directly:
+`XPR_OS_RC7_CANDIDATE=TECHNICALLY_PASS`
+
+The exact unpublished Candidate E archive is:
+
+- `xpr-os-0.1.0-rc7.tar.gz`
+- SHA-256 `a4b313ad4b696ebdfe8a406da18288d1903933a6d3a12a1a41da1a69f218e0a4`
+
+Its paired source archive SHA-256 is
+`79bd109d097e105229266db7095f355fb17d431fe1f3310f8369621e475f61ad`.
+Built-in source-policy, payload, SPDX 2.3, license, release-consistency, and
+archive checks passed.
+
+## Integrated Runtime
+
+The public-clean root is assembled only from current source-built BusyBox,
+Dropbear, eglibc, libgcc, tracked XPR helpers, and the exact validated CPython
+3.12.13 core package. It contains:
 
 - `/usr/bin/python3.12`
 - `/usr/bin/python3` -> `python3.12`
 - `/usr/bin/python` -> `python3.12`
 - `/usr/lib/python3.12`
 
-The historical `/opt/xeon-phi-revival/lib/python3.12` integration path is not
-used by the public-clean root builder.  The release ledger maps this component
-to the pinned CPython source, tracked build/package scripts, and the
-corresponding-source component archive.
-
-## Candidate status
-
-`XPR_OS_RC7_CANDIDATE=REBUILDING_DYNAMIC_DROPBEAR`
-
-The public-root reconstruction is complete. Fresh source builds supplied
-eglibc, libgcc, BusyBox, Dropbear, and the XPR helper binaries; the bootstrap
-and final payload were generated without an archived root or private CPIO
-input. The corrected compiler wrapper passed the tracked K1OM init/fini probe.
+No historical `/opt` Python layout, Python 3.5 payload, MPSS SDK binary,
+archived root, private CPIO, private key, or universal authorization key is an
+input or payload member.
 
 `PUBLIC_ROOT_INPUTS=PASS`
 
 `PUBLIC_ROOT_BUILD=PASS`
 
-The exact candidate and paired source archive were built twice from commit
-`1a2518afae704f9c352912cd99e8f4fca2b63ddb`. Both pairs are byte-identical.
-Built-in source-policy, payload, SPDX 2.3, license, release-consistency, and
-archive verification gates passed. The standalone toolkit binary remains
-excluded.
+`RC7_CONTAMINATION_AUDIT=PASS`
 
-After a cold chassis restart restored the 5110P, candidate A installed and
-booted its kernel but failed automatic handoff at bootstrap RSA authentication.
-The deployed nested bootstrap archive contained the selected public key with
-the correct bytes and modes. Static Dropbear's build log reported glibc account
-lookup warnings, and the server rejected the valid provisioned key.
+## Live Result
 
-The tracked Dropbear builder now accepts the standard XPR sysroot layout for a
-dynamic build. Source-built dynamic Dropbear hash
-`a9085bcd3fd3d22deb9c38cdf4c5ce23d9ddf7e4ce0729f367665e5e15068391`
-uses the bundled `/lib64` eglibc/libgcc runtime. Replacement bootstrap and
-public-root containers have been built; a new candidate and complete live
-cycle are required. Candidate A was recovered to the exact stock configuration
-and stock SSH.
+Candidate E passed automatic xpr-init handoff, final XPR PID 1, micveth,
+authenticated SSH, hello, pthread, `dlopen`, Python 3.12.13, the required core
+Python/threading smoke, and host/card Python hash identity on the Intel Xeon
+Phi 5110P. Recovery restored the exact stock configuration hash and stock SSH.
 
-See [the candidate validation record](xpr-os-0.1.0-rc7-validation.md) for exact
-artifact hashes and the resume boundary.
+See [the validation record](xpr-os-0.1.0-rc7-validation.md) for exact hashes,
+rejected-candidate boundaries, and command-level evidence.
+
+## Publication Boundary
+
+The candidate is not tagged or published. Its archive intentionally retains
+pre-validation metadata because it was frozen before hardware testing; the
+external validation record now binds the result to that exact immutable hash.
 
 `TOOLKIT_RC7_INCLUSION=HOLD_HUMAN_REVIEW`
 
-The standalone toolkit binary remains excluded from a public RC7 artifact
-while its separate KNC binutils source-distribution review is held.
+The separately prepared standalone toolkit binary remains excluded while its
+KNC binutils source-distribution review is held. That hold does not invalidate
+the RC7 OS candidate.

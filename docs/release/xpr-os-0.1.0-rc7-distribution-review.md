@@ -12,9 +12,11 @@ current source-built BusyBox, Dropbear, eglibc, libgcc, and XPR helper inputs.
 The final root includes the exact hardware-validated CPython 3.12.13 core
 package and the current project-owned `xpr-init` host integration tool.
 
-Hardware validation of the assembled candidate is pending. Any completed
-validation is recorded separately against the exact immutable archive hash so
-that release evidence does not change the artifact it describes.
+Candidate E, SHA-256
+`a4b313ad4b696ebdfe8a406da18288d1903933a6d3a12a1a41da1a69f218e0a4`,
+passed the complete Intel Xeon Phi 5110P hardware cycle and exact stock
+recovery. The completed evidence is recorded separately so the validated
+artifact does not change after testing.
 
 ## Distribution Boundary
 
@@ -31,7 +33,7 @@ review.
 
 ## Current Decision
 
-`RC7_CANDIDATE_PENDING_HARDWARE_VALIDATION` applies until the exact archive
-passes the static audit, live Intel Xeon Phi 5110P validation, and stock
-recovery gates. The candidate must not be tagged or published before the owner
-reviews the completed evidence.
+`XPR_OS_RC7_CANDIDATE=TECHNICALLY_PASS`. Static audit, live Intel Xeon Phi
+5110P validation, Python core validation, and exact stock recovery passed.
+Publication remains an owner decision; the standalone toolkit binary remains
+excluded under its separate human-review hold.

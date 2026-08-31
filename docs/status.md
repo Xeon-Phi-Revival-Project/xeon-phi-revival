@@ -99,7 +99,7 @@ manual RC6 procedure is retained for advanced troubleshooting and learning.
 
 ## Active Engineering Tracks
 
-1. **XPR-OS maintenance and release engineering** — preserve the validated RC6 baseline while completing live validation of the source-built, Python-enabled RC7 candidate.
+1. **XPR-OS maintenance and release engineering** — RC7 Candidate E is technically validated on the 5110P with source-built runtime inputs and CPython 3.12.13; preserve its exact hash while the owner handles final publication metadata and release decision.
 2. **xpr-init packaging and polish** — key generation, status/diagnostics, fresh-user flow, and reboot persistence are validated on the tested baseline; the current helper is included in the staged RC7 candidate.
 3. **K1OM toolchain and SDK work**: the standalone XPR K1OM Toolkit is technically validated for MPSS-free compilation and real 5110P execution. Public binary distribution remains held for qualified review of the recovered KNC binutils source-distribution terms.
 4. **Software ports and runtime expansion** — explore useful programs and libraries on the validated K1OM baseline.

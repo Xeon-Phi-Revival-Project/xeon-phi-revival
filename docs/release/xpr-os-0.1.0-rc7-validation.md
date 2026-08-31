@@ -1,62 +1,52 @@
 # XPR-OS 0.1.0-rc7 Candidate Validation
 
-This record covers the first immutable 0.1.0-rc7 candidate assembled from commit
-`1a2518afae704f9c352912cd99e8f4fca2b63ddb`. It records completed build and
-static gates plus its live failure and stock recovery. It is not a publication
-approval.
+This record covers the unpublished RC7 Candidate E assembled from commit
+`2e8423aca3b00b3df6c39b8f72a140dc0666666f`. It is the exact archive used for
+the successful Intel Xeon Phi 5110P validation. It is not publication approval.
 
-## Artifacts
+## Exact Candidate
 
 | Artifact | Size | SHA-256 |
 | --- | ---: | --- |
-| `xpr-os-0.1.0-rc7.tar.gz` | 21,701,018 bytes | `930f55baa433aab9ad61a8326aca1a42323c819e3253e071ffc4736219723a0a` |
-| `xpr-os-0.1.0-rc7-sources.tar.gz` | 383,310,989 bytes | `c06b569042f63305fc2988078961995d5d77a5af24c904857d6cafbfbcefd22d` |
-| `SHA256SUMS` |  | `fdb39c5b585c1e5b19eb38985db6d999d468f0c30a9e7d7e4c74941dd7d88984` |
+| `xpr-os-0.1.0-rc7.tar.gz` | 20,894,789 bytes | `a4b313ad4b696ebdfe8a406da18288d1903933a6d3a12a1a41da1a69f218e0a4` |
+| `xpr-os-0.1.0-rc7-sources.tar.gz` | 383,311,982 bytes | `79bd109d097e105229266db7095f355fb17d431fe1f3310f8369621e475f61ad` |
+| `SHA256SUMS` | | `b6628b913bb497bbf121068af82876f39c99de5ebb6c1578b657b9e6c7394d77` |
 
-Two clean staging runs produced byte-identical binary archives, source
-archives, and checksum files.
+Container hashes:
 
-`RC7_REPRODUCIBILITY=PASS`
+- inner bootstrap: `dc206d23dcd26a44b17e78103fe4bc1e1d30077af20fbc12af8cbfffc6ae032d`
+- outer Base CPIO: `72f40d37a8090caacbdf45fe39d55b9a9e6b635db6bdff984b9a9eefe5f67c71`
+- final payload: `ed236ef40639d0e279977519bcab43f1baca297fbbf7b008adcd7e61ad825951`
+
+The candidate remains frozen with `hardware-validation-pending` in its embedded
+pre-validation metadata. This external record ties the completed validation to
+the exact immutable archive rather than modifying it after the hardware run.
 
 ## Source-Built Root Inputs
 
 | Input | SHA-256 |
 | --- | --- |
 | BusyBox | `f639cc8fa89b987e2392e484a4643fcabd80beefc76041b3fda55885831a277c` |
-| Dropbear | `c941a97aed036ac6a00b6dd9cd18b092af27a06990372b3d5ca3c22245a3927a` |
-| `ld-linux-k1om.so.2` | `da8d17f746dbd34934f94bfd4eb8e33702501d62b0959528c672a94aed7f56c6` |
-| `libc.so.6` | `e1c5c22ee0a37a3ccdd5bc472ec3f3b5688a06943a79b7f9df154f454e349626` |
+| Dropbear | `a9085bcd3fd3d22deb9c38cdf4c5ce23d9ddf7e4ce0729f367665e5e15068391` |
+| `ld-linux-k1om.so.2` | `812e9f9a347e4effa1f20688d7383e82220365abf91945fac53b344ac7d14f10` |
+| `libc.so.6` | `1c680801e39082a1d504fe3a517836ecabee6e0059983bdd41a0b35b8b4c84aa` |
 | `libpthread.so.0` | `4a7dbd34d9bac478f808c81491d8cb4f79449d7e50fc3dcb7e4f19bd50372424` |
 | `libm.so.6` | `ad35aa054edc8978a8a62051b499236a4aa7c61df0dbf126e8eb763c9d79eb7d` |
 | `libdl.so.2` | `2e6f7952b06417029cc9bb5ec11fc20a7b4e8c98e8bbf988c0271006ea1df98c` |
 | `librt.so.1` | `bc05e371a69abcbf226a904cc83d08d4d5786d51d59370972576331399d49737` |
 | `libutil.so.1` | `78a9e9e2aea84c3e768bb7eb6a2be6daaaa35ff3db0abbb5aa30608a6b81edb0` |
-| `libgcc_s.so.1` | `727e0b9bc413ccfad67f98b36b4b0bb42c43ba39c5f8823c2540e27c9e733a58` |
-| `xpr-hello` | `0f1f4841031350eae3bec6cf18517a2ba786d8a7897a62fbdf928670cd162582` |
-| `xpr-pthread-smoke` | `3c66d2f0fa462fabfb4ec1f6bcaa3b0f67c3d967547b95bb7e87da3212c99df3` |
-| `xpr-dlopen-smoke` | `9193fa26b75ad8de4bfacbf4ebedec64feaebd6982385c2cb78c64ad46a712cc` |
-| `xpr-statusd` | `6b3c31584e3e61f81ca43c4d84eed150daadae8870ba74eb5bf17f8bcc06cd1c` |
+| `libgcc_s.so.1` | `f149daa610c673cb700ceba72f5e2d0057f14061772a047b117c526bd17a9500` |
+| CPython 3.12.13 executable | `259b2a33523ab8581cb70648c88f3a0b1be8f285eb2b21c42a60addf27c2a211` |
 
-All target ELF inputs report `Machine: Intel K1OM`. The generated container
-hashes are:
-
-- inner bootstrap: `211c7516cd2692fca522ded3371a3b79caaa8ec09b7eb03d9f4ab6a68242252d`
-- outer bootstrap: `1803714acda300c68332fae6b988369092b2285c8ad79334a643f237761cddf2`
-- final payload: `1da95173c23fd708afd65d521cbe61a05429f784ffda9172177b39f316524994`
+The fresh loader has no `RPATH` or `RUNPATH`. All target ELFs report
+`Machine: Intel K1OM`. No MPSS SDK binary, archived root, or private CPIO was
+used as a public-root construction input.
 
 `PUBLIC_ROOT_INPUTS=PASS`
 
 `PUBLIC_ROOT_BUILD=PASS`
 
-## Python Integration
-
-The root contains `/usr/bin/python3.12`, `/usr/bin/python3`, `/usr/bin/python`,
-and `/usr/lib/python3.12`. The Python executable hash is
-`259b2a33523ab8581cb70648c88f3a0b1be8f285eb2b21c42a60addf27c2a211`.
-The integrated runtime is the previously hardware-validated CPython 3.12.13
-core package.
-
-## Static Release Gates
+## Static Gates
 
 - source release compliance: PASS
 - public source policy: PASS
@@ -72,58 +62,96 @@ core package.
 - license bundle validation: PASS
 - release-version consistency: PASS
 - archive checksum verification: PASS
+- paired source archive verification: PASS
 - precompiled release verification: PASS
-
-The archive includes source and license accounting for CPython 3.12.13. Its
-active metadata accurately remains `hardware-validation-pending`.
 
 `RC7_CONTAMINATION_AUDIT=PASS`
 
-## Hardware Validation
+## Reproducibility
 
-On the established CentOS 7.4 and MPSS 3.4.10 host:
+A second clean staging pass from the same explicit inputs produced
+byte-identical binary archive, source archive, and `SHA256SUMS` files.
 
-- active `/etc/mpss/mic0.conf` SHA-256 matched the stock baseline:
-  `9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51`
-- MPSS was active;
-- the `mic` kernel module was loaded.
+`RC7_REPRODUCIBILITY=PASS`
 
-A first preflight found the card absent from PCI enumeration. A cold chassis
-restart restored Intel device `8086:2250`, `/sys/class/mic/mic0`, stock boot,
-and stock SSH. The candidate hash and stock configuration hash were rechecked
-before installation.
+## Rejected Candidates And Fixes
 
-`xpr-init --install` passed release verification, deployment-specific RSA key
-provisioning, stock backup, configuration installation, and handoff-unit
-enablement. The documented reset/wait/boot sequence brought the card online on
-the candidate kernel. Automatic handoff then stopped at bootstrap SSH: the new
-Dropbear server repeatedly rejected the selected RSA key before payload
-transfer.
+Candidate A used static Dropbear and failed bootstrap RSA account lookup.
+Candidates B and C used dynamic Dropbear but never opened bootstrap SSH. A
+direct card-side loader test located the second failure: the source-built
+loader contained an injected `/lib64` RPATH and aborted during its own
+bootstrap with the eglibc `DT_RPATH` assertion.
 
-The deployed nested bootstrap archive was inspected without exposing key
-contents. It contained the selected public key byte-for-byte at
-`/root/.ssh/authorized_keys`, with modes `0700` and `0600` for the directory and
-file. The failure was therefore not key provisioning.
+The `xpr-gcc` wrapper now suppresses all automatic runtime linker flags for
+`-nostdlib`, `-nodefaultlibs`, and `-static`. The toolkit packager also now
+keeps the correct `mkheaders` output rather than duplicating GCC's limits-header
+guards. Fresh eglibc and libgcc builds then completed, and the exact fresh
+loader ran the source-built Dropbear binary on the card.
 
-The source-built static Dropbear link log warned that glibc account functions
-including `getpwnam` and `getspnam` require matching shared libraries at
-runtime. Dropbear started but rejected the valid account key; the dynamic
-status helper was also unavailable. Candidate A is rejected.
+Candidate D booted successfully but contained a stale pre-validation Python
+package selected from the build host. Candidate E uses the authoritative
+hardware-validated package SHA-256
+`7cfe57598fecf9263af84f5409a4c9f3f3e688b13d6ae784eaae79aba4e49d4a`.
+During repeated same-version testing, xpr-init initially reused Candidate D's
+cached extraction. The stale cache was preserved as evidence, Candidate E was
+freshly extracted, and its generic payload hash was verified as
+`ed236ef40639d0e279977519bcab43f1baca297fbbf7b008adcd7e61ad825951`
+before the successful boot.
 
-`RC7_CANDIDATE_A_BOOTSTRAP_SSH=FAIL`
+## 5110P Validation
 
-`xpr-init --recover` restored the exact stock configuration, stock card boot,
-K1OM userspace, PID 1 `init`, and stock SSH.
+Environment: CentOS 7.4, Intel MPSS 3.4.10, Intel Xeon Phi 5110P, `mic0`.
 
-`RC7_CANDIDATE_A_RECOVERY=PASS`
+- candidate archive verification and xpr-init installation: PASS
+- deployment-specific RSA public-key provisioning: PASS
+- reset/wait/boot lifecycle: PASS
+- automatic bootstrap-to-final-root handoff: PASS
+- final XPR `/sbin/init` as PID 1: PASS
+- micveth and `/sys/class/net/mic0`: PASS
+- authenticated Dropbear SSH: PASS
+- `xpr-hello`: PASS (`XPR_HELLO_OK`)
+- pthread smoke: PASS (`XPR_PTHREAD_OK`)
+- `dlopen` smoke: PASS (`xpr-dlopen-smoke: ok`)
+- `python`, `python3`, and `python3.12` paths: PASS
+- Python version: PASS (`Python 3.12.13`)
+- Python imports `sys`, `os`, `pathlib`, `json`, `math`, `threading`, and
+  `platform`: PASS
+- threaded `math.sqrt(144)` result: PASS
+- `platform.machine()`: PASS (`k1om`)
+- Python host/card SHA-256 identity: PASS
+
+Python output included:
+
+```text
+Hello from Python on Xeon Phi
+3.12.13 (main, Aug 15 2026, 01:06:32) [GCC 5.1.1]
+k1om
+RC7 Python core smoke PASS
+```
+
+`RC7_5110P_BOOT=PASS`
+
+`RC7_PYTHON312=PASS`
+
+`RC7_PYTHON_CORE_SMOKE=PASS`
+
+## Recovery
+
+`xpr-init --recover` restored and booted the stock MPSS image. The active
+`mic0.conf` SHA-256 returned exactly to
+`9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51`.
+Stock SSH and `k1om` userspace passed. The observed stock image uses PID 1
+`/sbin/init.sysvinit`; it does not provide `systemctl`.
+
+`RC7_RECOVERY=PASS`
 
 ## Decision
 
-`XPR_OS_RC7_CANDIDATE=REBUILD_REQUIRED_DROPBEAR_RUNTIME`
+`XPR_OS_RC7_CANDIDATE=TECHNICALLY_PASS`
 
-The Dropbear builder now supports a dynamic K1OM build against the exact
-source-built eglibc sysroot used by the public root. A replacement candidate
-must be assembled from that tracked revision, receive a new hash, and repeat
-the complete hardware and recovery cycle.
+Candidate E is the exact hardware-tested RC7 artifact. Publication remains a
+separate owner decision, and the embedded pre-validation status must be handled
+without replacing the tested runtime bytes. The standalone toolkit remains
+excluded while its separate distribution review is held.
 
 `TOOLKIT_RC7_INCLUSION=HOLD_HUMAN_REVIEW`
