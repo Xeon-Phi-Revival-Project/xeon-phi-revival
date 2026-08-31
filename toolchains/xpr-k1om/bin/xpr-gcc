@@ -4,6 +4,7 @@ root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 # shellcheck disable=SC1091
 source "$root/config.env"
 link_libgcc=yes
+link_runtime=yes
 sysroot=$XPR_K1OM_SYSROOT
 next_is_sysroot=no
 for arg in "$@"; do
@@ -13,14 +14,16 @@ for arg in "$@"; do
     continue
   fi
   case "$arg" in
-    -nostdlib|-nodefaultlibs|-static) link_libgcc=no ;;
+    -nostdlib|-nodefaultlibs|-static) link_libgcc=no; link_runtime=no ;;
     --sysroot=*) sysroot=${arg#--sysroot=} ;;
     --sysroot) next_is_sysroot=yes ;;
   esac
 done
 common=(--sysroot="$sysroot" -isystem "$sysroot/usr/include"
-  -L"$sysroot/usr/lib64" -L"$sysroot/lib64"
-  -Wl,--dynamic-linker=/lib64/ld-linux-k1om.so.2 -Wl,-rpath,/lib64 -Wl,--no-as-needed)
+  -L"$sysroot/usr/lib64" -L"$sysroot/lib64")
+if [[ "$link_runtime" == yes ]]; then
+  common+=(-Wl,--dynamic-linker=/lib64/ld-linux-k1om.so.2 -Wl,-rpath,/lib64 -Wl,--no-as-needed)
+fi
 if [[ "$link_libgcc" == yes ]]; then
   exec "$XPR_K1OM_GCC" "${common[@]}" "$@" -lgcc_s
 fi

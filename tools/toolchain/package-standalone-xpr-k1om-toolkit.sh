@@ -121,6 +121,7 @@ tool=${tool#xpr-}
 tool=${tool#k1om-mpss-linux-}
 case "$tool" in
   gcc) link_libgcc=yes
+       link_runtime=yes
        sysroot="$root/sysroot"
        next_is_sysroot=no
        for arg in "$@"; do
@@ -129,15 +130,17 @@ case "$tool" in
            next_is_sysroot=no
            continue
          fi
-         case "$arg" in -nostdlib|-nodefaultlibs|-static) link_libgcc=no ;; esac
+         case "$arg" in -nostdlib|-nodefaultlibs|-static) link_libgcc=no; link_runtime=no ;; esac
          case "$arg" in
            --sysroot=*) sysroot=${arg#--sysroot=} ;;
            --sysroot) next_is_sysroot=yes ;;
          esac
        done
        common=(-B"$root/libexec/gcc/k1om-mpss-linux/5.1.1" -B"$root/lib/gcc/k1om-mpss-linux/5.1.1" -B"$root/libexec" --sysroot="$sysroot" \
-         -isystem "$sysroot/usr/include" -L"$sysroot/usr/lib64" -L"$sysroot/lib64" \
-         -Wl,--dynamic-linker=/lib64/ld-linux-k1om.so.2 -Wl,-rpath,/lib64 -Wl,--no-as-needed)
+         -isystem "$sysroot/usr/include" -L"$sysroot/usr/lib64" -L"$sysroot/lib64")
+       if [[ "$link_runtime" == yes ]]; then
+         common+=(-Wl,--dynamic-linker=/lib64/ld-linux-k1om.so.2 -Wl,-rpath,/lib64 -Wl,--no-as-needed)
+       fi
        if [[ "$link_libgcc" == yes ]]; then
          exec env GCC_EXEC_PREFIX="$root/libexec/gcc/" "$root/libexec/k1om-mpss-linux-gcc" "${common[@]}" "$@" -lgcc_s
        fi
