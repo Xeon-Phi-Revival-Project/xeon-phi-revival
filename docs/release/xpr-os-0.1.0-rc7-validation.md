@@ -1,9 +1,9 @@
 # XPR-OS 0.1.0-rc7 Candidate Validation
 
-This record covers the immutable 0.1.0-rc7 candidate assembled from commit
+This record covers the first immutable 0.1.0-rc7 candidate assembled from commit
 `1a2518afae704f9c352912cd99e8f4fca2b63ddb`. It records completed build and
-static gates plus the exact reason live validation could not begin. It is not
-a publication approval.
+static gates plus its live failure and stock recovery. It is not a publication
+approval.
 
 ## Artifacts
 
@@ -79,35 +79,51 @@ active metadata accurately remains `hardware-validation-pending`.
 
 `RC7_CONTAMINATION_AUDIT=PASS`
 
-## Hardware Preflight
+## Hardware Validation
 
 On the established CentOS 7.4 and MPSS 3.4.10 host:
 
 - active `/etc/mpss/mic0.conf` SHA-256 matched the stock baseline:
   `9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51`
 - MPSS was active;
-- the `mic` kernel module was loaded;
-- no Xeon Phi function appeared in PCI enumeration;
-- `/sys/class/mic` contained no device; and
-- `micctrl --status` failed with `mic0: State failed - non existent MIC device`.
+- the `mic` kernel module was loaded.
 
-`xpr-init` reported stock mode with no active XPR installation. Because the
-hardware prerequisite failed, the candidate was not installed and no reset,
-boot, handoff, runtime smoke, or recovery cycle was attempted. The host
-therefore remained at the exact stock configuration.
+A first preflight found the card absent from PCI enumeration. A cold chassis
+restart restored Intel device `8086:2250`, `/sys/class/mic/mic0`, stock boot,
+and stock SSH. The candidate hash and stock configuration hash were rechecked
+before installation.
 
-`RC7_5110P_BOOT=BLOCKED_HARDWARE_UNAVAILABLE`
+`xpr-init --install` passed release verification, deployment-specific RSA key
+provisioning, stock backup, configuration installation, and handoff-unit
+enablement. The documented reset/wait/boot sequence brought the card online on
+the candidate kernel. Automatic handoff then stopped at bootstrap SSH: the new
+Dropbear server repeatedly rejected the selected RSA key before payload
+transfer.
 
-`RC7_RECOVERY=NOT_REQUIRED_NO_INSTALL`
+The deployed nested bootstrap archive was inspected without exposing key
+contents. It contained the selected public key byte-for-byte at
+`/root/.ssh/authorized_keys`, with modes `0700` and `0600` for the directory and
+file. The failure was therefore not key provisioning.
+
+The source-built static Dropbear link log warned that glibc account functions
+including `getpwnam` and `getspnam` require matching shared libraries at
+runtime. Dropbear started but rejected the valid account key; the dynamic
+status helper was also unavailable. Candidate A is rejected.
+
+`RC7_CANDIDATE_A_BOOTSTRAP_SSH=FAIL`
+
+`xpr-init --recover` restored the exact stock configuration, stock card boot,
+K1OM userspace, PID 1 `init`, and stock SSH.
+
+`RC7_CANDIDATE_A_RECOVERY=PASS`
 
 ## Decision
 
-`XPR_OS_RC7_CANDIDATE=BLOCKED_HARDWARE_UNAVAILABLE`
+`XPR_OS_RC7_CANDIDATE=REBUILD_REQUIRED_DROPBEAR_RUNTIME`
 
-The candidate is source-accounted, reproducible, statically validated, and
-ready for its final live cycle. Publication remains blocked until the 5110P is
-visible on the established host and this exact binary archive passes install,
-automatic handoff, PID 1, micveth, SSH, hello, pthread, `dlopen`, Python core,
-and exact stock-recovery validation.
+The Dropbear builder now supports a dynamic K1OM build against the exact
+source-built eglibc sysroot used by the public root. A replacement candidate
+must be assembled from that tracked revision, receive a new hash, and repeat
+the complete hardware and recovery cycle.
 
 `TOOLKIT_RC7_INCLUSION=HOLD_HUMAN_REVIEW`
