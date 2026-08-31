@@ -102,14 +102,6 @@ cp -a "$libgcc_support/." "$root/lib/gcc/k1om-mpss-linux/5.1.1/"
 mkheaders="$root/libexec/gcc/k1om-mpss-linux/5.1.1/install-tools/mkheaders"
 [[ -x "$mkheaders" ]] || { echo "missing GCC mkheaders tool" >&2; exit 1; }
 "$mkheaders" "$root" "$root/sysroot"
-gcc_lib="$root/lib/gcc/k1om-mpss-linux/5.1.1"
-fixed_limits="$gcc_lib/include-fixed/limits.h"
-{
-    cat "$gcc_lib/plugin/include/limitx.h"
-    cat "$gcc_lib/install-tools/include/limits.h"
-    cat "$gcc_lib/plugin/include/limity.h"
-} > "$fixed_limits.tmp"
-mv "$fixed_limits.tmp" "$fixed_limits"
 
 for tool in gcc cpp as ld ar ranlib nm objdump objcopy readelf strip; do
     cat > "$root/bin/xpr-$tool" <<'EOF'
