@@ -46,7 +46,7 @@ XPR_DROPBEAR_AUTH_DIAG XPR_DROPBEAR_VERSION=Dropbear v2022.83
 dropbear_pid=4385
 [4385] Jan 01 00:01:30 Not backgrounding
 XPR_DROPBEAR_RUNNING
-   1: 01011FAC:0016 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 11271 1 ffff8801e39f8000 300 0 0 2 -1                     
+   1: 01011FAC:0016 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 11271 1 ffff8801e39f8000 300 0 0 2 -1
 XPR_SSH_READY
 XPR_MPSS_READY_NOTIFIED
 [4388] Jan 01 00:01:34 Child connection from 172.31.1.254:59682
@@ -126,7 +126,7 @@ mic0: online (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
 STOCK_SSH=PASS
 Warning: Permanently added 'mic0,172.31.1.1' (ECDSA) to the list of known hosts.
 k1om
-init [5]   
+init [5]
 STOCK_K1OM_INIT=FAIL
 RC7_RECOVERY=FAIL
 RC7_CANDIDATE_F_HARDWARE=FAIL
