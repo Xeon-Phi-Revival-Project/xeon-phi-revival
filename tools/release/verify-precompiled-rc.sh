@@ -119,4 +119,4 @@ if find "$root" -type f \( -name '*.rpm' -o -name '*.deb' -o -name '*.rom' -o -n
 fi
 
 echo "PRECOMPILED_RC_VERIFY=PASS"
-echo "publication_status=HUMAN_LEGAL_REVIEW_PENDING"
+echo "publication_status=OWNER_AUTHORIZATION_REQUIRED"
