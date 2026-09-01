@@ -4,7 +4,7 @@ This is an owner-operated checklist. Completing it may authorize publication;
 this document does not itself authorize or perform a tag, release, or upload.
 
 Proposed `v0.1.0-rc7` tag target:
-`9badfc2753562291dde21015ed939a1d62a9fcc6` (`Normalize RC7 hardware transcript`).
+`e7341413d102718ecccb51f3744f80a1dbdc55af` (`Align RC7 owner authorization boundary`).
 That commit and its parents contain the finalized Candidate F validation
 record, release notes, manifest, artifact inventory, publication decisions,
 checksum reference, and normalized hardware transcript. This later operational
@@ -43,7 +43,7 @@ XPR_INIT_HASH_BOUND_CACHE=PASS
 Current boundary:
 
 ```text
-XPR_OS_RC7_CANDIDATE=PASS
+XPR_OS_RC7_CANDIDATE=TECHNICALLY_PASS
 RC7_PUBLICATION_PREP=PASS
 RC7_PUBLICATION=AWAITING_OWNER_AUTHORIZATION
 TOOLKIT_RC7_INCLUSION=HOLD_HUMAN_REVIEW
