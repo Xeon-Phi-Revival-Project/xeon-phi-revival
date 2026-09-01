@@ -51,7 +51,7 @@ review.
 
 ## Current Decision
 
-`XPR_OS_RC7_CANDIDATE=PASS`. Static publication audit, live Intel Xeon Phi
+`XPR_OS_RC7_CANDIDATE=TECHNICALLY_PASS`. Static publication audit, live Intel Xeon Phi
 5110P validation, Python core validation, and exact stock recovery passed.
 The corresponding-source, SPDX, notices, checksum, and reproducibility gates
 also passed. Publication remains an owner decision; the standalone toolkit

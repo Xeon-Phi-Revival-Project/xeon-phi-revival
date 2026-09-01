@@ -175,7 +175,7 @@ and final PASS markers are appended in the transcript.
 
 ## Decision
 
-`XPR_OS_RC7_CANDIDATE=PASS`
+`XPR_OS_RC7_CANDIDATE=TECHNICALLY_PASS`
 
 Candidate F is the exact hardware-tested RC7 artifact. Publication remains a
 separate owner decision, and the embedded pre-validation status must be handled

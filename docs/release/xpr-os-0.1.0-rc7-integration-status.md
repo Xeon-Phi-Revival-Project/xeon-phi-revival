@@ -2,7 +2,7 @@
 
 ## Current Candidate
 
-`XPR_OS_RC7_CANDIDATE=PASS`
+`XPR_OS_RC7_CANDIDATE=TECHNICALLY_PASS`
 
 The exact unpublished Candidate F archive is:
 
