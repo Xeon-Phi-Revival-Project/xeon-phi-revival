@@ -71,14 +71,14 @@ Return to stock MPSS with `sudo xpr-init --recover`.
 ## Artifacts
 
 - `xpr-os-0.1.0-rc7.tar.gz`
-  - SHA-256: `a4b313ad4b696ebdfe8a406da18288d1903933a6d3a12a1a41da1a69f218e0a4`
+  - SHA-256: `f169ffea39b653ed583c8b84b1c9045393749586e9229acf9d7ab2538df49c86`
 - `xpr-os-0.1.0-rc7-sources.tar.gz`
-  - SHA-256: `79bd109d097e105229266db7095f355fb17d431fe1f3310f8369621e475f61ad`
+  - SHA-256: `671b7230507d0efac76eafd351f24750af86866c26a9c33a24e807e2e6f3e3de`
 - `xpr-os-0.1.0-rc7.spdx.json`
   - SHA-256: `eb09d81c6ce10841724dd2a742832d551c30fca322fb1efbe57fd2434177cab8`
 - `xpr-os-0.1.0-rc7-notices.tar.gz`
-  - SHA-256: `5a76f612f09445d9af14a00dc5ee79f6ebe69a87350a07e0de49f139b2ebb924`
+  - SHA-256: `d0fc20f19e6e476165eef600f689677962d6ddb84384aa56584655088efd6041`
 - `SHA256SUMS`
-  - SHA-256: `484dea684a1ad695f525dcf788520387b470f265649c84d8b0dfb9aa17171e7d`
+  - SHA-256: `bb44b2ef8379477b6f61442f8eedf80514ef86adfa20f1563236f375a8ded8b0`
 
 Publication and tagging remain subject to owner authorization.

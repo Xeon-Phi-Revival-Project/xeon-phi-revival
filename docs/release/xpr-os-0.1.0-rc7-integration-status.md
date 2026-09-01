@@ -2,26 +2,27 @@
 
 ## Current Candidate
 
-`XPR_OS_RC7_CANDIDATE=TECHNICALLY_PASS`
+`XPR_OS_RC7_CANDIDATE=PASS`
 
-The exact unpublished Candidate E archive is:
+The exact unpublished Candidate F archive is:
 
 - `xpr-os-0.1.0-rc7.tar.gz`
-- SHA-256 `a4b313ad4b696ebdfe8a406da18288d1903933a6d3a12a1a41da1a69f218e0a4`
+- SHA-256 `f169ffea39b653ed583c8b84b1c9045393749586e9229acf9d7ab2538df49c86`
 
 Its paired source archive SHA-256 is
-`79bd109d097e105229266db7095f355fb17d431fe1f3310f8369621e475f61ad`.
-Built-in source-policy, payload, SPDX 2.3, license, release-consistency, and
-archive checks passed.
+`671b7230507d0efac76eafd351f24750af86866c26a9c33a24e807e2e6f3e3de`.
+Built-in source-policy, payload, strict publication-stage provenance, SPDX 2.3,
+license, release-consistency, and archive checks passed. Independent staging
+produced byte-identical binary and source archives.
 
 Release-facing sidecars are finalized as:
 
 - SPDX: `xpr-os-0.1.0-rc7.spdx.json`, SHA-256
   `eb09d81c6ce10841724dd2a742832d551c30fca322fb1efbe57fd2434177cab8`
 - notices/licenses: `xpr-os-0.1.0-rc7-notices.tar.gz`, SHA-256
-  `5a76f612f09445d9af14a00dc5ee79f6ebe69a87350a07e0de49f139b2ebb924`
+  `d0fc20f19e6e476165eef600f689677962d6ddb84384aa56584655088efd6041`
 - publication checksums: `SHA256SUMS`, SHA-256
-  `484dea684a1ad695f525dcf788520387b470f265649c84d8b0dfb9aa17171e7d`
+  `bb44b2ef8379477b6f61442f8eedf80514ef86adfa20f1563236f375a8ded8b0`
 
 ## Integrated Runtime
 
@@ -46,7 +47,7 @@ input or payload member.
 
 ## Live Result
 
-Candidate E passed automatic xpr-init handoff, final XPR PID 1, micveth,
+Candidate F passed automatic xpr-init handoff, final XPR PID 1, micveth,
 authenticated SSH, hello, pthread, `dlopen`, Python 3.12.13, the required core
 Python/threading smoke, and host/card Python hash identity on the Intel Xeon
 Phi 5110P. Recovery restored the exact stock configuration hash and stock SSH.

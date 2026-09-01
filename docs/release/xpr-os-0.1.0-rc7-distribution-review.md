@@ -12,8 +12,8 @@ current source-built BusyBox, Dropbear, eglibc, libgcc, and XPR helper inputs.
 The final root includes the exact hardware-validated CPython 3.12.13 core
 package and the current project-owned `xpr-init` host integration tool.
 
-Candidate E, SHA-256
-`a4b313ad4b696ebdfe8a406da18288d1903933a6d3a12a1a41da1a69f218e0a4`,
+Candidate F, SHA-256
+`f169ffea39b653ed583c8b84b1c9045393749586e9229acf9d7ab2538df49c86`,
 passed the complete Intel Xeon Phi 5110P hardware cycle and exact stock
 recovery. The completed evidence is recorded separately so the validated
 artifact does not change after testing.
@@ -51,9 +51,10 @@ review.
 
 ## Current Decision
 
-`XPR_OS_RC7_CANDIDATE=TECHNICALLY_PASS`. Static audit, live Intel Xeon Phi
+`XPR_OS_RC7_CANDIDATE=PASS`. Static publication audit, live Intel Xeon Phi
 5110P validation, Python core validation, and exact stock recovery passed.
-Publication remains an owner decision; the standalone toolkit binary remains
-excluded under its separate human-review hold.
+The corresponding-source, SPDX, notices, checksum, and reproducibility gates
+also passed. Publication remains an owner decision; the standalone toolkit
+binary remains excluded under its separate human-review hold.
 
 `TOOLKIT_RC7_INCLUSION=HOLD_HUMAN_REVIEW`

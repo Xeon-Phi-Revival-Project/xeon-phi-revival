@@ -20,6 +20,25 @@ payload entries and failed with 45 errors.
 
 `PUBLICATION_GATE_REPRODUCED=PASS`
 
+## Candidate F Closure
+
+Candidate F was assembled from commit
+`90291d67eb856385c90ac575afb2c9b0e6149804`. Its exact binary SHA-256 is
+`f169ffea39b653ed583c8b84b1c9045393749586e9229acf9d7ab2538df49c86`.
+The corrected embedded profile records every reviewed component decision above.
+The strict publication audit against the exact embedded payload, profile, and
+SPDX examined 771 entries and returned zero errors. A second independent
+staging produced byte-identical binary and source archives.
+
+The same immutable Candidate F archive passed automatic handoff, final PID 1,
+micveth, authenticated SSH, native hello/pthread/`dlopen`, CPython 3.12.13 core,
+and exact stock recovery on the Intel Xeon Phi 5110P. The hardware transcript
+is linked from the release index.
+
+`PUBLICATION_STAGE_AUDIT=PASS`
+
+`RC7_REPRODUCIBILITY=PASS`
+
 ## Required Top-Level Components
 
 The payload audit does not inspect the separately shipped kernel and modules,

@@ -1,0 +1,138 @@
+RC7 Candidate F hardware validation
+UTC=2026-09-01T01:36:33Z
+unknownf48e38c1a578.home
+f169ffea39b653ed583c8b84b1c9045393749586e9229acf9d7ab2538df49c86  /home/xpr-rc7-candidate-90291d6-f/xpr-os-0.1.0-rc7.tar.gz
+RC7_CANDIDATE_IDENTITY=PASS
+RC7_AUTOMATIC_HANDOFF=PASS
+Warning: Permanently added 'mic0,172.31.1.1' (ECDSA) to the list of known hosts.
+RC7_FINAL_PID1=PASS
+Warning: Permanently added 'mic0,172.31.1.1' (ECDSA) to the list of known hosts.
+XPR_RC_ROOT_SBIN_INIT_PID1
+pid=1
+k1om
+XPR_RC_INIT_MOUNTS_READY
+ __  ______  ____        ___  ____
+ \ \/ /  _ \|  _ \      / _ \/ ___|
+  \  /| |_) | |_) |____| | | \___ \
+  /  \|  __/|  _ <_____| |_| |___) |
+ /_/\_\_|   |_| \_\     \___/|____/
+
+ Xeon Phi Revival K1OM uOS 0.1
+ Experimental Knights Corner software environment
+ https://github.com/Xeon-Phi-Revival-Project
+
+XPR_SPLASH_DISPLAYED
+XPR_HELLO_OK
+XPR_PTHREAD_OK
+xpr-dlopen-smoke: ok
+XPR_SMOKE_PASS
+XPR_RC_SMOKES_COMPLETE
+XPR_NETWORK_READY
+statusd_pid=4368
+XPR_RC_STATUSD_STARTED
+XPR_DROPBEAR_AUTH_DIAG_BEGIN
+XPR_ROOT_ACCOUNT_OK
+XPR_ROOT_SHELL_OK
+XPR_ROOT_SHELL_LISTED
+XPR_NSS_FILES_PRESENT
+XPR_NSS_PASSWD_FILES
+XPR_ROOT_SHADOW_ABSENT
+XPR_AUTHORIZED_KEYS_FOUND
+XPR_DROPBEAR_AUTH_DIAG XPR_ROOT_MODE=755:0:0
+XPR_DROPBEAR_AUTH_DIAG XPR_SSH_DIR_MODE=700:0:0
+XPR_DROPBEAR_AUTH_DIAG XPR_AUTHORIZED_KEYS_MODE=600:0:0
+XPR_DROPBEAR_AUTH_DIAG XPR_AUTHORIZED_KEYS_HASH=5dbda7ee10cf94879d2a78a2910e6072efd7c5c586da28f7310db7d83d5edee1
+XPR_DROPBEAR_AUTH_DIAG XPR_DROPBEAR_VERSION=Dropbear v2022.83
+dropbear_pid=4385
+[4385] Jan 01 00:01:30 Not backgrounding
+XPR_DROPBEAR_RUNNING
+   1: 01011FAC:0016 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 11271 1 ffff8801e39f8000 300 0 0 2 -1                     
+XPR_SSH_READY
+XPR_MPSS_READY_NOTIFIED
+[4388] Jan 01 00:01:34 Child connection from 172.31.1.254:59682
+[4388] Jan 01 00:01:36 Generated hostkey /etc/dropbear/dropbear_ecdsa_host_key, fingerprint is SHA256:Yn/9pq4VzzEpIO2c16YtkWXLA7Ycfq8BQfXnEMy6ogk
+[4388] Jan 01 00:01:36 Pubkey auth succeeded for 'root' with ssh-rsa key SHA256:TXrGMQ7ULOWOLfEIUVRbGTXHD7jMP4tZv0rr6sc1tRQ from 172.31.1.254:59682
+[4388] Jan 01 00:01:37 Exit (root) from <172.31.1.254:59682>: Disconnect received
+[4393] Jan 01 00:02:10 Child connection from 172.31.1.254:59684
+[4393] Jan 01 00:02:11 Pubkey auth succeeded for 'root' with ssh-rsa key SHA256:TXrGMQ7ULOWOLfEIUVRbGTXHD7jMP4tZv0rr6sc1tRQ from 172.31.1.254:59684
+[4393] Jan 01 00:02:12 Exit (root) from <172.31.1.254:59684>: Disconnect received
+[4400] Jan 01 00:03:18 Child connection from 172.31.1.254:59686
+[4400] Jan 01 00:03:19 Pubkey auth succeeded for 'root' with ssh-rsa key SHA256:TXrGMQ7ULOWOLfEIUVRbGTXHD7jMP4tZv0rr6sc1tRQ from 172.31.1.254:59686
+[4400] Jan 01 00:03:20 Exit (root) from <172.31.1.254:59686>: Disconnect received
+[4406] Jan 01 00:03:20 Child connection from 172.31.1.254:59688
+[4406] Jan 01 00:03:21 Pubkey auth succeeded for 'root' with ssh-rsa key SHA256:TXrGMQ7ULOWOLfEIUVRbGTXHD7jMP4tZv0rr6sc1tRQ from 172.31.1.254:59688
+Warning: Permanently added 'mic0,172.31.1.1' (ECDSA) to the list of known hosts.
+RC7_MICVETH=PASS
+Warning: Permanently added 'mic0,172.31.1.1' (ECDSA) to the list of known hosts.
+RC7_AUTHENTICATED_SSH=PASS
+Warning: Permanently added 'mic0,172.31.1.1' (ECDSA) to the list of known hosts.
+XPR_HELLO_OK
+RC7_HELLO=PASS
+Warning: Permanently added 'mic0,172.31.1.1' (ECDSA) to the list of known hosts.
+XPR_PTHREAD_OK
+RC7_PTHREAD=PASS
+Warning: Permanently added 'mic0,172.31.1.1' (ECDSA) to the list of known hosts.
+xpr-dlopen-smoke: ok
+RC7_DLOPEN=PASS
+Warning: Permanently added 'mic0,172.31.1.1' (ECDSA) to the list of known hosts.
+sh: which: not found
+sh: which: not found
+sh: which: not found
+Python 3.12.13
+Python 3.12.13
+Warning: Permanently added 'mic0,172.31.1.1' (ECDSA) to the list of known hosts.
+Could not find platform dependent libraries <exec_prefix>
+Hello from Python on Xeon Phi
+3.12.13 (main, Aug 15 2026, 01:06:32) [GCC 5.1.1]
+k1om
+RC7 Python core smoke PASS
+RC7_PYTHON312=PASS
+RC7_PYTHON_CORE_SMOKE=PASS
+PYTHON_HOST_HASH
+259b2a33523ab8581cb70648c88f3a0b1be8f285eb2b21c42a60addf27c2a211  /home/xpr-rc7-static-audit-90291d6-f-final/root/usr/bin/python3.12
+PYTHON_CARD_HASH
+Warning: Permanently added 'mic0,172.31.1.1' (ECDSA) to the list of known hosts.
+259b2a33523ab8581cb70648c88f3a0b1be8f285eb2b21c42a60addf27c2a211  /usr/bin/python3.12
+XPR_INIT_STATUS_BEGIN
+XPR_INIT_INSTALLED=yes
+XPR_INIT_RELEASE=0.1.0-rc7
+XPR_INIT_RELEASE_ARCHIVE_SHA=f169ffea39b653ed583c8b84b1c9045393749586e9229acf9d7ab2538df49c86
+XPR_INIT_MIC=mic0
+XPR_INIT_CONFIG_MODE=XPR
+XPR_INIT_STOCK_BACKUP=present
+XPR_INIT_STOCK_SHA=9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51
+XPR_INIT_CURRENT_CONF_SHA=c98c08b67915f32938aa0fe5bb630fe31eda33d6e8466f504512b633d7b5ea94
+XPR_INIT_HANDOFF_ENABLED=yes
+XPR_INIT_HANDOFF_ACTIVE=no
+XPR_INIT_PUBLIC_KEY_SHA=5dbda7ee10cf94879d2a78a2910e6072efd7c5c586da28f7310db7d83d5edee1
+XPR_INIT_RECOVERY_AVAILABLE=yes
+mic0: online (mode: linux image: /opt/xpr-os/current/bzImage)
+XPR_INIT_STATUS_END
+RECOVERY_BEGIN
+          mic0: resetting
+          mic0: ready
+          mic0: booting /usr/share/mpss/boot/bzImage-knightscorner
+mic0: booting (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+mic0: booting (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+mic0: booting (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+mic0: booting (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+mic0: booting (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+mic0: online (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+XPR_INIT_RECOVER=PASS
+RC7_XPR_INIT_RECOVER=PASS
+STOCK_CONFIG_SHA256=9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51
+STOCK_CONFIG_HASH_RESTORED=PASS
+mic0: online (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+STOCK_SSH=PASS
+Warning: Permanently added 'mic0,172.31.1.1' (ECDSA) to the list of known hosts.
+k1om
+init [5]   
+STOCK_K1OM_INIT=FAIL
+RC7_RECOVERY=FAIL
+RC7_CANDIDATE_F_HARDWARE=FAIL
+RECOVERY_CLASSIFIER_CORRECTION=The initial harness expected an absolute PID1 path in proc cmdline; stock reports init [5]. Direct proc exe verification follows.
+STOCK_PID1_EXE=/sbin/init.sysvinit
+STOCK_INIT_SYMLINK=/sbin/init -> /sbin/init.sysvinit
+STOCK_K1OM_INIT=PASS
+RC7_RECOVERY=PASS
+RC7_CANDIDATE_F_HARDWARE=PASS

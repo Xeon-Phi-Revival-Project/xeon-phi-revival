@@ -22,7 +22,7 @@ current public workflow.
 
 ## Unpublished RC7 Candidate
 
-The exact XPR-OS 0.1.0-rc7 Candidate E is technically validated and prepared
+The exact XPR-OS 0.1.0-rc7 Candidate F is technically validated and prepared
 for owner publication review. It is not yet tagged or published.
 
 - [RC7 validation](xpr-os-0.1.0-rc7-validation.md)
@@ -31,3 +31,4 @@ for owner publication review. It is not yet tagged or published.
 - [RC7 publication decisions](xpr-os-0.1.0-rc7-publication-decisions.md)
 - [RC7 release notes draft](xpr-os-0.1.0-rc7-release-notes.md)
 - [RC7 artifact inventory](xpr-os-0.1.0-rc7-artifact-inventory.md)
+- [RC7 Candidate F hardware transcript](xpr-os-0.1.0-rc7-candidate-f-hardware-transcript.txt)

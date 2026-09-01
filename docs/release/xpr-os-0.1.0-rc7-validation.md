@@ -1,18 +1,18 @@
 # XPR-OS 0.1.0-rc7 Candidate Validation
 
-This record covers the unpublished RC7 Candidate E assembled from commit
-`2e8423aca3b00b3df6c39b8f72a140dc0666666f`. It is the exact archive used for
+This record covers the unpublished RC7 Candidate F assembled from commit
+`90291d67eb856385c90ac575afb2c9b0e6149804`. It is the exact archive used for
 the successful Intel Xeon Phi 5110P validation. It is not publication approval.
 
 ## Exact Candidate
 
 | Artifact | Size | SHA-256 |
 | --- | ---: | --- |
-| `xpr-os-0.1.0-rc7.tar.gz` | 20,894,789 bytes | `a4b313ad4b696ebdfe8a406da18288d1903933a6d3a12a1a41da1a69f218e0a4` |
-| `xpr-os-0.1.0-rc7-sources.tar.gz` | 383,311,982 bytes | `79bd109d097e105229266db7095f355fb17d431fe1f3310f8369621e475f61ad` |
+| `xpr-os-0.1.0-rc7.tar.gz` | 20,897,319 bytes | `f169ffea39b653ed583c8b84b1c9045393749586e9229acf9d7ab2538df49c86` |
+| `xpr-os-0.1.0-rc7-sources.tar.gz` | 383,316,819 bytes | `671b7230507d0efac76eafd351f24750af86866c26a9c33a24e807e2e6f3e3de` |
 | `xpr-os-0.1.0-rc7.spdx.json` | 44,159 bytes | `eb09d81c6ce10841724dd2a742832d551c30fca322fb1efbe57fd2434177cab8` |
-| `xpr-os-0.1.0-rc7-notices.tar.gz` | 42,279 bytes | `5a76f612f09445d9af14a00dc5ee79f6ebe69a87350a07e0de49f139b2ebb924` |
-| `SHA256SUMS` | 379 bytes | `484dea684a1ad695f525dcf788520387b470f265649c84d8b0dfb9aa17171e7d` |
+| `xpr-os-0.1.0-rc7-notices.tar.gz` | 42,195 bytes | `d0fc20f19e6e476165eef600f689677962d6ddb84384aa56584655088efd6041` |
+| `SHA256SUMS` | 379 bytes | `bb44b2ef8379477b6f61442f8eedf80514ef86adfa20f1563236f375a8ded8b0` |
 
 Container hashes:
 
@@ -70,6 +70,10 @@ used as a public-root construction input.
 - archive checksum verification: PASS
 - paired source archive verification: PASS
 - precompiled release verification: PASS
+- strict publication-stage payload/SPDX audit: PASS, 771 files and 0 errors
+- embedded publication profile matches corresponding source: PASS
+- embedded `xpr-init` matches corresponding source and binds its extraction
+  cache to the full release-archive SHA-256: PASS
 - release-facing SPDX sidecar validation: PASS
 - release-facing notices bundle validation: PASS
 - release-facing four-asset `SHA256SUMS`: PASS
@@ -78,8 +82,8 @@ used as a public-root construction input.
 
 ## Reproducibility
 
-A second clean staging pass from the same explicit inputs produced
-byte-identical binary archive, source archive, and `SHA256SUMS` files.
+A second clean staging pass from the same explicit inputs and repository
+snapshot produced byte-identical binary and source archives.
 
 `RC7_REPRODUCIBILITY=PASS`
 
@@ -98,7 +102,7 @@ guards. Fresh eglibc and libgcc builds then completed, and the exact fresh
 loader ran the source-built Dropbear binary on the card.
 
 Candidate D booted successfully but contained a stale pre-validation Python
-package selected from the build host. Candidate E uses the authoritative
+package selected from the build host. Candidate E first used the authoritative
 hardware-validated package SHA-256
 `7cfe57598fecf9263af84f5409a4c9f3f3e688b13d6ae784eaae79aba4e49d4a`.
 During repeated same-version testing, xpr-init initially reused Candidate D's
@@ -107,9 +111,18 @@ freshly extracted, and its generic payload hash was verified as
 `ed236ef40639d0e279977519bcab43f1baca297fbbf7b008adcd7e61ad825951`
 before the successful boot.
 
+Candidate F retains those exact runtime bytes and closes the release-stage
+gaps: publication provenance decisions are explicit, the strict publication
+audit passes, and `xpr-init` keys same-version extraction caches by the full
+archive SHA-256. Candidate F was independently staged twice before its own
+hardware cycle.
+
 ## 5110P Validation
 
 Environment: CentOS 7.4, Intel MPSS 3.4.10, Intel Xeon Phi 5110P, `mic0`.
+
+The sanitized command-level output is preserved in the
+[Candidate F hardware transcript](xpr-os-0.1.0-rc7-candidate-f-hardware-transcript.txt).
 
 - candidate archive verification and xpr-init installation: PASS
 - deployment-specific RSA public-key provisioning: PASS
@@ -152,13 +165,19 @@ RC7 Python core smoke PASS
 Stock SSH and `k1om` userspace passed. The observed stock image uses PID 1
 `/sbin/init.sysvinit`; it does not provide `systemctl`.
 
+The raw transcript first records a recovery `FAIL` from a harness assertion
+that expected `/proc/1/cmdline` to contain an absolute init path. Stock reports
+`init [5]` there. The immediate direct check resolved `/proc/1/exe` to
+`/sbin/init.sysvinit` and `/sbin/init` to that same executable; the correction
+and final PASS markers are appended in the transcript.
+
 `RC7_RECOVERY=PASS`
 
 ## Decision
 
-`XPR_OS_RC7_CANDIDATE=TECHNICALLY_PASS`
+`XPR_OS_RC7_CANDIDATE=PASS`
 
-Candidate E is the exact hardware-tested RC7 artifact. Publication remains a
+Candidate F is the exact hardware-tested RC7 artifact. Publication remains a
 separate owner decision, and the embedded pre-validation status must be handled
 without replacing the tested runtime bytes. The standalone toolkit remains
 excluded while its separate distribution review is held.
