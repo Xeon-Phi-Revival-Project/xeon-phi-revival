@@ -28,5 +28,6 @@ for owner publication review. It is not yet tagged or published.
 - [RC7 validation](xpr-os-0.1.0-rc7-validation.md)
 - [RC7 integration status](xpr-os-0.1.0-rc7-integration-status.md)
 - [RC7 distribution review](xpr-os-0.1.0-rc7-distribution-review.md)
+- [RC7 publication decisions](xpr-os-0.1.0-rc7-publication-decisions.md)
 - [RC7 release notes draft](xpr-os-0.1.0-rc7-release-notes.md)
 - [RC7 artifact inventory](xpr-os-0.1.0-rc7-artifact-inventory.md)

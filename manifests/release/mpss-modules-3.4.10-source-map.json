@@ -1,6 +1,6 @@
 {
   "schema": "xpr-mpss-module-source-map-v1",
-  "status": "mechanically-complete-human-review-required",
+  "status": "publication-engineering-review-complete-owner-authorization-required",
   "source_archive": {
     "filename": "mpss-modules-3.4.10.tar.bz2",
     "sha256": "0bfbb007aaba7f041b51229c28f11a793ba1adc76f08afd8e83b3a0488936f54",
@@ -64,5 +64,6 @@
   ],
   "clean_dependency_manifest": "manifests/release/mpss-modules-3.4.10-clean-dependencies.json",
   "source_staging_script": "tools/release/stage-mpss-module-source.sh",
-  "remaining_review": "Mechanical corresponding-source staging is complete: ship the complete module archive plus the separately mapped kernel source/build inputs. A qualified human must still review the authoritative GPLv2 evidence and final assembled artifacts before public binary attachment."
+  "publication_decision": "The exact five rebuilt module binaries are approved by the project engineering publication profile when shipped with this complete GPL-2.0-only source archive, the per-file license map, the separately mapped kernel inputs, the build recipe, notices, and SPDX records. RC6 publicly distributed these same five binary hashes after its owner release decision. Final RC7 publication still requires owner authorization.",
+  "remaining_review": "No unresolved engineering provenance or license-evidence gap remains for these five exact module binaries. This is an engineering compliance conclusion, not legal advice or a publication authorization."
 }

@@ -15,7 +15,8 @@ usage: stage-precompiled-rc.sh \
   --gcc-source FILE --gmp-source FILE --mpfr-source FILE --mpc-source FILE \
   --python-source FILE \
   [--repository-archive FILE] \
-  --version VERSION [--revision REV] [--validation-status pending|passed]
+  --version VERSION [--revision REV] [--validation-status pending|passed] \
+  [--audit-stage publication|candidate]
 
 Build deterministic private review archives from the exact hardware-tested
 XPR-OS artifacts and pinned corresponding-source inputs. This command stages
@@ -32,6 +33,7 @@ busybox_source="" dropbear_source="" eglibc_orig="" eglibc_debian=""
 gcc_source="" gmp_source="" mpfr_source="" mpc_source=""
 python_source=""
 validation_status="pending"
+audit_stage="publication"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -57,12 +59,16 @@ while [[ $# -gt 0 ]]; do
     --version) version="${2:-}"; shift 2 ;;
     --revision) revision="${2:-}"; shift 2 ;;
     --validation-status) validation_status="${2:-}"; shift 2 ;;
+    --audit-stage) audit_stage="${2:-}"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "unknown argument: $1" >&2; usage; exit 2 ;;
   esac
 done
 [[ "$validation_status" == pending || "$validation_status" == passed ]] || {
   echo "--validation-status must be pending or passed" >&2; exit 2;
+}
+[[ "$audit_stage" == publication || "$audit_stage" == candidate ]] || {
+  echo "--audit-stage must be publication or candidate" >&2; exit 2;
 }
 [[ -n "$version" ]] || { echo "--version is required" >&2; usage; exit 2; }
 
@@ -176,7 +182,7 @@ bash tools/release/audit-source-compliance.sh
 "$python_bin" tools/release/audit-prebuilt-image.py \
   --cpio "$payload" \
   --ledger manifests/release/prebuilt-clean-profile.json \
-  --stage candidate \
+  --stage "$audit_stage" \
   --output /tmp/xpr-prebuilt-audit.json
 "$python_bin" tools/release/verify-generic-payload.py --payload "$payload"
 SOURCE_DATE_EPOCH="$source_date_epoch" "$python_bin" tools/release/generate-spdx-sbom.py \
@@ -200,7 +206,7 @@ SOURCE_DATE_EPOCH="$source_date_epoch" "$python_bin" tools/release/generate-spdx
 "$python_bin" tools/release/audit-prebuilt-image.py \
   --cpio "$payload" \
   --ledger manifests/release/prebuilt-clean-profile.json \
-  --stage candidate \
+  --stage "$audit_stage" \
   --sbom /tmp/xpr-prebuilt.spdx.json \
   --output /tmp/xpr-prebuilt-audit.json
 
@@ -259,8 +265,8 @@ tar -xOjf "$dropbear_source" "$(tar -tjf "$dropbear_source" | awk '/(^|\/)LICENS
 tar -xOJf "$python_source" "$(tar -tJf "$python_source" | awk '/(^|\/)LICENSE$/ && !found { print; found=1 } END { exit !found }')" > "$binary_root/LICENSES/CPython-3.12.13-PSF.txt"
 install -m 0644 LICENSE "$binary_root/LICENSES/XPR-MIT.txt"
 printf '%s\n' "$version" > "$binary_root/VERSION"
-printf 'git_commit=%s\nsource_date_epoch=%s\npublication_status=HUMAN_LEGAL_REVIEW_PENDING\n' \
-  "$commit" "$source_date_epoch" > "$binary_root/build-report.txt"
+printf 'git_commit=%s\nsource_date_epoch=%s\npublication_audit_stage=%s\npublication_status=OWNER_AUTHORIZATION_REQUIRED\n' \
+  "$commit" "$source_date_epoch" "$audit_stage" > "$binary_root/build-report.txt"
 printf 'payload_sha256=%s\n' "$payload_hash" >> "$binary_root/build-report.txt"
 
 install -m 0644 "$kernel_source" "$source_root/sources/solros-bda6ce.tar.gz"
@@ -323,7 +329,7 @@ bash tools/release/verify-precompiled-rc.sh \
 (cd "$out_dir" && sha256sum -c SHA256SUMS)
 
 cat <<EOF
-status=STAGED_HUMAN_LEGAL_REVIEW_PENDING
+status=STAGED_OWNER_AUTHORIZATION_REQUIRED
 binary_archive=$binary_archive
 source_archive=$source_archive
 checksums=$out_dir/SHA256SUMS
