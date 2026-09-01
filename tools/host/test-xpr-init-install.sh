@@ -5,6 +5,7 @@ set -euo pipefail
 repo=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
+cd "$tmp"
 mkdir -p "$tmp/release/kernel" "$tmp/release/bootstrap" "$tmp/release/payload" \
   "$tmp/release/tools" "$tmp/mpss" "$tmp/bin" "$tmp/home/.ssh"
 printf 'kernel\n' > "$tmp/release/kernel/bzImage"
@@ -78,12 +79,17 @@ if ! env "${common_env[@]}" "$repo/tools/host/xpr-init" --install \
 fi
 test -x "$tmp/sbin/xpr-init"
 grep -qx 'XPR_INIT_INSTALL=PASS' "$tmp/install.out"
+first_archive_sha=$(sha256sum "$tmp/home/Downloads/xpr-os-0.1.0-rc6.tar.gz" | awk '{print $1}')
+first_release_root=$(sed -n "s/^release_root='\(.*\)'$/\1/p" "$tmp/state/mic0.env")
+grep -qx "release_archive_sha='$first_archive_sha'" "$tmp/state/mic0.env"
+test "$first_release_root" = "$tmp/state/releases/xpr-os-0.1.0-rc6-$first_archive_sha"
 grep -q "$tmp/root/current/xpr-bootstrap.cpio.gz" "$tmp/mpss/mic0.conf"
 grep -q 'enable --now xpr-init-handoff@mic0.service' "$tmp/systemctl.log"
 env "${common_env[@]}" "$tmp/sbin/xpr-init" --install > "$tmp/reinstall.out"
 grep -qx 'XPR_INIT_INSTALL=ALREADY_INSTALLED' "$tmp/reinstall.out"
 env "${common_env[@]}" "$tmp/sbin/xpr-init" --status > "$tmp/status.out"
 grep -qx 'XPR_INIT_INSTALLED=yes' "$tmp/status.out"
+grep -qx "XPR_INIT_RELEASE_ARCHIVE_SHA=$first_archive_sha" "$tmp/status.out"
 grep -qx 'XPR_INIT_CONFIG_MODE=XPR' "$tmp/status.out"
 grep -qx 'XPR_INIT_HANDOFF_ENABLED=yes' "$tmp/status.out"
 env "${common_env[@]}" "$tmp/sbin/xpr-init" --recover > "$tmp/recover.out"
@@ -92,6 +98,32 @@ grep -q 'disable --now xpr-init-handoff@mic0.service' "$tmp/systemctl.log"
 cmp "$tmp/mpss/mic0.conf" <(printf 'Base CPIO /stock/base\nOSimage /stock/kernel /stock/map\nRootDevice Ramfs /stock/mic0.image.gz\n')
 env "${common_env[@]}" "$tmp/sbin/xpr-init" --recover > "$tmp/recover2.out"
 grep -qx 'XPR_INIT_RECOVER=ALREADY_STOCK' "$tmp/recover2.out"
+
+# Cache identity is the archive hash, not only the version/root directory name.
+# A changed archive with the same release name must be extracted separately;
+# the unchanged archive must safely reuse its existing extraction.
+printf 'payload-v2\n' > "$tmp/release/payload/xpr-rootfs.cpio.gz"
+(cd "$tmp/release" && find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)
+rm -rf "$tmp/archive-root/xpr-os-0.1.0-rc6"
+cp -a "$tmp/release" "$tmp/archive-root/xpr-os-0.1.0-rc6"
+tar -czf "$tmp/home/Downloads/xpr-os-0.1.0-rc6.tar.gz" -C "$tmp/archive-root" xpr-os-0.1.0-rc6
+second_archive_sha=$(sha256sum "$tmp/home/Downloads/xpr-os-0.1.0-rc6.tar.gz" | awk '{print $1}')
+test "$second_archive_sha" != "$first_archive_sha"
+env "${common_env[@]}" "$tmp/sbin/xpr-init" --install \
+  --release "$tmp/home/Downloads/xpr-os-0.1.0-rc6.tar.gz" \
+  --authorized-key "$tmp/home/.ssh/id_rsa.pub" --identity "$tmp/home/.ssh/id_rsa" > "$tmp/cache-changed.out"
+second_release_root=$(sed -n "s/^release_root='\(.*\)'$/\1/p" "$tmp/state/mic0.env")
+test "$second_release_root" = "$tmp/state/releases/xpr-os-0.1.0-rc6-$second_archive_sha"
+test "$second_release_root" != "$first_release_root"
+grep -qx 'payload-v2' "$second_release_root/payload/xpr-rootfs.cpio.gz"
+env "${common_env[@]}" "$tmp/sbin/xpr-init" --recover > /dev/null
+env "${common_env[@]}" "$tmp/sbin/xpr-init" --install \
+  --release "$tmp/home/Downloads/xpr-os-0.1.0-rc6.tar.gz" \
+  --authorized-key "$tmp/home/.ssh/id_rsa.pub" --identity "$tmp/home/.ssh/id_rsa" > "$tmp/cache-reused.out"
+third_release_root=$(sed -n "s/^release_root='\(.*\)'$/\1/p" "$tmp/state/mic0.env")
+test "$third_release_root" = "$second_release_root"
+test "$(find "$tmp/state/releases" -mindepth 1 -maxdepth 1 -type d | wc -l)" = 2
+env "${common_env[@]}" "$tmp/sbin/xpr-init" --recover > /dev/null
 
 # No usable RSA key creates and reuses a dedicated XPR-only key pair.
 rm -f "$tmp/home/.ssh/id_rsa" "$tmp/home/.ssh/id_rsa.pub"
@@ -125,4 +157,6 @@ grep -q 'dedicated XPR key state is incomplete' "$tmp/incomplete.out"
 grep -q 'local -a payload_ssh_opts=("${ssh_opts\[@\]:1}")' "$repo/tools/host/xpr-init"
 grep -q 'ssh "${payload_ssh_opts\[@]}" "$mic" '\''cat > /tmp/xpr-rootfs.cpio.gz'\'' < "$payload"' "$repo/tools/host/xpr-init"
 ! grep -q 'ssh "${ssh_opts\[@]}" "$mic" '\''cat > /tmp/xpr-rootfs.cpio.gz'\'' < "$payload"' "$repo/tools/host/xpr-init"
+echo 'XPR_INIT_ARCHIVE_HASH_BINDING=PASS'
+echo 'XPR_INIT_STALE_CACHE_REGRESSION=PASS'
 echo 'XPR_INIT_INSTALL_TEST=PASS'

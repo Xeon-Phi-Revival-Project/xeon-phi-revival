@@ -3,7 +3,7 @@
 ## Scope
 
 This engineering review covers the immutable standalone-toolkit candidate
-`xpr-k1om-toolkit-0.1.0-linux-x86_64.tar.xz`, SHA-256
+`xpr-k1om-toolkit-0.1.0-linux-x86_64-b.tar.xz`, SHA-256
 `8227898056918423beab850b4daddd01423e88e75332698f636720d4b6fd6cc2`.
 It is not legal advice or a publication authorization.
 

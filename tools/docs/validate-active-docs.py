@@ -57,7 +57,7 @@ def main():
             return fail("private path in active document: %s" % relative)
     for relative in DOCS:
         path = os.path.join(ROOT, relative)
-        text = open(path, "r").read()
+        text = open(path, "r", encoding="utf-8").read()
         for target in LINK.findall(text):
             if "://" in target or target.startswith("mailto:"):
                 continue

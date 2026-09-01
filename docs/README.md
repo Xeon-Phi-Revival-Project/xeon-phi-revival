@@ -37,14 +37,14 @@ path. It is not the preferred beginner workflow.
 ## Develop Or Extend XPR
 
 - [Development index](development/README.md)
-- [Build XPR-OS](development/build-xpr-os.md)
+- [Build XPR-OS](release/build-xpr-os-rc-from-source.md)
 - [Kernel and modules](kernel/README.md)
 - [K1OM toolchain research](toolchain/README.md)
 - [uOS and bootstrap research](uos/README.md)
 - [Ubuntu/K1OM port research](ubuntu-port/README.md)
 - [xpr-init future changes](development/xpr-init-future-changes.md) — backlog only; ideas here are not implemented until validated.
 - [Source Index](source-index.md) — provenance and source mapping.
-- [Reproducibility](reproducibility.md)
+- [Reproducibility](development/release-reproducibility.md)
 
 ## Research And Historical Record
 

@@ -37,6 +37,7 @@ command_name=${1:-}
 shift || true
 mic=mic0
 release=""
+release_archive_sha="DIRECTORY_OR_LEGACY"
 authorized_key=""
 identity=""
 handoff_once=0
@@ -194,7 +195,7 @@ discover_release() {
 }
 
 prepare_release() {
-  local input=$1 extracted root_name version
+  local input=$1 extracted root_name version archive_sha
   input=$(readlink -f "$input")
   [[ -e "$input" ]] || die "release not found: $input"
   if [[ -f "$input" ]]; then
@@ -202,7 +203,9 @@ prepare_release() {
     tar -tzf "$input" | grep -Eq '(^/|(^|/)\.\.(/|$))' && die "unsafe release archive member"
     root_name=$(tar -tzf "$input" | sed -n '1s#/.*##p')
     [[ "$root_name" =~ ^xpr-os-[0-9] ]] || die "unexpected release archive root"
-    extracted="$state_root/releases/${root_name}"
+    archive_sha=$(sha "$input")
+    release_archive_sha=$archive_sha
+    extracted="$state_root/releases/${root_name}-${archive_sha}"
     if [[ ! -d "$extracted" ]]; then
       mkdir -p "$state_root/releases"
       local stage
@@ -365,6 +368,7 @@ stock_sha='$original_sha'
 identity='$identity'
 installed_release='$release_version'
 release_root='$release'
+release_archive_sha='$release_archive_sha'
 payload='$root/current/xpr-rootfs.cpio.gz'
 payload_sha='$(sha "$root/current/xpr-rootfs.cpio.gz")'
 payload_bytes='$(wc -c < "$root/current/xpr-rootfs.cpio.gz")'
@@ -435,6 +439,7 @@ status_xpr() {
     systemctl is-active "$handoff_unit" >/dev/null 2>&1 && active=yes || active=no
     echo "XPR_INIT_INSTALLED=yes"
     echo "XPR_INIT_RELEASE=$installed_release"
+    echo "XPR_INIT_RELEASE_ARCHIVE_SHA=${release_archive_sha:-DIRECTORY_OR_LEGACY}"
     echo "XPR_INIT_MIC=$mic"
     echo "XPR_INIT_CONFIG_MODE=$mode"
     echo "XPR_INIT_STOCK_BACKUP=$([[ -f "$stock_backup" ]] && echo present || echo missing)"

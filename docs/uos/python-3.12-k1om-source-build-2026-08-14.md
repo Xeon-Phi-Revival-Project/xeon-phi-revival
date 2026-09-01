@@ -2,8 +2,10 @@
 
 ## Scope
 
-This is the current source-accounted core CPython lane for a future XPR-OS
-RC7. It does not modify the frozen RC6 runtime or claim an RC7 integration.
+This document is a historical pre-RC7 source-build checkpoint. At the time it
+was recorded, it did not modify the frozen RC6 runtime or claim RC7 integration;
+later RC7 records supersede that packaging status without changing this build
+evidence.
 
 ## Inputs
 
@@ -62,7 +64,7 @@ The bounded follow-up used the same final RC6 root without any runtime overlay:
 
 The final RC6 loader, libc, and libgcc_s were recorded in the running root and
 no historical/private runtime component was substituted. This validates the
-source-built CPython core execution path; future RC7 packaging must install
+source-built CPython core execution path. The later RC7 packaging work installs
 the staged tree directly rather than relying on an unavailable `tar` command.
 
 ## RC7-Oriented Core Package
@@ -98,8 +100,9 @@ to the exact stock baseline.
 ## Recovery
 
 `xpr-init --recover` passed. The stock `mic0.conf` SHA-256 was restored to
-`9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51`, and
-stock `mic0` SSH returned `k1om` with `systemd` as PID 1.
+`9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51`.
+That checkpoint recorded `k1om` over stock SSH; the current RC7 recovery
+evidence records `/sbin/init.sysvinit` as stock PID 1.
 
 ## Status
 

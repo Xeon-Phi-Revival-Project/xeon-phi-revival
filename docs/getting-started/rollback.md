@@ -35,8 +35,8 @@ Confirm that `mic0` returns to the expected stock MPSS state and that the normal
 stock environment is reachable using the host's established MPSS procedure.
 
 For the project's validation baseline, recovery restored the known stock MPSS
-configuration byte-for-byte and returned the card to the stock K1OM/systemd/SSH
-environment.
+configuration byte-for-byte and returned the card to the stock K1OM/SSH
+environment with `/sbin/init.sysvinit` observed as PID 1.
 
 ## If xpr-init Cannot Perform Recovery
 

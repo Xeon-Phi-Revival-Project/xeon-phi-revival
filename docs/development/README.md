@@ -5,14 +5,14 @@ This section is for work on XPR itself. If you only want to run XPR-OS, use
 
 ## Current Engineering References
 
-- [Build XPR-OS](build-xpr-os.md)
+- [Build XPR-OS](../release/build-xpr-os-rc-from-source.md)
 - [Architecture](../architecture/README.md)
 - [Observed K1OM ELF ABI](../architecture/observed-k1om-elf-abi.md)
 - [Kernel research and reconstruction](../kernel/README.md)
 - [uOS/bootstrap research](../uos/README.md)
 - [K1OM toolchain research](../toolchain/README.md)
 - [Ubuntu/K1OM port research](../ubuntu-port/README.md)
-- [Reproducibility](../reproducibility.md)
+- [Reproducibility](release-reproducibility.md)
 - [Source Index](../source-index.md)
 
 ## xpr-init
