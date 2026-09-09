@@ -4,13 +4,13 @@
 
 `XPR_OS_RC7_CANDIDATE=TECHNICALLY_PASS`
 
-The exact unpublished Candidate F archive is:
+The exact unpublished Candidate G2 archive is:
 
 - `xpr-os-0.1.0-rc7.tar.gz`
-- SHA-256 `f169ffea39b653ed583c8b84b1c9045393749586e9229acf9d7ab2538df49c86`
+- SHA-256 `6d69b98a20de83b67867cec21c69cf700edeb71fc8d62d92e2bcdf54ca01e89c`
 
 Its paired source archive SHA-256 is
-`671b7230507d0efac76eafd351f24750af86866c26a9c33a24e807e2e6f3e3de`.
+`9d1261fd42f87697ee84b3cff749487c92bf11eb9eba952fcf6ead3be6df4c4a`.
 Built-in source-policy, payload, strict publication-stage provenance, SPDX 2.3,
 license, release-consistency, and archive checks passed. Independent staging
 produced byte-identical binary and source archives.
@@ -18,11 +18,11 @@ produced byte-identical binary and source archives.
 Release-facing sidecars are finalized as:
 
 - SPDX: `xpr-os-0.1.0-rc7.spdx.json`, SHA-256
-  `eb09d81c6ce10841724dd2a742832d551c30fca322fb1efbe57fd2434177cab8`
+  `7bd7586fc4064ea01df4e55d85738eba8c3d7d2ff96cbca7f42d7362c49b0e07`
 - notices/licenses: `xpr-os-0.1.0-rc7-notices.tar.gz`, SHA-256
-  `d0fc20f19e6e476165eef600f689677962d6ddb84384aa56584655088efd6041`
+  `186c883301997b483ca26921b600f3fc6d1c2e2ed6af221d1c0d00fd77789a0d`
 - publication checksums: `SHA256SUMS`, SHA-256
-  `bb44b2ef8379477b6f61442f8eedf80514ef86adfa20f1563236f375a8ded8b0`
+  `8247c9f44f0042778f5d60db942afbf0726d6765df292e87f00cefcc84ef312e`
 
 ## Integrated Runtime
 
@@ -47,12 +47,12 @@ input or payload member.
 
 ## Live Result
 
-Candidate F passed automatic xpr-init handoff, final XPR PID 1, micveth,
+Candidate G2 passed automatic xpr-init handoff, final XPR PID 1, micveth,
 authenticated SSH, hello, pthread, `dlopen`, Python 3.12.13, the required core
 Python/threading smoke, and host/card Python hash identity on the Intel Xeon
 Phi 5110P. Recovery restored the exact stock configuration hash and stock SSH.
 
-See [the validation record](xpr-os-0.1.0-rc7-validation.md) for exact hashes,
+See [the validation record](xpr-os-0.1.0-rc7-candidate-g-validation.md) for exact hashes,
 rejected-candidate boundaries, and command-level evidence.
 
 ## Publication Boundary

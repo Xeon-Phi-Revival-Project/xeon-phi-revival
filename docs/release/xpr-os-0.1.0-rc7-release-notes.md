@@ -27,9 +27,11 @@ threaded calculation. Broad optional extension-module support is not claimed.
 ## Validation
 
 The tested hardware baseline is Intel Xeon Phi 5110P with CentOS 7.4 and MPSS
-3.4.10. Earlier candidates validated the runtime and Python. Candidate G changes
-host integration and deployment-only SSH host-key provisioning; its own hardware
-results must be checked in the external Candidate G validation record.
+3.4.10. Exact Candidate G2 passed installation, automatic handoff, native/Python
+smokes, plain `ssh xpr-mic0`, card reboot/reuse, reinstall, and exact stock
+recovery. See the [G2 validation record](xpr-os-0.1.0-rc7-candidate-g-validation.md).
+The card-only reboot test explicitly rearmed the one-shot handoff service;
+automatic card-reset detection is not claimed.
 
 ## Reproducibility And Source Accounting
 

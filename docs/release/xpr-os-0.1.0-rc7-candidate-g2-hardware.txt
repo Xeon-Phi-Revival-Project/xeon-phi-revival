@@ -1,0 +1,123 @@
+XPR_SSH_ALIAS=ssh xpr-mic0
+XPR-OS Host Installer
+[PASS] MPSS configuration found: /etc/mpss/mic0.conf
+[PASS] Release verified: 0.1.0-rc7 (/var/lib/xpr-init/releases/xpr-os-0.1.0-rc7-6d69b98a20de83b67867cec21c69cf700edeb71fc8d62d92e2bcdf54ca01e89c)
+[PASS] RSA public key selected: /root/.ssh/id_rsa.pub
+SSH_KEY_PROVISIONING_VALIDATION=PASS key_type=ssh-rsa deployment_payload_sha256=9dea3052f676c3b7544fc3ec754a7dd73501c472a1213a47ea447fb456311dcf
+Created symlink from /etc/systemd/system/multi-user.target.wants/xpr-init-handoff@mic0.service to /etc/systemd/system/xpr-init-handoff@.service.
+XPR_INIT_INSTALL=PASS
+XPR_INIT_RELEASE=0.1.0-rc7
+XPR_INIT_STOCK_BACKUP=/var/lib/xpr-init/backups/mic0.conf.20260909-141830
+[PASS] Automatic payload handoff installed
+XPR-OS installation complete.
+
+Boot:
+    sudo micctrl --reset mic0
+    sudo micctrl --wait mic0
+    sudo micctrl --boot mic0
+
+Connect:
+    ssh xpr-mic0
+
+Return to stock:
+    sudo xpr-init --recover
+CANDIDATE_G_INSTALL=PASS
+          mic0: resetting
+          mic0: ready
+          mic0: booting /opt/xpr-os/current/bzImage
+AUTOMATIC_HANDOFF=PASS
+Pseudo-terminal will not be allocated because stdin is not a terminal.
+XPR_SSH_ALIAS_LOGIN=PASS
+XPR_RC_ROOT_SBIN_INIT_PID1
+XPR_NETWORK_READY
+/bin/sh /sbin/init 
+XPR_HELLO_OK
+XPR_PTHREAD_OK
+xpr-dlopen-smoke: ok
+Python 3.12.13
+Python 3.12.13
+259b2a33523ab8581cb70648c88f3a0b1be8f285eb2b21c42a60addf27c2a211  /usr/bin/python3.12
+Could not find platform dependent libraries <exec_prefix>
+Hello from Python on Xeon Phi
+3.12.13 (main, Aug 15 2026, 01:06:32) [GCC 5.1.1]
+k1om
+RC7 Python core smoke PASS
+RC7_RUNTIME_REGRESSION=PASS
+XPR_INIT_INSTALLED=yes
+XPR_INIT_RELEASE=0.1.0-rc7
+XPR_INIT_RELEASE_ARCHIVE_SHA=6d69b98a20de83b67867cec21c69cf700edeb71fc8d62d92e2bcdf54ca01e89c
+XPR_INIT_MIC=mic0
+XPR_INIT_CONFIG_MODE=XPR
+XPR_INIT_STOCK_BACKUP=present
+XPR_INIT_STOCK_SHA=9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51
+XPR_INIT_CURRENT_CONF_SHA=c98c08b67915f32938aa0fe5bb630fe31eda33d6e8466f504512b633d7b5ea94
+XPR_INIT_HANDOFF_ENABLED=yes
+XPR_INIT_HANDOFF_ACTIVE=no
+XPR_INIT_PUBLIC_KEY_SHA=5dbda7ee10cf94879d2a78a2910e6072efd7c5c586da28f7310db7d83d5edee1
+XPR_INIT_RECOVERY_AVAILABLE=yes
+mic0: online (mode: linux image: /opt/xpr-os/current/bzImage)
+256 SHA256:G7LzZlIUoGmOv5CYhojHZueOPuXYaRjg7pHdGBlW5h4 XPR deployment host (ECDSA)
+STOCK_TRUST_PRESERVED=PASS
+          mic0: resetting
+          mic0: ready
+          mic0: booting /opt/xpr-os/current/bzImage
+XPR_SSH_REBOOT_REUSE=PASS
+XPR_HOST_IDENTITY_STABLE=PASS
+          mic0: resetting
+          mic0: ready
+          mic0: booting /usr/share/mpss/boot/bzImage-knightscorner
+mic0: booting (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+mic0: booting (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+mic0: booting (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+mic0: booting (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+mic0: booting (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+mic0: online (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+XPR_INIT_RECOVER=PASS
+k1om
+/sbin/init.sysvinit
+STOCK_SSH_MIC0=PASS
+RC7_RECOVERY=PASS
+XPR_SSH_ALIAS=ssh xpr-mic0
+XPR-OS Host Installer
+[PASS] MPSS configuration found: /etc/mpss/mic0.conf
+[PASS] Release verified: 0.1.0-rc7 (/var/lib/xpr-init/releases/xpr-os-0.1.0-rc7-6d69b98a20de83b67867cec21c69cf700edeb71fc8d62d92e2bcdf54ca01e89c)
+[PASS] RSA public key selected: /root/.ssh/id_rsa.pub
+SSH_KEY_PROVISIONING_VALIDATION=PASS key_type=ssh-rsa deployment_payload_sha256=9dea3052f676c3b7544fc3ec754a7dd73501c472a1213a47ea447fb456311dcf
+Created symlink from /etc/systemd/system/multi-user.target.wants/xpr-init-handoff@mic0.service to /etc/systemd/system/xpr-init-handoff@.service.
+XPR_INIT_INSTALL=PASS
+XPR_INIT_RELEASE=0.1.0-rc7
+XPR_INIT_STOCK_BACKUP=/var/lib/xpr-init/backups/mic0.conf.20260909-142325
+[PASS] Automatic payload handoff installed
+XPR-OS installation complete.
+
+Boot:
+    sudo micctrl --reset mic0
+    sudo micctrl --wait mic0
+    sudo micctrl --boot mic0
+
+Connect:
+    ssh xpr-mic0
+
+Return to stock:
+    sudo xpr-init --recover
+          mic0: resetting
+          mic0: ready
+          mic0: booting /opt/xpr-os/current/bzImage
+XPR_SSH_REINSTALL=PASS
+          mic0: resetting
+          mic0: ready
+          mic0: booting /usr/share/mpss/boot/bzImage-knightscorner
+mic0: booting (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+mic0: booting (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+mic0: booting (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+mic0: booting (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+mic0: booting (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+mic0: online (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+XPR_INIT_RECOVER=PASS
+k1om
+/sbin/init.sysvinit
+STOCK_SSH_MIC0=PASS
+RC7_RECOVERY=PASS
+9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51  /etc/mpss/mic0.conf
+6d69b98a20de83b67867cec21c69cf700edeb71fc8d62d92e2bcdf54ca01e89c  CANDIDATE_G2/xpr-os-0.1.0-rc7.tar.gz
+CANDIDATE_G2_HARDWARE=PASS

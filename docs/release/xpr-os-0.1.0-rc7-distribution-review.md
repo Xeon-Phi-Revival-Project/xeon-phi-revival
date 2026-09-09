@@ -14,7 +14,7 @@ package and the current project-owned `xpr-init` host integration tool.
 
 Candidate G preserves Candidate F's generic runtime and adds project-owned SSH
 alias/host-key provisioning tooling. Candidate F remains historical evidence;
-Candidate G needs its own hardware and recovery validation. Exact results and
+Candidate G2 passed its own hardware and recovery validation. Exact results and
 hashes are recorded externally without changing the archive after testing.
 
 ## Distribution Boundary
@@ -50,9 +50,11 @@ review.
 
 ## Current Decision
 
-This embedded review is prepared before Candidate G hardware validation.
-Publication requires the external exact-candidate audit, hardware and recovery
-record, checksums, and owner authorization. It does not assert those gates passed.
+This repository review records the completed Candidate G2 validation; the
+immutable archive retains its pre-validation review. The external exact-candidate
+audit, hardware and recovery record, and checksums passed. Owner publication
+authorization remains required. See the
+[G2 record](xpr-os-0.1.0-rc7-candidate-g-validation.md).
 The corresponding-source, SPDX, notices, checksum, and reproducibility gates
 also passed. Publication remains an owner decision; the standalone toolkit
 binary remains excluded under its separate human-review hold.

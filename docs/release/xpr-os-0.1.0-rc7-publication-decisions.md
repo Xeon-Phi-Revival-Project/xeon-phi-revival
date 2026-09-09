@@ -1,5 +1,17 @@
 # XPR-OS 0.1.0-rc7 Publication Decisions
 
+## Current Candidate G2 Closure
+
+Candidate G2 supersedes F and G1 as the final publication-prepared set. It adds
+isolated, persistent deployment SSH identity and corrects stale embedded
+publication metadata. The exact G2 binary and paired source passed independent
+A/B staging, static publication/SPDX checks, and the full 5110P install,
+SSH/runtime, reboot/reuse, reinstall and stock recovery cycle on 2026-09-09.
+See the [G2 validation record](xpr-os-0.1.0-rc7-candidate-g-validation.md) and
+[final inventory](xpr-os-0.1.0-rc7-artifact-inventory.md). The sections below
+preserve earlier candidate decisions as historical evidence. The toolkit hold
+is unchanged. Publication still requires owner authorization.
+
 This is an engineering provenance and distribution review for the exact RC7
 artifact set. It is not legal advice and does not authorize publication.
 
