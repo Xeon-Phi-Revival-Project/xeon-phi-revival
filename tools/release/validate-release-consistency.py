@@ -28,6 +28,11 @@ def main():
         text = io.open(path, encoding="utf-8").read()
         if relative == "VERSION" and text.strip() != args.version:
             errors.append("VERSION does not equal requested release version")
+        if relative == "manifests/release.yml":
+            if re.search(r"(?m)^\s*sha256:", text):
+                errors.append("embedded release manifest must not contain self-referential archive hashes")
+            if "hardware_validation: " + args.expect_validation not in text.splitlines():
+                errors.append("embedded release manifest validation state mismatch")
         stale = re.findall(r"0\.1\.0-rc[0-9]+", text)
         if any(value != args.version for value in stale):
             errors.append("stale release identity in " + relative)

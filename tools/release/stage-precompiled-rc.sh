@@ -253,7 +253,10 @@ install -m 0644 "docs/release/xpr-os-$version-distribution-review.md" \
   --module "mpssboot-module=$modules_dir/mpssboot.ko" \
   --module "intel-micveth-module=$modules_dir/intel_micveth.ko" \
   --output "$binary_root/manifests/tested-artifacts.json"
-install -m 0644 "manifests/release/xpr-os-$version.yml" "$binary_root/manifests/release.yml"
+# Final archive hashes and post-build evidence are external to the immutable
+# archive. Copying the previous publication manifest creates stale self-hashes.
+printf 'id: xpr-os-%s\nstatus: candidate-unpublished\narchitecture: k1om\nbuild_revision: %s\nhardware_validation: %s\nchecksums: SHA256SUMS\nsource_reference: SOURCE-BUNDLE.txt\nvalidation_evidence: external-exact-candidate-record\npublication_authorization: required\ntoolkit_binary: excluded-hold-human-review\n' \
+  "$version" "$commit" "$validation_status" > "$binary_root/manifests/release.yml"
 install -m 0644 manifests/release/prebuilt-clean-profile.json "$binary_root/manifests/"
 install -m 0644 manifests/release/third-party-notices.json "$binary_root/manifests/"
 install -m 0644 /tmp/xpr-prebuilt.spdx.json "$binary_root/manifests/xpr-os.spdx.json"

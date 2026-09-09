@@ -1,5 +1,46 @@
 # xpr-init Host Integration
 
+## RC7 Candidate G
+
+Candidate G is unpublished. Use its packaged installer, not an older release's
+installer, and do not use the current installer with frozen RC6: RC6 lacks the
+new SSH setup helper. From an extracted Candidate G binary directory:
+
+```bash
+sudo install -m 755 tools/host/xpr-init /usr/local/sbin/xpr-init
+sudo ln -sfn /usr/local/sbin/xpr-init /usr/sbin/xpr-init
+sudo xpr-init --install --release /path/to/xpr-os-0.1.0-rc7.tar.gz
+sudo micctrl --reset mic0
+sudo micctrl --wait mic0
+sudo micctrl --boot mic0
+ssh xpr-mic0
+# Later, on the host:
+sudo xpr-init --recover
+ssh mic0
+```
+
+The installer configures the invoking user's selected RSA identity, an isolated
+XPR alias, and `~/.ssh/xpr_os_known_hosts`. Strict host-key checking remains on.
+The deployment-specific server identity persists privately under
+`/var/lib/xpr-init/ssh/mic0`; it is inserted only into private deployment images,
+never the generic release. Client private keys remain on the host.
+
+The alias and XPR trust remain after recovery for reuse. They intentionally do
+not authenticate stock uOS. Stock `mic0` config and trust entries remain separate;
+a pre-existing stock mismatch requires independently verified repair, not
+disabling host-key checks.
+
+For a card-only reset after a completed handoff, rearm the existing one-shot
+service after `micctrl --reset` and `micctrl --wait`, before `micctrl --boot`:
+
+```bash
+sudo systemctl restart xpr-init-handoff@mic0.service
+```
+
+See the [exact Candidate G validation](../release/xpr-os-0.1.0-rc7-candidate-g-validation.md).
+
+## Frozen RC6 Workflow
+
 `xpr-init` is a host-side convenience tool for the tested RC6 workflow. It is
 not part of the frozen RC6 runtime archive. It has been live-validated on the
 project's CentOS 7.4 + MPSS 3.4.10 + Intel Xeon Phi 5110P configuration:
@@ -42,8 +83,9 @@ the explicit options shown below when discovery is ambiguous.
 git clone https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival.git
 cd xeon-phi-revival
 
-# Install the host command once.
-sudo install -m 755 tools/host/xpr-init /usr/local/sbin/xpr-init
+# Use the earlier RC6-compatible helper, not the current RC7-only installer.
+git show 61ab99ae15d0327b3c6b20fa5d6318cab2e76dcc:tools/host/xpr-init > /tmp/xpr-init-rc6
+sudo install -m 755 /tmp/xpr-init-rc6 /usr/local/sbin/xpr-init
 # CentOS 7 sudo commonly omits /usr/local/sbin from secure_path.
 sudo ln -sfn /usr/local/sbin/xpr-init /usr/sbin/xpr-init
 
