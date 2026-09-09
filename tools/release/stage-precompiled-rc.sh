@@ -191,6 +191,10 @@ SOURCE_DATE_EPOCH="$source_date_epoch" "$python_bin" tools/release/generate-spdx
   --release-version "$version" \
   --include-component linux-k1om \
   --include-component mpss-compatible-modules \
+  --include-component xpr-owned \
+  --external-file "xpr-owned:./tools/host/xpr-init=$(sha256sum tools/host/xpr-init | awk '{print $1}')" \
+  --external-file "xpr-owned:./tools/host/xpr-ssh-setup.py=$(sha256sum tools/host/xpr-ssh-setup.py | awk '{print $1}')" \
+  --external-file "xpr-owned:./tools/provision-authorized-key.py=$(sha256sum tools/release/provision-xpr-authorized-key.py | awk '{print $1}')" \
   --external-file "linux-k1om:./kernel/bzImage=${expected[kernel]}" \
   --external-file "linux-k1om:./kernel/System.map=${expected[system_map]}" \
   --external-file "mpss-compatible-modules:./modules/dma_module.ko=${expected[dma_module]}" \
