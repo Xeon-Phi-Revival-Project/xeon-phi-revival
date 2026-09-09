@@ -15,6 +15,7 @@
     "docs/publication-audit-20260727.md",
     "docs/release/xpr-os-0.1.0-rc3-multiagent-audit.md",
     "docs/release/xpr-os-0.1.0-rc6-review-report.md",
+    "docs/release/xpr-os-0.1.0-rc7-candidate-f-hardware-transcript.txt",
     "docs/release/xpr-uos-0.1-license-review.md",
     "manifests/release/xpr-uos-0.1-license-matrix.yml",
     "tools/uos/build-minimal-k1om-initramfs.sh",
