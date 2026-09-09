@@ -38,6 +38,7 @@ required=(
   tools/verify.sh tools/verify-generic-payload.py tools/provision-authorized-key.py
   tools/validate-spdx-2.3.py tools/validate-license-bundle.py tools/verify-release-artifacts.py
   tools/validate-release-consistency.py tools/uos/newc_archive.py
+  tools/host/xpr-init tools/host/xpr-ssh-setup.py
   manifests/tested-artifacts.json manifests/release.yml manifests/prebuilt-clean-profile.json
   manifests/third-party-notices.json manifests/xpr-os.spdx.json SOURCE-BUNDLE.txt
   LICENSES/GPL-2.0-only.txt LICENSES/LGPL-2.1-or-later.txt
@@ -103,7 +104,7 @@ secret_pattern="${secret_pattern}"'|(XPR_MPSS_PASSWORD|SSH_[A-Z0-9_]*PRIVATE[A-Z
 while IFS= read -r -d '' candidate; do
   relative=${candidate#"$root"/}
   case "$relative" in
-    tools/verify.sh|tools/verify-generic-payload.py|tools/provision-authorized-key.py)
+    tools/verify.sh|tools/verify-generic-payload.py|tools/provision-authorized-key.py|tools/host/xpr-ssh-setup.py)
       # These shipped tools contain the detector/provisioning literals themselves.
       continue
       ;;
