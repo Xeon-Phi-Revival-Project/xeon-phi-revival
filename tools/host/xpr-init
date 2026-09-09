@@ -14,8 +14,9 @@ a fallback; normal installs enable a small host service to perform it after a
 successful XPR bootstrap boot.
 
 install creates a deployment-specific XPR configuration, backs up the active
-stock MPSS config, and installs artifacts under /opt/xpr-os. It never copies a
-private key. After install, users reset the card to ready, then run micctrl
+stock MPSS config, and installs artifacts under /opt/xpr-os. Client private keys
+remain on the host. A separate server host key is provisioned into the private
+deployment images. After install, users reset the card to ready, then run micctrl
 --boot directly; the installed handoff service enters the final
 root after the XPR bootstrap is ready.
 EOF
@@ -60,6 +61,8 @@ while [[ $# -gt 0 ]]; do
     *) die "unknown option: $1" ;;
   esac
 done
+
+[[ "$mic" =~ ^mic[0-9]+$ ]] || die "invalid MIC device name"
 
 root=${XPR_INIT_ROOT:-/opt/xpr-os}
 state_root=${XPR_INIT_STATE_ROOT:-/var/lib/xpr-init}
@@ -146,9 +149,38 @@ choose_single() {
 }
 
 set_ssh_opts() {
+  if [[ -n ${server_known_hosts:-} ]]; then
+    ssh_opts=(-n -F /dev/null -l root -o BatchMode=yes -o IdentitiesOnly=yes -i "$identity"
+      -o PubkeyAcceptedKeyTypes=+ssh-rsa -o StrictHostKeyChecking=yes
+      -o HostKeyAlias="xpr-$mic" -o HostKeyAlgorithms=ecdsa-sha2-nistp256
+      -o CheckHostIP=no -o UserKnownHostsFile="$server_known_hosts"
+      -o GlobalKnownHostsFile="$server_known_hosts" -o ConnectTimeout=10)
+    return
+  fi
+  # Existing pre-G state remains recoverable with its original bootstrap policy.
   ssh_opts=(-n -o BatchMode=yes -o IdentitiesOnly=yes -i "$identity"
     -o PubkeyAcceptedKeyTypes=+ssh-rsa -o StrictHostKeyChecking=no
     -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10)
+}
+
+setup_ssh() {
+  local helper="$release/tools/host/xpr-ssh-setup.py" home user host_public address
+  [[ -f "$helper" ]] || die "release lacks automatic SSH integration; use its matching installer"
+  home=$(invoker_home)
+  user=$(invoker_user)
+  address=$(getent ahostsv4 "$mic" | awk 'NR==1 {print $1}')
+  [[ -n "$address" ]] || die "MPSS device address could not be resolved: $mic"
+  install -d -m 700 "$state_root/ssh"
+  server_key_dir="$state_root/ssh/$mic"
+  host_public=$(python -E -s "$helper" server --directory "$server_key_dir" --alias "xpr-$mic")
+  server_known_hosts="$server_key_dir/known_hosts"
+  local -a user_args=(--user "$user")
+  if [[ ${XPR_INIT_TEST_MODE:-0} == 1 ]] && ! getent passwd "$user" >/dev/null; then
+    user_args=()
+  fi
+  python -E -s "$helper" client ${user_args[@]+"${user_args[@]}"} --home "$home" --identity "$identity" \
+    --alias "xpr-$mic" --hostname "$address" --host-public-key "$host_public"
+  set_ssh_opts
 }
 
 final_root_ready() {
@@ -295,20 +327,32 @@ install_xpr() {
   prepare_release "$release"
   [[ -n "$authorized_key" ]] || authorized_key=$(discover_authorized_key)
   [[ -n "$identity" ]] || identity="${authorized_key%.pub}"
-  local self original_sha
+  local self original_sha requested_sha="$release_archive_sha" derived_public supplied_public requested_identity
   self=$(readlink -f "$0")
   authorized_key=$(readlink -f "$authorized_key")
   validate_rsa_public_key "$authorized_key" || die "RSA public key is missing, malformed, or unsupported: $authorized_key"
   [[ -r "$identity" ]] || die "SSH identity is not readable: $identity"
-  set_ssh_opts
+  identity=$(readlink -f "$identity")
+  requested_identity=$identity
+  case "$identity$authorized_key$release$root$state_root$(invoker_home)" in
+    *"'"*|*$'\n'*|*$'\r'*) die "unsupported character in installation path" ;;
+  esac
+  derived_public=$(ssh-keygen -y -P '' -f "$identity") || die "client identity must be a valid unencrypted key for automatic handoff"
+  supplied_public=$(awk '{print $1 " " $2}' "$authorized_key")
+  [[ "$(awk '{print $1 " " $2}' <<< "$derived_public")" == "$supplied_public" ]] || die "client public and private keys do not match"
   if [[ -e "$state" ]]; then
     load_state
+    [[ "$requested_identity" == "$identity" ]] || die "another client identity is installed; recover before changing identities"
     [[ "$release_version" == "$installed_release" ]] || die "XPR-OS $installed_release is already installed; recover before changing releases"
+    [[ "$requested_sha" == "$release_archive_sha" ]] || die "a different release archive is installed; recover before replacing it"
     [[ "$(sha "$stock_backup")" == "$stock_sha" ]] || die "saved stock backup hash does not match state"
+    [[ "${ssh_owner:-}" == "$(invoker_user)" ]] || die "installed SSH owner differs or predates managed SSH; recover before reinstalling"
+    setup_ssh
     echo "XPR_INIT_INSTALL=ALREADY_INSTALLED"
     echo "XPR_INIT_RELEASE=$installed_release"
     return
   fi
+  setup_ssh
   original_sha=$(sha "$stock_conf")
   echo "XPR-OS Host Installer"
   echo "[PASS] MPSS configuration found: $stock_conf"
@@ -338,6 +382,7 @@ install_xpr() {
     --generic-payload "$release/payload/xpr-rootfs.cpio.gz" \
     --generic-bootstrap "$release/bootstrap/xpr-bootstrap.cpio.gz" \
     --authorized-key "$authorized_key" --output "$deploy_payload" \
+    --server-host-key "$server_key_dir/dropbear_ecdsa_host_key" \
     --bootstrap-output "$deploy_base" --report "$stage/key-provisioning.json"
 
   install -m 600 "$release/kernel/bzImage" "$root/current/bzImage"
@@ -366,6 +411,8 @@ stock_conf='$stock_conf'
 stock_backup='$backup'
 stock_sha='$original_sha'
 identity='$identity'
+ssh_owner='$(invoker_user)'
+server_known_hosts='$server_known_hosts'
 installed_release='$release_version'
 release_root='$release'
 release_archive_sha='$release_archive_sha'
@@ -384,7 +431,9 @@ EOF
   echo "XPR_INIT_RELEASE=$release_version"
   echo "XPR_INIT_STOCK_BACKUP=$backup"
   echo "[PASS] Automatic payload handoff installed"
-  echo "Run: micctrl --reset $mic && micctrl --wait $mic && micctrl --boot $mic"
+  echo "XPR-OS installation complete."
+  printf '\nBoot:\n    sudo micctrl --reset %s\n    sudo micctrl --wait %s\n    sudo micctrl --boot %s\n' "$mic" "$mic" "$mic"
+  printf '\nConnect:\n    ssh xpr-%s\n\nReturn to stock:\n    sudo xpr-init --recover\n' "$mic"
   trap - ERR
 }
 

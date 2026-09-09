@@ -7,7 +7,13 @@ tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 cd "$tmp"
 mkdir -p "$tmp/release/kernel" "$tmp/release/bootstrap" "$tmp/release/payload" \
-  "$tmp/release/tools" "$tmp/mpss" "$tmp/bin" "$tmp/home/.ssh"
+  "$tmp/release/tools/host" "$tmp/mpss" "$tmp/bin" "$tmp/home/.ssh"
+chmod 700 "$tmp/home/.ssh"
+cp "$repo/tools/host/xpr-ssh-setup.py" "$tmp/release/tools/host/"
+printf 'Host mic0\n    HostName 172.31.1.1\nHost elsewhere\n    User operator\n' > "$tmp/home/.ssh/config"
+cp "$tmp/home/.ssh/config" "$tmp/original-config"
+printf 'mic0 stock-host-record\n' > "$tmp/home/.ssh/known_hosts"
+cp "$tmp/home/.ssh/known_hosts" "$tmp/original-known-hosts"
 printf 'kernel\n' > "$tmp/release/kernel/bzImage"
 printf 'map\n' > "$tmp/release/kernel/System.map"
 printf 'bootstrap\n' > "$tmp/release/bootstrap/xpr-bootstrap.cpio.gz"
@@ -34,24 +40,12 @@ cp -a "$tmp/release" "$tmp/archive-root/xpr-os-0.1.0-rc6"
 tar -czf "$tmp/home/Downloads-xpr-os-0.1.0-rc6.tar.gz" -C "$tmp/archive-root" xpr-os-0.1.0-rc6
 mkdir -p "$tmp/home/Downloads"
 mv "$tmp/home/Downloads-xpr-os-0.1.0-rc6.tar.gz" "$tmp/home/Downloads/xpr-os-0.1.0-rc6.tar.gz"
-cat > "$tmp/bin/python" <<'EOF'
+cat > "$tmp/bin/getent" <<'EOF'
 #!/usr/bin/env bash
-shift
-while [[ $# -gt 0 ]]; do
-  case "$1" in
-    --generic-payload) payload=$2; shift 2 ;;
-    --generic-bootstrap) bootstrap=$2; shift 2 ;;
-    --output) output=$2; shift 2 ;;
-    --bootstrap-output) bootstrap_output=$2; shift 2 ;;
-    --report) report=$2; shift 2 ;;
-    *) shift ;;
-  esac
-done
-cp "$payload" "$output"
-cp "$bootstrap" "$bootstrap_output"
-printf '{}\n' > "$report"
+if [[ "$1" == ahostsv4 ]]; then echo '172.31.1.1 STREAM mic0'; exit; fi
+exit 2
 EOF
-chmod +x "$tmp/bin/python"
+chmod +x "$tmp/bin/getent"
 cat > "$tmp/bin/micctrl" <<'EOF'
 #!/usr/bin/env bash
 case "$1" in
@@ -85,8 +79,24 @@ grep -qx "release_archive_sha='$first_archive_sha'" "$tmp/state/mic0.env"
 test "$first_release_root" = "$tmp/state/releases/xpr-os-0.1.0-rc6-$first_archive_sha"
 grep -q "$tmp/root/current/xpr-bootstrap.cpio.gz" "$tmp/mpss/mic0.conf"
 grep -q 'enable --now xpr-init-handoff@mic0.service' "$tmp/systemctl.log"
+grep -qx 'Host xpr-mic0' "$tmp/home/.ssh/config"
+grep -q "IdentityFile.*$tmp/home/.ssh/id_rsa" "$tmp/home/.ssh/config"
+sed '1,/# END XPR-OS MANAGED SSH xpr-mic0/d' "$tmp/home/.ssh/config" | cmp - "$tmp/original-config"
+cmp "$tmp/home/.ssh/known_hosts" "$tmp/original-known-hosts"
+grep -q '^xpr-mic0 ecdsa-sha2-nistp256 ' "$tmp/home/.ssh/xpr_os_known_hosts"
+host_key_sha=$(sha256sum "$tmp/state/ssh/mic0/host_ecdsa" | awk '{print $1}')
+client_key_sha=$(sha256sum "$tmp/home/.ssh/id_rsa" | awk '{print $1}')
+config_sha=$(sha256sum "$tmp/home/.ssh/config" | awk '{print $1}')
 env "${common_env[@]}" "$tmp/sbin/xpr-init" --install > "$tmp/reinstall.out"
 grep -qx 'XPR_INIT_INSTALL=ALREADY_INSTALLED' "$tmp/reinstall.out"
+if env "${common_env[@]}" SUDO_USER=anotheruser "$tmp/sbin/xpr-init" --install > "$tmp/other-user.out" 2>&1; then
+  echo 'cross-user reinstall unexpectedly succeeded' >&2
+  exit 1
+fi
+grep -q 'installed SSH owner differs' "$tmp/other-user.out"
+test "$(sha256sum "$tmp/home/.ssh/config" | awk '{print $1}')" = "$config_sha"
+test "$(sha256sum "$tmp/home/.ssh/id_rsa" | awk '{print $1}')" = "$client_key_sha"
+test "$(grep -c '^Host xpr-mic0$' "$tmp/home/.ssh/config")" = 1
 env "${common_env[@]}" "$tmp/sbin/xpr-init" --status > "$tmp/status.out"
 grep -qx 'XPR_INIT_INSTALLED=yes' "$tmp/status.out"
 grep -qx "XPR_INIT_RELEASE_ARCHIVE_SHA=$first_archive_sha" "$tmp/status.out"
@@ -153,6 +163,12 @@ if env "${common_env[@]}" "$tmp/sbin/xpr-init" --install --release "$tmp/home/Do
   echo 'incomplete dedicated key unexpectedly accepted' >&2; exit 1
 fi
 grep -q 'dedicated XPR key state is incomplete' "$tmp/incomplete.out"
+cmp "$tmp/home/.ssh/known_hosts" "$tmp/original-known-hosts"
+sed '1,/# END XPR-OS MANAGED SSH xpr-mic0/d' "$tmp/home/.ssh/config" | cmp - "$tmp/original-config"
+test "$(sha256sum "$tmp/state/ssh/mic0/host_ecdsa" | awk '{print $1}')" = "$host_key_sha"
+echo 'XPR_SSH_ALIAS_TESTS=PASS'
+echo 'XPR_SSH_CONFIG_IDEMPOTENCE=PASS'
+echo 'STOCK_SSH_STATE_PRESERVED=PASS'
 # The handoff's archive stream must not use the normal SSH probe's -n option.
 grep -q 'local -a payload_ssh_opts=("${ssh_opts\[@\]:1}")' "$repo/tools/host/xpr-init"
 grep -q 'ssh "${payload_ssh_opts\[@]}" "$mic" '\''cat > /tmp/xpr-rootfs.cpio.gz'\'' < "$payload"' "$repo/tools/host/xpr-init"

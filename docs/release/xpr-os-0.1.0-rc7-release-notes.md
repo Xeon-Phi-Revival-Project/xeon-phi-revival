@@ -2,7 +2,7 @@
 
 RC6 proved the revived operating environment. RC7 makes that environment more
 practical to use by adding source-accounted CPython 3.12.13 and packaging the
-validated `xpr-init` host integration path. This remains prerelease software
+`xpr-init` host integration path with an isolated XPR SSH alias. This remains prerelease software
 for legacy Intel Xeon Phi hardware.
 
 ## Highlights
@@ -11,9 +11,10 @@ for legacy Intel Xeon Phi hardware.
 - `xpr-init` provides installation, automatic final-root handoff, status, and
   exact stock recovery.
 - The public-clean root uses fresh source-built K1OM runtime inputs.
-- A second clean staging produced byte-identical binary and source archives.
-- The exact candidate passed final PID 1, networking, SSH, native runtime, and
-  Python validation on real hardware.
+- First installation configures `ssh xpr-mic0` with a persistent,
+  deployment-specific server identity and strict host-key checking.
+- Exact candidate validation and reproducibility results accompany the frozen
+  archives as external evidence; embedded metadata is not changed after testing.
 
 ## Python
 
@@ -25,20 +26,17 @@ threaded calculation. Broad optional extension-module support is not claimed.
 
 ## Validation
 
-The exact binary archive listed below was tested on an Intel Xeon Phi 5110P
-using CentOS 7.4 and MPSS 3.4.10. Automatic handoff reached the final XPR
-`/sbin/init` as PID 1, micveth became ready, authenticated Dropbear SSH worked,
-and the hello, pthread, and `dlopen` regression programs passed. Python 3.12.13
-and its core/threading smoke passed. `xpr-init --recover` restored the exact
-stock configuration hash and stock SSH; the recovered stock image used PID 1
-`/sbin/init.sysvinit`.
+The tested hardware baseline is Intel Xeon Phi 5110P with CentOS 7.4 and MPSS
+3.4.10. Earlier candidates validated the runtime and Python. Candidate G changes
+host integration and deployment-only SSH host-key provisioning; its own hardware
+results must be checked in the external Candidate G validation record.
 
 ## Reproducibility And Source Accounting
 
-The second staging was byte-identical. The release set includes corresponding
-source, a validated SPDX 2.3 SBOM, and a notices/license bundle. Static audits
-found no Python 3.5 payload, MPSS SDK binary payload, private keys, or universal
-administrator credentials.
+The release set pairs the binary archive with corresponding source, SPDX 2.3,
+and notices/licenses. Consult external checksums and validation results for the
+exact candidate. Generic archives contain no deployment keys; installation
+creates private per-host deployment images instead.
 
 ## Host Workflow
 
@@ -52,11 +50,17 @@ sudo xpr-init --install
 sudo micctrl --reset mic0
 sudo micctrl --wait mic0
 sudo micctrl --boot mic0
-ssh mic0
+ssh xpr-mic0
 python3 --version
 ```
 
-Return to stock MPSS with `sudo xpr-init --recover`.
+Return to stock MPSS with `sudo xpr-init --recover`, then use normal `ssh mic0`.
+Installation preserves the user's normal stock SSH configuration and known-host
+records. The XPR alias and its separate `~/.ssh/xpr_os_known_hosts` persist for
+reinstallation; the alias must not authenticate stock uOS while stock is active.
+The client private key stays on the host. A separate ECDSA P-256 server key is
+stored privately under `/var/lib/xpr-init/ssh/mic0` and provisioned into the
+RAM-backed deployment roots. Do not share those private deployment images.
 
 ## Limitations
 
@@ -71,14 +75,11 @@ Return to stock MPSS with `sudo xpr-init --recover`.
 ## Artifacts
 
 - `xpr-os-0.1.0-rc7.tar.gz`
-  - SHA-256: `f169ffea39b653ed583c8b84b1c9045393749586e9229acf9d7ab2538df49c86`
 - `xpr-os-0.1.0-rc7-sources.tar.gz`
-  - SHA-256: `671b7230507d0efac76eafd351f24750af86866c26a9c33a24e807e2e6f3e3de`
 - `xpr-os-0.1.0-rc7.spdx.json`
-  - SHA-256: `eb09d81c6ce10841724dd2a742832d551c30fca322fb1efbe57fd2434177cab8`
 - `xpr-os-0.1.0-rc7-notices.tar.gz`
-  - SHA-256: `d0fc20f19e6e476165eef600f689677962d6ddb84384aa56584655088efd6041`
 - `SHA256SUMS`
-  - SHA-256: `bb44b2ef8379477b6f61442f8eedf80514ef86adfa20f1563236f375a8ded8b0`
+
+Use the external `SHA256SUMS`; an archive cannot embed its own final hash.
 
 Publication and tagging remain subject to owner authorization.

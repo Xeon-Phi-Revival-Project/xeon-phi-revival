@@ -156,7 +156,7 @@ def gzip_bytes(plain):
     return data[:4] + b"\0\0\0\0" + data[8:]
 
 
-def provision_payload(compressed, key, label):
+def provision_payload(compressed, key, label, host_key=None):
     plain, trailing, members = NEWC.gunzip(compressed)
     if trailing:
         raise RuntimeError("%s has bytes after the gzip stream" % label)
@@ -170,10 +170,19 @@ def provision_payload(compressed, key, label):
         raise RuntimeError("%s lacks root directory" % label)
     NEWC.append_entry(entries, "root/.ssh", 0o040700, b"")
     NEWC.append_entry(entries, "root/.ssh/authorized_keys", 0o100600, key)
+    if host_key is not None:
+        for entry in entries:
+            if entry["name"] == b"etc/dropbear" and entry["fields"][1] & 0o170000 != 0o040000:
+                raise RuntimeError("generic etc/dropbear must be a directory")
+        if any(name.startswith("etc/dropbear/dropbear_") for name in names):
+            raise RuntimeError("generic image already contains server host key material")
+        if "etc/dropbear" not in names:
+            NEWC.append_entry(entries, "etc/dropbear", 0o040700, b"")
+        NEWC.append_entry(entries, "etc/dropbear/dropbear_ecdsa_host_key", 0o100600, host_key)
     return gzip_bytes(NEWC.serialize(entries, b"")), members, trailer_offset
 
 
-def provision_bootstrap(compressed, key):
+def provision_bootstrap(compressed, key, host_key=None):
     plain, trailing, members = NEWC.gunzip(compressed)
     if trailing:
         raise RuntimeError("generic bootstrap has bytes after the gzip stream")
@@ -183,7 +192,7 @@ def provision_bootstrap(compressed, key):
     matches = [entry for entry in entries if entry["name"] == b"xpr-rootfs.cpio.gz"]
     if len(matches) != 1:
         raise RuntimeError("generic bootstrap lacks exactly one nested xpr-rootfs.cpio.gz")
-    nested, nested_members, nested_trailer = provision_payload(matches[0]["payload"], key, "nested bootstrap root")
+    nested, nested_members, nested_trailer = provision_payload(matches[0]["payload"], key, "nested bootstrap root", host_key)
     NEWC.replace_payload(matches[0], nested)
     return gzip_bytes(NEWC.serialize(entries, b"")), members, trailer_offset, nested_members, nested_trailer
 
@@ -192,11 +201,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--generic-payload", required=True)
     parser.add_argument("--authorized-key", required=True)
+    parser.add_argument("--server-host-key", help="deployment-only Dropbear ECDSA P-256 private host key")
     parser.add_argument("--output", required=True)
     parser.add_argument("--report", required=True)
     parser.add_argument("--generic-bootstrap", help="generic outer Base CPIO to provision for bootstrap SSH")
     parser.add_argument("--bootstrap-output", help="deployment-only outer Base CPIO output")
     args = parser.parse_args()
+    os.umask(0o077)
     if os.path.exists(args.output) or os.path.exists(args.report):
         raise RuntimeError("refusing to overwrite deployment output or report")
     if bool(args.generic_bootstrap) != bool(args.bootstrap_output):
@@ -204,8 +215,23 @@ def main():
     if args.bootstrap_output and os.path.exists(args.bootstrap_output):
         raise RuntimeError("refusing to overwrite deployment bootstrap output")
     key, key_type = read_public_key(args.authorized_key)
+    host_key = None
+    if args.server_host_key:
+        if os.path.islink(args.server_host_key) or not os.path.isfile(args.server_host_key):
+            raise RuntimeError("server host key must be a regular non-symlink file")
+        if not 1 <= os.path.getsize(args.server_host_key) <= 512:
+            raise RuntimeError("invalid server host key size")
+        host_key = open(args.server_host_key, "rb").read()
+        offset = 0
+        values = []
+        for name in ("type", "curve", "point", "scalar"):
+            value, offset = _string(host_key, offset, name)
+            values.append(value)
+        if offset != len(host_key) or values[:2] != [b"ecdsa-sha2-nistp256", b"nistp256"] or len(values[2]) != 65 or values[2][:1] != b"\4":
+            raise RuntimeError("invalid Dropbear ECDSA P-256 host key")
+        _positive_mpint(values[3], "host scalar", maximum_bytes=33)
     compressed = open(args.generic_payload, "rb").read()
-    deployment_payload, members, trailer_offset = provision_payload(compressed, key, "generic payload")
+    deployment_payload, members, trailer_offset = provision_payload(compressed, key, "generic payload", host_key)
     open(args.output, "wb").write(deployment_payload)
     report = {
         "schema": "xpr-deployment-key-provisioning-v1",
@@ -224,7 +250,7 @@ def main():
     }
     if args.generic_bootstrap:
         bootstrap = open(args.generic_bootstrap, "rb").read()
-        deployment_bootstrap, outer_members, outer_trailer, nested_members, nested_trailer = provision_bootstrap(bootstrap, key)
+        deployment_bootstrap, outer_members, outer_trailer, nested_members, nested_trailer = provision_bootstrap(bootstrap, key, host_key)
         open(args.bootstrap_output, "wb").write(deployment_bootstrap)
         report.update({
             "generic_bootstrap_sha256": sha256(bootstrap),

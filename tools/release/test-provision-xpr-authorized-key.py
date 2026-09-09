@@ -65,6 +65,25 @@ def main():
     for label, payload, accepted in cases:
         assert_case(label, payload, accepted)
     print("SSH_KEY_NEGATIVE_VALIDATION=PASS cases=%d" % len(cases))
+    host_key = b"deployment-fixture-not-a-real-private-key"
+    for mode in (0o040700, 0o120777):
+        entries = [PROVISION.NEWC.new_entry("root", 0o040700, b""),
+                   PROVISION.NEWC.new_entry("etc/dropbear", mode, b""),
+                   PROVISION.NEWC.new_entry("TRAILER!!!", 0, b"")]
+        generic = PROVISION.gzip_bytes(PROVISION.NEWC.serialize(entries, b""))
+        try:
+            deployed, unused, unused2 = PROVISION.provision_payload(generic, record(valid), "fixture", host_key)
+        except RuntimeError:
+            assert mode == 0o120777
+            continue
+        assert mode == 0o040700
+        plain, unused, unused2 = PROVISION.NEWC.gunzip(deployed)
+        result, unused, unused2 = PROVISION.NEWC.parse_newc(plain)
+        hosts = [e for e in result if e["name"] == b"etc/dropbear/dropbear_ecdsa_host_key"]
+        assert len(hosts) == 1 and hosts[0]["fields"][1] == 0o100600
+        assert hosts[0]["payload"] == host_key
+        assert PROVISION.NEWC.serialize(entries, b"") == PROVISION.NEWC.gunzip(generic)[0]
+    print("SSH_HOST_KEY_PROVISIONING_TESTS=PASS")
 
 
 if __name__ == "__main__":

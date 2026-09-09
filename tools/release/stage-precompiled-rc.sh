@@ -235,6 +235,7 @@ install -m 0755 tools/release/validate-release-consistency.py "$binary_root/tool
 install -m 0755 tools/release/validate-license-bundle.py "$binary_root/tools/validate-license-bundle.py"
 install -m 0644 tools/uos/newc_archive.py "$binary_root/tools/uos/newc_archive.py"
 install -m 0755 tools/host/xpr-init "$binary_root/tools/host/xpr-init"
+install -m 0755 tools/host/xpr-ssh-setup.py "$binary_root/tools/host/xpr-ssh-setup.py"
 install -m 0644 LICENSE NOTICE.md "$binary_root/"
 install -m 0644 "docs/release/xpr-os-$version-release-notes.md" "$binary_root/README.md"
 install -m 0644 "docs/release/xpr-os-$version-distribution-review.md" \
