@@ -57,13 +57,17 @@ rejected-candidate boundaries, and command-level evidence.
 
 ## Publication Boundary
 
-The candidate is not tagged or published. Its archive intentionally retains
+At the pre-publication checkpoint, the archive intentionally retains
 pre-validation metadata because it was frozen before hardware testing; the
 external validation record now binds the result to that exact immutable hash.
 
 `RC7_PUBLICATION_PREP=PASS`
 
-`RC7_PUBLICATION=AWAITING_OWNER_AUTHORIZATION`
+`RC7_PUBLICATION=AUTHORIZED_AFTER_FINAL_CHECKS`
+
+The owner's publication task authorizes the final documentation commit as the
+tag target after checks pass. The GitHub release records the publication result;
+the artifact build revision remains `079521e` regardless of later documentation.
 
 `TOOLKIT_RC7_INCLUSION=HOLD_HUMAN_REVIEW`
 

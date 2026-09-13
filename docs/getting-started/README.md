@@ -1,7 +1,7 @@
 # Getting Started With XPR-OS
 
-**Choose your release:** [RC7 Candidate G2](rc7.md) is an unpublished tester
-path with its packaged installer and `ssh xpr-mic0`. The instructions below
+**Choose your release:** [RC7](rc7.md) is the current prerelease
+with its packaged installer and `ssh xpr-mic0`. The instructions below
 are for published RC6 and its pinned older installer. Do not mix the two.
 
 The tested RC6 path uses an Intel Xeon Phi 5110P attached to a CentOS 7.4 host

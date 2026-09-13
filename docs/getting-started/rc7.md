@@ -1,9 +1,11 @@
 # Try XPR-OS RC7
 
-RC7 Candidate G2 is **unpublished**. This guide is for owner-provided candidate
-files; it does not announce a public download. The tested setup is an Intel
+Download the five named assets from the [RC7 prerelease](https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc7).
+The release uses the exact hardware-validated Candidate G2. The tested setup is an Intel
 Xeon Phi 5110P with CentOS 7.4 and separately obtained Intel MPSS 3.4.10.
 Other cards and host stacks are not validated by these instructions.
+The guide was retested on an existing working host; a fresh CentOS and MPSS
+installation from scratch was not validated.
 
 ## 1. Start With Working Stock MPSS
 
@@ -56,8 +58,42 @@ Under sudo, SSH configuration belongs to the invoking user. Use that same user
 for subsequent SSH commands, without sudo. Never share private deployment
 images or keys. See [SSH details](ssh-access.md).
 
-The command is now available from any directory. Explicit `--release` avoids
-auto-discovery ambiguity between the archive and its extracted directory.
+### Automatic Search Or An Explicit Path
+
+Once the command is installed, you can let it search automatically:
+
+```bash
+sudo xpr-init --install
+```
+
+It searches directly in these locations, without searching subdirectories:
+
+- The current directory: `xpr-os-*.tar.gz` archives and `xpr-os-*` directories.
+- The invoking user's `~/Downloads`: the same archive and directory patterns.
+- The invoking user's home directory: `xpr-os-*.tar.gz` archives.
+
+Under sudo, the home locations belong to the invoking user, not automatically
+root. Exactly one matching candidate must be found, and it must then pass
+release verification. If none or multiple are found, the installer stops and
+asks for an explicit path rather than guessing. Matching source/notices
+archives or both an archive and extracted directory can make discovery
+ambiguous. Do not delete or move your files just to force discovery.
+
+To choose a custom location or resolve ambiguity, point directly to the binary
+archive (recommended), or to its extracted release directory:
+
+```bash
+sudo xpr-init --install --release /path/to/xpr-os-0.1.0-rc7.tar.gz
+# Alternative: an already extracted binary release directory
+sudo xpr-init --install --release /path/to/xpr-os-0.1.0-rc7
+```
+
+These are alternatives; run only the one you need. The command is available
+from any directory. This guide uses the explicit archive path because its
+files live in `~/Downloads/xpr-rc7`, which automatic search does not descend
+into. Being inside an extracted release directory does not select that
+directory automatically.
+
 Installation saves stock configuration and enables automatic handoff; it does
 not boot the card itself.
 
@@ -183,4 +219,5 @@ The [G2 validation record](../release/xpr-os-0.1.0-rc7-candidate-g-validation.md
 binds testing to exact archive hashes. This guide is an external documentation
 update; it does not change the frozen candidate. The standalone K1OM toolkit
 binary remains excluded pending its separate qualified terms review.
-No RC7 tag or public release is authorized by this guide.
+Use the five named release assets, not GitHub's automatically generated source
+snapshot downloads, for the paired runtime and corresponding-source delivery.

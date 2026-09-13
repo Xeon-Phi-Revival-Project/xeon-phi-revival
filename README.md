@@ -1,168 +1,104 @@
 # Xeon Phi Revival Project
 
-[![Latest release](https://img.shields.io/github/v/release/Xeon-Phi-Revival-Project/xeon-phi-revival?include_prereleases&label=XPR-OS)](https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc6)
+[![XPR-OS prerelease](https://img.shields.io/badge/XPR--OS-0.1.0--rc7-blue)](https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc7)
 [![License](https://img.shields.io/github/license/Xeon-Phi-Revival-Project/xeon-phi-revival)](LICENSE)
 [![Tested hardware](https://img.shields.io/badge/tested-Xeon%20Phi%205110P-2ea44f)](docs/hardware/supported-hardware.md)
 
 **A preservation and software-revival project for Intel Xeon Phi Knights Corner
-(KNC/K1OM) coprocessors.** We are rebuilding practical paths to boot, program,
-study, and use this historical manycore platform with public, reproducible,
-and evidence-led tooling.
+(KNC/K1OM) coprocessors.** We are rebuilding practical ways to boot, program,
+study and use this historical Intel MIC platform through source-accounted
+software, reproducible work and real-hardware evidence.
 
-> **Current milestone:** [XPR-OS 0.1.0-rc6](https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc6)
-> is the first public release candidate. Its project-built K1OM runtime was
-> tested on an Intel Xeon Phi 5110P. It remains a prerelease, and other KNC
-> models are not yet project-tested.
+## Current Prerelease: XPR-OS 0.1.0-rc7
 
-> **RC7 testers:** Candidate G2 adds packaged host integration, `ssh xpr-mic0`,
-> and CPython 3.12.13. It is not published. Follow the separate
-> [RC7 candidate guide](docs/getting-started/rc7.md) with owner-provided artifacts.
-> Do not use the current RC7 installer with RC6.
+[XPR-OS RC7](https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc7)
+is a revived Linux operating environment for Knights Corner. It includes:
 
-## What This Project Covers
+- A project-built K1OM kernel, five MIC modules, bootstrap and final XPR uOS.
+- Packaged `xpr-init` for deployment, automatic handoff, status and stock recovery.
+- Plain `ssh xpr-mic0` with deployment-specific authentication and isolated trust.
+- Source-accounted **CPython 3.12.13 core**.
+- Corresponding source, SPDX, notices and checksums. Independent G2 staging
+  produced byte-identical binary and source archives.
 
-| Track | Purpose | Current state |
-| --- | --- | --- |
-| **XPR-OS** | A project-built K1OM boot and Linux userspace environment | RC6 published and hardware-tested on 5110P |
-| **K1OM tools** | Native compilers, binutils, ABI, sysroot, and runtime research | Active research and reproducibility work |
-| **Software ports** | Practical K1OM applications such as Python and Doom | Experimental, built on the runtime baseline |
-| **Hardware preservation** | Bring-up, cooling, MPSS behavior, and recovery evidence | 5110P baseline documented |
-| **Historical research** | KNC, uOS, kernel, module, and release-engineering records | Preserved and clearly indexed |
+The validated target is **Intel Xeon Phi 5110P**, using an existing working
+**CentOS 7.4 + Intel MPSS 3.4.10** host. Fresh host-OS/MPSS installation from
+scratch was not validated. Other KNC models are not yet project-tested.
+This is an experimental prerelease, not a modern production Linux distribution.
 
-## Start Here
+## Quick Start: Try XPR-OS
 
-### Quick Start: Try XPR-OS
+1. Check [hardware requirements](docs/hardware/supported-hardware.md) and establish
+   working [stock MPSS boot and SSH](docs/getting-started/mpss-setup.md).
+2. Download the five named [RC7 release assets](https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc7).
+   Install from `xpr-os-0.1.0-rc7.tar.gz`, not the source archive.
+3. Follow the [RC7 installation and use guide](docs/getting-started/rc7.md):
+   verify checksums, extract the archive, install its `xpr-init`, and select
+   that archive explicitly.
 
-1. Check the [tested hardware and host requirements](docs/hardware/supported-hardware.md).
-2. Install or verify [MPSS 3.4.10 on the host](docs/getting-started/mpss-setup.md).
-3. Download [XPR-OS 0.1.0-rc6](https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc6). For the simplest `xpr-init` auto-discovery path, put the binary archive (`xpr-os-0.1.0-rc6.tar.gz`) in the invoking user's `~/Downloads` folder. If it is stored elsewhere, pass it explicitly, for example: `sudo xpr-init --install --release /path/to/xpr-os-0.1.0-rc6.tar.gz`.
-4. Get the repository and install the RC6-compatible `xpr-init` host helper. `xpr-init` was validated after RC6 was frozen, so it is **not** contained in the RC6 release archives. Git is required for this path; on the tested CentOS 7 host install it first if needed:
-
-   ```bash
-   sudo yum install -y git
-   git clone https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival.git
-   cd xeon-phi-revival
-   git show 61ab99ae15d0327b3c6b20fa5d6318cab2e76dcc:tools/host/xpr-init > /tmp/xpr-init-rc6
-   sudo install -m 755 /tmp/xpr-init-rc6 /usr/local/sbin/xpr-init
-   sudo ln -sfn /usr/local/sbin/xpr-init /usr/sbin/xpr-init
-   sudo xpr-init --install
-   sudo micctrl --reset mic0
-   sudo micctrl --wait mic0
-   sudo micctrl --boot mic0
-   ```
-
-   If no compatible RSA key exists, `xpr-init` creates a dedicated
-   `~/.ssh/xpr_os_rsa` key pair automatically and provisions only its public key.
-   With that generated key, connect with:
-
-   ```bash
-   ssh -o IdentitiesOnly=yes -i ~/.ssh/xpr_os_rsa mic0
-   ```
-
-   If `xpr-init` reused an existing compatible RSA key, use that key's matching
-   private key instead. When finished, restore stock MPSS with
-   `sudo xpr-init --recover`.
-
-   See the [xpr-init guide](docs/getting-started/xpr-init-preview.md) for
-   prerequisites, auto-discovery, reboot behavior, and explicit release/key
-   options.
-
-The tested path uses a separately obtained MPSS 3.4.10 host installation. It
-does not flash firmware or modify persistent card storage, and it has a
-[documented rollback path](docs/getting-started/rollback.md).
-
-### I want to learn or contribute
-
-| Goal | Read |
-| --- | --- |
-| Understand Knights Corner, K1OM, and MPSS | [Concepts](docs/concepts/README.md) |
-| Compile and run native K1OM code | [From Card To Code](docs/getting-started-card-to-code.md) |
-| Build or study XPR-OS | [Development](docs/development/README.md) |
-| Browse preserved technical evidence | [Research](docs/research/README.md) |
-| Report hardware results or contribute docs/code | [Contributing](CONTRIBUTING.md) |
-
-## xpr-init Host Integration
-
-`xpr-init` is XPR-OS's host-side installation, integration, and recovery helper
-for Intel MPSS. It prepares an existing, working MPSS host to boot XPR-OS while
-preserving the normal `micctrl` control model used for Knights Corner hardware.
-It does **not** replace MPSS or `micctrl`.
-
-On `--install`, `xpr-init` verifies the selected XPR-OS release, selects one
-compatible RSA key pair or generates a dedicated XPR key when none exists,
-provisions only the public key into deployment-specific copies, preserves and
-hashes the stock MPSS configuration, installs the XPR kernel/bootstrap/root
-payload, and enables the automatic bootstrap-to-final-root handoff service.
-
-For **RC6 with the pinned helper above**, the validated first-use path is:
+After installing the packaged command, the host workflow is:
 
 ```bash
-sudo xpr-init --install
+sudo xpr-init --install --release /absolute/path/to/xpr-os-0.1.0-rc7.tar.gz
 sudo micctrl --reset mic0
 sudo micctrl --wait mic0
 sudo micctrl --boot mic0
-# If xpr-init generated the dedicated key:
-ssh -o IdentitiesOnly=yes -i ~/.ssh/xpr_os_rsa mic0
+# Complete the guide's final-root readiness check before connecting.
+ssh xpr-mic0
+# Now on the card:
+python3 --version
 ```
 
-When the session is finished, `sudo xpr-init --recover` restores the saved stock
-MPSS configuration, resets and boots the card back into the stock environment,
-and verifies the recovery path. This complete install -> boot -> automatic
-handoff -> final SSH -> recovery workflow has been live-validated on the
-project's Intel Xeon Phi 5110P with CentOS 7.4 and MPSS 3.4.10.
+Bare `sudo xpr-init --install` can search automatically when exactly one release
+is found. The guide explains search locations, explicit paths and RSA key
+selection/generation. No shared root password or universal key is supplied.
 
-A fresh-user-state validation on that known-good host also passed release
-auto-discovery, automatic dedicated RSA-key generation, handoff, authenticated
-SSH, the hello/pthread/dlopen runtime smokes, and exact stock recovery. This was
-not a literal fresh CentOS/MPSS installation.
+When finished, **exit the card shell**, then on the host:
 
-The host-side XPR installation, saved stock configuration, deployed artifacts,
-and enabled handoff service also persisted through a normal host reboot without
-rerunning `xpr-init --install`. On the validated host, `mic0` was observed
-already online using the installed XPR kernel after reboot and the persisted
-handoff completed successfully. The exact MPSS startup path responsible for that
-card boot has not yet been isolated, so this behavior is documented as observed
-on the tested baseline rather than generalized to every MPSS host. If `mic0` is
-not online with XPR, use the normal `micctrl --reset`, `--wait`, and `--boot`
-lifecycle.
-
-`xpr-init` was developed after the frozen RC6 release archives were published,
-so RC6 uses the pinned compatible helper shown above, not the newer RC7-only
-helper at the tip of the repository. See the [xpr-init guide](docs/getting-started/xpr-init-preview.md)
-for the validated workflow and advanced options.
-
-## XPR-OS RC6 At A Glance
-
-- Project K1OM-compatible kernel and five required MIC modules.
-- Project bootstrap and final XPR `/sbin/init` as PID 1.
-- micveth networking, Dropbear SSH, and deployment-specific RSA key handling.
-- Native dynamic hello, pthread, and `dlopen` validation.
-- Rollback-protected 5110P validation repeatedly restored the exact stock MPSS baseline.
-- Deterministic binary and corresponding-source archives with SPDX, notices,
-  and release metadata.
-
-Read [Getting Started](docs/getting-started/README.md) for the user path and
-[Release Documentation](docs/release/README.md) for validation evidence.
-
-## Project Principles
-
-```text
-Evidence before assumptions.
-Rollback before risky hardware changes.
-Open project work separated from proprietary Intel components.
-Historical research preserved, but never confused with current instructions.
+```bash
+sudo xpr-init --recover
+ssh mic0
 ```
 
-The project is AI-assisted and Codex-driven, but hardware claims are accepted
-only when real-card evidence and repeatable validation support them.
+XPR and stock SSH identities remain separate. Normal installations do not
+automatically roll back after a test timer: use XPR until you choose recovery.
+Card-side files are RAM-resident and lost on reset. No firmware flashing occurs.
+See the guide for card-only reboot rearming and [recovery details](docs/getting-started/rollback.md).
+
+Published **XPR-OS 0.1.0-rc6** remains unchanged. Its
+[older pinned-installer workflow](docs/getting-started/xpr-init-preview.md#frozen-rc6-workflow)
+is separate; do not combine RC6 with the current RC7 installer.
+
+## Beyond The OS
+
+| Track | Purpose | Current boundary |
+| --- | --- | --- |
+| XPR-OS | Revived K1OM boot and Linux userspace | RC7 validated on 5110P |
+| K1OM toolchain | Source-built compiler, binutils, ABI and sysroot work | Technically validated; separate publication hold, not bundled in RC7 |
+| Software ports | Practical applications on the revived runtime | Python 3.12.13 core included; broader ports remain experimental |
+| Hardware preservation | Bring-up, cooling, MPSS behavior and recovery | Evidence-led, model-specific testing |
+| Historical research | Intel MIC, KNC, uOS and toolchain knowledge | Preserved separately from current instructions |
+
+- [Documentation](docs/README.md)
+- [Concepts](docs/concepts/README.md)
+- [Development](docs/development/README.md)
+- [Historical research](docs/research/README.md)
+- [Release evidence and inventory](docs/release/xpr-os-0.1.0-rc7-candidate-g-validation.md)
+- [Contributing](CONTRIBUTING.md)
 
 ## Important Boundaries
 
-Intel MPSS host software, firmware, stock card-side userspace, compiler
-installers, and extracted sysroots are **not** redistributed here. Users obtain
-required Intel material separately under its applicable terms. XPR-OS is not
-affiliated with, endorsed by, or supported by Intel.
+MPSS is obtained separately and remains the validated physical-card host-control
+stack. XPR does not replace its host driver or `micctrl`.
 
-Project-authored material is MIT-licensed; third-party material retains its own
-licenses. See [Source Index](docs/source-index.md) and
-[Release Documentation](docs/release/README.md).
+Python's documented core operations pass, but optional-extension coverage is
+not complete. The known `<exec_prefix>` warning may appear; see the guide.
+The standalone toolkit binary is excluded from RC7 pending qualified review
+of its separate KNC-binutils source-distribution terms.
+
+Project-authored material is MIT-licensed; third-party components retain their
+licenses and notices. See [Source Index](docs/source-index.md).
+No private credentials, Intel firmware or MPSS SDK binaries ship in RC7.
+
+The project is AI-assisted, but claims require source/build evidence and actual
+hardware tests. XPR is independent of, and not endorsed by, Intel.

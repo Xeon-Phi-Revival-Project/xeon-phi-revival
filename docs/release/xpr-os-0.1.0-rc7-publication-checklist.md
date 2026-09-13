@@ -5,10 +5,12 @@ this document does not itself authorize or perform a tag, release, or upload.
 
 Final candidate: G2, built from
 `079521e895b82fb3ccec2fe0b29cfb3ea0e1bb1d`. The former Candidate F tag proposal
-is superseded. The owner must select and explicitly authorize a tag target
-containing the final G2 evidence; no tag is created by this checklist.
+is superseded. The owner authorized publication after final checks in the
+September 13 publication task. The annotated tag must select the final
+documentation commit descended from `21eb693`, while preserving G2's build
+revision and exact artifact hashes. Remote verification is required after push.
 
-- [ ] Owner approves XPR-OS 0.1.0-rc7 publication.
+- [x] Owner conditionally authorizes publication after all final gates pass.
 - [x] Binary SHA-256 matches the hardware-validated candidate.
 - [x] Corresponding-source SHA-256 matches the validated source archive.
 - [x] SPDX 2.3 sidecar validation is confirmed.
@@ -19,8 +21,8 @@ containing the final G2 evidence; no tag is created by this checklist.
 - [x] Candidate G2 contains archive-hash-bound `xpr-init` extraction and isolated persistent SSH identity.
 - [x] The [hardware validation record](xpr-os-0.1.0-rc7-candidate-g-validation.md) is final.
 - [x] The held standalone toolkit binary is excluded from RC7 assets.
-- [ ] Owner reviews and approves the [release notes draft](xpr-os-0.1.0-rc7-release-notes.md).
-- [ ] Owner selects and approves the final tag target.
+- [x] Owner authorizes the [release notes](xpr-os-0.1.0-rc7-release-notes.md) when materially consistent with the specified facts.
+- [x] Owner authorizes tagging the final release-documentation commit after checks.
 - [ ] GitHub release is explicitly marked as a prerelease.
 
 Final non-destructive audit:
@@ -38,11 +40,11 @@ RC7_BUILD_AB=PASS
 XPR_INIT_HASH_BOUND_CACHE=PASS
 ```
 
-Current boundary:
+Pre-publication checkpoint (GitHub records the subsequent publication outcome):
 
 ```text
 XPR_OS_RC7_CANDIDATE=TECHNICALLY_PASS
 RC7_PUBLICATION_PREP=PASS
-RC7_PUBLICATION=AWAITING_OWNER_AUTHORIZATION
+RC7_PUBLICATION=AUTHORIZED_AFTER_FINAL_CHECKS
 TOOLKIT_RC7_INCLUSION=HOLD_HUMAN_REVIEW
 ```

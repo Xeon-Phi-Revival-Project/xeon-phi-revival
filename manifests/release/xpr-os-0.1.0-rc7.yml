@@ -32,8 +32,8 @@ artifacts:
     sha256: 8247c9f44f0042778f5d60db942afbf0726d6765df292e87f00cefcc84ef312e
     size: 379
 publication:
-  allowed: false
-  status: awaiting-owner-authorization
+  allowed: true
+  status: authorized-after-final-checks
 external_prerequisite:
   - Intel MPSS 3.4.10 host installation obtained separately by the user
 excluded_components:

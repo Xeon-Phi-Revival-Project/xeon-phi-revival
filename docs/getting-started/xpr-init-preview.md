@@ -1,13 +1,13 @@
 # xpr-init Host Integration
 
-## RC7 Candidate G
+## RC7
 
 Use the complete [RC7 install, readiness, use and recovery guide](rc7.md).
 The short reference below assumes you have already verified the candidate.
 
-Candidate G is unpublished. Use its packaged installer, not an older release's
+RC7 uses the validated G2 artifacts. Use its packaged installer, not an older release's
 installer, and do not use the current installer with frozen RC6: RC6 lacks the
-new SSH setup helper. From an extracted Candidate G binary directory:
+new SSH setup helper. From an extracted RC7 Candidate G2 binary directory:
 
 ```bash
 sudo install -m 755 tools/host/xpr-init /usr/local/sbin/xpr-init
