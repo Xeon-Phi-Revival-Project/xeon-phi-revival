@@ -1,13 +1,16 @@
-# Verifying A Running XPR-OS System
+# Verify XPR-OS
 
-Run these commands after connecting to `mic0`. They prove that the final XPR
-root, not merely the bootstrap, is running.
+For RC7, first complete the [readiness check](rc7.md#3-boot-and-wait-for-the-final-root),
+then run `ssh xpr-mic0` on the host. RC6 uses its
+[separate SSH instructions](ssh-access.md#frozen-rc6).
+
+On the **card**:
 
 ```bash
-cat /proc/1/comm
 cat /run/xpr-os-init
 uname -m
-cat /etc/os-release
+/bin/busybox tr '\000' ' ' </proc/1/cmdline
+echo
 ip addr
 ip route
 /usr/bin/xpr-hello
@@ -15,21 +18,24 @@ ip route
 /usr/bin/xpr-dlopen-smoke
 ```
 
-Expected evidence includes:
+Require `XPR_RC_ROOT_SBIN_INIT_PID1` and `XPR_NETWORK_READY`, architecture
+`k1om`, and `/sbin/init` in the PID 1 command line. Its shell interpreter may
+appear as `/bin/sh`; the markers identify the XPR final-root script.
+Expected smoke output is `XPR_HELLO_OK`, `XPR_PTHREAD_OK`, and
+`xpr-dlopen-smoke: ok`.
 
-- `init` or `busybox` as the final PID 1 process, plus
-  `XPR_RC_ROOT_SBIN_INIT_PID1` in `/run/xpr-os-init`.
-- `k1om` from `uname -m` and `ID=xpr-uos` in `/etc/os-release`.
-- A micveth interface and a usable route.
-- `XPR_HELLO_OK`, `XPR_PTHREAD_OK`, and `XPR_DLOPEN_OK` from the native probes.
-
-From the **MPSS host**, confirm the same SSH path is usable:
+RC7 also provides:
 
 ```bash
-ssh -o IdentitiesOnly=yes -i ~/.ssh/id_rsa mic0 'uname -m; cat /proc/1/comm'
+command -v python3
+python3 --version
+python3 -c 'import platform; print(platform.machine())'
 ```
 
-Each check has a specific purpose: PID 1 proves the final root handoff,
-networking proves micveth, and the three probes exercise the public dynamic
-runtime, threads, and dynamic loading.
+Expected: `/usr/bin/python3`, `Python 3.12.13`, and `k1om`.
+See the RC7 guide for a real threading and JSON/file example and the known
+nonblocking Python startup warning. Python is not part of frozen RC6.
 
+On the **host**, `sudo xpr-init --status` identifies the selected release hash,
+XPR/stock mode, handoff state and recovery availability. An inactive handoff
+unit after success is normal; use the final-root markers to determine readiness.

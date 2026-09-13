@@ -2,6 +2,9 @@
 
 ## RC7 Candidate G
 
+Use the complete [RC7 install, readiness, use and recovery guide](rc7.md).
+The short reference below assumes you have already verified the candidate.
+
 Candidate G is unpublished. Use its packaged installer, not an older release's
 installer, and do not use the current installer with frozen RC6: RC6 lacks the
 new SSH setup helper. From an extracted Candidate G binary directory:
@@ -13,6 +16,7 @@ sudo xpr-init --install --release /path/to/xpr-os-0.1.0-rc7.tar.gz
 sudo micctrl --reset mic0
 sudo micctrl --wait mic0
 sudo micctrl --boot mic0
+# Wait for final-root readiness using the check in the RC7 guide.
 ssh xpr-mic0
 # Later, on the host:
 sudo xpr-init --recover
@@ -56,13 +60,13 @@ You need:
 - a Xeon Phi 5110P that already boots stock MPSS and accepts stock SSH;
 - the separately obtained MPSS 3.4.10 host stack used by the tested path;
 - the XPR-OS 0.1.0-rc6 **binary** archive (`xpr-os-0.1.0-rc6.tar.gz`);
-- the current XPR repository checkout, because `xpr-init` was added after the
-  frozen RC6 archives were published; and
+- an XPR repository checkout from which to retrieve the pinned RC6-compatible
+  helper below, because it was added after RC6 was frozen; and
 - an RSA SSH key pair, or OpenSSH's `ssh-keygen`. `xpr-init` provisions only
   the public key into deployment copies and never copies your private key into
   XPR-OS.
 
-The current helper is obtained from this repository, so Git is also required.
+The pinned helper is obtained from this repository, so Git is also required.
 On the tested CentOS 7 host, install it before cloning when it is absent:
 
 ```bash
@@ -79,7 +83,7 @@ the explicit options shown below when discovery is ambiguous.
 ## Validated Workflow
 
 ```bash
-# Obtain the current host helper.
+# Obtain the repository containing the pinned RC6 host helper.
 git clone https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival.git
 cd xeon-phi-revival
 

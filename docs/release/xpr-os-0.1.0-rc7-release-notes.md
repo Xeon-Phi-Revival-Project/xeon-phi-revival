@@ -42,6 +42,10 @@ creates private per-host deployment images instead.
 
 ## Host Workflow
 
+Follow the [complete RC7 guide](../getting-started/rc7.md) for artifact
+verification, bounded final-root readiness, SSH, Python and recovery. The
+reference below is not a substitute for waiting for readiness after boot.
+
 After extracting the binary archive, install `xpr-init`, run its install step,
 and use the normal MPSS lifecycle:
 
@@ -52,6 +56,7 @@ sudo xpr-init --install
 sudo micctrl --reset mic0
 sudo micctrl --wait mic0
 sudo micctrl --boot mic0
+# Complete the final-root readiness check in the guide before connecting.
 ssh xpr-mic0
 python3 --version
 ```

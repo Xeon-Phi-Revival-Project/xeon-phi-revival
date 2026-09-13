@@ -10,6 +10,10 @@ instructions.
 
 ## Run XPR-OS
 
+**RC7 Candidate G2 testers:** use the [RC7 guide](getting-started/rc7.md).
+It covers the packaged installer and isolated SSH alias. RC7 is not published;
+the published RC6 path below requires its pinned, older compatible installer.
+
 For the hardware-validated Intel Xeon Phi 5110P + CentOS 7.4 + MPSS 3.4.10
 configuration:
 

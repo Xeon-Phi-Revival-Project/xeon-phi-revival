@@ -1,0 +1,126 @@
+mic0: online (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+k1om
+/sbin/init.sysvinit
+xpr-os-0.1.0-rc7.tar.gz: OK
+xpr-os-0.1.0-rc7-sources.tar.gz: OK
+xpr-os-0.1.0-rc7.spdx.json: OK
+xpr-os-0.1.0-rc7-notices.tar.gz: OK
+XPR_SSH_ALIAS=ssh xpr-mic0
+XPR-OS Host Installer
+[PASS] MPSS configuration found: /etc/mpss/mic0.conf
+[PASS] Release verified: 0.1.0-rc7 (/var/lib/xpr-init/releases/xpr-os-0.1.0-rc7-6d69b98a20de83b67867cec21c69cf700edeb71fc8d62d92e2bcdf54ca01e89c)
+[PASS] RSA public key selected: /root/.ssh/id_rsa.pub
+SSH_KEY_PROVISIONING_VALIDATION=PASS key_type=ssh-rsa deployment_payload_sha256=9dea3052f676c3b7544fc3ec754a7dd73501c472a1213a47ea447fb456311dcf
+Created symlink from /etc/systemd/system/multi-user.target.wants/xpr-init-handoff@mic0.service to /etc/systemd/system/xpr-init-handoff@.service.
+XPR_INIT_INSTALL=PASS
+XPR_INIT_RELEASE=0.1.0-rc7
+XPR_INIT_STOCK_BACKUP=/var/lib/xpr-init/backups/mic0.conf.20260913-170001
+[PASS] Automatic payload handoff installed
+XPR-OS installation complete.
+
+Boot:
+    sudo micctrl --reset mic0
+    sudo micctrl --wait mic0
+    sudo micctrl --boot mic0
+
+Connect:
+    ssh xpr-mic0
+
+Return to stock:
+    sudo xpr-init --recover
+GUIDE_INSTALL=PASS
+          mic0: resetting
+          mic0: ready
+          mic0: booting /opt/xpr-os/current/bzImage
+Final XPR ready: yes
+BOOT_TO_FINAL_SECONDS=104
+Pseudo-terminal will not be allocated because stdin is not a terminal.
+XPR_RC_ROOT_SBIN_INIT_PID1
+pid=1
+k1om
+XPR_RC_INIT_MOUNTS_READY
+ __  ______  ____        ___  ____
+ \ \/ /  _ \|  _ \      / _ \/ ___|
+  \  /| |_) | |_) |____| | | \___ \
+  /  \|  __/|  _ <_____| |_| |___) |
+ /_/\_\_|   |_| \_\     \___/|____/
+
+ Xeon Phi Revival K1OM uOS 0.1
+ Experimental Knights Corner software environment
+ https://github.com/Xeon-Phi-Revival-Project
+
+XPR_SPLASH_DISPLAYED
+XPR_HELLO_OK
+XPR_PTHREAD_OK
+xpr-dlopen-smoke: ok
+XPR_SMOKE_PASS
+XPR_RC_SMOKES_COMPLETE
+XPR_NETWORK_READY
+statusd_pid=4387
+XPR_RC_STATUSD_STARTED
+XPR_DROPBEAR_AUTH_DIAG_BEGIN
+XPR_ROOT_ACCOUNT_OK
+XPR_ROOT_SHELL_OK
+XPR_ROOT_SHELL_LISTED
+XPR_NSS_FILES_PRESENT
+XPR_NSS_PASSWD_FILES
+XPR_ROOT_SHADOW_ABSENT
+XPR_AUTHORIZED_KEYS_FOUND
+XPR_DROPBEAR_AUTH_DIAG XPR_ROOT_MODE=755:0:0
+XPR_DROPBEAR_AUTH_DIAG XPR_SSH_DIR_MODE=700:0:0
+XPR_DROPBEAR_AUTH_DIAG XPR_AUTHORIZED_KEYS_MODE=600:0:0
+XPR_DROPBEAR_AUTH_DIAG XPR_AUTHORIZED_KEYS_HASH=5dbda7ee10cf94879d2a78a2910e6072efd7c5c586da28f7310db7d83d5edee1
+XPR_DROPBEAR_AUTH_DIAG XPR_DROPBEAR_VERSION=Dropbear v2022.83
+dropbear_pid=4404
+[4404] Jan 01 00:01:29 Not backgrounding
+XPR_DROPBEAR_RUNNING
+   1: 01011FAC:0016 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 11274 1 ffff8801e46f0000 300 0 0 2 -1                     
+XPR_SSH_READY
+XPR_MPSS_READY_NOTIFIED
+[4407] Jan 01 00:01:32 Child connection from 172.31.1.254:60310
+[4408] Jan 01 00:01:33 Child connection from 172.31.1.254:60312
+[4407] Jan 01 00:01:33 Pubkey auth succeeded for 'root' with ssh-rsa key SHA256:TXrGMQ7ULOWOLfEIUVRbGTXHD7jMP4tZv0rr6sc1tRQ from 172.31.1.254:60310
+[4407] Jan 01 00:01:34 Exit (root) from <172.31.1.254:60310>: Disconnect received
+[4408] Jan 01 00:01:34 Pubkey auth succeeded for 'root' with ssh-rsa key SHA256:TXrGMQ7ULOWOLfEIUVRbGTXHD7jMP4tZv0rr6sc1tRQ from 172.31.1.254:60312
+[4408] Jan 01 00:01:35 Exit (root) from <172.31.1.254:60312>: Disconnect received
+[4415] Jan 01 00:01:36 Child connection from 172.31.1.254:60314
+[4415] Jan 01 00:01:36 Pubkey auth succeeded for 'root' with ssh-rsa key SHA256:TXrGMQ7ULOWOLfEIUVRbGTXHD7jMP4tZv0rr6sc1tRQ from 172.31.1.254:60314
+k1om
+XPR_HELLO_OK
+XPR_PTHREAD_OK
+xpr-dlopen-smoke: ok
+/usr/bin/python3
+Python 3.12.13
+Could not find platform dependent libraries <exec_prefix>
+Python threading and JSON/file workflow PASS
+259b2a33523ab8581cb70648c88f3a0b1be8f285eb2b21c42a60addf27c2a211  /usr/bin/python3.12
+GUIDE_CARD_COMMANDS=PASS
+XPR_INIT_INSTALLED=yes
+XPR_INIT_RELEASE=0.1.0-rc7
+XPR_INIT_RELEASE_ARCHIVE_SHA=6d69b98a20de83b67867cec21c69cf700edeb71fc8d62d92e2bcdf54ca01e89c
+XPR_INIT_MIC=mic0
+XPR_INIT_CONFIG_MODE=XPR
+XPR_INIT_STOCK_BACKUP=present
+XPR_INIT_STOCK_SHA=9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51
+XPR_INIT_CURRENT_CONF_SHA=c98c08b67915f32938aa0fe5bb630fe31eda33d6e8466f504512b633d7b5ea94
+XPR_INIT_HANDOFF_ENABLED=yes
+XPR_INIT_HANDOFF_ACTIVE=no
+XPR_INIT_PUBLIC_KEY_SHA=5dbda7ee10cf94879d2a78a2910e6072efd7c5c586da28f7310db7d83d5edee1
+XPR_INIT_RECOVERY_AVAILABLE=yes
+mic0: online (mode: linux image: /opt/xpr-os/current/bzImage)
+GUIDE_WORKFLOW=PASS
+          mic0: resetting
+          mic0: ready
+          mic0: booting /usr/share/mpss/boot/bzImage-knightscorner
+mic0: booting (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+mic0: booting (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+mic0: booting (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+mic0: booting (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+mic0: online (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+XPR_INIT_RECOVER=PASS
+STOCK_CONFIG_SHA256=9578fa0392f196b08cb9c3d8b36077bf475bf412b44faaf54ffbfe9db1221f51
+mic0: online (mode: linux image: /usr/share/mpss/boot/bzImage-knightscorner)
+k1om
+/sbin/init.sysvinit
+STOCK_TRUST_PRESERVED=PASS
+RECOVERY=PASS

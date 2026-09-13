@@ -1,5 +1,9 @@
 # Getting Started With XPR-OS
 
+**Choose your release:** [RC7 Candidate G2](rc7.md) is an unpublished tester
+path with its packaged installer and `ssh xpr-mic0`. The instructions below
+are for published RC6 and its pinned older installer. Do not mix the two.
+
 The tested RC6 path uses an Intel Xeon Phi 5110P attached to a CentOS 7.4 host
 running MPSS 3.4.10. For that tested configuration, the recommended beginner
 path is now the live-validated `xpr-init` workflow:
@@ -15,7 +19,8 @@ path is now the live-validated `xpr-init` workflow:
    `sudo xpr-init --recover`.
 
 `xpr-init` was developed and hardware-validated after the frozen RC6 archives
-were published, so install the helper from the current repository checkout.
+were published, so obtain the pinned RC6-compatible helper using the linked guide, not the
+current RC7-only helper from the repository tip.
 The RC6 runtime/release assets themselves remain unchanged.
 
 The longer [manual installation procedure](installation.md) remains available

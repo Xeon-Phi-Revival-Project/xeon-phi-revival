@@ -14,6 +14,11 @@ and evidence-led tooling.
 > tested on an Intel Xeon Phi 5110P. It remains a prerelease, and other KNC
 > models are not yet project-tested.
 
+> **RC7 testers:** Candidate G2 adds packaged host integration, `ssh xpr-mic0`,
+> and CPython 3.12.13. It is not published. Follow the separate
+> [RC7 candidate guide](docs/getting-started/rc7.md) with owner-provided artifacts.
+> Do not use the current RC7 installer with RC6.
+
 ## What This Project Covers
 
 | Track | Purpose | Current state |
@@ -31,13 +36,14 @@ and evidence-led tooling.
 1. Check the [tested hardware and host requirements](docs/hardware/supported-hardware.md).
 2. Install or verify [MPSS 3.4.10 on the host](docs/getting-started/mpss-setup.md).
 3. Download [XPR-OS 0.1.0-rc6](https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival/releases/tag/v0.1.0-rc6). For the simplest `xpr-init` auto-discovery path, put the binary archive (`xpr-os-0.1.0-rc6.tar.gz`) in the invoking user's `~/Downloads` folder. If it is stored elsewhere, pass it explicitly, for example: `sudo xpr-init --install --release /path/to/xpr-os-0.1.0-rc6.tar.gz`.
-4. Get the current repository and install the validated `xpr-init` host helper. `xpr-init` was validated after RC6 was frozen, so it is **not** contained in the RC6 release archives. Git is required for this path; on the tested CentOS 7 host install it first if needed:
+4. Get the repository and install the RC6-compatible `xpr-init` host helper. `xpr-init` was validated after RC6 was frozen, so it is **not** contained in the RC6 release archives. Git is required for this path; on the tested CentOS 7 host install it first if needed:
 
    ```bash
    sudo yum install -y git
    git clone https://github.com/Xeon-Phi-Revival-Project/xeon-phi-revival.git
    cd xeon-phi-revival
-   sudo install -m 755 tools/host/xpr-init /usr/local/sbin/xpr-init
+   git show 61ab99ae15d0327b3c6b20fa5d6318cab2e76dcc:tools/host/xpr-init > /tmp/xpr-init-rc6
+   sudo install -m 755 /tmp/xpr-init-rc6 /usr/local/sbin/xpr-init
    sudo ln -sfn /usr/local/sbin/xpr-init /usr/sbin/xpr-init
    sudo xpr-init --install
    sudo micctrl --reset mic0
@@ -88,7 +94,7 @@ provisions only the public key into deployment-specific copies, preserves and
 hashes the stock MPSS configuration, installs the XPR kernel/bootstrap/root
 payload, and enables the automatic bootstrap-to-final-root handoff service.
 
-The validated first-use path is:
+For **RC6 with the pinned helper above**, the validated first-use path is:
 
 ```bash
 sudo xpr-init --install
@@ -121,8 +127,8 @@ not online with XPR, use the normal `micctrl --reset`, `--wait`, and `--boot`
 lifecycle.
 
 `xpr-init` was developed after the frozen RC6 release archives were published,
-so the current helper is obtained from this repository rather than from the RC6
-archives themselves. See the [xpr-init guide](docs/getting-started/xpr-init-preview.md)
+so RC6 uses the pinned compatible helper shown above, not the newer RC7-only
+helper at the tip of the repository. See the [xpr-init guide](docs/getting-started/xpr-init-preview.md)
 for the validated workflow and advanced options.
 
 ## XPR-OS RC6 At A Glance
