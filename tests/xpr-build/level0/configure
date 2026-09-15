@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+prefix=/usr
+for arg in "$@"; do
+  case "$arg" in
+    --prefix=*) prefix=${arg#--prefix=} ;;
+    --build=*|--host=*) ;;
+    *) echo "level0 configure: unsupported option: $arg" >&2; exit 2 ;;
+  esac
+done
+
+: "${CC:?CC must be set by xpr-build}"
+cat > Makefile <<EOF
+CC = $CC
+CFLAGS = ${CFLAGS:-}
+PREFIX = $prefix
+
+all: xpr-build-level0
+
+xpr-build-level0: $PWD/hello.c
+	\$(CC) \$(CFLAGS) $PWD/hello.c -o \$@
+
+install: xpr-build-level0
+	install -d \$(DESTDIR)\$(PREFIX)/bin
+	install -m 0755 xpr-build-level0 \$(DESTDIR)\$(PREFIX)/bin/xpr-build-level0
+
+clean:
+	rm -f xpr-build-level0
+EOF
+echo "XPR_BUILD_LEVEL0_CONFIGURE=PASS"

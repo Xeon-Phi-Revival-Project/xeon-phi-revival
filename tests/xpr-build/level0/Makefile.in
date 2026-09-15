@@ -1,0 +1,15 @@
+CC = @CC@
+CFLAGS = @CFLAGS@
+PREFIX = @PREFIX@
+
+all: xpr-build-level0
+
+xpr-build-level0: hello.c
+	$(CC) $(CFLAGS) hello.c -o $@
+
+install: xpr-build-level0
+	install -d $(DESTDIR)$(PREFIX)/bin
+	install -m 0755 xpr-build-level0 $(DESTDIR)$(PREFIX)/bin/xpr-build-level0
+
+clean:
+	rm -f xpr-build-level0

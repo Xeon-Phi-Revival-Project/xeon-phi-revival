@@ -25,6 +25,8 @@
 - Phase 4: initial `xpr-build` prototype added. It consumes an unpacked
   source-accounted toolkit, isolates target tools/pkg-config, and supports
   configure, make, DESTDIR stage, and target ELF inspection.
+- Phase 5: a small external-style configure/Make/install project and runner
+  are tracked for the first real toolkit-host validation.
 
 ## Validation Notes
 
@@ -46,7 +48,7 @@
 - CURRENT_HEAD=5ae45ec1670bc21e99a5da9f536119acbf864ff3
 - HARDWARE_STATE=not touched during RC8 baseline
 - CURRENT_BLOCKER=none
-- NEXT_EXACT_ACTION=on the Linux build host, unpack/rebuild the current internal toolkit, run xpr-build against a level-0 autotools-style project, and inspect its K1OM ELF
+- NEXT_EXACT_ACTION=on the Linux build host, unpack/rebuild the current internal toolkit, run tests/xpr-build/run-level0.sh, then transfer its exact staged ELF to the 5110P
 - IMPORTANT_PATHS=tools/host/xpr-init,tools/host/xpr-ssh-setup.py,tools/host/test-xpr-init-install.sh
 - IMPORTANT_HASHES=RC7 binary 6d69b98a20de83b67867cec21c69cf700edeb71fc8d62d92e2bcdf54ca01e89c
 - DO_NOT_REPEAT=RC7 release/publication audit; do not alter frozen RC7 assets or tag

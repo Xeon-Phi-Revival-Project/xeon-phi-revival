@@ -75,6 +75,7 @@ case "$command" in
     ;;
   configure)
     [[ -d "$source" && -n "$build" ]] || die "configure requires --source and --build"
+    source=$(cd "$source" && pwd)
     [[ -x "$source/configure" ]] || die "source lacks an executable configure script"
     mkdir -p "$build"
     build=$(cd "$build" && pwd)
