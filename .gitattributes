@@ -19,6 +19,7 @@ tests/xpr-build/run-level0.sh text eol=lf
 *.txt text eol=lf
 *.fragment text eol=lf
 *.env text eol=lf
+*.in text eol=lf
 configs/kernel/*.config text eol=lf
 configs/busybox/*.config text eol=lf
 *.gitignore text eol=lf
