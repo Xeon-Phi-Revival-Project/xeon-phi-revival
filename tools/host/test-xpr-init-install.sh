@@ -79,8 +79,10 @@ grep -qx "release_archive_sha='$first_archive_sha'" "$tmp/state/mic0.env"
 test "$first_release_root" = "$tmp/state/releases/xpr-os-0.1.0-rc6-$first_archive_sha"
 grep -q "$tmp/root/current/xpr-bootstrap.cpio.gz" "$tmp/mpss/mic0.conf"
 grep -q 'enable --now xpr-init-handoff@mic0.service' "$tmp/systemctl.log"
-grep -qx 'Host xpr-mic0' "$tmp/home/.ssh/config"
+grep -qx 'Host xpr-mic0 mic0' "$tmp/home/.ssh/config"
 grep -q "IdentityFile.*$tmp/home/.ssh/id_rsa" "$tmp/home/.ssh/config"
+ssh -G -F "$tmp/home/.ssh/config" mic0 | grep -qx "hostname 172.31.1.1"
+ssh -G -F "$tmp/home/.ssh/config" mic0 | grep -qx "identityfile $tmp/home/.ssh/id_rsa"
 sed '1,/# END XPR-OS MANAGED SSH xpr-mic0/d' "$tmp/home/.ssh/config" | cmp - "$tmp/original-config"
 cmp "$tmp/home/.ssh/known_hosts" "$tmp/original-known-hosts"
 grep -q '^xpr-mic0 ecdsa-sha2-nistp256 ' "$tmp/home/.ssh/xpr_os_known_hosts"
@@ -104,8 +106,10 @@ grep -qx 'XPR_INIT_CONFIG_MODE=XPR' "$tmp/status.out"
 grep -qx 'XPR_INIT_HANDOFF_ENABLED=yes' "$tmp/status.out"
 env "${common_env[@]}" "$tmp/sbin/xpr-init" --recover > "$tmp/recover.out"
 grep -qx 'XPR_INIT_RECOVER=PASS' "$tmp/recover.out"
+grep -qx 'XPR_SSH_MIC_OVERRIDE=REMOVED' "$tmp/recover.out"
 grep -q 'disable --now xpr-init-handoff@mic0.service' "$tmp/systemctl.log"
 cmp "$tmp/mpss/mic0.conf" <(printf 'Base CPIO /stock/base\nOSimage /stock/kernel /stock/map\nRootDevice Ramfs /stock/mic0.image.gz\n')
+cmp "$tmp/home/.ssh/config" "$tmp/original-config"
 env "${common_env[@]}" "$tmp/sbin/xpr-init" --recover > "$tmp/recover2.out"
 grep -qx 'XPR_INIT_RECOVER=ALREADY_STOCK' "$tmp/recover2.out"
 
@@ -164,7 +168,7 @@ if env "${common_env[@]}" "$tmp/sbin/xpr-init" --install --release "$tmp/home/Do
 fi
 grep -q 'dedicated XPR key state is incomplete' "$tmp/incomplete.out"
 cmp "$tmp/home/.ssh/known_hosts" "$tmp/original-known-hosts"
-sed '1,/# END XPR-OS MANAGED SSH xpr-mic0/d' "$tmp/home/.ssh/config" | cmp - "$tmp/original-config"
+cmp "$tmp/home/.ssh/config" "$tmp/original-config"
 test "$(sha256sum "$tmp/state/ssh/mic0/host_ecdsa" | awk '{print $1}')" = "$host_key_sha"
 echo 'XPR_SSH_ALIAS_TESTS=PASS'
 echo 'XPR_SSH_CONFIG_IDEMPOTENCE=PASS'

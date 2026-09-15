@@ -73,6 +73,23 @@ state="$state_root/$mic.env"
 stock_conf="${XPR_INIT_MPSS_DIR:-/etc/mpss}/$mic.conf"
 handoff_unit="xpr-init-handoff@$mic.service"
 ssh_opts=()
+ssh_home=
+
+ssh_setup_helper() {
+  local sibling
+  sibling="$(dirname "$(readlink -f "$0")")/xpr-ssh-setup.py"
+  if [[ -f "$sibling" ]]; then
+    printf '%s\n' "$sibling"
+  elif [[ -f "$bin_dir/xpr-ssh-setup.py" ]]; then
+    printf '%s\n' "$bin_dir/xpr-ssh-setup.py"
+  elif [[ -f "$release/tools/host/xpr-ssh-setup.py" ]]; then
+    # Compatibility only for a pre-managed SSH install. New installs copy the
+    # matching helper beside xpr-init so release contents cannot stale it.
+    printf '%s\n' "$release/tools/host/xpr-ssh-setup.py"
+  else
+    return 1
+  fi
+}
 
 invoker_home() {
   local user=${SUDO_USER:-${USER:-root}} entry
@@ -102,13 +119,14 @@ validate_rsa_public_key() {
 dedicated_key_paths() {
   local home
   home=$(invoker_home)
+  ssh_home=$home
   printf '%s\n' "$home/.ssh/xpr_os_rsa" "$home/.ssh/xpr_os_rsa.pub"
 }
 
 generate_dedicated_key() {
   local home user private public uid gid
   local -a paths
-  home=$(invoker_home)
+  home=${ssh_home:-$(invoker_home)}
   user=$(invoker_user)
   mapfile -t paths < <(dedicated_key_paths)
   private=${paths[0]}
@@ -164,9 +182,10 @@ set_ssh_opts() {
 }
 
 setup_ssh() {
-  local helper="$release/tools/host/xpr-ssh-setup.py" home user host_public address
-  [[ -f "$helper" ]] || die "release lacks automatic SSH integration; use its matching installer"
+  local helper home user host_public address
+  helper=$(ssh_setup_helper) || die "matching xpr-ssh-setup.py helper is missing"
   home=$(invoker_home)
+  ssh_home=$home
   user=$(invoker_user)
   address=$(getent ahostsv4 "$mic" | awk 'NR==1 {print $1}')
   [[ -n "$address" ]] || die "MPSS device address could not be resolved: $mic"
@@ -179,8 +198,20 @@ setup_ssh() {
     user_args=()
   fi
   python -E -s "$helper" client ${user_args[@]+"${user_args[@]}"} --home "$home" --identity "$identity" \
-    --alias "xpr-$mic" --hostname "$address" --host-public-key "$host_public"
+    --alias "xpr-$mic" --stock-alias "$mic" --hostname "$address" --host-public-key "$host_public"
   set_ssh_opts
+}
+
+remove_ssh_override() {
+  local helper home user
+  helper=$(ssh_setup_helper) || die "matching xpr-ssh-setup.py helper is missing"
+  home=${ssh_home:-$(invoker_home)}
+  user=${ssh_owner:-$(invoker_user)}
+  local -a user_args=(--user "$user")
+  if [[ ${XPR_INIT_TEST_MODE:-0} == 1 ]] && ! getent passwd "$user" >/dev/null; then
+    user_args=()
+  fi
+  python -E -s "$helper" remove ${user_args[@]+"${user_args[@]}"} --home "$home" --alias "xpr-$mic"
 }
 
 final_root_ready() {
@@ -401,6 +432,7 @@ install_xpr() {
   if [[ "$self" != "$bin_dir/xpr-init" ]]; then
     install -D -m 755 "$self" "$bin_dir/xpr-init"
   fi
+  install -m 755 "$(ssh_setup_helper)" "$bin_dir/xpr-ssh-setup.py"
   if [[ "$sudo_bin_dir" != "$bin_dir" ]]; then
     install -d -m 755 "$sudo_bin_dir"
     ln -sfn "$bin_dir/xpr-init" "$sudo_bin_dir/xpr-init"
@@ -412,6 +444,7 @@ stock_backup='$backup'
 stock_sha='$original_sha'
 identity='$identity'
 ssh_owner='$(invoker_user)'
+ssh_home='$ssh_home'
 server_known_hosts='$server_known_hosts'
 installed_release='$release_version'
 release_root='$release'
@@ -433,7 +466,7 @@ EOF
   echo "[PASS] Automatic payload handoff installed"
   echo "XPR-OS installation complete."
   printf '\nBoot:\n    sudo micctrl --reset %s\n    sudo micctrl --wait %s\n    sudo micctrl --boot %s\n' "$mic" "$mic" "$mic"
-  printf '\nConnect:\n    ssh xpr-%s\n\nReturn to stock:\n    sudo xpr-init --recover\n' "$mic"
+  printf '\nConnect:\n    ssh %s\n    ssh xpr-%s\n\nReturn to stock:\n    sudo xpr-init --recover\n' "$mic" "$mic"
   trap - ERR
 }
 
@@ -518,6 +551,7 @@ recover_xpr() {
   remove_handoff_service
   cp -a "$stock_backup" "$stock_conf"
   test "$(sha "$stock_conf")" = "$stock_sha" || die "restored stock config hash mismatch"
+  remove_ssh_override
   micctrl --reset "$mic"
   micctrl --wait "$mic"
   micctrl --boot "$mic"

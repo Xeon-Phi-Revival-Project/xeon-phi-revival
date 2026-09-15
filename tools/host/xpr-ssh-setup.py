@@ -126,6 +126,17 @@ def quoted(value):
     return '"' + value + '"'
 
 
+def managed_range(data, begin, end):
+    """Return the one XPR-managed block, or None when it is absent."""
+    if begin not in data and end not in data:
+        return None
+    if data.count(begin) != 1 or data.count(end) != 1:
+        raise ValueError("malformed XPR SSH block; refusing rewrite")
+    start = data.index(begin)
+    finish = data.index(end, start) + len(end)
+    return start, finish
+
+
 def client(args):
     # Never perform privileged writes into an invoking user's mutable home.
     if args.user:
@@ -148,22 +159,23 @@ def client(args):
     begin = ("# BEGIN XPR-OS MANAGED SSH " + args.alias + "\n").encode("ascii")
     end = ("# END XPR-OS MANAGED SSH " + args.alias + "\n").encode("ascii")
     remainder = old
-    if begin in old or end in old:
-        if old.count(begin) != 1 or old.count(end) != 1 or not old.startswith(begin):
-            raise ValueError("malformed or relocated XPR SSH block; refusing rewrite")
-        remainder = old[len(begin):].split(end, 1)[1]
+    managed = managed_range(old, begin, end)
+    if managed:
+        # Put the bounded override first: OpenSSH uses the first value it
+        # obtains, while every unrelated entry remains byte-for-byte intact.
+        remainder = old[:managed[0]] + old[managed[1]:]
     if re.search(br"(?im)^\s*Host\s+[^\r\n]*\bxpr-mic[0-9]+\b", remainder):
         raise ValueError("existing unmanaged XPR SSH alias; refusing conflict")
     public = args.host_public_key.encode("ascii")
     if public.split()[0] != TYPE or len(public.split()) != 2:
         raise ValueError("invalid server public key")
-    block = ("Host %s\n    HostName %s\n    User root\n"
+    block = ("Host %s %s\n    HostName %s\n    User root\n"
              "    IdentityFile %s\n    IdentitiesOnly yes\n    BatchMode yes\n"
              "    PasswordAuthentication no\n    StrictHostKeyChecking yes\n"
              "    HostKeyAlias %s\n    HostKeyAlgorithms ecdsa-sha2-nistp256\n"
              "    CheckHostIP no\n    UserKnownHostsFile %s\n"
              "    GlobalKnownHostsFile %s\n    PubkeyAcceptedKeyTypes +ssh-rsa\n"
-             "Host *\n" % (args.alias, args.hostname, quoted(args.identity), args.alias,
+             "Host *\n" % (args.alias, args.stock_alias, args.hostname, quoted(args.identity), args.alias,
                             quoted(known), quoted(known))).encode("utf-8")
     updated = begin + block + end + remainder
     fd, temporary = tempfile.mkstemp(prefix=".xpr-check-", dir=ssh_dir)
@@ -171,6 +183,7 @@ def client(args):
         with os.fdopen(fd, "wb") as stream:
             stream.write(updated)
         subprocess.check_output(["ssh", "-G", "-F", temporary, args.alias], stderr=subprocess.STDOUT)
+        subprocess.check_output(["ssh", "-G", "-F", temporary, args.stock_alias], stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError:
         raise ValueError("SSH configuration validation failed; original configuration retained")
     finally:
@@ -189,27 +202,60 @@ def client(args):
     write(known, retained + record)
     write(config, updated)
     print("XPR_SSH_ALIAS=ssh " + args.alias)
+    print("XPR_SSH_MIC_ALIAS=ssh " + args.stock_alias)
+
+
+def remove(args):
+    if args.user:
+        entry = pwd.getpwnam(args.user)
+        if os.geteuid() == 0 and entry.pw_uid != 0:
+            os.initgroups(args.user, entry.pw_gid)
+            os.setgid(entry.pw_gid)
+            os.setuid(entry.pw_uid)
+        elif os.geteuid() != entry.pw_uid:
+            raise ValueError("SSH cleanup must run as the invoking user")
+        if args.home != entry.pw_dir:
+            raise ValueError("invoking home does not match passwd entry")
+    config = os.path.join(args.home, ".ssh", "config")
+    regular(config)
+    if not os.path.exists(config):
+        print("XPR_SSH_MIC_OVERRIDE=ABSENT")
+        return
+    old = open(config, "rb").read()
+    begin = ("# BEGIN XPR-OS MANAGED SSH " + args.alias + "\n").encode("ascii")
+    end = ("# END XPR-OS MANAGED SSH " + args.alias + "\n").encode("ascii")
+    managed = managed_range(old, begin, end)
+    if not managed:
+        print("XPR_SSH_MIC_OVERRIDE=ABSENT")
+        return
+    write(config, old[:managed[0]] + old[managed[1]:])
+    print("XPR_SSH_MIC_OVERRIDE=REMOVED")
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("mode", choices=("server", "client"))
+    parser.add_argument("mode", choices=("server", "client", "remove"))
     parser.add_argument("--alias", required=True)
     parser.add_argument("--directory")
     parser.add_argument("--user")
     parser.add_argument("--home")
     parser.add_argument("--identity")
     parser.add_argument("--hostname")
+    parser.add_argument("--stock-alias")
     parser.add_argument("--host-public-key")
     args = parser.parse_args()
     if not re.match(r"^xpr-mic[0-9]+$", args.alias):
         raise ValueError("unsupported MIC alias")
     if args.mode == "server":
         server(args)
-    else:
+    elif args.mode == "client":
         if not re.match(r"^[0-9a-fA-F:.]+$", args.hostname):
             raise ValueError("expected a numeric MIC address")
+        if not re.match(r"^mic[0-9]+$", args.stock_alias or ""):
+            raise ValueError("expected a MIC stock alias")
         client(args)
+    else:
+        remove(args)
 
 
 if __name__ == "__main__":
