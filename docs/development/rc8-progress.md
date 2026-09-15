@@ -19,6 +19,9 @@
   only the managed override during recovery.
 - Phase 2: add explicit runtime-state reporting and a bounded `--wait-ready`
   path that reports final-root readiness before directing users to SSH.
+- Phase 3 Python diagnosis: RC7 omitted the `lib-dynload` exec-prefix
+  landmark and did not build `_random`; the RC8 core profile now records both
+  corrections for the next clean source build.
 
 ## Validation Notes
 
@@ -27,14 +30,17 @@
   model its ownership/mode contract: its `install -d -m 700` step fails with
   `Permission denied` before installer logic. Run it on the supported CentOS
   host before marking Phase 1 hardware-validated.
+- `EXEC_PREFIX_ROOT_CAUSE=IDENTIFIED`: no staged `lib-dynload` directory.
+- `PYTHON312_EXTENSION_BASELINE=RECORDED`: `_random` was neither static nor
+  installed dynamically in the minimal RC7 profile.
 
 ## RESUME STATE
 
-- LAST_COMPLETED_PHASE=1
+- LAST_COMPLETED_PHASE=3
 - CURRENT_HEAD=5ae45ec1670bc21e99a5da9f536119acbf864ff3
 - HARDWARE_STATE=not touched during RC8 baseline
 - CURRENT_BLOCKER=none
-- NEXT_EXACT_ACTION=run tools/host/test-xpr-init-install.sh on the supported Linux host, then perform one rollback-protected 5110P SSH alias/readiness validation
+- NEXT_EXACT_ACTION=obtain the current source-built toolkit and CPython source on the Linux build host; run the corrected Python core build, then validate its exact package on the 5110P
 - IMPORTANT_PATHS=tools/host/xpr-init,tools/host/xpr-ssh-setup.py,tools/host/test-xpr-init-install.sh
 - IMPORTANT_HASHES=RC7 binary 6d69b98a20de83b67867cec21c69cf700edeb71fc8d62d92e2bcdf54ca01e89c
 - DO_NOT_REPEAT=RC7 release/publication audit; do not alter frozen RC7 assets or tag

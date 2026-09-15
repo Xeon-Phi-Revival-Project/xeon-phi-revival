@@ -80,19 +80,25 @@ export ac_cv_func_chflags=no
     --disable-ipv6 \
     --without-ensurepip \
     --prefix=/usr > configure.log 2>&1
-# Keep the essential math module in the core profile.  The cross build invokes
-# `make python`, which otherwise leaves math as an unbuilt shared extension.
+# Keep core extensions static. The cross build invokes `make python`, which
+# otherwise leaves these shared extensions unbuilt. `_random` has no external
+# dependency and is required by the standard-library random module.
 cat > Modules/Setup.local <<'EOF'
 *static*
 math mathmodule.c
+_random _randommodule.c
 EOF
 make -j"$jobs" python > make-python.log 2>&1
 "$toolkit/bin/xpr-validate" python
-mkdir -p "$out/stage/usr/bin" "$out/stage/usr/lib/python3.12"
+mkdir -p "$out/stage/usr/bin" "$out/stage/usr/lib/python3.12/lib-dynload"
 install -m 0755 python "$out/stage/usr/bin/python3.12"
 ln -s python3.12 "$out/stage/usr/bin/python3"
 ln -s python3.12 "$out/stage/usr/bin/python"
 cp -a "$out/target-src/Lib/." "$out/stage/usr/lib/python3.12/"
+# CPython's getpath logic uses lib-dynload as the platform-dependent
+# exec-prefix landmark, even when this small profile intentionally builds its
+# extension modules statically. Keep the directory in the package explicitly.
+: > "$out/stage/usr/lib/python3.12/lib-dynload/.keep"
 find "$out/stage/usr/lib/python3.12" -type d -name __pycache__ -prune -exec rm -rf {} +
 popd >/dev/null
 
