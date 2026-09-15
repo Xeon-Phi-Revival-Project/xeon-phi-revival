@@ -8,6 +8,7 @@ usage:
   xpr-init --install [--release ARCHIVE_OR_DIR] [--authorized-key FILE] [--identity FILE] [--mic mic0]
   xpr-init --recover [--mic mic0]
   xpr-init --status [--mic mic0]
+  xpr-init --wait-ready [--mic mic0] [--timeout SECONDS]
 
 Advanced aliases: install, handoff, status, recover. `handoff` is retained as
 a fallback; normal installs enable a small host service to perform it after a
@@ -42,11 +43,14 @@ release_archive_sha="DIRECTORY_OR_LEGACY"
 authorized_key=""
 identity=""
 handoff_once=0
+wait_ready=0
+readiness_timeout=180
 
 case "$command_name" in
   --install) command_name=install ;;
   --recover) command_name=recover ;;
   --status) command_name=status ;;
+  --wait-ready) command_name=wait-ready ;;
   --handoff) command_name=handoff ;;
 esac
 
@@ -57,12 +61,14 @@ while [[ $# -gt 0 ]]; do
     --authorized-key) authorized_key=${2:?}; shift 2 ;;
     --identity) identity=${2:?}; shift 2 ;;
     --once) handoff_once=1; shift ;;
+    --timeout) readiness_timeout=${2:?}; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) die "unknown option: $1" ;;
   esac
 done
 
 [[ "$mic" =~ ^mic[0-9]+$ ]] || die "invalid MIC device name"
+[[ "$readiness_timeout" =~ ^[0-9]+$ && "$readiness_timeout" -gt 0 ]] || die "invalid readiness timeout"
 
 root=${XPR_INIT_ROOT:-/opt/xpr-os}
 state_root=${XPR_INIT_STATE_ROOT:-/var/lib/xpr-init}
@@ -511,7 +517,7 @@ handoff() {
 }
 
 status_xpr() {
-  local current_sha mode=UNKNOWN enabled=UNKNOWN active=UNKNOWN
+  local current_sha mode=UNKNOWN enabled=UNKNOWN active=UNKNOWN runtime=STOCK card_status
   if [[ -r "$state" ]]; then
     load_state
     current_sha=$(sha "$stock_conf" 2>/dev/null || true)
@@ -519,6 +525,23 @@ status_xpr() {
     [[ -f "$stock_backup" && "$(sha "$stock_backup")" == "$stock_sha" ]] || mode=UNKNOWN
     systemctl is-enabled "$handoff_unit" >/dev/null 2>&1 && enabled=yes || enabled=no
     systemctl is-active "$handoff_unit" >/dev/null 2>&1 && active=yes || active=no
+    card_status=$(micctrl --status 2>/dev/null || true)
+    if [[ "$mode" == XPR ]]; then
+      if [[ ${XPR_INIT_TEST_MODE:-0} == 1 ]]; then
+        runtime=TEST_FIXTURE
+      else
+        set_ssh_opts
+        if final_root_ready; then
+          runtime=FINAL_ROOT_READY
+        elif ssh "${ssh_opts[@]}" "$mic" 'test -x /opt/xeon-phi-revival/bin/xpr-stage-root' 2>/dev/null; then
+          runtime=BOOTSTRAP_READY
+        elif grep -q "$mic: online" <<< "$card_status"; then
+          runtime=HANDOFF_PENDING
+        else
+          runtime=WAITING_FOR_BOOT
+        fi
+      fi
+    fi
     echo "XPR_INIT_INSTALLED=yes"
     echo "XPR_INIT_RELEASE=$installed_release"
     echo "XPR_INIT_RELEASE_ARCHIVE_SHA=${release_archive_sha:-DIRECTORY_OR_LEGACY}"
@@ -529,14 +552,39 @@ status_xpr() {
     echo "XPR_INIT_CURRENT_CONF_SHA=${current_sha:-UNKNOWN}"
     echo "XPR_INIT_HANDOFF_ENABLED=$enabled"
     echo "XPR_INIT_HANDOFF_ACTIVE=$active"
+    echo "XPR_INIT_RUNTIME_STATE=$runtime"
     echo "XPR_INIT_PUBLIC_KEY_SHA=$public_key_sha"
     echo "XPR_INIT_RECOVERY_AVAILABLE=yes"
+    echo "XPR-OS status: release $installed_release; runtime $runtime; recovery available"
   else
     echo "XPR_INIT_INSTALLED=no"
     echo "XPR_INIT_CONFIG_MODE=STOCK"
     echo "XPR_INIT_RECOVERY_AVAILABLE=no"
+    echo "XPR-OS status: stock MPSS"
   fi
   micctrl --status || true
+}
+
+wait_ready_xpr() {
+  require_root
+  load_state
+  grep -Fqx "Base CPIO $root/current/xpr-bootstrap.cpio.gz" "$stock_conf" \
+    || die "$mic is not configured for XPR-OS"
+  set_ssh_opts
+  local elapsed=0
+  echo "XPR_INIT_WAIT_READY=START timeout=${readiness_timeout}s"
+  while (( elapsed < readiness_timeout )); do
+    if final_root_ready; then
+      echo "XPR_INIT_RUNTIME_STATE=FINAL_ROOT_READY"
+      echo "XPR_INIT_WAIT_READY=PASS"
+      echo "XPR is ready: ssh $mic or ssh xpr-$mic"
+      return 0
+    fi
+    sleep 4
+    (( elapsed += 4 ))
+  done
+  echo "XPR_INIT_WAIT_READY=TIMEOUT" >&2
+  die "final XPR root did not become ready; run xpr-init --status for the current stage"
 }
 
 recover_xpr() {
@@ -565,6 +613,7 @@ case "$command_name" in
   install) install_xpr ;;
   handoff) handoff ;;
   status) status_xpr ;;
+  wait-ready) wait_ready_xpr ;;
   recover) recover_xpr ;;
   *) usage; exit 2 ;;
 esac
