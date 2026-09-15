@@ -9,6 +9,7 @@ tools/host/test-xpr-init-install.sh text eol=lf
 tools/xpr-build/xpr-build text eol=lf
 tests/xpr-build/level0/configure text eol=lf
 tests/xpr-build/run-level0.sh text eol=lf
+tests/xpr-build/test-xpr-build.sh text eol=lf
 *.py text eol=lf
 *.yml text eol=lf
 *.yaml text eol=lf

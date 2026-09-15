@@ -27,6 +27,9 @@
   configure, make, DESTDIR stage, and target ELF inspection.
 - Phase 5: a small external-style configure/Make/install project and runner
   are tracked for the first real toolkit-host validation.
+- A host-only `xpr-build` contract fixture now proves controlled environment,
+  configure, make, inspection, and DESTDIR staging without substituting it for
+  a K1OM compiler or card test.
 
 ## Blockers
 
