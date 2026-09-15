@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+# Minimal controlled K1OM cross-build driver. Not a package manager.
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+usage:
+  xpr-build env --toolkit DIR [--prefix DIR] [-- COMMAND...]
+  xpr-build configure --toolkit DIR --source DIR --build DIR [--prefix DIR] [-- CONFIGURE_ARGS...]
+  xpr-build make --toolkit DIR --build DIR [--jobs N] [-- TARGET...]
+  xpr-build stage --toolkit DIR --build DIR --destdir DIR [--jobs N] [-- TARGET...]
+  xpr-build inspect --toolkit DIR BINARY
+
+The toolkit must be an unpacked source-accounted XPR K1OM Toolkit. xpr-build
+sets the target tools and sysroot explicitly; it does not resolve dependencies
+or install packages into an XPR root.
+EOF
+}
+
+die() { echo "xpr-build: $*" >&2; exit 1; }
+command=${1:-}
+[[ -n "$command" ]] || { usage >&2; exit 2; }
+shift
+toolkit= source= build= destdir= prefix= jobs=2
+declare -a trailing=()
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --toolkit) toolkit=${2:?}; shift 2 ;;
+    --source) source=${2:?}; shift 2 ;;
+    --build) build=${2:?}; shift 2 ;;
+    --destdir) destdir=${2:?}; shift 2 ;;
+    --prefix) prefix=${2:?}; shift 2 ;;
+    --jobs) jobs=${2:?}; shift 2 ;;
+    --) shift; trailing=("$@"); break ;;
+    *) trailing+=("$1"); shift ;;
+  esac
+done
+
+[[ -d "$toolkit" ]] || die "--toolkit must name an unpacked XPR K1OM Toolkit"
+toolkit=$(cd "$toolkit" && pwd)
+[[ -x "$toolkit/bin/xpr-gcc" && -x "$toolkit/bin/xpr-ar" && -x "$toolkit/bin/xpr-validate" ]] \
+  || die "toolkit lacks required XPR target tools"
+[[ -d "$toolkit/sysroot/usr/include" ]] || die "toolkit lacks an XPR sysroot"
+[[ "$jobs" =~ ^[0-9]+$ && "$jobs" -gt 0 ]] || die "invalid --jobs"
+
+prefix=${prefix:-"$PWD/xpr-prefix"}
+prefix=$(mkdir -p "$prefix" && cd "$prefix" && pwd)
+export PATH="$toolkit/bin:$PATH"
+export CC="$toolkit/bin/xpr-gcc"
+export AR="$toolkit/bin/xpr-ar"
+export AS="$toolkit/bin/xpr-as"
+export LD="$toolkit/bin/xpr-ld"
+export NM="$toolkit/bin/xpr-nm"
+export RANLIB="$toolkit/bin/xpr-ranlib"
+export STRIP="$toolkit/bin/xpr-strip"
+export CPP="$toolkit/bin/xpr-cpp"
+export READELF="$toolkit/bin/xpr-readelf"
+export XPR_BUILD_TOOLKIT="$toolkit"
+export XPR_BUILD_SYSROOT="$toolkit/sysroot"
+export XPR_BUILD_PREFIX="$prefix"
+export PKG_CONFIG_SYSROOT_DIR="$toolkit/sysroot"
+export PKG_CONFIG_LIBDIR="$prefix/lib/pkgconfig:$prefix/share/pkgconfig"
+export PKG_CONFIG_PATH=
+export CONFIG_SITE=/dev/null
+export BUILD="${BUILD:-x86_64-pc-linux-gnu}"
+export HOST="${HOST:-k1om-mpss-linux}"
+
+case "$command" in
+  env)
+    if [[ ${#trailing[@]} -eq 0 ]]; then
+      env | grep -E '^(AR|AS|BUILD|CC|CPP|HOST|LD|NM|PKG_CONFIG|RANLIB|READELF|STRIP|XPR_BUILD_)=' | sort
+    else
+      exec "${trailing[@]}"
+    fi
+    ;;
+  configure)
+    [[ -d "$source" && -n "$build" ]] || die "configure requires --source and --build"
+    [[ -x "$source/configure" ]] || die "source lacks an executable configure script"
+    mkdir -p "$build"
+    build=$(cd "$build" && pwd)
+    cd "$build"
+    "$source/configure" --build="$BUILD" --host="$HOST" --prefix=/usr "${trailing[@]}"
+    ;;
+  make)
+    [[ -d "$build" ]] || die "make requires --build"
+    make -C "$build" -j"$jobs" "${trailing[@]}"
+    ;;
+  stage)
+    [[ -d "$build" && -n "$destdir" ]] || die "stage requires --build and --destdir"
+    mkdir -p "$destdir"
+    make -C "$build" -j"$jobs" DESTDIR="$destdir" "${trailing[@]:-install}"
+    ;;
+  inspect)
+    [[ ${#trailing[@]} -eq 1 ]] || die "inspect requires exactly one target ELF"
+    "$toolkit/bin/xpr-validate" "${trailing[0]}"
+    ;;
+  *) usage >&2; exit 2 ;;
+esac

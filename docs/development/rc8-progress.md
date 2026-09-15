@@ -22,6 +22,9 @@
 - Phase 3 Python diagnosis: RC7 omitted the `lib-dynload` exec-prefix
   landmark and did not build `_random`; the RC8 core profile now records both
   corrections for the next clean source build.
+- Phase 4: initial `xpr-build` prototype added. It consumes an unpacked
+  source-accounted toolkit, isolates target tools/pkg-config, and supports
+  configure, make, DESTDIR stage, and target ELF inspection.
 
 ## Validation Notes
 
@@ -33,14 +36,17 @@
 - `EXEC_PREFIX_ROOT_CAUSE=IDENTIFIED`: no staged `lib-dynload` directory.
 - `PYTHON312_EXTENSION_BASELINE=RECORDED`: `_random` was neither static nor
   installed dynamically in the minimal RC7 profile.
+- `XPR_BUILD_PROTOTYPE=IMPLEMENTED_PENDING_LEVEL0`: no target toolkit is
+  currently unpacked in this Windows workspace; level-0 needs the Linux build
+  host's source-built toolkit and a real external-style project.
 
 ## RESUME STATE
 
-- LAST_COMPLETED_PHASE=3
+- LAST_COMPLETED_PHASE=4
 - CURRENT_HEAD=5ae45ec1670bc21e99a5da9f536119acbf864ff3
 - HARDWARE_STATE=not touched during RC8 baseline
 - CURRENT_BLOCKER=none
-- NEXT_EXACT_ACTION=obtain the current source-built toolkit and CPython source on the Linux build host; run the corrected Python core build, then validate its exact package on the 5110P
+- NEXT_EXACT_ACTION=on the Linux build host, unpack/rebuild the current internal toolkit, run xpr-build against a level-0 autotools-style project, and inspect its K1OM ELF
 - IMPORTANT_PATHS=tools/host/xpr-init,tools/host/xpr-ssh-setup.py,tools/host/test-xpr-init-install.sh
 - IMPORTANT_HASHES=RC7 binary 6d69b98a20de83b67867cec21c69cf700edeb71fc8d62d92e2bcdf54ca01e89c
 - DO_NOT_REPEAT=RC7 release/publication audit; do not alter frozen RC7 assets or tag
