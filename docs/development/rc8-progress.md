@@ -30,14 +30,23 @@
 - A host-only `xpr-build` contract fixture now proves controlled environment,
   configure, make, inspection, and DESTDIR staging without substituting it for
   a K1OM compiler or card test.
+- The CentOS 7.4 / MPSS 3.4.10 host fixture passed with the current RC8
+  installer and helper pair. It verifies managed SSH-config installation,
+  stock-alias preservation, and exact managed-block removal on recovery.
+- A live 5110P RC7 deployment using the RC8 host helper reached
+  `FINAL_ROOT_READY`; both `ssh mic0` and `ssh xpr-mic0` authenticated to the
+  final XPR root without manual SSH options. Recovery restored the exact stock
+  `mic0.conf` baseline and left `mic0` online.
 
-## Blockers
+## Current Limits
 
-- `192.168.254.102:22` is reachable, but no current noninteractive SSH
-  identity is configured in this session. One owner-authorized, most-recent
-  historical credential attempt was rejected; no further credential attempts
-  were made. Linux-host fixture and 5110P validation remain pending a current
-  authorized access path.
+- The CentOS host lacks the `scp` client and its configured CentOS 7 package
+  repositories are unavailable, so the live alias check could not exercise
+  SCP. This is a host prerequisite limitation, not an `xpr-init` failure:
+  `ssh mic0` and `ssh xpr-mic0` both passed.
+- `xpr-build` has passed its controlled host fixture only. A real K1OM build
+  still requires reconstructing an unpacked source-built toolkit on a Linux
+  host; that work has not been substituted with a synthetic fixture.
 
 ## Validation Notes
 
@@ -52,15 +61,20 @@
 - `XPR_BUILD_PROTOTYPE=IMPLEMENTED_PENDING_LEVEL0`: no target toolkit is
   currently unpacked in this Windows workspace; level-0 needs the Linux build
   host's source-built toolkit and a real external-style project.
-- `RC8_HOST_ACCESS=BLOCKED_CURRENT_CREDENTIAL_REQUIRED`.
+- `RC8_HOST_FIXTURE=PASS`.
+- `RC8_MIC0_XPR_LOGIN=PASS`.
+- `RC8_XPR_MIC0_ALIAS=PASS`.
+- `RC8_MIC0_SCP=HOST_PREREQUISITE_MISSING`.
+- `RC8_MIC0_STOCK_RECOVERY=PASS`.
+- `STOCK_TRUST_PRESERVED=PASS`.
 
 ## RESUME STATE
 
 - LAST_COMPLETED_PHASE=4
-- CURRENT_HEAD=455660160fc9271ecc4d64075aaa58af9a694680
-- HARDWARE_STATE=not touched during RC8 development
-- CURRENT_BLOCKER=current authorized SSH access to the Linux/MPSS build host
-- NEXT_EXACT_ACTION=configure a current authorized SSH identity for 192.168.254.102, then run tools/host/test-xpr-init-install.sh and tests/xpr-build/run-level0.sh on that Linux host
+- CURRENT_HEAD=1850bf39b2f98fb10ab68bb2774e3ea9ca094c28
+- HARDWARE_STATE=stock MPSS recovered; mic0 online
+- CURRENT_BLOCKER=source-built standalone toolkit is not reconstructed on a Linux host for a real xpr-build level-0 test
+- NEXT_EXACT_ACTION=reconstruct the source-built toolkit from accounted inputs on a Linux host with sufficient disk, then run tests/xpr-build/run-level0.sh and transfer the resulting K1OM binary for 5110P validation
 - IMPORTANT_PATHS=tools/host/xpr-init,tools/host/xpr-ssh-setup.py,tools/host/test-xpr-init-install.sh
 - IMPORTANT_HASHES=RC7 binary 6d69b98a20de83b67867cec21c69cf700edeb71fc8d62d92e2bcdf54ca01e89c
 - DO_NOT_REPEAT=RC7 release/publication audit; do not alter frozen RC7 assets or tag
