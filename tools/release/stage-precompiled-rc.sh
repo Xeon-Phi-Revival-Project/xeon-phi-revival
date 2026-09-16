@@ -14,6 +14,7 @@ usage: stage-precompiled-rc.sh \
   --eglibc-orig FILE --eglibc-debian FILE \
   --gcc-source FILE --gmp-source FILE --mpfr-source FILE --mpc-source FILE \
   --python-source FILE \
+  [--python-source-sha256 SHA256] \
   [--repository-archive FILE] \
   --version VERSION [--revision REV] [--validation-status pending|passed] \
   [--audit-stage publication|candidate]
@@ -32,6 +33,7 @@ kernel_source="" module_source="" repository_archive="" out_dir=""
 busybox_source="" dropbear_source="" eglibc_orig="" eglibc_debian=""
 gcc_source="" gmp_source="" mpfr_source="" mpc_source=""
 python_source=""
+python_source_sha256=""
 validation_status="pending"
 audit_stage="publication"
 
@@ -54,6 +56,7 @@ while [[ $# -gt 0 ]]; do
     --mpfr-source) mpfr_source="${2:-}"; shift 2 ;;
     --mpc-source) mpc_source="${2:-}"; shift 2 ;;
     --python-source) python_source="${2:-}"; shift 2 ;;
+    --python-source-sha256) python_source_sha256="${2:-}"; shift 2 ;;
     --repository-archive) repository_archive="${2:-}"; shift 2 ;;
     --out-dir) out_dir="${2:-}"; shift 2 ;;
     --version) version="${2:-}"; shift 2 ;;
@@ -169,6 +172,12 @@ verify_hash gcc_source "$gcc_source"
 verify_hash gmp_source "$gmp_source"
 verify_hash mpfr_source "$mpfr_source"
 verify_hash mpc_source "$mpc_source"
+if [[ -n "$python_source_sha256" ]]; then
+  [[ "$python_source_sha256" =~ ^[0-9a-f]{64}$ ]] || {
+    echo "--python-source-sha256 must be a lowercase SHA-256" >&2; exit 2;
+  }
+  expected[python_source]="$python_source_sha256"
+fi
 verify_hash python_source "$python_source"
 for module in dma_module ringbuffer micscif mpssboot intel_micveth; do
   verify_hash "$module" "$modules_dir/$module.ko"

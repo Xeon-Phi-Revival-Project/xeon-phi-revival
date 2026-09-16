@@ -36,11 +36,21 @@ mkdir -p "$out/sysroot/usr/lib"
 cp -a "$root/lib64" "$out/sysroot/lib64"
 ln -s lib64 "$out/sysroot/lib"
 cp -a "$linux_headers"/. "$out/sysroot/usr/include"/
+# EGLIBC's target linker scripts retain absolute /lib and /usr/lib references.
+# Rewrite a private copy for this temporary helper-build sysroot so the host
+# linker never resolves those names against its own filesystem.
+for script in libc.so libpthread.so libdl.so libm.so libutil.so; do
+    [ -f "$linker_dir/$script" ] || continue
+    sed -e 's|/usr/lib/|@XPR_USR_LIB@|g' \
+        -e 's|/lib/|../../lib64/|g' \
+        -e 's|@XPR_USR_LIB@|./|g' \
+        "$linker_dir/$script" > "$out/sysroot/usr/lib/$script"
+done
 for object in libc_nonshared.a libpthread_nonshared.a; do
     [ -f "$linker_dir/$object" ] && cp "$linker_dir/$object" "$out/sysroot/usr/lib/$object"
 done
-common=("--sysroot=$out/sysroot" -isystem "$headers" -B"$crt_dir" -B"$libgcc_dir"
-        -L"$linker_dir" -L"$root/lib64" -Wl,--dynamic-linker=/lib64/ld-linux-k1om.so.2
+common=("--sysroot=$out/sysroot" -Wl,--sysroot="$out/sysroot" -isystem "$headers" -B"$crt_dir" -B"$libgcc_dir"
+        -L"$out/sysroot/usr/lib" -L"$linker_dir" -L"$root/lib64" -Wl,--dynamic-linker=/lib64/ld-linux-k1om.so.2
         -Wl,-rpath,/lib64 -Wl,--no-as-needed)
 "${cross_compile}gcc" "${common[@]}" -o "$out/xpr-hello" "$source_dir/xpr_hello.c" -lgcc_s
 "${cross_compile}gcc" "${common[@]}" -pthread -o "$out/xpr-pthread-smoke" "$source_dir/xpr_pthread_smoke.c" -lgcc_s
