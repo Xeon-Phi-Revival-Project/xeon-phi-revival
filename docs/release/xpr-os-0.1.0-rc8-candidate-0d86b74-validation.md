@@ -25,9 +25,15 @@ commands to use Dropbear's ECDSA option, `-E`.
 The corrected candidate was deployed on the established CentOS 7.4 / MPSS
 3.4.10 host with the Intel Xeon Phi 5110P at `mic0`. The strict host-key
 mismatch did not recur. The card then remained in MPSS `booting` state and
-never exposed bootstrap SSH during the bounded readiness window, so automatic
-handoff, final PID 1, network, SSH, native smoke programs, and Python were
-not claimed as passed for this candidate.
+never exposed bootstrap SSH during the bounded readiness window.
+
+Post-recovery comparison found the Base CPIO used the host's stock release
+directory (`2.6.38.8+mpss3.4.10`) instead of the source-built module vermagic
+and validated kernel-module directory (`2.6.38.8+mpss3.5.1`). The next
+candidate must use the latter. The Base CPIO builder now rejects a requested
+release that does not match every module's vermagic. Automatic handoff, final
+PID 1, network, SSH, native smoke programs, and Python are not claimed as
+passed for this candidate.
 
 ## Recovery
 

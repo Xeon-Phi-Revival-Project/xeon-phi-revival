@@ -45,6 +45,11 @@ for relative in "${modules[@]}"; do
   target="$stage/lib/modules/$kernel_release/extra/$relative"
   [[ -f "$source" ]] || { echo "missing module: $source" >&2; exit 4; }
   readelf -h "$source" | grep -q 'Machine:.*Intel K1OM' || { echo "not K1OM: $source" >&2; exit 4; }
+  module_release=$(modinfo -F vermagic "$source" 2>/dev/null | awk '{print $1}')
+  [[ "$module_release" == "$kernel_release" ]] || {
+    echo "module vermagic mismatch: $source has ${module_release:-unknown}, expected $kernel_release" >&2
+    exit 4
+  }
   install -m 0644 "$source" "$target"
 done
 cat > "$stage/lib/modules/$kernel_release/modules.dep" <<'EOF'
