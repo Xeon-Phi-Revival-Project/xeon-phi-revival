@@ -18,6 +18,12 @@ verified each module vermagic before packaging. Static staging completed the
 existing archive, source-policy, SPDX, license, generic-key-free payload, and
 prebuilt-image checks.
 
+A post-build extraction of this exact archive also passed its embedded
+`SHA256SUMS`, SPDX 2.3 release-coverage validator, and license-bundle
+validator. The corresponding-source archive contains the pinned kernel,
+module, BusyBox, Dropbear, eglibc, GCC/prerequisite, and Python source inputs
+alongside the tracked repository snapshot and build scripts.
+
 ## 5110P Validation
 
 The exact binary archive was deployed through `xpr-init` on the established
@@ -59,6 +65,12 @@ After recovery, `mic0` was online with the stock image; stock SSH reported
 ## Status
 
 `XPR_OS_RC8_CANDIDATE=TECHNICALLY_PASS`
+
+`RC8_SPDX_2_3_VALIDATION=PASS`
+
+`RC8_LICENSE_BUNDLE_VALIDATION=PASS`
+
+`RC8_ARCHIVE_CHECKSUM_VALIDATION=PASS`
 
 `TOOLKIT_RC8_INCLUSION=HOLD_HUMAN_REVIEW`
 

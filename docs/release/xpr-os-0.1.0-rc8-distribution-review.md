@@ -15,8 +15,10 @@ is not legal advice or publication authorization.
 | Private keys, passwords, and fixed authorization keys | Exclude | Generic-payload and secret audit |
 | Standalone XPR K1OM Toolkit binary | Exclude | Separate qualified-review hold |
 
-Candidate `fcb085f` provides hardware evidence in
+Candidate `fcb085f` provides hardware and sidecar evidence in
 [`xpr-os-0.1.0-rc8-candidate-fcb085f-validation.md`](xpr-os-0.1.0-rc8-candidate-fcb085f-validation.md).
-Its binary and corresponding-source hashes are recorded there. Publication
-still requires review of the exact candidate sidecars; this checkpoint does
-not itself authorize publication.
+Its binary and corresponding-source hashes are recorded there. Extraction of
+the exact candidate passed embedded checksum verification, SPDX 2.3
+release-coverage validation, and license-bundle validation. This engineering
+checkpoint does not itself authorize publication; an independent release
+review remains the appropriate next decision point.
