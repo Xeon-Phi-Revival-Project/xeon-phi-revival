@@ -39,7 +39,7 @@ mkdir -p /etc/dropbear
 # xpr-init provisions this deployment-specific host key into both roots. Do
 # not permit Dropbear to generate a different key: the host pins this key
 # before it uploads the final payload.
-/usr/sbin/dropbear -r /etc/dropbear/dropbear_ecdsa_host_key -F -p 22 >> /run/xpr-os-init 2>&1 &
+/usr/sbin/dropbear -E /etc/dropbear/dropbear_ecdsa_host_key -F -p 22 >> /run/xpr-os-init 2>&1 &
 dropbear_pid=$!
 printf 'dropbear_pid=%s\n' "$dropbear_pid" >> /run/xpr-os-init
 sleep 1

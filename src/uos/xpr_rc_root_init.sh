@@ -134,7 +134,7 @@ else
     # are not sufficient evidence that port 22 is reachable from the host.
     # The host strictly pins the deployment-specific key injected by xpr-init.
     # Requiring it prevents an accidental generated key from breaking handoff.
-    /usr/sbin/dropbear -r /etc/dropbear/dropbear_ecdsa_host_key -s -F -p 172.31.1.1:22 >> /run/xpr-os-init 2>&1 &
+    /usr/sbin/dropbear -E /etc/dropbear/dropbear_ecdsa_host_key -s -F -p 172.31.1.1:22 >> /run/xpr-os-init 2>&1 &
     dropbear_pid=$!
     printf 'dropbear_pid=%s\n' "$dropbear_pid" >> /run/xpr-os-init
     sleep 1
