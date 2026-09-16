@@ -17,17 +17,17 @@ with `python3` and `python` symlinks.
 
 ## Targeted Deployment Result
 
-The initial candidate exposed a strict SSH host-key mismatch. The cause was
-the Dropbear RSA host-key option being used with the deployment-provisioned
-ECDSA P-256 key. Commit `0d86b74` changes the bootstrap and final-root launch
-commands to use Dropbear's ECDSA option, `-E`.
+The initial candidate exposed a strict SSH host-key mismatch. A follow-up
+source inspection established that Dropbear 2022.83 uses `-r` as its generic,
+repeatable host-key option, including ECDSA files. An intervening `-E` attempt
+was invalid for this Dropbear build and is not a valid fix.
 
 The corrected candidate was deployed on the established CentOS 7.4 / MPSS
 3.4.10 host with the Intel Xeon Phi 5110P at `mic0`. The strict host-key
 mismatch did not recur. The card then remained in MPSS `booting` state and
 never exposed bootstrap SSH during the bounded readiness window.
 
-Post-recovery comparison found the Base CPIO used the host's stock release
+Post-recovery comparison also found the Base CPIO used the host's stock release
 directory (`2.6.38.8+mpss3.4.10`) instead of the source-built module vermagic
 and validated kernel-module directory (`2.6.38.8+mpss3.5.1`). The next
 candidate must use the latter. The Base CPIO builder now rejects a requested
