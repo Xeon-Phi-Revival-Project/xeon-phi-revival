@@ -74,9 +74,11 @@
 - `EXEC_PREFIX_ROOT_CAUSE=IDENTIFIED`: no staged `lib-dynload` directory.
 - `PYTHON312_EXTENSION_BASELINE=RECORDED`: `_random` was neither static nor
   installed dynamically in the minimal RC7 profile.
-- `XPR_BUILD_PROTOTYPE=IMPLEMENTED_PENDING_LEVEL0`: no target toolkit is
-  currently unpacked in this Windows workspace; level-0 needs the Linux build
-  host's source-built toolkit and a real external-style project.
+- `XPR_BUILD_LEVEL0_CANDIDATE=HOST_PASS`: the current source snapshot built an
+  external-style level-0 project on the Linux build host with the internal
+  source-built K1OM toolkit. Its SHA-256 is
+  `aac4e3b8b72b7009901c4e41ebf8fbf586d4700e1422c8b915f1cb9f98d97e13`;
+  `xpr-validate` reported Intel K1OM and the XPR dynamic loader.
 - `RC8_HOST_FIXTURE=PASS`.
 - `RC8_MIC0_XPR_LOGIN=PASS`.
 - `RC8_XPR_MIC0_ALIAS=PASS`.
