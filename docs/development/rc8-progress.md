@@ -37,6 +37,16 @@
   `FINAL_ROOT_READY`; both `ssh mic0` and `ssh xpr-mic0` authenticated to the
   final XPR root without manual SSH options. Recovery restored the exact stock
   `mic0.conf` baseline and left `mic0` online.
+- The internal toolchain was rebuilt from the accounted KNC binutils, GCC,
+  eglibc, and libgcc sources. The init/fini regression fixture passed as K1OM.
+  A packaging defect in the GCC fixed-header composition was corrected so the
+  staged target `limits.h` reports `MB_LEN_MAX=16` while retaining GCC's fixed
+  definitions.
+- The real level-zero external project built with the reconstructed toolkit.
+  Its K1OM executable and `DESTDIR` staged copy both hash to
+  `aac4e3b8b72b7009901c4e41ebf8fbf586d4700e1422c8b915f1cb9f98d97e13`.
+- `xpr-init --install` was exercised from its installed path. It now avoids
+  copying `xpr-ssh-setup.py` onto itself when the helper is already installed.
 
 ## Current Limits
 
@@ -45,8 +55,14 @@
   SCP. This is a host prerequisite limitation, not an `xpr-init` failure:
   `ssh mic0` and `ssh xpr-mic0` both passed.
 - `xpr-build` has passed its controlled host fixture only. A real K1OM build
-  still requires reconstructing an unpacked source-built toolkit on a Linux
-  host; that work has not been substituted with a synthetic fixture.
+  and a real level-zero K1OM build have passed; card execution remains blocked
+  by the current bootstrap SSH host-key mismatch below.
+- The September 15 bounded hardware cycle reached `BOOTSTRAP_READY`, but the
+  automatic handoff rejected the bootstrap server under strict host-key
+  checking. The observed ECDSA fingerprint did not match the deployment key
+  recorded in `/var/lib/xpr-init/ssh/mic0/known_hosts`. This occurs before
+  payload transfer and before `xpr-stage-root`; it is an `xpr-init` deployment
+  key-provisioning/bootstrapping defect, not a level-zero binary result.
 
 ## Validation Notes
 
@@ -66,15 +82,21 @@
 - `RC8_XPR_MIC0_ALIAS=PASS`.
 - `RC8_MIC0_SCP=HOST_PREREQUISITE_MISSING`.
 - `RC8_MIC0_STOCK_RECOVERY=PASS`.
+- `TOOLKIT_WRAPPER_FIX=PASS`.
+- `EGLIBC_INITFINI_DETECTION=PASS`.
+- `XPR_BUILD_LEVEL0_CONFIGURE=PASS`.
+- `XPR_BUILD_LEVEL0_BUILD=PASS`.
+- `XPR_BUILD_LEVEL0_K1OM=PASS`.
+- `RC8_XPR_BOOTSTRAP_HOST_KEY=FAIL`.
 - `STOCK_TRUST_PRESERVED=PASS`.
 
 ## RESUME STATE
 
-- LAST_COMPLETED_PHASE=4
-- CURRENT_HEAD=1850bf39b2f98fb10ab68bb2774e3ea9ca094c28
+- LAST_COMPLETED_PHASE=5
+- CURRENT_HEAD=WORKTREE_PENDING_COMMIT
 - HARDWARE_STATE=stock MPSS recovered; mic0 online
-- CURRENT_BLOCKER=source-built standalone toolkit is not reconstructed on a Linux host for a real xpr-build level-0 test
-- NEXT_EXACT_ACTION=reconstruct the source-built toolkit from accounted inputs on a Linux host with sufficient disk, then run tests/xpr-build/run-level0.sh and transfer the resulting K1OM binary for 5110P validation
+- CURRENT_BLOCKER=bootstrap Dropbear presents an ECDSA key different from the deployment-specific key strictly pinned by xpr-init
+- NEXT_EXACT_ACTION=inspect the deployed bootstrap archive and Dropbear host-key selection, repair the source-controlled provisioning contract, then repeat one rollback-protected handoff and level-zero execution test
 - IMPORTANT_PATHS=tools/host/xpr-init,tools/host/xpr-ssh-setup.py,tools/host/test-xpr-init-install.sh
 - IMPORTANT_HASHES=RC7 binary 6d69b98a20de83b67867cec21c69cf700edeb71fc8d62d92e2bcdf54ca01e89c
 - DO_NOT_REPEAT=RC7 release/publication audit; do not alter frozen RC7 assets or tag

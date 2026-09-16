@@ -438,7 +438,11 @@ install_xpr() {
   if [[ "$self" != "$bin_dir/xpr-init" ]]; then
     install -D -m 755 "$self" "$bin_dir/xpr-init"
   fi
-  install -m 755 "$(ssh_setup_helper)" "$bin_dir/xpr-ssh-setup.py"
+  local helper
+  helper=$(ssh_setup_helper)
+  if [[ "$(readlink -f "$helper")" != "$(readlink -f "$bin_dir/xpr-ssh-setup.py")" ]]; then
+    install -m 755 "$helper" "$bin_dir/xpr-ssh-setup.py"
+  fi
   if [[ "$sudo_bin_dir" != "$bin_dir" ]]; then
     install -d -m 755 "$sudo_bin_dir"
     ln -sfn "$bin_dir/xpr-init" "$sudo_bin_dir/xpr-init"

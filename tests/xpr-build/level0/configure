@@ -2,6 +2,7 @@
 set -euo pipefail
 
 prefix=/usr
+source_dir=$(CDPATH= cd -- "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 for arg in "$@"; do
   case "$arg" in
     --prefix=*) prefix=${arg#--prefix=} ;;
@@ -18,8 +19,8 @@ PREFIX = $prefix
 
 all: xpr-build-level0
 
-xpr-build-level0: $PWD/hello.c
-	\$(CC) \$(CFLAGS) $PWD/hello.c -o \$@
+xpr-build-level0: $source_dir/hello.c
+	\$(CC) \$(CFLAGS) $source_dir/hello.c -o \$@
 
 install: xpr-build-level0
 	install -d \$(DESTDIR)\$(PREFIX)/bin

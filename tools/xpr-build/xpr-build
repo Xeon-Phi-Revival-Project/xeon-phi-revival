@@ -80,11 +80,19 @@ case "$command" in
     mkdir -p "$build"
     build=$(cd "$build" && pwd)
     cd "$build"
-    "$source/configure" --build="$BUILD" --host="$HOST" --prefix=/usr "${trailing[@]}"
+    if [[ ${#trailing[@]} -gt 0 ]]; then
+      "$source/configure" --build="$BUILD" --host="$HOST" --prefix=/usr "${trailing[@]}"
+    else
+      "$source/configure" --build="$BUILD" --host="$HOST" --prefix=/usr
+    fi
     ;;
   make)
     [[ -d "$build" ]] || die "make requires --build"
-    make -C "$build" -j"$jobs" "${trailing[@]}"
+    if [[ ${#trailing[@]} -gt 0 ]]; then
+      make -C "$build" -j"$jobs" "${trailing[@]}"
+    else
+      make -C "$build" -j"$jobs"
+    fi
     ;;
   stage)
     [[ -d "$build" && -n "$destdir" ]] || die "stage requires --build and --destdir"

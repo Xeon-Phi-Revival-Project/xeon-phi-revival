@@ -97,11 +97,28 @@ ln -sf libgcc_s.so.1 "$root/sysroot/lib64/libgcc_s.so"
 cp -a "$libgcc_support/." "$root/lib/gcc/k1om-mpss-linux/5.1.1/"
 
 # GCC was initially installed before the target libc existed. Regenerate its
-# fixed headers now that the source-built eglibc sysroot is present, otherwise
-# bootstrap fallbacks such as MB_LEN_MAX=1 override eglibc's target values.
+# fixed headers now that the source-built eglibc sysroot is present.
 mkheaders="$root/libexec/gcc/k1om-mpss-linux/5.1.1/install-tools/mkheaders"
 [[ -x "$mkheaders" ]] || { echo "missing GCC mkheaders tool" >&2; exit 1; }
 "$mkheaders" "$root" "$root/sysroot"
+
+# The KNC GCC fork retains a bootstrap limits.h which does not include the
+# target libc limits.h.  Preserve that compiler header under a local name, then
+# make the active fixed header start with the staged EGLIBC definition and
+# explicitly chain to the saved GCC limits definitions.
+fixed_dir="$root/lib/gcc/k1om-mpss-linux/5.1.1/include-fixed"
+target_limits="$root/sysroot/usr/include/limits.h"
+[[ -f "$fixed_dir/limits.h" && -f "$target_limits" ]] || {
+    echo "missing GCC or EGLIBC limits header" >&2
+    exit 1
+}
+install -m 0644 "$fixed_dir/limits.h" "$fixed_dir/gcc-limits.h"
+install -m 0644 "$target_limits" "$fixed_dir/limits.h"
+sed -i 's|# include_next <limits.h>|# include "gcc-limits.h"|' "$fixed_dir/limits.h"
+grep -F '# include "gcc-limits.h"' "$fixed_dir/limits.h" >/dev/null || {
+    echo "failed to compose K1OM limits headers" >&2
+    exit 1
+}
 
 for tool in gcc cpp as ld ar ranlib nm objdump objcopy readelf strip; do
     cat > "$root/bin/xpr-$tool" <<'EOF'
