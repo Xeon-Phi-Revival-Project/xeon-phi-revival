@@ -15,5 +15,8 @@ is not legal advice or publication authorization.
 | Private keys, passwords, and fixed authorization keys | Exclude | Generic-payload and secret audit |
 | Standalone XPR K1OM Toolkit binary | Exclude | Separate qualified-review hold |
 
-The final binary/source hashes, SPDX result, notices, and hardware result must
-be attached as external evidence before publication is considered.
+Candidate `fcb085f` provides hardware evidence in
+[`xpr-os-0.1.0-rc8-candidate-fcb085f-validation.md`](xpr-os-0.1.0-rc8-candidate-fcb085f-validation.md).
+Its binary and corresponding-source hashes are recorded there. Publication
+still requires review of the exact candidate sidecars; this checkpoint does
+not itself authorize publication.

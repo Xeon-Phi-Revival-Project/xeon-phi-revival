@@ -87,16 +87,16 @@
 - `XPR_BUILD_LEVEL0_CONFIGURE=PASS`.
 - `XPR_BUILD_LEVEL0_BUILD=PASS`.
 - `XPR_BUILD_LEVEL0_K1OM=PASS`.
-- `RC8_XPR_BOOTSTRAP_HOST_KEY=FAIL`.
+- `RC8_XPR_BOOTSTRAP_HOST_KEY=PASS` on the corrected `fcb085f` candidate.
 - `STOCK_TRUST_PRESERVED=PASS`.
 
 ## RESUME STATE
 
-- LAST_COMPLETED_PHASE=5
-- CURRENT_HEAD=WORKTREE_PENDING_COMMIT
+- LAST_COMPLETED_PHASE=RC8 hardware candidate validation
+- CURRENT_HEAD=fcb085f plus validation evidence pending commit
 - HARDWARE_STATE=stock MPSS recovered; mic0 online
-- CURRENT_BLOCKER=bootstrap Dropbear presents an ECDSA key different from the deployment-specific key strictly pinned by xpr-init
-- NEXT_EXACT_ACTION=inspect the deployed bootstrap archive and Dropbear host-key selection, repair the source-controlled provisioning contract, then repeat one rollback-protected handoff and level-zero execution test
+- CURRENT_BLOCKER=release-sidecar review remains before any publication decision
+- NEXT_EXACT_ACTION=perform a release-engineering review of the immutable fcb085f candidate; do not rebuild or retest it without a concrete defect
 - IMPORTANT_PATHS=tools/host/xpr-init,tools/host/xpr-ssh-setup.py,tools/host/test-xpr-init-install.sh
 - IMPORTANT_HASHES=RC7 binary 6d69b98a20de83b67867cec21c69cf700edeb71fc8d62d92e2bcdf54ca01e89c
 - DO_NOT_REPEAT=RC7 release/publication audit; do not alter frozen RC7 assets or tag
