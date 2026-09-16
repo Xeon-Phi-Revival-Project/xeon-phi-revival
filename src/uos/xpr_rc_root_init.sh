@@ -132,7 +132,9 @@ if test -x /usr/bin/xpr-port22-probe; then
 else
     # Bind explicitly to the MPSS virtual IPv4 address. Legacy Dropbear defaults
     # are not sufficient evidence that port 22 is reachable from the host.
-    /usr/sbin/dropbear -R -s -F -p 172.31.1.1:22 >> /run/xpr-os-init 2>&1 &
+    # The host strictly pins the deployment-specific key injected by xpr-init.
+    # Requiring it prevents an accidental generated key from breaking handoff.
+    /usr/sbin/dropbear -r /etc/dropbear/dropbear_ecdsa_host_key -s -F -p 172.31.1.1:22 >> /run/xpr-os-init 2>&1 &
     dropbear_pid=$!
     printf 'dropbear_pid=%s\n' "$dropbear_pid" >> /run/xpr-os-init
     sleep 1
