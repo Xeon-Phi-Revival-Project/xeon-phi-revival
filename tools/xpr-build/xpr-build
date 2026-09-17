@@ -6,7 +6,7 @@ usage() {
   cat <<'EOF'
 usage:
   xpr-build env --toolkit DIR [--prefix DIR] [-- COMMAND...]
-  xpr-build configure --toolkit DIR --source DIR --build DIR [--prefix DIR] [-- CONFIGURE_ARGS...]
+  xpr-build configure --toolkit DIR --source DIR --build DIR [--prefix DIR] [--configure-style autoconf|plain] [-- CONFIGURE_ARGS...]
   xpr-build make --toolkit DIR --build DIR [--jobs N] [-- TARGET...]
   xpr-build stage --toolkit DIR --build DIR --destdir DIR [--jobs N] [-- TARGET...]
   xpr-build inspect --toolkit DIR BINARY
@@ -21,7 +21,7 @@ die() { echo "xpr-build: $*" >&2; exit 1; }
 command=${1:-}
 [[ -n "$command" ]] || { usage >&2; exit 2; }
 shift
-toolkit= source= build= destdir= prefix= jobs=2
+toolkit= source= build= destdir= prefix= jobs=2 configure_style=autoconf
 declare -a trailing=()
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -30,6 +30,7 @@ while [[ $# -gt 0 ]]; do
     --build) build=${2:?}; shift 2 ;;
     --destdir) destdir=${2:?}; shift 2 ;;
     --prefix) prefix=${2:?}; shift 2 ;;
+    --configure-style) configure_style=${2:?}; shift 2 ;;
     --jobs) jobs=${2:?}; shift 2 ;;
     --) shift; trailing=("$@"); break ;;
     *) trailing+=("$1"); shift ;;
@@ -75,12 +76,15 @@ case "$command" in
     ;;
   configure)
     [[ -d "$source" && -n "$build" ]] || die "configure requires --source and --build"
+    [[ "$configure_style" == autoconf || "$configure_style" == plain ]] || die "invalid --configure-style"
     source=$(cd "$source" && pwd)
     [[ -x "$source/configure" ]] || die "source lacks an executable configure script"
     mkdir -p "$build"
     build=$(cd "$build" && pwd)
     cd "$build"
-    if [[ ${#trailing[@]} -gt 0 ]]; then
+    if [[ "$configure_style" == plain ]]; then
+      "$source/configure" --prefix=/usr "${trailing[@]}"
+    elif [[ ${#trailing[@]} -gt 0 ]]; then
       "$source/configure" --build="$BUILD" --host="$HOST" --prefix=/usr "${trailing[@]}"
     else
       "$source/configure" --build="$BUILD" --host="$HOST" --prefix=/usr

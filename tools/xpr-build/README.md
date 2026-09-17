@@ -19,3 +19,8 @@ tools/xpr-build/xpr-build stage --toolkit /path/to/xpr-k1om-toolkit --build buil
 
 Use `inspect` on produced target executables before card transfer. Packages
 and recipes are introduced only after the level-0 build proves this interface.
+
+`configure` defaults to the normal Autoconf build/host invocation. Use
+`--configure-style plain` only for an upstream project with a non-Autoconf
+`configure` implementation, such as zlib; the controlled compiler, sysroot,
+and pkg-config environment remain unchanged.
