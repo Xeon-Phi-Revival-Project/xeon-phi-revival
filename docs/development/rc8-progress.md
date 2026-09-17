@@ -79,6 +79,11 @@
   source-built K1OM toolkit. Its SHA-256 is
   `aac4e3b8b72b7009901c4e41ebf8fbf586d4700e1422c8b915f1cb9f98d97e13`;
   `xpr-validate` reported Intel K1OM and the XPR dynamic loader.
+- `XPR_BUILD_LEVEL0_5110P=PASS`: that exact binary was streamed over the
+  validated SSH path to the immutable RC8 candidate, matched its host SHA-256
+  on-card, and printed `xpr-build level-0 K1OM program`. `scp` is absent from
+  the intentionally minimal root, so the documented-compatible SSH stream
+  transfer was used. Recovery then restored the exact stock MPSS hash.
 - `RC8_HOST_FIXTURE=PASS`.
 - `RC8_MIC0_XPR_LOGIN=PASS`.
 - `RC8_XPR_MIC0_ALIAS=PASS`.
