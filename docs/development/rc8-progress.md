@@ -88,7 +88,9 @@
   through the `xpr-build` plain-configure mode as `libz.a`; the K1OM smoke
   executable SHA-256 `29b349b7df5dcee805414824fbcbc01a2045a0fd90489aeca8a94f956f4c1f1a`
   matched on the 5110P and printed `zlib version=1.3 result=knc zlib smoke`.
-  Recovery restored the exact stock MPSS hash.
+  `xpr-build stage` also produced the expected isolated `usr/lib/libz.a`,
+  headers, pkg-config metadata, and manpage. Recovery restored the exact stock
+  MPSS hash.
 - `RC8_HOST_FIXTURE=PASS`.
 - `RC8_MIC0_XPR_LOGIN=PASS`.
 - `RC8_XPR_MIC0_ALIAS=PASS`.
